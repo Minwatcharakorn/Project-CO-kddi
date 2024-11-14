@@ -60,6 +60,24 @@ body {
     position: fixed; /* Fix the sidebar on the left */
     height: 100%;
 }
+/* ลบเส้นขอบและเงาออกจากเมนู Sidebar */
+.sidebar {
+    border: none;
+    box-shadow: none;
+}
+
+/* ลบเส้นขอบออกจากรายการเมนู */
+.sidebar-menu .sidebar-item {
+    border: none;
+    box-shadow: none;
+}
+
+/* ปรับสไตล์การแสดงผลของลิงก์ใน Sidebar ให้ไม่มีเส้นขอบ */
+.sidebar-item a {
+    text-decoration: none; /* ลบขีดเส้นใต้ */
+    border: none;          /* ลบเส้นขอบ */
+}
+
 
 .sidebar-menu {
     list-style: none;
@@ -79,7 +97,7 @@ body {
 
 .sidebar-item.active,
 .sidebar-item:hover {
-    background-color: #343a46;
+    background-color: #749ae6;
 }
 
 /* Nested Menu Items (Submenu) */
