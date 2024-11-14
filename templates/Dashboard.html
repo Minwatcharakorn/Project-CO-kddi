@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <div class="top-nav">
+        <div class="nav-logo">
+            <span>🔹 Cisco Automation</span>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="home.html"><span>🏠</span> Home</a>
+            </li>
+            <li class="sidebar-item active">
+                <a href="dashboard.html"><span>🖥️</span> Dashboard</a>
+            </li>
+            <li class="sidebar-item">
+                <span>⚙️</span> Configuration
+            </li>
+            <li class="sidebar-item">
+                <span>🔧</span> Templates
+            </li>
+            <li class="sidebar-item">
+                <span>📊</span> Reports
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="content-header">
+            <h2>Devices</h2>
+        </div>
+
+        <div class="content-body">
+            <div class="table-container">
+                <!-- Table with data similar to the Cisco vManage interface -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Chassis Number</th>
+                            <th>Serial No./Token</th>
+                            <th>Hostname</th>
+                            <th>IP</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CSR-446db3a4-ba82-4ea0...</td>
+                            <td>2B8ADCEB</td>
+                            <td>CSR_cEdge_1a</td>
+                            <td>
+                                192.168.1.254
+                            </td>
+                            <td>
+                                <a href="info.html" class="info-icon" title="Show Device Info and Port Details">
+                                    <span>📄</span> <!-- Icon for "show details" -->
+                                </a>
+                            </td>
+                        </tr>
+                        <!-- More rows as needed -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
