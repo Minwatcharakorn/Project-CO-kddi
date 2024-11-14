@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switch Management Dashboard</title>
+    <link rel="stylesheet" href="../static/Templates.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <div class="top-nav">
+        <div class="nav-logo">
+            <span>🔹 Cisco Automation</span>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item active">
+                <span>🖥️</span> Dashboard
+            </li>
+            <li class="sidebar-item">
+                <span>⚙️</span> Configuration
+            </li>
+            <li class="sidebar-item">
+                <span>🔧</span> Templates
+            </li>
+            <li class="sidebar-item">
+                <span>📊</span> --
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="content-header">
+            <h2>Devices <span class="tab-divider">|</span> Templates</h2>
+        </div>
+
+        <div class="content-body">
+            <div class="template-container">
+                <button class="upload-button">Upload Template</button>
+                <div class="command-box">
+                    <pre>enable
+config t
+show run
+........
+........</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
