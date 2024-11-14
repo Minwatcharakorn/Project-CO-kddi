@@ -3,22 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ชื่อหน้า</title>
     <link rel="stylesheet" href="../static/styles.css">
+    <title>Cisco Switch Port Status</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f7;
+            display: flex;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .switch-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 100%; /* Reduce width to accommodate sidebar */
+            width: 100%;
+        }
+
+        .switch-image {
+            position: relative;
+            background-size: contain;
+            background-repeat: no-repeat;
+            width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .port-layout {
+            position: relative;
+            top: 20px;
+            left: 0;
+            right: 0;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(24, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .port {
+            width: 25px;
+            height: 25px;
+            background-color: #d3d3d3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .port.active {
+            background-color: #32CD32; /* Green color for active ports */
+            color: #FFF;
+        }
+
+        .device-info {
+            margin-top: 15px;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
     <!-- Sidebar -->
-    <div id="sidebar-container"></div>
-    <!-- Main Content -->
-    <div class="content">
-        
-        <!-- เนื้อหาสำหรับแต่ละหน้า -->
-    </div>
+    <div id="sidebar-container" style="position: fixed; left: 0; top: 0; height: 100vh; width: 250px; background-color: #2c3e50; z-index: 10;"></div>
+    
     <script>
         // โหลดไฟล์ HTML ของ Sidebar เข้าไปใน #sidebar-container
         fetch('sidebar.html')
             .then(response => response.text())
             .then(data => document.getElementById("sidebar-container").innerHTML = data);
     </script>
+    <div class="switch-container" style="margin-left: 260px;">
+        <!-- Switch Image with Port Overlay -->
+        <div class="switch-image">
+            <div class="port-layout">
+                <!-- First Row of 1G Ports -->
+                <div class="port active">01<br><span>1G</span></div>
+                <div class="port">02<br><span>1G</span></div>
+                <div class="port active">03<br><span>1G</span></div>
+                <div class="port">04<br><span>1G</span></div>
+                <div class="port">05<br><span>1G</span></div>
+                <div class="port">06<br><span>1G</span></div>
+                <div class="port">07<br><span>1G</span></div>
+                <div class="port">08<br><span>1G</span></div>
+                <div class="port">09<br><span>1G</span></div>
+                <div class="port">10<br><span>1G</span></div>
+                <div class="port">11<br><span>1G</span></div>
+                <div class="port">12<br><span>1G</span></div>
+                <div class="port">13<br><span>1G</span></div>
+                <div class="port">14<br><span>1G</span></div>
+                <div class="port">15<br><span>1G</span></div>
+                <div class="port">16<br><span>1G</span></div>
+                <div class="port">17<br><span>1G</span></div>
+                <div class="port">18<br><span>1G</span></div>
+                <div class="port">19<br><span>1G</span></div>
+                <div class="port">20<br><span>1G</span></div>
+                <div class="port">21<br><span>1G</span></div>
+                <div class="port">22<br><span>1G</span></div>
+                <div class="port">23<br><span>1G</span></div>
+                <div class="port active">24<br><span>1G</span></div>
+                <div class="port">25<br><span>1G</span></div>
+                <div class="port">26<br><span>1G</span></div>
+                <div class="port">27<br><span>1G</span></div>
+                <div class="port">28<br><span>1G</span></div>
+                <div class="port">29<br><span>1G</span></div>
+                <div class="port">30<br><span>1G</span></div>
+                <div class="port">31<br><span>1G</span></div>
+                <div class="port">32<br><span>1G</span></div>
+                <div class="port">33<br><span>1G</span></div>
+                <div class="port">34<br><span>1G</span></div>
+                <div class="port">35<br><span>1G</span></div>
+                <div class="port">36<br><span>1G</span></div>
+                <div class="port">37<br><span>1G</span></div>
+                <div class="port">38<br><span>1G</span></div>
+                <div class="port">39<br><span>1G</span></div>
+                <div class="port">40<br><span>1G</span></div>
+                <div class="port">41<br><span>1G</span></div>
+                <div class="port">42<br><span>1G</span></div>
+                <div class="port">43<br><span>1G</span></div>
+                <div class="port">44<br><span>1G</span></div>
+                <div class="port">45<br><span>1G</span></div>
+                <div class="port">46<br><span>1G</span></div>
+                <div class="port">47<br><span>1G</span></div>
+                <div class="port active">48<br><span>1G</span></div>
+            </div>
+        </div>
+
+        <!-- Device Info -->
+        <div class="device-info">
+            Host Name: BR-1_RTP5<br>
+            MAC Address: 247e.1293.8880
+        </div>
+    </div>
 </body>
 </html>
