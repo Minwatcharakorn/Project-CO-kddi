@@ -1,1 +1,32 @@
-test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ชื่อหน้า</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+    <!-- แถบนำทางด้านบน -->
+    <div class="top-nav">
+        <div class="nav-logo">
+            <span>🔹 Cisco Automation</span>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- เนื้อหาสำหรับแต่ละหน้า -->
+    </div>
+
+    <script>
+        // โหลดไฟล์ HTML ของ Sidebar เข้าไปใน #sidebar-container
+        fetch('sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById("sidebar-container").innerHTML = data);
+    </script>
+</body>
+</html>
