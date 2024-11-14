@@ -7,34 +7,16 @@
     <link rel="stylesheet" href="../static/styles.css">
 </head>
 <body>
-    <!-- Top Navigation Bar -->
-    <div class="top-nav">
-        <div class="nav-logo">
-            <span>🔹 Cisco Automation</span>
-        </div>
-    </div>
-
     <!-- Sidebar -->
-    <div class="sidebar">
-        <ul class="sidebar-menu">
-            <li class="sidebar-item active">
-                <a href="index.html"><span>🏠</span> Home</a>
-            </li>
-            <li class="sidebar-item">
-                <a href="dashboard.html"><span>🖥️</span> Dashboard</a>
-            </li>
-            <li class="sidebar-item">
-                <span>⚙️</span> Configuration
-            </li>
-            <li class="sidebar-item">
-                <span>🔧</span> Templates
-            </li>
-            <li class="sidebar-item">
-                <span>📊</span> Reports
-            </li>
-        </ul>
-    </div>
-
+    <div id="sidebar-container"></div>
+    
+    <script>
+        // โหลดไฟล์ HTML ของ Sidebar เข้าไปใน #sidebar-container
+        fetch('sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById("sidebar-container").innerHTML = data);
+    </script>
+    
     <!-- Main Content -->
     <div class="content">
         <div class="content-header">
