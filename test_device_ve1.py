@@ -3,7 +3,7 @@ import asyncssh
 import sys
 from flask import Flask, render_template, request
 
-##### เลือกอุปกรณ์และ config #####
+##### ใช้ ip เลือกอุปกรณ์และ config #####
 # รายละเอียดอุปกรณ์ที่ต้องการเชื่อมต่อ
 switches = [
     {"host": "192.168.100.112", "username": "admin", "password": "password123"},
