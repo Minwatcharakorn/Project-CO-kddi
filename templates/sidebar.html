@@ -6,20 +6,49 @@
 <!-- sidebar.html -->
 <div class="sidebar">
     <ul class="sidebar-menu">
-        <li class="sidebar-item">
-            <a href="home.html"><span>🏠</span> Home</a>
+        <a href="home.html" class="sidebar-item">
+            <li>
+                <span>🏠</span> Home
+            </li>
+        </a>
+        <a href="dashboard.html" class="sidebar-item">
+            <li>
+                <span>🖥️</span> Dashboard
+            </li>
+        </a>
+        <li class="sidebar-item has-submenu">
+            <a href="configuration.html">
+                <span>⚙️</span> Configuration
+            </a>
+            <ul class="submenu">
+                <li><a href="config-sw-mode.html">Switch Mode</a></li>
+                <li><a href="config-ip-address.html">IP Address</a></li>
+            </ul>
         </li>
-        <li class="sidebar-item">
-            <a href="dashboard.html"><span>🖥️</span> Dashboard</a>
-        </li>
-        <li class="sidebar-item">
-            <a href="configuration.html"><span>⚙️</span> Configuration</a>
-        </li>
-        <li class="sidebar-item">
-            <a href="templates.html"><span>🔧</span> Templates</a>
-        </li>
-        <li class="sidebar-item">
-            <a href="reports.html"><span>📊</span> Reports</a>
-        </li>
+        <a href="templates.html" class="sidebar-item">
+            <li>
+                <span>🔧</span> Templates
+            </li>
+        </a>
+        <a href="reports.html" class="sidebar-item">
+            <li>
+                <span>📊</span> Reports
+            </li>
+        </a>
     </ul>
 </div>
+
+
+<script>
+    const toggleButton = document.getElementById("toggle-sidebar");
+    const sidebar = document.getElementById("sidebar-container");
+
+    toggleButton.addEventListener("click", () => {
+        sidebar.style.display = sidebar.style.display === "none" ? "block" : "none";
+    });
+
+    // Default to hide sidebar on small screens
+    if (window.innerWidth <= 576) {
+        sidebar.style.display = "none";
+    }
+</script>

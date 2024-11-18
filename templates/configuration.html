@@ -57,22 +57,15 @@
 </head>
 <body>
     <!-- Sidebar -->
-    <div id="sidebar-container">
-        <h2>Navigation</h2>
-        <a href="#"><i class="fas fa-home"></i> Home</a>
-        <a href="#basic-config"><i class="fas fa-cogs"></i> Basic Configuration</a>
-        <a href="#vlan-management"><i class="fas fa-network-wired"></i> VLAN Management</a>
-        <a href="#port-management"><i class="fas fa-plug"></i> Port Management</a>
-        <a href="#access-control"><i class="fas fa-lock"></i> Access Control</a>
-        <a href="#backup-restore"><i class="fas fa-database"></i> Backup and Restore</a>
-    </div>
+    <div id="sidebar-container"></div>
     
     <script>
-        // Load Sidebar HTML into #sidebar-container
+        // โหลดไฟล์ HTML ของ Sidebar เข้าไปใน #sidebar-container
         fetch('sidebar.html')
             .then(response => response.text())
             .then(data => document.getElementById("sidebar-container").innerHTML = data);
     </script>
+
     
     <!-- Main Content -->
     <div class="content">
