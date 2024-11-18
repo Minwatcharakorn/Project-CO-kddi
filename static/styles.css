@@ -51,13 +51,11 @@ body {
 
 /* Sidebar */
 .sidebar {
-    width: 250px;
-    background-color: #1a1c23;
+    background-color: #2a3b4c; /* Darker modern color */
     color: #fff;
-    display: flex;
-    flex-direction: column;
-    padding-top: 60px; /* Space for top nav */
-    position: fixed; /* Fix the sidebar on the left */
+    width: 250px;
+    padding-top: 60px;
+    position: fixed;
     height: 100%;
 }
 /* ลบเส้นขอบและเงาออกจากเมนู Sidebar */
@@ -72,12 +70,29 @@ body {
     box-shadow: none;
 }
 
-/* ปรับสไตล์การแสดงผลของลิงก์ใน Sidebar ให้ไม่มีเส้นขอบ */
-.sidebar-item a {
-    text-decoration: none; /* ลบขีดเส้นใต้ */
-    border: none;          /* ลบเส้นขอบ */
+.sidebar-menu {
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    font-size: 1rem;
+    color: #d1d5db;
+    transition: background-color 0.3s;
+}
+
+/* ปรับสไตล์การแสดงผลของลิงก์ใน Sidebar ให้ไม่มีเส้นขอบ */
+.sidebar-item a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+}
 /* เปลี่ยนสีตัวอักษรของลิงก์ใน Sidebar */
 .sidebar-item a {
     color: #FFFFFF; /* เปลี่ยนสีตัวอักษรเป็นสีขาวหรือสีที่ต้องการ */
@@ -92,7 +107,6 @@ body {
 .sidebar-item a:hover {
     color: #00BFFF; /* เปลี่ยนสีเมื่อโฮเวอร์ เช่น สีฟ้าสว่าง */
 }
-
 
 .sidebar-menu {
     list-style: none;
@@ -113,6 +127,18 @@ body {
 .sidebar-item.active,
 .sidebar-item:hover {
     background-color: #749ae6;
+    cursor: pointer;
+}
+
+.sidebar-item.active {
+    background-color: #506a86;
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
 }
 
 /* Nested Menu Items (Submenu) */
@@ -159,6 +185,7 @@ body {
     flex: 1;
     padding: 80px 20px 20px 270px; /* Space for sidebar and top nav */
     overflow-y: auto;
+    
 }
 
 .content-header {
@@ -249,14 +276,11 @@ tbody tr:hover {
 
 /* ปรับสไตล์ของ Submenu */
 .sidebar-item.has-submenu .submenu {
-    display: none; /* ซ่อน submenu เริ่มต้น */
-    flex-direction: column;
+    list-style: none;
     padding-left: 20px;
     margin-top: 5px;
-    list-style: none;
-    background-color: #1a1c23; /* พื้นหลังของ submenu */
-    border-radius: 4px;
-    color: #b0b3b8;
+    display: none;
+    flex-direction: column;
 }
 
 .sidebar-item.has-submenu:hover .submenu {
@@ -264,13 +288,13 @@ tbody tr:hover {
 }
 
 .submenu li {
-    padding: 10px;
-    color: #b0b3b8;
-    cursor: pointer;
+    padding: 10px 20px;
+    color: #a0aec0;
+    transition: background-color 0.3s;
 }
 
 .submenu li:hover {
-    background-color: #2c2f36;
+    background-color: #4a5e72;
     color: #fff;
 }
 

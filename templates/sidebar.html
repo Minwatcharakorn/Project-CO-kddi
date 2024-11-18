@@ -1,54 +1,86 @@
-<div class="top-nav">
-    <div class="nav-logo">
-        <span>🔹 Cisco Automation</span>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar Example</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="top-nav">
+        <div class="nav-logo">
+            <a href="Dashboard.html" style="color: white; text-decoration: none;">🔹 Cisco Automation</a>
+        </div>
     </div>
-</div>
-<!-- sidebar.html -->
-<div class="sidebar">
-    <ul class="sidebar-menu">
-        <a href="home.html" class="sidebar-item">
-            <li>
-                <span>🏠</span> Home
-            </li>
-        </a>
-        <a href="dashboard.html" class="sidebar-item">
-            <li>
-                <span>🖥️</span> Dashboard
-            </li>
-        </a>
-        <li class="sidebar-item has-submenu">
-            <a href="configuration.html">
-                <span>⚙️</span> Configuration
-            </a>
-            <ul class="submenu">
-                <li><a href="config-sw-mode.html">Switch Mode</a></li>
-                <li><a href="config-ip-address.html">IP Address</a></li>
-            </ul>
-        </li>
-        <a href="templates.html" class="sidebar-item">
-            <li>
-                <span>🔧</span> Templates
-            </li>
-        </a>
-        <a href="reports.html" class="sidebar-item">
-            <li>
-                <span>📊</span> Reports
-            </li>
-        </a>
-    </ul>
-</div>
+    <!-- Toggle Sidebar Button -->
+    <button id="toggle-sidebar" class="sidebar-toggle-button">☰</button>
 
+    <!-- Sidebar -->
+    <div id="sidebar-container" class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="dashboard.html">
+                    <span>🏠</span> Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item has-submenu" aria-expanded="false">
+                <a href="monitoring.html">
+                    <span>📊</span> Monitoring
+                </a>
+                <ul class="submenu">
+                    <li><a href="cdp.html">CDP</a></li>
+                    <li><a href="dhcp-clients.html">DHCP Clients</a></li>
+                    <li><a href="ports.html">Ports</a></li>
+                    <li><a href="stp.html">STP</a></li>
+                </ul>
+            </li>
+            <li class="sidebar-item has-submenu" aria-expanded="false">
+                <a href="configuration.html">
+                    <span>⚙️</span> Configuration
+                </a>
+                <ul class="submenu">
+                    <li><a href="vlan_page.html">VLAN</a></li>
+                    <li><a href="ipaddress_page.html">IP Address</a></li>
+                </ul>
+            </li>
+            <li class="sidebar-item">
+                <a href="Templates.html">
+                    <span>🔧</span> Template
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="reports.html">
+                    <span>🔍</span> Report
+                </a>
+            </li>
+        </ul>
+    </div>
 
-<script>
-    const toggleButton = document.getElementById("toggle-sidebar");
-    const sidebar = document.getElementById("sidebar-container");
+    <script>
+                // Sidebar Toggle
+        const toggleButton = document.getElementById("toggle-sidebar");
+        const sidebar = document.getElementById("sidebar-container");
 
-    toggleButton.addEventListener("click", () => {
-        sidebar.style.display = sidebar.style.display === "none" ? "block" : "none";
-    });
+        toggleButton.addEventListener("click", () => {
+            sidebar.style.display = sidebar.style.display === "none" ? "block" : "none";
+        });
 
-    // Default to hide sidebar on small screens
-    if (window.innerWidth <= 576) {
-        sidebar.style.display = "none";
+        // Submenu Toggle
+        document.querySelectorAll('.has-submenu > a').forEach(item => {
+            item.addEventListener('click', event => {
+                event.preventDefault(); 
+                const submenu = item.nextElementSibling;
+                const isVisible = submenu.style.display === 'flex';
+                submenu.style.display = isVisible ? 'none' : 'flex';
+                item.parentElement.setAttribute('aria-expanded', !isVisible);
+            });
+        });
+        if (toggleButton && sidebar) {
+        toggleButton.addEventListener("click", () => {
+            sidebar.style.display = sidebar.style.display === "none" ? "block" : "none";
+        });
     }
-</script>
+
+    </script>
+</body>
+</html>

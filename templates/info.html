@@ -20,31 +20,16 @@
             height: 100%;
             overflow: auto;
         }
- 
-        #sidebar-container {
-            width: 250px;
-            background-color: #1a1c23;
-            color: #fff;
-            padding: 20px;
-            height: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-        }
- 
+
         .device-info-container {
-            background-color: #ffffff;
-            border-radius: 8px;
+            margin-left: 270px; /* Space for the sidebar */
+            margin-top: 60px; /* Space for the top nav */
+            background-color: #f8f9fa;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: auto;
-            margin-left: 260px;
-            margin-top: 20px;
-            overflow-y: auto;
-            transition: width 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: auto;
+            min-height: calc(100vh - 60px); /* Ensure it covers the full height */
         }
  
         .switch-info {
@@ -176,10 +161,20 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- Sidebar Container -->
-    <div id="sidebar-container">
-        <h2>Sidebar</h2>
-    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <script>
+    fetch('sidebar.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById("sidebar-container").innerHTML = data;
+            const activeLink = document.querySelector(".sidebar-item a[href='info.html']");
+            if (activeLink) activeLink.parentElement.classList.add("active");
+        })
+        .catch(error => console.error("Error loading sidebar:", error));
+    </script>
  
     <!-- Main Container -->
     <div class="device-info-container">

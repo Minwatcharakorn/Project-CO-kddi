@@ -11,19 +11,15 @@
             font-family: Arial, sans-serif;
             display: flex;
         }
-        .content {
-            flex-grow: 1;
-            padding: 20px;
-            margin-left: 270px;
-            margin-top: 20px;
-        }
+
         .config-section {
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
+            margin-top: 20px;
             padding: 15px;
-            border-radius: 5px;
+            border: 1px solid #d0d4db;
+            border-radius: 8px;
             background-color: #f9f9f9;
         }
+
         h2, h3 {
             color: #333;
         }
@@ -31,28 +27,188 @@
             display: block;
             margin-bottom: 5px;
         }
-        form input[type="text"],
-        form input[type="number"],
-        form input[type="file"],
-        form select,
-        form textarea {
+        .config-section form input,
+        .config-section form select {
+            margin-bottom: 10px;
             width: 100%;
             padding: 8px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
+            border-radius: 4px;
+            border: 1px solid #ccc;
         }
-        form input[type="submit"],
-        form button {
+        .config-section form input[type="submit"] {
             background-color: #007bff;
-            color: white;
+            width: auto; /* ปรับให้ปุ่มมีความกว้างเท่ากับเนื้อหาข้อความ */
+
+            color: #fff;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 15px;
+            border-radius: 4px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-        form input[type="submit"]:hover,
-        form button:hover {
+        .config-section form input[type="submit"]:hover {
             background-color: #0056b3;
         }
+
+        /* Add spacing above the section headers */
+        .config-section h3 {
+            margin-top: 10px; /* Adjust the value as needed */
+            margin-bottom: 15px; /* Consistent spacing below */
+        }
+        .save-config-button {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .download-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(90deg, #1a73e8, #0066cc);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .download-btn .icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .download-btn .icon i {
+            font-size: 1.2rem;
+        }
+
+        .download-btn:hover {
+            background: linear-gradient(90deg, #0056b3, #004080);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .download-btn:active {
+            background: linear-gradient(90deg, #004080, #003366);
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .download-btn-outline {
+            background: transparent;
+            color: #ffffff;
+            border: 2px solid #1a73e8;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .download-btn-outline:hover {
+            background: rgba(26, 115, 232, 0.1);
+            color: #1a73e8;
+            transform: translateY(-2px);
+        }
+
+        .download-btn-outline:active {
+            background: rgba(26, 115, 232, 0.2);
+            transform: translateY(0);
+        }
+
+        #telnet-config {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #d0d4db;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        #telnet-config h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        #telnet-config form input,
+        #telnet-config form select {
+            margin-bottom: 10px;
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        #telnet-config form input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #telnet-config form input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+/*  */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            width: auto;
+        }
+
+        .dropdown-button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            width: 100%;
+            background-color: #f9f9f9;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            z-index: 1;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .dropdown-menu li {
+            list-style: none;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .dropdown-menu li input {
+            margin-right: 10px;
+        }
+
+        .dropdown-menu li label {
+            cursor: pointer;
+        }
+
+        .dropdown-menu li:hover {
+            background-color: #f1f1f1;
+        }
+
+        .config-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #d0d4db;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
     </style>
 </head>
 <body>
@@ -70,60 +226,220 @@
     <!-- Main Content -->
     <div class="content">
         <div class="content-header">
-            <h2>Switch Management Configuration</h2>
+            <h2>Basic Configuration</h2>
         </div>
 
         <!-- Configuration Sections -->
         <div class="config-section" id="basic-config">
-            <!-- Basic Configuration -->
-            <h3>Basic Configuration</h3>
+            <h3>Enable Secret VTY Access Configuration</h3>
             <form>
-                <label for="hostname">Hostname</label>
-                <input type="text" id="hostname" name="hostname"><br><br>
-                <label for="ip-address">IP Address</label>
-                <input type="text" id="ip-address" name="ip-address"><br><br>
-                <label for="subnet-mask">Subnet Mask</label>
-                <input type="text" id="subnet-mask" name="subnet-mask"><br><br>
-                <label for="gateway">Default Gateway</label>
-                <input type="text" id="gateway" name="gateway"><br><br>
-                <input type="submit" value="Save Basic Configuration">
+                <label for="enable-password">Enable Password:</label>
+                <input type="text" id="enable-password" name="enable-password" placeholder="Enter Enable Password" style="width: auto;"><br><br>
+                <label for="vty-password">VTY Password:</label>
+                <input type="text" id="vty-password" name="vty-password" placeholder="Enter VTY Password" style="width: auto;"><br><br>
+                <input type="submit" value="Save VTY Configuration">
+            </form>
+        </div>
+        
+        <div class="config-section" id="connection-method-config">
+            <h3>Connection Methods</h3>
+            <label for="connection-method">Select Connection Methods:</label>
+            <div id="connection-method-container" class="dropdown">
+                <button class="dropdown-button" onclick="toggleDropdown()">Select Methods</button>
+                <ul id="dropdown-options" class="dropdown-menu">
+                    <li>
+                        <input type="checkbox" id="ssh-option" name="connection-method" value="SSH" onchange="showConfig()" />
+                        <label for="ssh-option">SSH</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="telnet-option" name="connection-method" value="Telnet" onchange="showConfig()" />
+                        <label for="telnet-option">Telnet</label>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- SSH And Telnet Configuration -->
+        <div class="config-section" id="ssh_telnet-config" style="display: none;">
+            <h3>SSH And Telnet Configuration</h3>
+            <form>
+                <label for="domain-name">Domain Name:</label>
+                <input type="text" id="domain-name" name="domain-name" placeholder="Enter Domain Name"><br><br>
+                <label for="rsa-key-size">RSA Key Size:</label>
+                <select id="rsa-key-size" name="rsa-key-size">
+                    <option value="512">512-bit</option>
+                    <option value="1024">1024-bit</option>
+                    <option value="2048">2048-bit</option>
+                    <option value="3072">3072-bit</option>
+                    <option value="4096">4096-bit</option>
+                </select><br><br>               
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" placeholder="Enter Username" style="width: auto;"><br><br>
+                <label for="password">Password:</label>
+                <input type="text" id="password" name="password" placeholder="Enter Password" style="width: auto;"><br><br>
+                <input type="submit" value="Configure SSH">
             </form>
         </div>
 
-        <div class="config-section" id="vlan-management">
-            <!-- VLAN Management -->
-            <h3>VLAN Management</h3>
+        <!-- SSH Configuration -->
+        <div class="config-section" id="ssh-config" style="display: none;">
+            <h3>SSH Configuration</h3>
             <form>
-                <label for="vlan-id">VLAN ID:</label>
-                <input type="number" id="vlan-id" name="vlan-id"><br><br>
-                <label for="vlan-name">VLAN Name</label>
-                <input type="text" id="vlan-name" name="vlan-name"><br><br>
-                <label for="vlan-port">Assign to Port</label>
-                <input type="text" id="vlan-port" name="vlan-port"><br><br>
-                <input type="submit" value="Create/Modify VLAN">
+                <label for="domain-name">Domain Name:</label>
+                <input type="text" id="domain-name" name="domain-name" placeholder="Enter Domain Name"><br><br>
+                <label for="rsa-key-size">RSA Key Size:</label>
+                <select id="rsa-key-size" name="rsa-key-size">
+                    <option value="512">512-bit</option>
+                    <option value="1024">1024-bit</option>
+                    <option value="2048">2048-bit</option>
+                    <option value="3072">3072-bit</option>
+                    <option value="4096">4096-bit</option>
+                </select><br><br>                
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" placeholder="Enter Username"><br><br>
+                <label for="password">Password:</label>
+                <input type="text" id="password" name="password" placeholder="Enter Password"><br><br>
+                <input type="submit" value="Configure SSH">
             </form>
         </div>
+        
+        <!-- Telnet Configuration Form -->
+        <div class="config-section" id="telnet-config" style="display: none;">
+            <h3>Telnet Configuration</h3>
+            <form>
+                <label for="telnet-password">Telnet Password:</label>
+                <input type="text" id="telnet-password" name="telnet-password" placeholder="Enter Telnet Password" style="width: auto;"><br><br>
+                <label for="telnet-timeout">Session Timeout (in minutes):</label>
+                <input type="number" id="telnet-timeout" name="telnet-timeout" placeholder="Enter Timeout Duration" style="width: auto;"><br><br>
+                <input type="submit" value="Configure Telnet">
+            </form>
+        </div>
+        
+
+        <div class="config-section" id="snmp-config">
+            <h3>SNMP Configuration</h3>
+            <form>
+                <label for="community">Community String:</label>
+                <input type="text" id="community" name="community" placeholder="Enter Community String" style="width: auto;"><br><br>
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" placeholder="Enter Location" style="width: auto;"><br><br>
+                <label for="contact">Contact Info:</label>
+                <input type="text" id="contact" name="contact" placeholder="Enter Contact Information" style="width: auto;"><br><br>
+                <input type="submit" value="Save SNMP Configuration">
+            </form>
+        </div>
+
+        <div class="config-section" id="logging-config">
+            <h3>Logging Configuration</h3>
+            <form>
+                <label for="buffer-size">Buffer Size:</label>
+                <input type="number" id="buffer-size" name="buffer-size" placeholder="Enter Buffer Size" min="0" style="width: auto;"><br><br>
+                <label for="logging-level">Logging Level:</label>
+                <select id="logging-level" name="logging-level" style="width: auto;">
+                    <option value="Emergency">Emergency</option>
+                    <option value="Alert">Alert</option>
+                    <option value="Critical">Critical</option>
+                    <option value="Error">Error</option>
+                    <option value="Warning">Warning</option>
+                    <option value="Notification">Notification</option>
+                    <option value="Informational">Informational</option>
+                    <option value="Debugging">Debugging</option>
+                </select><br><br>
+                <input type="submit" value="Save Logging Configuration">
+            </form>
+        </div>
+
+        <div class="config-section" id="default-gateway-config">
+            <h3>Default Gateway Configuration</h3>
+            <form>
+                <label for="default-gateway">Default Gateway:</label>
+                <input type="text" id="default-gateway" name="default-gateway" placeholder="Enter Default Gateway" style="width: auto;"><br><br>
+                <input type="submit" value="Save Gateway Configuration">
+            </form>
+        </div>
+
+        <!-- <div class="config-section" id="disable-services-config">
+            <h3>Disable Unnecessary Services</h3>
+            <form>
+                <label>
+                    <input type="checkbox" name="disable-http" value="http"> Disable HTTP Server
+                </label><br>
+                <label>
+                    <input type="checkbox" name="disable-https" value="https"> Disable HTTPS Server
+                </label><br>
+                <input type="submit" value="Apply Changes">
+            </form>
+        </div> -->
 
         <div class="config-section" id="update-firmware">
-            <!-- Backup and Restore -->
             <h3>Update Firmware</h3>
             <form>
-                <label for="restore-file">Firmware File</label>
-                <input type="file" id="firmware-file" name="firmware-file"><br><br>
+                <label for="firmware-file">Firmware File</label>
+                <input type="file" id="firmware-file" name="firmware-file" style="width: auto;"><br><br>
                 <input type="submit" value="Submit">
             </form>
         </div>
-
-        <div class="config-section" id="backup-restore">
-            <!-- Backup and Restore -->
-            <h3>Save Config File</h3>
-            <form>
-                <label for="restore-file">Save Config to File</label>
-                <input type="submit" value="Submit">
-            </form>
+        <div class="save-config-button">
+            <button class="download-btn">
+                SAVE CONFIG
+                <span class="icon">
+                    <i class="fas fa-download"></i>
+                </span>
+            </button>
         </div>
     </div>
+<script>
+    let selectedMethods = [];
 
-    <script src="scripts.js"></script>
+    function toggleDropdown() {
+        const menu = document.getElementById('dropdown-options');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function updateSelections() {
+        selectedMethods = [];
+        const options = document.querySelectorAll('#dropdown-options input:checked');
+        options.forEach(option => selectedMethods.push(option.value));
+        document.getElementById('selected-methods').innerText = selectedMethods.length
+            ? `Selected: ${selectedMethods.join(', ')}`
+            : 'No method selected';
+    }
+
+    function saveConfiguration() {
+        alert(`Configuration Saved: ${selectedMethods.join(', ')}`);
+    }
+    function toggleDropdown() {
+    const menu = document.getElementById('dropdown-options');
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function showConfig() {
+        const sshConfig = document.getElementById('ssh-config');
+        const telnetConfig = document.getElementById('telnet-config');
+        const sshandtelnetConfig = document.getElementById('ssh_telnet-config');
+
+        const sshOption = document.getElementById('ssh-option').checked;
+        const telnetOption = document.getElementById('telnet-option').checked;
+
+        if (sshOption && telnetOption) {
+            sshConfig.style.display = 'none';
+            telnetConfig.style.display = 'none';
+            sshandtelnetConfig.style.display = 'block';
+        } else if (sshOption) {
+            sshConfig.style.display = 'block';
+            telnetConfig.style.display = 'none';
+            sshandtelnetConfig.style.display = 'none';
+        } else if (telnetOption) {
+            telnetConfig.style.display = 'block';
+            sshConfig.style.display = 'none';
+            sshandtelnetConfig.style.display = 'none';
+        } else {
+            sshConfig.style.display = 'none';
+            telnetConfig.style.display = 'none';
+            sshandtelnetConfig.style.display = 'none';
+        }
+    }
+
+</script>
 </body>
 </html>
