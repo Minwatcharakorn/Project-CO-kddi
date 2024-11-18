@@ -85,13 +85,13 @@
             <!-- Basic Configuration -->
             <h3>Basic Configuration</h3>
             <form>
-                <label for="hostname">Hostname:</label>
+                <label for="hostname">Hostname</label>
                 <input type="text" id="hostname" name="hostname"><br><br>
-                <label for="ip-address">IP Address:</label>
+                <label for="ip-address">IP Address</label>
                 <input type="text" id="ip-address" name="ip-address"><br><br>
-                <label for="subnet-mask">Subnet Mask:</label>
+                <label for="subnet-mask">Subnet Mask</label>
                 <input type="text" id="subnet-mask" name="subnet-mask"><br><br>
-                <label for="gateway">Default Gateway:</label>
+                <label for="gateway">Default Gateway</label>
                 <input type="text" id="gateway" name="gateway"><br><br>
                 <input type="submit" value="Save Basic Configuration">
             </form>
@@ -103,55 +103,21 @@
             <form>
                 <label for="vlan-id">VLAN ID:</label>
                 <input type="number" id="vlan-id" name="vlan-id"><br><br>
-                <label for="vlan-name">VLAN Name:</label>
+                <label for="vlan-name">VLAN Name</label>
                 <input type="text" id="vlan-name" name="vlan-name"><br><br>
-                <label for="vlan-port">Assign to Port:</label>
+                <label for="vlan-port">Assign to Port</label>
                 <input type="text" id="vlan-port" name="vlan-port"><br><br>
                 <input type="submit" value="Create/Modify VLAN">
             </form>
         </div>
 
-        <div class="config-section" id="port-management">
-            <!-- Port Management -->
-            <h3>Port Management</h3>
-            <form>
-                <label for="port-number">Port Number:</label>
-                <input type="text" id="port-number" name="port-number"><br><br>
-                <label for="port-status">Enable/Disable Port:</label>
-                <select id="port-status" name="port-status">
-                    <option value="enable">Enable</option>
-                    <option value="disable">Disable</option>
-                </select><br><br>
-                <label for="port-speed">Port Speed:</label>
-                <input type="text" id="port-speed" name="port-speed"><br><br>
-                <input type="submit" value="Save Port Configuration">
-            </form>
-        </div>
-
-        <div class="config-section" id="access-control">
-            <!-- Access Control -->
-            <h3>Access Control</h3>
-            <form>
-                <label for="ssh-status">Enable SSH:</label>
-                <select id="ssh-status" name="ssh-status">
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                </select><br><br>
-                <label for="acl">Configure ACL:</label>
-                <textarea id="acl" name="acl" rows="4" cols="50"></textarea><br><br>
-                <input type="submit" value="Save Access Control Configuration">
-            </form>
-        </div>
-
         <div class="config-section" id="backup-restore">
             <!-- Backup and Restore -->
-            <h3>Backup and Restore</h3>
+            <h3>Update Firmware</h3>
             <form>
-                <label for="backup-option">Backup Configuration:</label>
-                <button type="button">Backup Now</button><br><br>
-                <label for="restore-file">Restore Configuration from File:</label>
+                <label for="restore-file">Firmware File</label>
                 <input type="file" id="restore-file" name="restore-file"><br><br>
-                <input type="submit" value="Restore Configuration">
+                <input type="submit" value="Submit">
             </form>
         </div>
     </div>
