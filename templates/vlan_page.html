@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VLAN Page</title>
+    <title>Switch Mode Page</title>
     <link rel="stylesheet" href="../static/styles.css">
     <link rel="stylesheet" href="../static/vlanpage.css">
-
 </head>
 
 <body>
@@ -14,51 +13,55 @@
     <div id="sidebar-container"></div>
     
     <script>
-        // โหลดไฟล์ HTML ของ Sidebar เข้าไปใน #sidebar-container
+        // Load Sidebar HTML into #sidebar-container
         fetch('sidebar.html')
             .then(response => response.text())
             .then(data => document.getElementById("sidebar-container").innerHTML = data);
     </script>
-        <div class="content">
-            <h3 class="content-title">Configuration VLAN</h3>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>S No</th>
-                            <th>Name</th>
-                            <th>IP Address</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Switch 1</td>
-                            <td>192.168.1.1</td>
-                            <td>
-                                <button class="btn-edit" onclick="openModal('Switch 1', '192.168.1.1')">Edit</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Switch 2</td>
-                            <td>192.168.1.2</td>
-                            <td>
-                                <button class="btn-edit" onclick="openModal('Switch 2', '192.168.1.2')">Edit</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Switch 3</td>
-                            <td>192.168.1.3</td>
-                            <td>
-                                <button class="btn-edit" onclick="openModal('Switch 3', '192.168.1.3')">Edit</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+
+    <div class="content">
+        <h3 class="content-title">Configuration Switch Mode</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Model</th>
+                        <th>Hostname</th>
+                        <th>IP Address</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>C9300-48UXM</td>
+                        <td>Switch 1</td>
+                        <td>192.168.1.1</td>
+                        <td>
+                            <button class="btn-edit" onclick="openModal('Switch 1', '192.168.1.1')">Edit</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>C9300-24UB</td>
+                        <td>Switch 2</td>
+                        <td>192.168.1.2</td>
+                        <td>
+                            <button class="btn-edit" onclick="openModal('Switch 2', '192.168.1.2')">Edit</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>C9200-24PXG</td>
+                        <td>Switch 3</td>
+                        <td>192.168.1.3</td>
+                        <td>
+                            <button class="btn-edit" onclick="openModal('Switch 3', '192.168.1.3')">Edit</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -68,27 +71,52 @@
             <span class="close" onclick="closeModal()">&times;</span>
             <h3 id="modal-title">Switch Details</h3>
             <form>
-                <label for="interface">Interface:</label>
-                <select id="interface" name="interface">
-                    <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
-                    <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
-                    <option value="GigabitEthernet0/3">GigabitEthernet0/3</option>
-                    <option value="GigabitEthernet0/4">GigabitEthernet0/4</option>
-                </select>
-                <br><br>
-                <label for="mode">Mode:</label>
-                <select id="mode" name="mode">
-                    <option value="access">Access</option>
-                    <option value="trunk">Trunk</option>
-                </select>
-                <br><br>
+                <div>
+                    <!-- Access Checkbox -->
+                    <label>
+                        <input type="checkbox" id="access-mode" name="mode" value="access" onclick="toggleDropdown('access-dropdown', this)">
+                        Access
+                    </label>
+                    <!-- Access Dropdown -->
+                    <div id="access-dropdown" class="dropdown-check-list" style="display: none;">
+                        <span class="anchor">Select Interface Ports</span>
+                        <ul class="items">
+                            <li><input type="checkbox" />Gig0/1</li>
+                            <li><input type="checkbox" />Gig0/2</li>
+                            <li><input type="checkbox" />Gig0/3</li>
+                            <li><input type="checkbox" />Gig0/4</li>
+                            <li><input type="checkbox" />Gig0/5</li>
+                            <li><input type="checkbox" />Gig0/6</li>
+                            <li><input type="checkbox" />Gig0/7</li>
+                        </ul>
+                    </div>
+                </div>
+                <br>
+                <div>
+                    <!-- Trunk Checkbox -->
+                    <label>
+                        <input type="checkbox" id="trunk-mode" name="mode" value="trunk" onclick="toggleDropdown('trunk-dropdown', this)">
+                        Trunk
+                    </label>
+                    <!-- Trunk Dropdown -->
+                    <div id="trunk-dropdown" class="dropdown-check-list" style="display: none;">
+                        <span class="anchor">Select Interface Ports</span>
+                        <ul class="items">
+                            <li><input type="checkbox" />Gig0/1</li>
+                            <li><input type="checkbox" />Gig0/2</li>
+                            <li><input type="checkbox" />Gig0/3</li>
+                            <li><input type="checkbox" />Gig0/4</li>
+                            <li><input type="checkbox" />Gig0/5</li>
+                            <li><input type="checkbox" />Gig0/6</li>
+                            <li><input type="checkbox" />Gig0/7</li>
+                        </ul>
+                    </div>
+                </div>
+                <br>
                 <button type="submit">Save</button>
             </form>
-        </div>
     </div>
 
-        <script src="../static/js/vlanpage.js"></script>
-
-    
+    <script src="../static/js/vlanpage.js"></script>
 </body>
 </html>

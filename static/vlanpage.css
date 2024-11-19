@@ -89,15 +89,15 @@
         justify-content: center;
         align-items: center;
     }
-
+    
     .modal-content {
         background-color: #fff;
         padding: 20px;
         border-radius: 8px;
         width: 400px;
-        text-align: center;
+        text-align: left;
     }
-
+    
     .close {
         float: right;
         font-size: 1.5rem;
@@ -112,4 +112,120 @@
     text-align: left; /* Align text to the left */
     padding: 10px; /* Add some padding for spacing */
     border-bottom: 2px solid #d0d4db; /* Optional: underline effect */
+}
+
+
+.modal-content {
+    background-color: #fff;
+    padding: 30px; /* Increased padding for better spacing */
+    border-radius: 8px;
+    width: 1000px; /* Set desired width */
+    min-height: 400px; /* Set desired minimum height */
+    max-height: 800px; /* Optional: limit the height */
+    overflow-y: auto; /* Enable scrolling if content exceeds max height */
+}
+.modal-content h3 {
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.5rem; /* Larger title size */
+
+}
+
+.modal-content form div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px; /* Added gap for spacing */
+
+}
+
+.modal-content label {
+    font-weight: bold;
+    margin-right: 10px;
+    font-size: 1rem; /* Increased font size */
+
+}
+
+.modal-content select {
+    padding: 5px;
+    width: 150px;
+}
+
+.modal-content input[type="checkbox"] {
+    margin-right: 5px;
+    font-size: 1rem; /* Increased input size */
+
+}
+
+form div {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Space between label and dropdown */
+}
+
+
+/* TEST */
+
+.dropdown-check-list {
+    position: relative;
+    display: inline-block;
+    width: 250px; /* Adjusted width for longer names */
+}
+
+.dropdown-check-list .anchor {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+  
+.dropdown-check-list .anchor::after {
+    content: "\25BC"; /* Down arrow */
+    font-size: 12px;
+    margin-left: 10px;
+}
+  
+  .dropdown-check-list .anchor:active:after {
+    right: 8px;
+    top: 21%;
+  }
+  
+  .dropdown-check-list ul.items {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    list-style: none;
+    padding: 5px;
+    display: none; /* Initially hidden */
+    z-index: 100;
+    max-height: 200px; /* Optional: limit height */
+    overflow-y: auto; /* Scroll if needed */
+}
+  
+.dropdown-check-list ul.items li {
+    padding: 8px;
+    cursor: pointer;
+}
+  
+  .dropdown-check-list.visible .anchor {
+    color: #0094ff;
+  }
+  
+  .dropdown-check-list.visible .items {
+    display: block;
+  }
+
+  .dropdown-check-list ul.items li:hover {
+    background-color: #f0f0f0;
 }
