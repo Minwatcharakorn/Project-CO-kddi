@@ -9,7 +9,45 @@ body {
     border: 1px solid #d0d4db;
     border-radius: 8px;
     background-color: #f9f9f9;
+    width: 100%; /* ยังคงให้ความกว้างเต็มจอ */
 }
+.config-section1 form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px; /* เพิ่มช่องว่างระหว่างแต่ละองค์ประกอบ */
+}
+/* Input and Form Styling */
+.config-section1 form input,
+.config-section1 form select {
+    margin-bottom: 10px;
+    width: 100%; /* ยังคงให้ input ยืดเต็มพื้นที่ */
+    max-width: 300px; /* จำกัดความกว้างไม่ให้เกิน 300px */
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+.config-section1 form input[type="submit"] {
+    background-color: #007bff;
+    width: auto; /* ปรับให้ปุ่มมีความกว้างเท่ากับเนื้อหาข้อความ */
+
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.config-section1 form input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Add spacing above the section headers */
+.config-section1 h3 {
+    margin-top: 10px; /* Adjust the value as needed */
+    margin-bottom: 15px; /* Consistent spacing below */
+}
+
 
 h2, h3 {
     color: #333;
@@ -18,10 +56,12 @@ form label {
     display: block;
     margin-bottom: 5px;
 }
+/* Input and Form Styling */
 .config-section form input,
 .config-section form select {
     margin-bottom: 10px;
-    width: 100%;
+    width: 100%; /* ยังคงให้ input ยืดเต็มพื้นที่ */
+    max-width: 300px; /* จำกัดความกว้างไม่ให้เกิน 300px */
     padding: 8px;
     border-radius: 4px;
     border: 1px solid #ccc;
@@ -199,11 +239,17 @@ form label {
     border-radius: 8px;
     background-color: #f9f9f9;
 }
+.config-section1 {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #d0d4db;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
 .vlan-row {
     display: flex;
-    align-items: center; /* Center items vertically */
-    justify-content: space-between; /* Ensure space between elements */
-    gap: 10px; /* Add consistent spacing */
+    align-items: center;
+    gap: 10px;
     margin-bottom: 10px;
 }
 .vlan-row input {
@@ -221,6 +267,7 @@ form label {
 #add-vlan-row:hover {
     background-color: #0056b3;
 }
+/* Remove Button Styles */
 .remove-vlan-row {
     background-color: #dc3545;
     color: #fff;
@@ -229,12 +276,16 @@ form label {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    margin: 0; /* ลบค่า margin หากมี */
-    align-self: center; /* จัดให้อยู่ตรงกลางแนวแกน */
+    margin: 0;
+    position: relative; /* ใช้ตำแหน่งที่สัมพันธ์กับตำแหน่งเดิม */
+    top: -5px;
+    align-self: center;
     display: flex;
-    align-items: center; /* จัดให้อยู่ตรงกลางในแนวตั้ง */
-    justify-content: center; /* จัดให้อยู่ตรงกลางในแนวนอน */
+    align-items: center;
+    justify-content: center;
+    width: auto; /* กำหนดขนาดปุ่ม Remove */
 }
+
 .remove-vlan-row:hover {
     background-color: #b02a37;
 }
@@ -245,14 +296,12 @@ form label {
 
 .vlan-row input[type="number"],
 .vlan-row input[type="text"] {
-    width: auto; /* Allow inputs to adjust width dynamically */
-    padding: 5px; /* Add padding for better appearance */
+    width: 100%; /* ให้ input ยืดเต็ม container ของมัน */
+    max-width: 300px; /* จำกัดความกว้างไม่ให้เกิน 300px */
+    padding: 5px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    text-align: left;
 }
-
-
 
 .remove-vlan-row {
     width: 80px; /* กำหนดขนาดปุ่ม Remove */

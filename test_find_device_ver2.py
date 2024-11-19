@@ -31,8 +31,8 @@ def update_switches():
 
 # คำสั่งที่ต้องการรันบน switch
 config_commands = [
-    "vlan 20",
-    "name VLAN20",
+    "vlan 800",
+    "name VLAN800",
     "exit"
 ]
 
