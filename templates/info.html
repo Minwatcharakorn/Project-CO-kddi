@@ -159,7 +159,26 @@
                   <canvas id="temperatureChart"></canvas>
                   <div class="chart-percentage" id="temperaturePercentage">38°C</div>
               </div>
-              </div>
+            </div>
+            <!-- System Information Section -->
+            <div class="system-info">
+                <div class="system-info-item">
+                    <span class="system-info-label">Hostname:</span>
+                    <span class="system-info-value" id="hostname">Switch</span>
+                </div>
+                <div class="system-info-item">
+                    <span class="system-info-label">Device Uptime:</span>
+                    <span class="system-info-value" id="deviceUptime">2 days, 15 hours, 54 minutes</span>
+                </div>
+                <div class="system-info-item">
+                    <span class="system-info-label">System Time:</span>
+                    <span class="system-info-value" id="systemTime">18:46:14.102 UTC Thu Dec 19 2019</span>
+                </div>
+                <div class="system-info-item">
+                    <span class="system-info-label">Device Type:</span>
+                    <span class="system-info-value" id="deviceType">C9300-48U</span>
+                </div>
+            </div>
  
         </div>
         <!-- VLAN Container -->
@@ -215,6 +234,10 @@
             const switchModel = document.getElementById('switchModel');
             const switchDetails = document.getElementById('switchDetails');
             const vlanTableBody = document.getElementById('vlanTableBody');
+            const hostname = document.getElementById('hostname');
+            const deviceUptime = document.getElementById('deviceUptime');
+            const systemTime = document.getElementById('systemTime');
+            const deviceType = document.getElementById('deviceType');
 
             switch (selectedSwitch) {
                 case 'switch1':
@@ -234,6 +257,10 @@
                             <td>active</td>
                             <td>Gi1/0/45, Gi1/0/46, ...</td>
                         </tr>`;
+                    hostname.innerText = 'Switch';
+                    deviceUptime.innerText = '2 days, 15 hours, 54 minutes';
+                    systemTime.innerText = '18:46:14.102 UTC Thu Dec 19 2019';
+                    deviceType.innerText = 'C9300-48U';
                     break;
                 case 'switch2':
                     switchTitle.innerText = 'ASW-B401';
@@ -252,6 +279,10 @@
                             <td>active</td>
                             <td>Gi1/0/12, Gi1/0/13, ...</td>
                         </tr>`;
+                    hostname.innerText = 'ASW-B401';
+                    deviceUptime.innerText = '3 days, 8 hours, 12 minutes';
+                    systemTime.innerText = '12:23:45.000 UTC Fri Dec 20 2019';
+                    deviceType.innerText = 'C9300-48U';
                     break;
                 case 'switch3':
                     switchTitle.innerText = 'CSW-TH_1';
@@ -270,6 +301,10 @@
                             <td>active</td>
                             <td>Gi1/0/20, Gi1/0/21, ...</td>
                         </tr>`;
+                    hostname.innerText = 'CSW-TH_1';
+                    deviceUptime.innerText = '5 days, 4 hours, 23 minutes';
+                    systemTime.innerText = '14:56:32.500 UTC Sat Dec 21 2019';
+                    deviceType.innerText = 'C9300-48U';
                     break;
             }
             updateCharts();
@@ -281,7 +316,7 @@
             cpuUsageChart.update();
             document.getElementById('cpuPercentage').innerText = cpuValue + '%';
 
-            const memoryValue = Math.floor(Math.random() * 101);
+            const memoryValue = Math.floor(Math.random() * 75) +25;
             memoryUsageChart.data.datasets[0].data = [memoryValue];
             memoryUsageChart.update();
             document.getElementById('memoryPercentage').innerText = memoryValue + '%';
