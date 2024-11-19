@@ -238,9 +238,46 @@ thead {
 
 th, td {
     padding: 10px;
-    text-align: left;
+    text-align: center; /* Center horizontally */
+    vertical-align: middle; /* Center vertically */
     border-bottom: 1px solid #d0d4db;
 }
+
+
+td:last-child {
+    text-align: center; 
+    vertical-align: middle; 
+}
+
+.info-icon {
+    text-decoration: none; 
+}
+
+.info-icon span {
+    display: flex; 
+    align-items: center; 
+    justify-content: center; /* Center horizontally */
+    width: 30px; /* Icon size */
+    height: 30px;
+    background-color: #007bff; /* Blue background */
+    color: white; /* White icon color */
+    border-radius: 50%; /* Make it circular */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Add smooth transition */
+    margin: auto; /* Ensure it is centered in the cell */
+    text-decoration: none; /* Ensure underline is removed for spans too */
+
+}
+
+.info-icon:hover {
+    text-decoration: none; /* Keep underline removed on hover */
+}
+
+.info-icon span:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.1); /* Slightly enlarge on hover */
+    cursor: pointer;
+}
+
 
 th {
     color: #333;
