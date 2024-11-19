@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
     <title>Device Information</title>
     <style>
         /* General Styling */
@@ -157,6 +160,45 @@
             font-weight: bold;
             color: #333;
         }
+        .vlan-info {
+            background-color: #f9fafb;
+            border: 1px solid #cfd9e6;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .vlan-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .vlan-table th, .vlan-table td {
+            border: 1px solid #cfd9e6;
+            padding: 8px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .vlan-table th {
+            background-color: #e9f2ff;
+            color: #333;
+        }
+
+        .vlan-table td {
+            background-color: #fff;
+            color: #555;
+        }
+        .sortable-placeholder {
+            background: #f0f4f7;
+            border: 2px dashed #cfd9e6;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -177,14 +219,24 @@
     </script>
  
     <!-- Main Container -->
-    <div class="device-info-container">
+    <div class="device-info-container" id="sortable">
+        <!-- Dropdown Container -->
+        <div class="dropdown-container">
+            <label for="switchSelector">Select Switch: </label>
+            <select id="switchSelector" onchange="switchSelectionChanged()">
+                <option value="switch1">Switch</option>
+                <option value="switch2">ASW-B401</option>
+                <option value="switch3">CSW-TH_1</option>
+            </select>
+        </div>
+        
         <!-- Switch Information Container -->
-        <div class="switch-info">
-            <h3>Switch No 1</h3>
-            <div class="switch-model">
+        <div class="switch-info" id="switchInfoContainer">
+            <h3 id="switchTitle">Switch</h3>
+            <div class="switch-model" id="switchModel">
                 <span>Model: Cisco Catalyst 9300</span>
             </div>
-            <div class="switch-details">
+            <div class="switch-details" id="switchDetails">
                 <span>Host Name: Switch</span>
                 <span>MAC Address: 247e.1293.8880</span>
             </div>
@@ -288,37 +340,160 @@
             <div class="chart-row" style="display: flex; gap: 20px;">
               <div class="chart-container" style="flex: 1;">
                   <canvas id="cpuUsageChart"></canvas>
-                  <div class="chart-percentage">45%</div>
+                  <div class="chart-percentage" id="cpuPercentage">45%</div>
               </div>
               <div class="chart-container" style="flex: 1;">
                   <canvas id="memoryUsageChart"></canvas>
-                  <div class="chart-percentage">62%</div>
+                  <div class="chart-percentage" id="memoryPercentage">62%</div>
               </div>
               <div class="chart-container" style="flex: 1;">
                   <canvas id="temperatureChart"></canvas>
-                  <div class="chart-percentage">38°C</div>
+                  <div class="chart-percentage" id="temperaturePercentage">38°C</div>
               </div>
               </div>
  
         </div>
+        <!-- VLAN Container -->
+        <div class="vlan-info">
+            <h3>VLAN Information</h3>
+            <table class="vlan-table">
+                <thead>
+                    <tr>
+                        <th>VLAN ID</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Ports</th>
+                    </tr>
+                </thead>
+                <tbody id="vlanTableBody">
+                    <!-- Default VLAN data -->
+                    <tr>
+                        <td>1</td>
+                        <td>default</td>
+                        <td>active</td>
+                        <td>Gi1/0/1, Gi1/0/2, Gi1/0/3, ...</td>
+                    </tr>
+                    <tr>
+                        <td>103</td>
+                        <td>Top_Fusion</td>
+                        <td>active</td>
+                        <td>Gi1/0/45, Gi1/0/46, ...</td>
+                    </tr>
+                </tbody>
+            </table>
+</div>
+
     </div>
  
     <script>
+        $(function() {
+            // ทำให้แต่ละกรอบสามารถลากได้และจัดเรียงกันได้
+            $("#sortable").sortable({
+                handle: "h3",  // ใช้หัวข้อ (h3) เป็นจุดที่จับในการลาก
+                placeholder: "sortable-placeholder"
+            });
+        });
         // Load Sidebar HTML into #sidebar-container
         fetch('sidebar.html')
             .then(response => response.text())
             .then(data => document.getElementById("sidebar-container").innerHTML = data)
             .catch(error => console.error('Error loading sidebar:', error));
- 
+        
+        // Function to handle switch selection change
+        function switchSelectionChanged() {
+            const selectedSwitch = document.getElementById('switchSelector').value;
+            const switchTitle = document.getElementById('switchTitle');
+            const switchModel = document.getElementById('switchModel');
+            const switchDetails = document.getElementById('switchDetails');
+            const vlanTableBody = document.getElementById('vlanTableBody');
+
+            switch (selectedSwitch) {
+                case 'switch1':
+                    switchTitle.innerText = 'Switch';
+                    switchModel.innerHTML = '<span>Model: Cisco Catalyst 9300</span>';
+                    switchDetails.innerHTML = '<span>Host Name: Switch</span><span>MAC Address: 247e.1293.8880</span>';
+                    vlanTableBody.innerHTML = `
+                        <tr>
+                            <td>1</td>
+                            <td>default</td>
+                            <td>active</td>
+                            <td>Gi1/0/1, Gi1/0/2, Gi1/0/3, ...</td>
+                        </tr>
+                        <tr>
+                            <td>103</td>
+                            <td>Top_Fusion</td>
+                            <td>active</td>
+                            <td>Gi1/0/45, Gi1/0/46, ...</td>
+                        </tr>`;
+                    break;
+                case 'switch2':
+                    switchTitle.innerText = 'ASW-B401';
+                    switchModel.innerHTML = '<span>Model: Cisco Catalyst 9300</span>';
+                    switchDetails.innerHTML = '<span>Host Name: ASW-B401</span><span>MAC Address: 34fe.12a9.5678</span>';
+                    vlanTableBody.innerHTML = `
+                        <tr>
+                            <td>1</td>
+                            <td>default</td>
+                            <td>active</td>
+                            <td>Gi1/0/5, Gi1/0/6, Gi1/0/7, ...</td>
+                        </tr>
+                        <tr>
+                            <td>104</td>
+                            <td>Development</td>
+                            <td>active</td>
+                            <td>Gi1/0/12, Gi1/0/13, ...</td>
+                        </tr>`;
+                    break;
+                case 'switch3':
+                    switchTitle.innerText = 'CSW-TH_1';
+                    switchModel.innerHTML = '<span>Model: Cisco Catalyst 9300</span>';
+                    switchDetails.innerHTML = '<span>Host Name: CSW-TH_1</span><span>MAC Address: 78de.45bc.1234</span>';
+                    vlanTableBody.innerHTML = `
+                        <tr>
+                            <td>1</td>
+                            <td>default</td>
+                            <td>active</td>
+                            <td>Gi1/0/1, Gi1/0/8, Gi1/0/9, ...</td>
+                        </tr>
+                        <tr>
+                            <td>105</td>
+                            <td>Management</td>
+                            <td>active</td>
+                            <td>Gi1/0/20, Gi1/0/21, ...</td>
+                        </tr>`;
+                    break;
+            }
+            updateCharts();
+        }
+        // Function to update charts with random values
+        function updateCharts() {
+            const cpuValue = Math.floor(Math.random() * 70) +20;
+            cpuUsageChart.data.datasets[0].data = [cpuValue];
+            cpuUsageChart.update();
+            document.getElementById('cpuPercentage').innerText = cpuValue + '%';
+
+            const memoryValue = Math.floor(Math.random() * 101);
+            memoryUsageChart.data.datasets[0].data = [memoryValue];
+            memoryUsageChart.update();
+            document.getElementById('memoryPercentage').innerText = memoryValue + '%';
+
+            const temperatureValue = Math.floor(Math.random() * 30) + 20;
+            temperatureChart.data.datasets[0].data = [temperatureValue];
+            temperatureChart.update();
+            document.getElementById('temperaturePercentage').innerText = temperatureValue + '°C';
+        }
+        
         // Chart.js for CPU Usage
         const cpuCtx = document.getElementById('cpuUsageChart').getContext('2d');
+        const cpuUsageValue = Math.floor(Math.random() * 101);
+        document.getElementById('cpuPercentage').innerText = cpuUsageValue + '%';
         const cpuUsageChart = new Chart(cpuCtx, {
             type: 'bar',
             data: {
                 labels: ['CPU Usage'],
                 datasets: [{
                     label: 'CPU Usage',
-                    data: [45],
+                    data: [cpuUsageValue],
                     backgroundColor: 'rgba(50, 205, 50, 0.7)',
                     borderColor: 'rgba(50, 205, 50, 1)',
                     borderWidth: 1
@@ -327,22 +502,24 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true, suggestedMax: 'auto',
-                        suggestedMax: 'auto'
+                        beginAtZero: true,
+                        max: 100
                     }
                 }
             }
         });
- 
+
         // Chart.js for Memory Usage
         const memoryCtx = document.getElementById('memoryUsageChart').getContext('2d');
+        const memoryUsageValue = Math.floor(Math.random() * 101);
+        document.getElementById('memoryPercentage').innerText = memoryUsageValue + '%';
         const memoryUsageChart = new Chart(memoryCtx, {
             type: 'bar',
             data: {
                 labels: ['Memory Usage'],
                 datasets: [{
                     label: 'Memory Usage',
-                    data: [62],
+                    data: [memoryUsageValue],
                     backgroundColor: 'rgba(30, 144, 255, 0.7)',
                     borderColor: 'rgba(30, 144, 255, 1)',
                     borderWidth: 1
@@ -352,21 +529,23 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        suggestedMax: 'auto'
+                        max: 100
                     }
                 }
             }
         });
- 
+
         // Chart.js for Temperature
         const tempCtx = document.getElementById('temperatureChart').getContext('2d');
+        const temperatureValue = Math.floor(Math.random() * 81) + 20;
+        document.getElementById('temperaturePercentage').innerText = temperatureValue + '°C';
         const temperatureChart = new Chart(tempCtx, {
             type: 'bar',
             data: {
                 labels: ['Temperature'],
                 datasets: [{
                     label: 'Temperature',
-                    data: [38],
+                    data: [temperatureValue],
                     backgroundColor: 'rgba(255, 99, 71, 0.7)',
                     borderColor: 'rgba(255, 99, 71, 1)',
                     borderWidth: 1
