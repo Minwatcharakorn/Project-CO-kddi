@@ -29,7 +29,7 @@ body {
     border: 1px solid #cfd9e6;
     border-radius: 15px;
     padding: 20px;
-    margin-top: 40px;
+    margin-top: 20px;
     margin-bottom: 20px;
     position: relative;
     overflow: visible;
@@ -68,6 +68,7 @@ body {
     border: 1px solid #cfd9e6;
     border-radius: 15px;
     padding: 20px;
+    margin-top: 20px;
     margin-bottom: 20px;
     position: relative;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
@@ -154,7 +155,7 @@ body {
     border: 1px solid #cfd9e6;
     border-radius: 15px;
     padding: 20px;
-    margin-top: 40px;
+    margin-top: 20px;
     margin-bottom: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -186,4 +187,37 @@ body {
     border: 2px dashed #cfd9e6;
     height: 100px;
     margin-bottom: 20px;
+}
+
+.system-info {
+    background-color: #f5f7fa;
+    border: 1px solid #cfd9e6;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 60%; /* ลดความกว้างของกรอบให้เหลือ 60% ของ container */
+    max-width: 500px; /* กำหนดความกว้างสูงสุดไม่เกิน 500px */
+    margin:left; /* จัดให้อยู่กึ่งกลาง container */
+}
+
+
+.system-info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #cfd9e6;
+}
+
+.system-info-item:last-child {
+    border-bottom: none;
+}
+
+.system-info-label {
+    font-weight: bold;
+    color: #333;
+}
+
+.system-info-value {
+    color: #555;
 }
