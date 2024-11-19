@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ip-address</title>
+    <title>VLAN Page</title>
     <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/vlanpage.css">
+
 </head>
+
 <body>
     <!-- Sidebar -->
     <div id="sidebar-container"></div>
@@ -16,6 +19,76 @@
             .then(response => response.text())
             .then(data => document.getElementById("sidebar-container").innerHTML = data);
     </script>
+        <div class="content">
+            <h3 class="content-title">Configuration VLAN</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>S No</th>
+                            <th>Name</th>
+                            <th>IP Address</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Switch 1</td>
+                            <td>192.168.1.1</td>
+                            <td>
+                                <button class="btn-edit" onclick="openModal('Switch 1', '192.168.1.1')">Edit</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Switch 2</td>
+                            <td>192.168.1.2</td>
+                            <td>
+                                <button class="btn-edit" onclick="openModal('Switch 2', '192.168.1.2')">Edit</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Switch 3</td>
+                            <td>192.168.1.3</td>
+                            <td>
+                                <button class="btn-edit" onclick="openModal('Switch 3', '192.168.1.3')">Edit</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modal-title">Switch Details</h3>
+            <form>
+                <label for="interface">Interface:</label>
+                <select id="interface" name="interface">
+                    <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
+                    <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
+                    <option value="GigabitEthernet0/3">GigabitEthernet0/3</option>
+                    <option value="GigabitEthernet0/4">GigabitEthernet0/4</option>
+                </select>
+                <br><br>
+                <label for="mode">Mode:</label>
+                <select id="mode" name="mode">
+                    <option value="access">Access</option>
+                    <option value="trunk">Trunk</option>
+                </select>
+                <br><br>
+                <button type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+
+        <script src="../static/js/vlanpage.js"></script>
+
     
 </body>
 </html>
