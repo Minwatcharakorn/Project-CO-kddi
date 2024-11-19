@@ -1,0 +1,189 @@
+/* General Styling */
+html, body {
+    height: auto;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f4f7;
+    display: flex;
+    height: 100%;
+    overflow: auto;
+}
+
+.device-info-container {
+    margin-left: 270px; /* Space for the sidebar */
+    margin-top: 60px; /* Space for the top nav */
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+    min-height: calc(100vh - 60px); /* Ensure it covers the full height */
+}
+
+.switch-info {
+    background-color: #e9f2ff;
+    border: 1px solid #cfd9e6;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: visible;
+}
+
+.switch-model {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+}
+
+.switch-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.switch-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.switch-details span {
+    font-size: 14px;
+    color: #555;
+}
+
+.device-status {
+    background-color: #f5f7fa;
+    border: 1px solid #cfd9e6;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.device-status h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.chart-container {
+    width: 100%;
+    height: 150px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.port-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    justify-content: center;
+}
+
+.port-group {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.port-row {
+    display: flex;
+    gap: 10px;
+}
+
+.port {
+    width: 40px;
+    height: 40px;
+    background-color: #d3d3d3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #333;
+    position: relative;
+    border: 1px solid #a0a0a0;
+}
+
+.port.active {
+    background-color: #32CD32;
+    color: #FFF;
+}
+
+.port-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+}
+
+.port-number {
+    position: absolute;
+    top: -15px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+}
+
+.chart-percentage {
+    position: absolute;
+    bottom: -25px;
+    left: 45%; transform: translateX(-45%);
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+.vlan-info {
+    background-color: #f9fafb;
+    border: 1px solid #cfd9e6;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.vlan-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.vlan-table th, .vlan-table td {
+    border: 1px solid #cfd9e6;
+    padding: 8px;
+    text-align: left;
+    font-size: 14px;
+}
+
+.vlan-table th {
+    background-color: #e9f2ff;
+    color: #333;
+}
+
+.vlan-table td {
+    background-color: #fff;
+    color: #555;
+}
+.sortable-placeholder {
+    background: #f0f4f7;
+    border: 2px dashed #cfd9e6;
+    height: 100px;
+    margin-bottom: 20px;
+}
