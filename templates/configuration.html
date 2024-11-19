@@ -5,211 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Switch Management Configuration - Dashboard</title>
     <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/basic_config_page.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-        }
 
-        .config-section {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px solid #d0d4db;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-        }
-
-        h2, h3 {
-            color: #333;
-        }
-        form label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .config-section form input,
-        .config-section form select {
-            margin-bottom: 10px;
-            width: 100%;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-        .config-section form input[type="submit"] {
-            background-color: #007bff;
-            width: auto; /* ปรับให้ปุ่มมีความกว้างเท่ากับเนื้อหาข้อความ */
-
-            color: #fff;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .config-section form input[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-
-        /* Add spacing above the section headers */
-        .config-section h3 {
-            margin-top: 10px; /* Adjust the value as needed */
-            margin-bottom: 15px; /* Consistent spacing below */
-        }
-        .save-config-button {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .download-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: linear-gradient(90deg, #1a73e8, #0066cc);
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease-in-out;
-        }
-
-        .download-btn .icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .download-btn .icon i {
-            font-size: 1.2rem;
-        }
-
-        .download-btn:hover {
-            background: linear-gradient(90deg, #0056b3, #004080);
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .download-btn:active {
-            background: linear-gradient(90deg, #004080, #003366);
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .download-btn-outline {
-            background: transparent;
-            color: #ffffff;
-            border: 2px solid #1a73e8;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-        }
-
-        .download-btn-outline:hover {
-            background: rgba(26, 115, 232, 0.1);
-            color: #1a73e8;
-            transform: translateY(-2px);
-        }
-
-        .download-btn-outline:active {
-            background: rgba(26, 115, 232, 0.2);
-            transform: translateY(0);
-        }
-
-        #telnet-config {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px solid #d0d4db;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-        }
-        #telnet-config h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-        #telnet-config form input,
-        #telnet-config form select {
-            margin-bottom: 10px;
-            width: 100%;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-        #telnet-config form input[type="submit"] {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        #telnet-config form input[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-/*  */
-        .dropdown {
-            position: relative;
-            display: inline-block;
-            width: auto;
-        }
-
-        .dropdown-button {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #fff;
-            cursor: pointer;
-        }
-
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            width: 100%;
-            background-color: #f9f9f9;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-            padding: 10px;
-            z-index: 1;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .dropdown-menu li {
-            list-style: none;
-            padding: 5px;
-            display: flex;
-            align-items: center;
-        }
-
-        .dropdown-menu li input {
-            margin-right: 10px;
-        }
-
-        .dropdown-menu li label {
-            cursor: pointer;
-        }
-
-        .dropdown-menu li:hover {
-            background-color: #f1f1f1;
-        }
-
-        .config-section {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px solid #d0d4db;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-        }
-
-    </style>
 </head>
 <body>
     <!-- Sidebar -->
@@ -230,13 +29,36 @@
         </div>
 
         <!-- Configuration Sections -->
+        <div class="config-section" id="create-vlan-multiple">
+            <h3>Create VLANs</h3>
+            <form id="vlan-multiple-form">
+                <div id="vlan-rows">
+                    <button type="button" id="add-vlan-row">Add VLAN</button>
+                    <br><br>
+                    <div class="vlan-row">
+                        <label for="vlan-id-1">VLAN ID</label>
+                        <input type="number" id="vlan-id-1" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required style="width: auto;">
+                        <label for="vlan-name-1">VLAN Name</label>
+                        <input type="text" id="vlan-name-1" name="vlan-name[]" placeholder="Enter VLAN Name" required style="width: auto;">
+                        <button type="button" class="remove-vlan-row" style="width: auto;">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>                    
+                    </div>
+                </div>
+
+                <input type="submit" value="Save VLANs Configuration">
+            </form>
+        </div>
+        
+
+
         <div class="config-section" id="basic-config">
             <h3>Enable Secret VTY Access Configuration</h3>
             <form>
                 <label for="enable-password">Enable Password:</label>
                 <input type="text" id="enable-password" name="enable-password" placeholder="Enter Enable Password" style="width: auto;"><br><br>
                 <label for="vty-password">VTY Password:</label>
-                <input type="text" id="vty-password" name="vty-password" placeholder="Enter VTY Password" style="width: auto;"><br><br>
+                <input type="text" id="vty-password" name="vty-password" placeholder="Enter VTY Password"   ><br><br>
                 <input type="submit" value="Save VTY Configuration">
             </form>
         </div>
@@ -388,58 +210,7 @@
             </button>
         </div>
     </div>
-<script>
-    let selectedMethods = [];
+    <script src="../static/js/basic_config.js"></script>
 
-    function toggleDropdown() {
-        const menu = document.getElementById('dropdown-options');
-        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function updateSelections() {
-        selectedMethods = [];
-        const options = document.querySelectorAll('#dropdown-options input:checked');
-        options.forEach(option => selectedMethods.push(option.value));
-        document.getElementById('selected-methods').innerText = selectedMethods.length
-            ? `Selected: ${selectedMethods.join(', ')}`
-            : 'No method selected';
-    }
-
-    function saveConfiguration() {
-        alert(`Configuration Saved: ${selectedMethods.join(', ')}`);
-    }
-    function toggleDropdown() {
-    const menu = document.getElementById('dropdown-options');
-    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function showConfig() {
-        const sshConfig = document.getElementById('ssh-config');
-        const telnetConfig = document.getElementById('telnet-config');
-        const sshandtelnetConfig = document.getElementById('ssh_telnet-config');
-
-        const sshOption = document.getElementById('ssh-option').checked;
-        const telnetOption = document.getElementById('telnet-option').checked;
-
-        if (sshOption && telnetOption) {
-            sshConfig.style.display = 'none';
-            telnetConfig.style.display = 'none';
-            sshandtelnetConfig.style.display = 'block';
-        } else if (sshOption) {
-            sshConfig.style.display = 'block';
-            telnetConfig.style.display = 'none';
-            sshandtelnetConfig.style.display = 'none';
-        } else if (telnetOption) {
-            telnetConfig.style.display = 'block';
-            sshConfig.style.display = 'none';
-            sshandtelnetConfig.style.display = 'none';
-        } else {
-            sshConfig.style.display = 'none';
-            telnetConfig.style.display = 'none';
-            sshandtelnetConfig.style.display = 'none';
-        }
-    }
-
-</script>
 </body>
 </html>
