@@ -539,4 +539,21 @@ tbody tr:hover {
 
 .nav-info {
     font-size: 14px;
+    color: #d1d5db; /* Light gray text for better readability */
+
+}
+
+
+.nav-info i {
+    color: #1E90FF; /* Blue for icons to match the theme */
+    margin-right: 5px;
+}
+
+.sidebar-item a i {
+    color: #1E90FF; /* Set icons to blue */
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
+.sidebar-item a:hover i {
+    color: #00BFFF; /* Brighter blue on hover for a clean effect */
 }
