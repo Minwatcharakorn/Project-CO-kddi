@@ -51,7 +51,7 @@ body {
 
 /* Sidebar */
 .sidebar {
-    background-color: #2a3b4c; /* Darker modern color */
+    background-color: #2a3b4b; /* Darker modern color */
     color: #fff;
     width: 250px;
     padding-top: 60px;
@@ -81,7 +81,7 @@ body {
     align-items: center;
     padding: 15px 20px;
     font-size: 1rem;
-    color: #d1d5db;
+    color: #cdd4df; /* Lighter gray text for better readability */
     transition: background-color 0.3s;
 }
 
@@ -100,7 +100,7 @@ body {
 
 /* เปลี่ยนสีตัวอักษรของลิงก์ที่เลือกอยู่ (active) */
 .sidebar-item.active a {
-    color: #FFD700; /* เปลี่ยนเป็นสีที่ต้องการเมื่อ active เช่น สีทอง */
+    color: #ffffff; /* เปลี่ยนเป็นสีที่ต้องการเมื่อ active เช่น สีทอง */
 }
 
 /* เพิ่มสไตล์ลิงก์เมื่อมีการโฮเวอร์ */
@@ -124,15 +124,17 @@ body {
     transition: background-color 0.3s;
 }
 
-.sidebar-item.active,
 .sidebar-item:hover {
-    background-color: #749ae6;
+    background-color: #3c4b5c; /* Slightly lighter shade on hover */
+    color: #ffffff; /* White text on hover */
     cursor: pointer;
 }
 
 .sidebar-item.active {
-    background-color: #506a86;
+    background-color: #3c4b5c; /* Highlighted color for active state */
     color: #fff;
+    cursor: pointer;
+
 }
 
 @media (max-width: 768px) {
@@ -149,6 +151,9 @@ body {
     display: none; /* Hide submenu initially */
     flex-direction: column;
     gap: 5px;
+    width: auto; /* Ensure submenu items adjust to text length */
+    min-width: 250px; /* Set a reasonable minimum width */
+
 }
 
 .sidebar-item:hover .submenu {
@@ -156,7 +161,7 @@ body {
 }
 
 .submenu li {
-    padding: 8px 15px;
+    padding: 10px 20px; /* Add more padding for better spacing */
     font-size: 0.9rem;
     background-color: #1a1c23; /* Match sidebar background */
     border-radius: 4px;
@@ -344,10 +349,6 @@ tbody tr:hover {
     color: #FFFFFF; /* Text color */
 }
 
-.sidebar-item:hover {
-    background-color: #749ae6; /* Highlight the box on hover */
-    cursor: pointer;
-}
 
 .sidebar-item li {
     display: flex;
@@ -428,4 +429,23 @@ tbody tr:hover {
     display: inline-block;
     width: 20px;
     text-align: center;
+}
+
+.submenu li a {
+    text-decoration: none;
+    color: #b0b3b8; /* Text color */
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Add space between icon and text */
+}
+
+.submenu li a i {
+    font-size: 1rem; /* Adjust icon size */
+    color: #b0b3b8; /* Match text color */
+    transition: color 0.3s;
+}
+
+.submenu li a:hover i {
+    color: #ffffff; /* Change icon color on hover */
 }

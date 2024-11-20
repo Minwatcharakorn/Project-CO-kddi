@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Templates list</title>
+    <title>Templates List</title>
     <link rel="stylesheet" href="../static/styles.css">
     <link rel="stylesheet" href="../static/templates_list.css">
-
-
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div id="sidebar-container"></div>
     
     <script>
-        // โหลดไฟล์ HTML ของ Sidebar เข้าไปใน #sidebar-container
+        // Load the sidebar into the container
         fetch('sidebar.html')
             .then(response => response.text())
             .then(data => document.getElementById("sidebar-container").innerHTML = data);
     </script>
 
     <div class="content">
-        <h2>Configuration Switch Mode</h2>
+        <div class="content-header">
+            <h2>List Templates</h2>
+        </div>
+
         <div class="table-container">
             <table>
                 <thead>
@@ -37,37 +38,111 @@
                 <tbody>
                     <tr>
                         <td>1</td>
-                        <td>CSW Template</td>
+                        <td>CSW-1 Template</td>
                         <td>Core-Switch by John</td>
                         <td>CLI</td>
                         <td>29 Sep 2024 18:43:50</td>
                         <td>
-                            <button class="btn-edit" onclick="openModal('CSW Template', 'CLI')">Edit</button>
+                            <div class="action-buttons">
+                                <button class="btn-edit" onclick="openModal('CSW Template', 'Visit')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-edit" onclick="openModal('CSW Template', 'Edit')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-delete" onclick="deleteTemplate('CSW Template')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
+                    </tr>
                     <tr>
                         <td>2</td>
-                        <td>L2 Switch Model</td>
-                        <td>Access Switch Config</td>
+                        <td>DSW Model</td>
+                        <td>Distribution by John</td>
                         <td>CLI</td>
-                        <td>29 Sep 2024 22:09:50</td>
+                        <td>4 Oct 2024 15:30:12</td>
                         <td>
-                            <button class="btn-edit" onclick="openModal('L2 Switch Model', 'CLI')">Edit</button>
+                            <div class="action-buttons">
+                                <button class="btn-edit" onclick="openModal('CSW Template', 'Visit')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-edit" onclick="openModal('CSW Template', 'Edit')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-delete" onclick="deleteTemplate('CSW Template')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     <tr>
                         <td>3</td>
-                        <td>DHCP</td>
-                        <td>DHCP Server</td>
+                        <td>CSW-2 Template</td>
+                        <td>Core-Switch by John</td>
                         <td>CLI</td>
-                        <td>19 Sep 2024 21:43:50</td>
+                        <td>29 Sep 2024 18:43:50</td>
                         <td>
-                            <button class="btn-edit" onclick="openModal('HCP', 'CLI')">Edit</button>
+                            <div class="action-buttons">
+                                <button class="btn-edit" onclick="openModal('CSW Template', 'Visit')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-edit" onclick="openModal('CSW Template', 'Edit')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-delete" onclick="deleteTemplate('CSW Template')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Access Template</td>
+                        <td>Access Switch by Ball</td>
+                        <td>CLI</td>
+                        <td>8 Sep 2024 15:20:50</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-edit" onclick="openModal('CSW Template', 'Visit')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-edit" onclick="openModal('CSW Template', 'Edit')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-delete" onclick="deleteTemplate('CSW Template')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- Repeat similar rows for other templates -->
                 </tbody>
             </table>
         </div>
     </div>
-    
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modal-title">Template Details</h3>
+            <div id="command-output" class="terminal">
+                <pre>
+                enable
+                config t
+                do show run
+                ......</pre>
+            </div>
+            <div id="edit-area" style="display: none;">
+                <textarea id="edit-textarea" style="width: 100%; height: 200px;">enable
+    config t
+    do show run
+    ......</textarea>
+                <button class="btn-save" style="margin-top: 20px;">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/js/temples.js"></script>
 </body>
 </html>
