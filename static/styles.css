@@ -528,3 +528,15 @@ tbody tr:hover {
 .breadcrumb a:last-of-type::after {
     content: "";
 }
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+}
+
+.nav-info {
+    font-size: 14px;
+}
