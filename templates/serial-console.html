@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serial Console</title>
+    <link rel="stylesheet" href="../static/styles-serial-console.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Initial Port Serial</h1>
+        <div class="console-settings">
+            <div class="serial-settings">
+                <h3>Basic Serial Settings</h3>
+                <label for="serial-port">Serial Port:</label>
+                <select id="serial-port">
+                    <option value="" disabled selected>Choose at session start</option>
+                    <option value="COM1">COM1</option>
+                    <option value="COM2">COM2</option>
+                    <option value="COM3">COM3</option>
+                </select>
+                <label for="speed">Speed (bps):</label>
+                <select id="speed">
+                    <option value="9600">9600</option>
+                    <option value="19200">19200</option>
+                    <option value="38400">38400</option>
+                </select>
+                <button id="upload-file">Upload File</button>
+                <input type="file" id="file-input" style="display: none;">
+            </div>
+            <textarea id="command-area" placeholder="Enter commands here..."></textarea>
+            <button id="deploy-button">Deploy</button>
+            <a href="Initial.html" class="back-button">Back to Login</a>
+        </div>
+    </div>
+
+    <script src="../static/js/script-serial-console.js"></script>
+</body>
+</html>
