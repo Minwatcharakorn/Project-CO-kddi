@@ -1,0 +1,146 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background: #191919;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    width: 90%;
+    max-width: 1200px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.login-section, .info-section {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-section {
+    background: #ffffff;
+    text-align: center;
+}
+
+.info-section {
+    background: #333;
+    color: #ffffff;
+    text-align: left;
+    padding: 40px;
+}
+
+.info-section h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+.info-section p {
+    font-size: 16px;
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+.loginssh-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px 40px;
+    border-radius: 15px;
+    /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); */
+    width: 100%;
+    max-width: 350px;
+    text-align: center;
+    margin: auto;
+}
+
+.loginssh-container h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.loginssh-container input[type="ipaddress"],
+.loginssh-container input[type="username"],
+.loginssh-container input[type="password"] {
+    width: 70%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+.loginssh-container a {
+    font-size: 0.9em;
+    color: #333;
+    text-decoration: none;
+    margin-top: 5px;
+    display: block;
+}
+
+.loginssh-container a:hover {
+    text-decoration: underline;
+}
+
+.buttons {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center; /* Center button horizontally */
+    align-items: center;
+}
+
+.loginssh-container button {
+    padding: 12px 0;
+    width: 48%;
+    max-width: 200px; /* Max width for better control */
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.loginssh-container button.login {
+    background: #333;
+    color: #fff;
+    font-weight: bold;
+}
+
+.loginssh-container button.login:hover {
+    background: #4c4c4c;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.password-container {
+    position: relative;
+}
+
+.password-container input {
+    width: 70%; /* Match the width of the Username field */
+    padding: 12px; /* Match the padding of the Username field */
+    margin: 10px 0; /* Match the margin of the Username field */
+    border: 1px solid #ccc; /* Match the border */
+    border-radius: 10px; /* Match the border-radius */
+    font-size: 16px; /* Match the font-size */
+}
+
+.password-container i {
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.2em;
+    color: #333;
+}
+
