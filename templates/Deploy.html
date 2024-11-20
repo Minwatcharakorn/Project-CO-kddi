@@ -3,22 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delpoy Command</title>
+    <title>Dashboard - Deploy Devices</title>
     <link rel="stylesheet" href="../static/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-
 </head>
 <body>
+    <!-- Sidebar -->
     <div id="sidebar-container"></div>
     
     <script>
-        // โหลดไฟล์ HTML ของ Sidebar เข้าไปใน #sidebar-container
+        // Load the sidebar into the container
         fetch('sidebar.html')
             .then(response => response.text())
             .then(data => document.getElementById("sidebar-container").innerHTML = data);
     </script>
+    
+    <!-- Main Content -->
+    <div class="content">
+        <div class="content-header">
+            <div class="breadcrumb">
+                <h2><span>Devices</span></h2>
+            </div>
+            <button id="apply-button" class="apply-button">Apply</button>
+        </div>
 
-  
-</body>
+        <div class="content-body">
+            <div class="table-container">
+                <!-- Table with data similar to the Cisco vManage interface -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select-all"></th>
+                            <th>Chassis Number</th>
+                            <th>Model</th>
+                            <th>Serial No./Token</th>
+                            <th>Hostname</th>
+                            <th>IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="checkbox" class="device-checkbox"></td>
+                            <td>CSR-446db3a4-ba82-4ea0</td>
+                            <td>C9300-48UXM</td>
+                            <td>2B8ADCEB</td>
+                            <td>Switch</td>
+                            <td>192.168.1.254</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="device-checkbox"></td>
+                            <td>CSR-231AS12a3-pop2-12se</td>
+                            <td>C9300-48UXM</td>
+                            <td>44ASBDES</td>
+                            <td>ASW-B401</td>
+                            <td>192.168.1.250</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="device-checkbox"></td>
+                            <td>CSR-JDHN12ana-d1s2-vi89</td>
+                            <td>C9200-24PXG</td>
+                            <td>AA910SBE</td>
+                            <td>CSW-TH_1</td>
+                            <td>192.168.1.178</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="device-checkbox"></td>
+                            <td>CSR-A121ab90g-SA93-712s</td>
+                            <td>C9300-24UB</td>
+                            <td>01A44DES</td>
+                            <td>ASW-B403</td>
+                            <td>192.168.1.251</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="device-checkbox"></td>
+                            <td>CSR-90a0192sAA-pop2-se19</td>
+                            <td>C9300X-48TX</td>
+                            <td>102POWS</td>
+                            <td>ASW-B404</td>
+                            <td>192.168.1.98</td>
+                        </tr>
+                        <!-- More rows as needed -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Select all checkbox logic
+        document.getElementById('select-all').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.device-checkbox');
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        });
+
+        // Apply button event listener
+        document.getElementById('apply-button').addEventListener('click', function() {
+            const selectedDevices = [];
+            document.querySelectorAll('.device-checkbox:checked').forEach(checkbox => {
+                const row = checkbox.closest('tr');
+                const deviceInfo = {
+                    deviceName: row.cells[1].innerText,
+                    ipAddress: row.cells[5].innerText
+                };
+                selectedDevices.push(deviceInfo);
+            });
+
+            if (selectedDevices.length > 0) {
+                localStorage.setItem('selectedDevices', JSON.stringify(selectedDevices));
+                window.location.href = 'template_selection.html';
+            } else {
+                alert('Please select at least one device to apply.');
+            }
+        });
+    </script>
+
+    <script src="scripts.js"></script>
+</body> 
 </html>

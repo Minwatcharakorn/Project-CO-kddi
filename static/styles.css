@@ -449,3 +449,81 @@ tbody tr:hover {
 .submenu li a:hover i {
     color: #ffffff; /* Change icon color on hover */
 }
+/* CSS for Deploy and Apply buttons */
+.deploy-button, .apply-button {
+    background-color: #28a745; /* Green background for emphasis */
+    color: white; /* White text color */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px 20px; /* Padding for better appearance */
+    font-size: 16px; /* Larger text for readability */
+    cursor: pointer; /* Pointer cursor to indicate button functionality */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.deploy-button:hover, .apply-button:hover {
+    background-color: #218838; /* Darker green on hover */
+    transform: scale(1.05); /* Slight scale-up on hover */
+}
+
+.deploy-button:active, .apply-button:active {
+    background-color: #1e7e34; /* Even darker green when clicked */
+    transform: scale(0.98); /* Slight scale-down on click */
+}
+
+/* Additional styling for button container */
+.content-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px; /* Space below header */
+}
+
+/* Style for the button's focus state to improve accessibility */
+.deploy-button:focus, .apply-button:focus {
+    outline: 2px solid #0056b3; /* Blue outline to indicate focus */
+    outline-offset: 2px;
+}
+.breadcrumb {
+    font-size: 16px;
+    margin-bottom: 1px;
+    padding: 10px 0;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    color: #007BFF; /* สีฟ้าเหมือนลิงก์ */
+    transition: color 0.3s ease;
+}
+
+.breadcrumb a:hover {
+    color: #0056b3; /* สีเข้มขึ้นเมื่อ hover */
+}
+
+.breadcrumb span {
+    color: #6c757d; /* สีเทาอ่อน */
+}
+
+.breadcrumb::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+.breadcrumb a,
+.breadcrumb span {
+    white-space: nowrap; /* ไม่ให้เกิดการตัดคำ */
+}
+
+.breadcrumb a::after {
+    content: ">";
+    margin: 0 5px;
+    color: #6c757d; /* สีเทาอ่อน */
+}
+
+.breadcrumb a:last-of-type::after {
+    content: "";
+}
