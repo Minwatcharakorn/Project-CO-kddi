@@ -116,6 +116,57 @@
                 <button type="submit">Save</button>
             </form>
     </div>
+        <!-- Modal -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h3 id="modal-title">Switch Details</h3>
+                <form>
+                    <div>
+                        <!-- Access Checkbox -->
+                        <label>
+                            <input type="checkbox" id="access-mode" name="mode" value="access" onclick="toggleDropdown('access-dropdown', this)">
+                            Access
+                        </label>
+                        <!-- Access Dropdown -->
+                        <div id="access-dropdown" class="dropdown-check-list" style="display: none;">
+                            <span class="anchor">Select Interface Ports</span>
+                            <ul class="items">
+                                <li><input type="checkbox" />Gig0/1</li>
+                                <li><input type="checkbox" />Gig0/2</li>
+                                <li><input type="checkbox" />Gig0/3</li>
+                                <li><input type="checkbox" />Gig0/4</li>
+                                <li><input type="checkbox" />Gig0/5</li>
+                                <li><input type="checkbox" />Gig0/6</li>
+                                <li><input type="checkbox" />Gig0/7</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <br>
+                    <div>
+                        <!-- Trunk Checkbox -->
+                        <label>
+                            <input type="checkbox" id="trunk-mode" name="mode" value="trunk" onclick="toggleDropdown('trunk-dropdown', this)">
+                            Trunk
+                        </label>
+                        <!-- Trunk Dropdown -->
+                        <div id="trunk-dropdown" class="dropdown-check-list" style="display: none;">
+                            <span class="anchor">Select Interface Ports</span>
+                            <ul class="items">
+                                <li><input type="checkbox" />Gig0/1</li>
+                                <li><input type="checkbox" />Gig0/2</li>
+                                <li><input type="checkbox" />Gig0/3</li>
+                                <li><input type="checkbox" />Gig0/4</li>
+                                <li><input type="checkbox" />Gig0/5</li>
+                                <li><input type="checkbox" />Gig0/6</li>
+                                <li><input type="checkbox" />Gig0/7</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <br>
+                    <button type="submit">Save</button>
+                </form>
+        </div>
 
     <script src="../static/js/vlanpage.js"></script>
 </body>

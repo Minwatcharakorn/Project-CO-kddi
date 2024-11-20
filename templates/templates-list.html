@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Templates list</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/templates_list.css">
+
+
+
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <script>
+        // โหลดไฟล์ HTML ของ Sidebar เข้าไปใน #sidebar-container
+        fetch('sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById("sidebar-container").innerHTML = data);
+    </script>
+
+    <div class="content">
+        <h2>Configuration Switch Mode</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Templates Name</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Last Updated</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>CSW Template</td>
+                        <td>Core-Switch by John</td>
+                        <td>CLI</td>
+                        <td>29 Sep 2024 18:43:50</td>
+                        <td>
+                            <button class="btn-edit" onclick="openModal('CSW Template', 'CLI')">Edit</button>
+                        </td>
+                    <tr>
+                        <td>2</td>
+                        <td>L2 Switch Model</td>
+                        <td>Access Switch Config</td>
+                        <td>CLI</td>
+                        <td>29 Sep 2024 22:09:50</td>
+                        <td>
+                            <button class="btn-edit" onclick="openModal('L2 Switch Model', 'CLI')">Edit</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>DHCP</td>
+                        <td>DHCP Server</td>
+                        <td>CLI</td>
+                        <td>19 Sep 2024 21:43:50</td>
+                        <td>
+                            <button class="btn-edit" onclick="openModal('HCP', 'CLI')">Edit</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+</body>
+</html>
