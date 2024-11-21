@@ -337,3 +337,293 @@ form label {
 }
 
 
+#dhcp-config {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #d0d4db;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.dhcp-pool {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+#add-dhcp-pool {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#add-dhcp-pool:hover {
+    background-color: #0056b3;
+}
+
+.remove-dhcp-pool {
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.remove-dhcp-pool:hover {
+    background-color: #b02a37;
+}
+
+.styled-button {
+    background-color: #007bff; /* สีน้ำเงิน */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-align: center;
+}
+
+.styled-button:hover {
+    background-color: #0056b3; /* สีน้ำเงินเข้มเมื่อ hover */
+}
+
+.styled-button:active {
+    background-color: #004080; /* สีน้ำเงินเข้มที่สุดเมื่อคลิก */
+}
+
+
+/* HSRP Section Styles */
+#hsrp-config {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #d0d4db;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.hsrp-pool {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+#add-hsrp-pool {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#add-hsrp-pool:hover {
+    background-color: #0056b3;
+}
+
+.remove-hsrp-pool {
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.remove-hsrp-pool:hover {
+    background-color: #b02a37;
+}
+
+.hsrp-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.hsrp-form input[type="text"],
+.hsrp-form input[type="number"] {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.hsrp-form div {
+    display: flex;
+    align-items: center;
+}
+
+.hsrp-form label {
+    margin-top: 5;
+    margin-right: -135px; /* ลดช่องว่างระหว่าง label และ checkbox */
+}
+
+.hsrp-form input[type="checkbox"] {
+    margin: 0; /* ลบ margin ที่อาจมีใน checkbox */
+}
+
+#add-interface-config {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#add-interface-config:hover {
+    background-color: #0056b3;
+}
+
+.remove-interface-config {
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.remove-interface-config:hover {
+    background-color: #b02a37;
+}
+
+.interface-config {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+
+.interface-config hr {
+    display: none; /* Hide hr elements inside the container */
+}
+
+.interface-config-form label {
+    display: inline-flex; /* Ensure it aligns horizontally */
+    align-items: center;
+    gap: 10px; /* Add space between checkbox and label */
+    margin-top: 10px; 
+    margin-right: 1100px; 
+    white-space: nowrap; /* ป้องกันข้อความตกบรรทัด */
+
+}
+
+.interface-config-form input[type="checkbox"] {
+    margin: 0; /* Remove default margins */
+    padding: 0; /* Remove default padding */
+}
+
+
+.ip-route-row {
+    display: flex;
+    align-items: center; /* Align items vertically in the center */
+    gap: 15px; /* Space between elements */
+    margin-bottom: 10px; /* Space between rows */
+}
+.ip-route-row input {
+    flex: 1;
+    max-width: 300px; /* Ensure a consistent input width */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.remove-ip-route {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-right: 500px;
+}
+
+.remove-ip-route:hover {
+    background-color: #b02a37;
+}
+
+
+/* Style for the Add Button */
+#add-ip-route {
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px 15px; /* Padding for better appearance */
+    font-size: 16px; /* Font size */
+    cursor: pointer; /* Pointer cursor for interactivity */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+}
+
+
+.ip-route-row form {
+    display: flex;
+    gap: 15px; /* Space between form fields */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    flex: 1; /* Allow the form to take remaining space */
+}
+
+.ip-route-row label {
+    display: none; /* Hide labels for cleaner horizontal layout */
+}
+
+.ip-route-row input, .ip-route-row select {
+    flex: 1; /* Inputs take equal space */
+    max-width: 200px; /* Limit input width */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.ip-route-row button {
+    background-color: #dc3545; /* Red background */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.ip-route-row button:hover {
+    background-color: #b02a37; /* Darker red on hover */
+}
+
+/* Adjust for Smaller Screens */
+@media (max-width: 768px) {
+    .ip-route-row {
+        flex-direction: column; /* Stack fields vertically */
+        gap: 10px;
+    }
+
+    .ip-route-row form {
+        width: 100%;
+    }
+
+    .ip-route-row button {
+        align-self: flex-start; /* Align button to the start */
+    }
+}
