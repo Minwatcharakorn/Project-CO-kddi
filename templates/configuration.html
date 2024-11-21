@@ -199,56 +199,52 @@
 
         <!-- DHCP -->
         <div class="config-section" id="dhcp-config">
-            <h3>DHCP Configuration</h3>
-            <form id="dhcp-form">
-                <label for="dhcp-pool-name">DHCP Pool Name:</label>
-                <input type="text" id="dhcp-pool-name" name="dhcp-pool-name" placeholder="Enter DHCP Pool Name" required>
-                <br><br>
-        
-                <div class="inline-fields">
-                    <div>
-                        <label for="dhcp-network">IP Address:</label>
-                        <input type="text" id="dhcp-network" name="dhcp-network" placeholder="e.g. 192.168.1.0" required>
-                    </div>
-                    <div>
-                        <label for="dhcp-subnet">Subnet Mask:</label>
-                        <select id="dhcp-subnet" name="dhcp-subnet" required></select>
-                    </div>
-                </div>
-                <br>
-        
-                <label for="default-router">Default Gateway:</label>
-                <input type="text" id="default-router" name="default-router" placeholder="Enter Default Gateway (e.g., 192.168.1.1)" required>
-                <br><br>
-        
-                <label for="dns-server">DNS Server:</label>
-                <input type="text" id="dns-server" name="dns-server" placeholder="Enter DNS Server (e.g., 8.8.8.8)" required>
-                <br><br>
-        
-            <!-- Checkbox for Lease Duration -->
-                <label>
-                    <input type="checkbox" id="enable-lease-duration" name="enable-lease-duration">
-                    Enable Lease Duration
-                </label>
-                <div id="lease-duration-section" style="display: none; margin-top: 10px;">
-                    <label for="lease-duration">Lease Duration (days):</label>
-                    <input type="number" id="lease-duration" name="lease-duration" placeholder="Enter Lease Duration" min="1">
-                </div>
-                <br><br>
+            <h3>DHCP Configuration ( Dynamic Host Configuration Protocol )</h3>
+            <button type="button" id="add-dhcp-pool">Add DHCP Pool</button>
+            <br><br>
+            <div id="dhcp-pools">
+                <!-- Default Pool -->
+                <div class="dhcp-pool">
+                    <form class="dhcp-form">
+                        <label for="dhcp-pool-name-1">DHCP Pool Name</label>
+                        <input type="text" id="dhcp-pool-name-1" name="dhcp-pool-name" placeholder="Enter DHCP Pool Name" required>
+                        <div class="inline-fields">
+                            <div>
+                                <label for="dhcp-network-1">IP Address</label>
+                                <input type="text" id="dhcp-network-1" name="dhcp-network" placeholder="e.g. 192.168.1.0" required>
+                            </div>
+                            <div>
+                                <label for="dhcp-subnet-1">Subnet Mask</label>
+                                <select id="dhcp-subnet-1" name="dhcp-subnet" required></select>
+                            </div>
+                        </div>
+                        <label for="default-router-1">Default Gateway</label>
+                        <input type="text" id="default-router-1" name="default-router" placeholder="Enter Default Gateway" required>
+                        <label for="dns-server-1">DNS Server</label>
+                        <input type="text" id="dns-server-1" name="dns-server" placeholder="Enter DNS Server" required>
+                        <label for="Lease-1">Lease</label>
+                        <div class="inline-fields">
+                            <input type="number" id="Lease-1" name="lease-time" placeholder="Enter Lease Time" min="1">
+                            <select id="lease-unit-1" name="lease-unit">
+                                <option value="hours" selected>Hours</option>
+                                <option value="days">Days</option>
+                                <option value="minutes">Minutes</option>
+                            </select>
+                        </div>
+                        <label for="excluded-address">DHCP Excluded-Address</label>
+                        <input type="text" id="dns-server-1" name="dns-server" placeholder="Enter DHCP Excluded-Address IP e.g. 192.168.10.1">
 
-                <!-- Checkbox for Excluded Addresses -->
-                <label>
-                    <input type="checkbox" id="enable-excluded-addresses" name="enable-excluded-addresses">
-                    Enable Excluded Addresses
-                </label>
-                <div id="excluded-addresses-section" style="display: none; margin-top: 10px;">
-                    <label for="excluded-addresses">Excluded Addresses:</label>
-                    <input type="text" id="excluded-addresses" name="excluded-addresses" placeholder="Enter Excluded Addresses (e.g., 192.168.1.1-192.168.1.10)">
+                        <br><br>
+                        <button type="button" class="remove-dhcp-pool">
+                            <i class="fas fa-trash-alt"></i> Remove DHCP Pool
+                        </button>
+                        <br><br>
+                    </form>
                 </div>
-                <br><br>
-        
-                <input type="submit" value="Save DHCP Configuration">
-            </form>
+            </div>
+
+            <!-- เพิ่มปุ่ม Save ด้านล่าง -->
+            <input type="submit" value="Save DHCP Configuration" id="save-dhcp-config" class="styled-button">
         </div>
 
 
