@@ -345,6 +345,13 @@ document.getElementById("add-interface-config").addEventListener("click", functi
                 <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
             </select>
 
+            <span>to</span>
+            <select id="interface-port-range-${interfaceCounter}" name="interface-port-range">
+                <option value="">--Select Port (Optional)--</option>
+                <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
+                <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
+            </select>
+
             <div class="ip-input ip-single" id="ip-single-${interfaceCounter}" style="display: none;">
                 <label for="interface-ip-${interfaceCounter}">IP Address:</label>
                 <input type="text" id="interface-ip-${interfaceCounter}" name="interface-ip" placeholder="Enter IP Address">
@@ -393,7 +400,9 @@ document.getElementById("save-interface-configs").addEventListener("click", func
         const formData = new FormData(form);
         const config = {
             interfacePort: formData.get("interface-port"),
+            interfacePortRange: formData.get("interface-port-range"),
             ip: formData.get("interface-ip"),
+            description: formData.get("Description-IP ADD"),
             switchMode: formData.get("no-switch") ? "No SW" : formData.get("switch-mode")
         };
         configs.push(config);
@@ -401,7 +410,6 @@ document.getElementById("save-interface-configs").addEventListener("click", func
     console.log("Saved Configurations:", configs);
     alert("Configurations Saved!");
 });
-
 
 // Function to toggle visibility of IP Address and Description based on "No Switchmode" checkbox
 function toggleSwitchMode(checkbox) {
@@ -421,7 +429,7 @@ function toggleSwitchMode(checkbox) {
         // Show the "Switch Mode" dropdown
         switchModeSection.style.display = "block";
 
-        // Hide the "IP Address" and "Description" fields
+        // Hide the "IP Address" and show "Description" fields
         ipAddressField.style.display = "none";
         descriptionField.style.display = "block";
     }
@@ -439,7 +447,6 @@ document.addEventListener("DOMContentLoaded", () => {
         toggleSwitchMode(checkbox);
     });
 });
-
 
 
 // IP Static Route Configuration

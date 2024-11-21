@@ -601,3 +601,66 @@ tbody tr:hover {
     padding: 10px;
     border-radius: 5px;
 }
+/* General Styling for Config Section */
+.config-section {
+    width: 60%;
+    margin: auto;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for Interface Configuration Form */
+.interface-config-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+label {
+    font-weight: bold;
+}
+
+select, input[type="text"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+span {
+    font-weight: bold;
+    color: #555;
+}
+
+.Description input[type="text"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex-basis: 30%;
+    margin-bottom: 10px;
+    margin-right: 60px;
+}
+/* Styling for IP Address and Description Fields */
+.ip-input, .Description {
+    flex-basis: 100%;
+}
+
+.ip-input label, .Description label {
+    margin-right: 10px;
+}
+
+/* Styling for Switch Mode Section */
+.switch-mode-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+

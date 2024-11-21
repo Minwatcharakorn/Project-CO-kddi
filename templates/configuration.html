@@ -284,7 +284,7 @@
         <!-- Interface Ports -->
         <div class="config-section" id="interface-ports-config">
             <h3>Interface Port Configuration</h3>
-            <br><br><br>
+            <br>
 
             <button type="button" id="add-interface-config">Add Interface Configuration</button>
             <br><br>
@@ -302,9 +302,15 @@
                             <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
                             <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
                         </select>
+
+                        <span>to</span>
+                        <select id="interface-port-range-1" name="interface-port-range">
+                            <option value="">--Select Port (Optional)--</option>
+                            <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
+                            <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
+                        </select>
         
-        
-                        <div class="ip-input ip-single" id="ip-single-1">
+                        <div class="Description IP" id="ip-single-1">
                             <label for="interface-ip-1">IP Address:</label>
                             <input type="text" id="interface-ip-1" name="interface-ip" placeholder="Enter IP Address">
                         </div>
@@ -332,7 +338,6 @@
         
             <input type="submit" value="Save All Interface Configurations" class="styled-button" id="save-interface-configs">
         </div>
-
 
 
 
