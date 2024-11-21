@@ -110,6 +110,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Add event listener for the Enable Lease checkbox
+    document.querySelectorAll(".toggle-lease").forEach(checkbox => {
+        checkbox.addEventListener("change", function () {
+            const leaseFields = this.closest(".dhcp-pool").querySelector("#lease-fields-1");
+            if (this.checked) {
+                leaseFields.style.display = "block"; // Show lease fields
+            } else {
+                leaseFields.style.display = "none"; // Hide lease fields
+            }
+        });
+    });
+});
+
 // Add New DHCP Pool
 document.getElementById("add-dhcp-pool").addEventListener("click", function () {
     dhcpCounter++;

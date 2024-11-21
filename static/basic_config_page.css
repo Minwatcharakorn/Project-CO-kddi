@@ -627,3 +627,16 @@ form label {
         align-self: flex-start; /* Align button to the start */
     }
 }
+
+
+/* จัดตำแหน่งปุ่ม Enable Lease */
+.toggle-lease {
+    margin-left: -130px; /* ย้าย checkbox ไปชิดซ้ายสุด */
+    vertical-align: middle; /* จัด checkbox ให้อยู่ในแนวกลางกับข้อความ */
+    
+}
+
+label[for="toggle-lease-1"] {
+    display: inline-flex;
+    align-items: center; /* จัด checkbox และข้อความให้อยู่แนวเดียวกัน */
+}
