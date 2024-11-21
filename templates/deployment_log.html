@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment Log</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/log.css">
+    <link rel="stylesheet" href="../static/templates_list.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <script>
+        // Load the sidebar into the container
+        fetch('sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById("sidebar-container").innerHTML = data);
+    </script>
+
+    <div class="content">
+        <div class="content-header">
+            <div class="breadcrumb">
+                <h2><a href="Deploy.html">Devices</a></h2> &gt; 
+                <h2><a href="template_selection.html">Select Templates</a></h2> &gt; 
+                <h2><a href="result.html">Deployment Result</a></h2> &gt; 
+                <h2><span>Deployment Log</span></h2>
+            </div>
+        </div>
+
+        <div class="log-container">
+            <h3>Deployment Details</h3><br>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Device Name</th>
+                        <th>IP Address</th>
+                        <th>Deployed Template</th>
+                        <th>Description</th>
+                        <th>Commands Executed</th>
+                    </tr>
+                </thead>
+                <tbody id="log-table-body">
+                    <!-- Rows will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Retrieve deployment details from local storage
+        const deploymentDetails = JSON.parse(localStorage.getItem('deploymentDetails')) || { devices: [], template: { templateName: 'N/A', description: 'N/A', commands: [] } };
+
+        const logTableBody = document.getElementById('log-table-body');
+        deploymentDetails.devices.forEach((device, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${device.deviceName}</td>
+                <td>${device.ipAddress}</td>
+                <td>${deploymentDetails.template.templateName}</td>
+                <td>${deploymentDetails.template.description}</td>
+                <td>
+                    <div class="commands-container">
+                        <pre>Success</pre>
+                        <button class="btn-edit" onclick="openModal('Show Result', 'Device')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            logTableBody.appendChild(row);
+        });
+
+        // Modal functionality
+        function openModal(templateName, action) {
+            const modal = document.getElementById("modal");
+            const modalTitle = document.getElementById("modal-title");
+            const editArea = document.getElementById("edit-area");
+            modalTitle.textContent = `${templateName} - ${action}`;
+            editArea.style.display = "block";
+            modal.style.display = "block";
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("modal");
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById("modal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modal-title">Show Result</h3>
+            <div id="edit-area">
+                <textarea id="edit-textarea" style="width: 100%; height: 200px;">enable
+config t
+do show run
+......</textarea>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/js/log.js"></script>
+</body>
+</html>
