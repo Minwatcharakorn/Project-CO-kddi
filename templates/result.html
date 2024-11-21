@@ -67,8 +67,13 @@
 
         // Deploy button event listener
         document.getElementById('deploy-button').addEventListener('click', function() {
-            alert('Deploying selected templates to devices...');
-            // Add deployment logic here
+            // Store deployment details in local storage
+            localStorage.setItem('deploymentDetails', JSON.stringify({
+                devices: selectedDevices,
+                template: selectedTemplate
+            }));
+            // Redirect to deployment log page
+            window.location.href = 'deployment_log.html';
         });
     </script>
 
