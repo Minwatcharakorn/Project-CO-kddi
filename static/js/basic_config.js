@@ -63,6 +63,8 @@ document.getElementById("add-vlan-row").addEventListener("click", function () {
         <input type="number" id="vlan-id-${vlanCounter}" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required style="width: auto;"> 
         <label for="vlan-name-${vlanCounter}">VLAN Name</label>
         <input type="text" id="vlan-name-${vlanCounter}" name="vlan-name[]" placeholder="Enter VLAN Name" required style="width: auto;">
+        <label for="vlan-IP-${vlanCounter}">IP Vlan</label>
+        <input type="text" id="vlan-IP-${vlanCounter}" name="vlan-IP[]" placeholder="Enter IP Address Vlan " required style="width: auto;">
         <button type="button" class="remove-vlan-row" style="width: auto;">
             <i class="fas fa-trash-alt"></i>
         </button>
