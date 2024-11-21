@@ -4,6 +4,7 @@ import sys
 import platform
 from flask import Flask, render_template, request
 import os
+import time
 
 ###### หาอุปกรณ์ในวงและ config ได้ ######
 # ฟังก์ชันสำหรับสแกนหาอุปกรณ์ในวงเครือข่ายโดยใช้ ping
@@ -88,6 +89,7 @@ def index():
 
 @app.route('/run', methods=['POST'])
 def run():
+    start_time = time.perf_counter()  # เริ่มจับเวลา
     selected_hosts = request.form.getlist('switches')
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -96,7 +98,12 @@ def run():
         for switch in switches if switch["host"] in selected_hosts
     ]
     results = loop.run_until_complete(asyncio.gather(*tasks))
+    end_time = time.perf_counter()  # จบการจับเวลา
+    total_time = end_time - start_time
+    
     result_html = ''.join([f'<h3>Results for {host}:</h3><pre>{output}</pre>' for host, output in zip(selected_hosts, results)])
+    result_html += f'<h3>Total Time Taken: {total_time:.2f} seconds</h3>'
+    
     return f'''
     <html>
         <body>
@@ -109,5 +116,3 @@ def run():
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0')
-
-
