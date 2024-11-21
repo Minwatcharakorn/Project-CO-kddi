@@ -14,9 +14,10 @@
                 <h2>Network Device Authentication</h2>
                 <form id="login-form">
                     <div class="password-container">
-                        <input type="text" id="ip-address" placeholder="IP Address e.g. (192.168.1.0)" required>
+                        <input type="text" id="ip-start" placeholder="Start IP Address e.g. 192.168.1.1" required>
+                        <input type="text" id="ip-end" placeholder="End IP Address e.g. 192.168.1.255" required>
                         <select id="subnet-mask" required>
-                            <option value="" disabled selected>Subnet</option>
+                            <option value="" disabled selected>&nbsp;&nbsp;/</option>
                             <option value="/1">/1</option>
                             <option value="/2">/2</option>
                             <option value="/3">/3</option>
@@ -50,7 +51,6 @@
                             <option value="/31">/31</option>
                             <option value="/32">/32</option>
                         </select>
-                        
                     </div>
                     <div class="username-container">
                         <input type="text" id="username" placeholder="Username" required>
@@ -74,5 +74,24 @@
     </div>
 
     <script src="../static/js/script-initial.js"></script>
+    <script>
+        document.getElementById('login-button').addEventListener('click', function () {
+            const ipStart = document.getElementById('ip-start').value;
+            const ipEnd = document.getElementById('ip-end').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!ipStart || !ipEnd || !username || !password) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            console.log(`IP Range: ${ipStart} - ${ipEnd}`);
+            console.log(`Username: ${username}`);
+            console.log(`Password: ${password}`);
+
+            // Add your network authentication logic here
+        });
+    </script>
 </body>
 </html>
