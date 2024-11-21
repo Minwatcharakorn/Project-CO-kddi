@@ -83,3 +83,45 @@ document.querySelectorAll(".remove-vlan-row").forEach(button => {
         button.parentElement.remove(); // ลบแถวออกจาก DOM
     });
 });
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const subnetSelect = document.getElementById("dhcp-subnet");
+    const subnetMasks = [
+        "128.0.0.0", "192.0.0.0", "224.0.0.0", "240.0.0.0", "248.0.0.0", "252.0.0.0",
+        "254.0.0.0", "255.0.0.0", "255.128.0.0", "255.192.0.0", "255.224.0.0",
+        "255.240.0.0", "255.248.0.0", "255.252.0.0", "255.254.0.0", "255.255.0.0",
+        "255.255.128.0", "255.255.192.0", "255.255.224.0", "255.255.240.0",
+        "255.255.248.0", "255.255.252.0", "255.255.254.0", "255.255.255.0",
+        "255.255.255.128", "255.255.255.192", "255.255.255.224", "255.255.255.240",
+        "255.255.255.248", "255.255.255.252", "255.255.255.254", "255.255.255.255"
+    ];
+
+    subnetMasks.forEach((mask, index) => {
+        const cidr = index + 1; // CIDR starts from /1
+        const option = document.createElement("option");
+        option.value = mask;
+        option.textContent = `${mask} (/${cidr})`;
+        subnetSelect.appendChild(option);
+    });
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const enableLeaseDuration = document.getElementById("enable-lease-duration");
+    const leaseDurationSection = document.getElementById("lease-duration-section");
+
+    const enableExcludedAddresses = document.getElementById("enable-excluded-addresses");
+    const excludedAddressesSection = document.getElementById("excluded-addresses-section");
+
+    // Toggle Lease Duration section
+    enableLeaseDuration.addEventListener("change", () => {
+        leaseDurationSection.style.display = enableLeaseDuration.checked ? "block" : "none";
+    });
+
+    // Toggle Excluded Addresses section
+    enableExcludedAddresses.addEventListener("change", () => {
+        excludedAddressesSection.style.display = enableExcludedAddresses.checked ? "block" : "none";
+    });
+});
+

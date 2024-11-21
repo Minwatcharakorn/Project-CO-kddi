@@ -28,6 +28,16 @@
             <h2>Create Template</h2>
         </div>
 
+
+        <div class="config-section" id="default-gateway-config">
+            <h3>Hostname Configuration</h3>
+            <form>
+                <label for="Host_name">Hostname</label>
+                <input type="text" id="Host-name" name="Host-name" placeholder="Enter Hostname" style="width: auto;"><br><br>
+                <input type="submit" value="Save Hostname Configuration">
+            </form>
+        </div>
+
         <!-- Configuration Sections -->
         <div class="config-section" id="create-vlan-multiple">
             <h3>Create VLANs</h3>
@@ -51,21 +61,56 @@
         </div>
         
 
+                <!-- VLAN IP Address -->
+                <div class="config-section" id="vlan-ip-config">
+                    <h3>VLAN IP Address</h3>
+                    <form>
+                        <label for="vlan-select">Select VLAN:</label>
+                        <select id="vlan-select" name="vlan-select">
+                            <option value="">--Select VLAN--</option>
+                        </select>
+                        <label for="vlan-ip">VLAN IP Address:</label>
+                        <input type="text" id="vlan-ip" name="vlan-ip" placeholder="Enter IP Address">
+                        <input type="submit" value="Save VLAN IP Configuration">
+                    </form>
+                </div>
+
+
+                <div class="config-section" id="logging-config">
+                    <h3>Logging Configuration</h3>
+                    <form>
+                        <label for="buffer-size">Buffer Size:</label>
+                        <input type="number" id="buffer-size" name="buffer-size" placeholder="Enter Buffer Size" min="0" style="width: auto;"><br><br>
+                        <label for="logging-level">Logging Level:</label>
+                        <select id="logging-level" name="logging-level" style="width: auto;">
+                            <option value="Emergency">Emergency</option>
+                            <option value="Alert">Alert</option>
+                            <option value="Critical">Critical</option>
+                            <option value="Error">Error</option>
+                            <option value="Warning">Warning</option>
+                            <option value="Notification">Notification</option>
+                            <option value="Informational">Informational</option>
+                            <option value="Debugging">Debugging</option>
+                        </select><br><br>
+                        <input type="submit" value="Save Logging Configuration">
+                    </form>
+                </div>
+
 
         <div class="config-section" id="basic-config">
             <h3>Enable Secret VTY Access Configuration</h3>
             <form>
-                <label for="enable-password">Enable Password:</label>
+                <label for="enable-password">Enable Password</label>
                 <input type="text" id="enable-password" name="enable-password" placeholder="Enter Enable Password" style="width: auto;"><br><br>
-                <label for="vty-password">VTY Password:</label>
+                <label for="vty-password">VTY Password</label>
                 <input type="text" id="vty-password" name="vty-password" placeholder="Enter VTY Password"   ><br><br>
                 <input type="submit" value="Save VTY Configuration">
             </form>
         </div>
         
         <div class="config-section" id="connection-method-config">
-            <h3>Connection Methods</h3>
-            <label for="connection-method">Select Connection Methods:</label>
+            <h3>Connection Methods ( SSH / Telnet )</h3>
+            <label for="connection-method">Select Connection Methods </label>
             <div id="connection-method-container" class="dropdown">
                 <button class="dropdown-button" onclick="toggleDropdown()">Select Methods</button>
                 <ul id="dropdown-options" class="dropdown-menu">
@@ -151,25 +196,108 @@
             </form>
         </div>
 
-        <div class="config-section" id="logging-config">
-            <h3>Logging Configuration</h3>
-            <form>
-                <label for="buffer-size">Buffer Size:</label>
-                <input type="number" id="buffer-size" name="buffer-size" placeholder="Enter Buffer Size" min="0" style="width: auto;"><br><br>
-                <label for="logging-level">Logging Level:</label>
-                <select id="logging-level" name="logging-level" style="width: auto;">
-                    <option value="Emergency">Emergency</option>
-                    <option value="Alert">Alert</option>
-                    <option value="Critical">Critical</option>
-                    <option value="Error">Error</option>
-                    <option value="Warning">Warning</option>
-                    <option value="Notification">Notification</option>
-                    <option value="Informational">Informational</option>
-                    <option value="Debugging">Debugging</option>
-                </select><br><br>
-                <input type="submit" value="Save Logging Configuration">
+
+        <!-- DHCP -->
+        <div class="config-section" id="dhcp-config">
+            <h3>DHCP Configuration</h3>
+            <form id="dhcp-form">
+                <label for="dhcp-pool-name">DHCP Pool Name:</label>
+                <input type="text" id="dhcp-pool-name" name="dhcp-pool-name" placeholder="Enter DHCP Pool Name" required>
+                <br><br>
+        
+                <div class="inline-fields">
+                    <div>
+                        <label for="dhcp-network">IP Address:</label>
+                        <input type="text" id="dhcp-network" name="dhcp-network" placeholder="e.g. 192.168.1.0" required>
+                    </div>
+                    <div>
+                        <label for="dhcp-subnet">Subnet Mask:</label>
+                        <select id="dhcp-subnet" name="dhcp-subnet" required></select>
+                    </div>
+                </div>
+                <br>
+        
+                <label for="default-router">Default Gateway:</label>
+                <input type="text" id="default-router" name="default-router" placeholder="Enter Default Gateway (e.g., 192.168.1.1)" required>
+                <br><br>
+        
+                <label for="dns-server">DNS Server:</label>
+                <input type="text" id="dns-server" name="dns-server" placeholder="Enter DNS Server (e.g., 8.8.8.8)" required>
+                <br><br>
+        
+            <!-- Checkbox for Lease Duration -->
+                <label>
+                    <input type="checkbox" id="enable-lease-duration" name="enable-lease-duration">
+                    Enable Lease Duration
+                </label>
+                <div id="lease-duration-section" style="display: none; margin-top: 10px;">
+                    <label for="lease-duration">Lease Duration (days):</label>
+                    <input type="number" id="lease-duration" name="lease-duration" placeholder="Enter Lease Duration" min="1">
+                </div>
+                <br><br>
+
+                <!-- Checkbox for Excluded Addresses -->
+                <label>
+                    <input type="checkbox" id="enable-excluded-addresses" name="enable-excluded-addresses">
+                    Enable Excluded Addresses
+                </label>
+                <div id="excluded-addresses-section" style="display: none; margin-top: 10px;">
+                    <label for="excluded-addresses">Excluded Addresses:</label>
+                    <input type="text" id="excluded-addresses" name="excluded-addresses" placeholder="Enter Excluded Addresses (e.g., 192.168.1.1-192.168.1.10)">
+                </div>
+                <br><br>
+        
+                <input type="submit" value="Save DHCP Configuration">
             </form>
         </div>
+
+
+        <!-- HSRP -->
+        <div class="config-section" id="hsrp-config">
+            <h3>HSRP Configuration ( Hot-Standby Routing Protocol )</h3>
+            <form>
+                <label for="hsrp-ip">HSRP Virtual IP:</label>
+                <input type="text" id="hsrp-ip" name="hsrp-ip" placeholder="Enter Virtual IP">
+                <input type="submit" value="Save HSRP Configuration">
+            </form>
+        </div>
+
+
+        <!-- IP Routing -->
+        <div class="config-section" id="ip-routing-config">
+            <h3>IP Routing</h3>
+            <form>
+                <label for="routing-type">Routing Type:</label>
+                <select id="routing-type" name="routing-type">
+                    <option value="static">Static</option>
+                    <option value="ospf">OSPF</option>
+                    <option value="rip">RIPv2</option>
+                </select>
+                <input type="submit" value="Save Routing Configuration">
+            </form>
+        </div>
+
+
+
+        <!-- Interface Ports -->
+        <div class="config-section" id="interface-ports-config">
+            <h3>Interface Port Configuration</h3>
+            <form>
+                <label for="interface-port">Interface Port:</label>
+                <select id="interface-port" name="interface-port">
+                    <option value="">--Select Port--</option>
+                </select>
+                <label for="interface-ip">IP Address</label>
+                <input type="text" id="interface-ip" name="interface-ip" placeholder="Enter IP Address">
+                <label for="switch-mode">Switch Mode</label>
+                <select id="switch-mode" name="switch-mode">
+                    <option value="access">Access</option>
+                    <option value="trunk">Trunk</option>
+                </select>
+                <input type="submit" value="Save Interface Configuration">
+            </form>
+        </div>
+
 
         <div class="config-section" id="default-gateway-config">
             <h3>Default Gateway Configuration</h3>
@@ -180,27 +308,7 @@
             </form>
         </div>
 
-        <!-- <div class="config-section" id="disable-services-config">
-            <h3>Disable Unnecessary Services</h3>
-            <form>
-                <label>
-                    <input type="checkbox" name="disable-http" value="http"> Disable HTTP Server
-                </label><br>
-                <label>
-                    <input type="checkbox" name="disable-https" value="https"> Disable HTTPS Server
-                </label><br>
-                <input type="submit" value="Apply Changes">
-            </form>
-        </div> -->
 
-        <div class="config-section" id="update-firmware">
-            <h3>Update Firmware</h3>
-            <form>
-                <label for="firmware-file">Firmware File</label>
-                <input type="file" id="firmware-file" name="firmware-file" style="width: auto;"><br><br>
-                <input type="submit" value="Submit">
-            </form>
-        </div>
         <div class="save-config-button">
             <button class="download-btn">
                 SAVE CONFIG Template

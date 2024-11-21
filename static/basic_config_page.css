@@ -308,3 +308,32 @@ form label {
 }
 
 
+.inline-fields {
+    display: flex;
+    gap: 5px; /* Reduced spacing between fields */
+    align-items: center;
+}
+
+.inline-fields > div {
+    flex: 0 0 auto; /* Ensure fields don’t stretch unnecessarily */
+}
+
+.inline-fields input,
+.inline-fields select {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: auto; /* Adjusts to content size */
+    max-width: 200px; /* Optional: limit width */
+    box-sizing: border-box;
+}
+
+.inline-fields label {
+    display: block;
+    margin-bottom: 3px; /* Minimal spacing for labels */
+    font-size: 14px;
+    color: #333;
+}
+
+
