@@ -352,12 +352,12 @@ document.getElementById("add-interface-config").addEventListener("click", functi
                 <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
             </select>
 
-            <div class="ip-input ip-single" id="ip-single-${interfaceCounter}" style="display: none;">
+            <div class="Description IP" id="ip-single-${interfaceCounter}" style="display: none;">
                 <label for="interface-ip-${interfaceCounter}">IP Address:</label>
                 <input type="text" id="interface-ip-${interfaceCounter}" name="interface-ip" placeholder="Enter IP Address">
             </div>
 
-            <div class="Description IP" id="Description_ip-${interfaceCounter}" style="display: none;">
+            <div class="Description IP" id="Description_ip-${interfaceCounter}">
                 <label for="Description-ip-${interfaceCounter}">Description</label>
                 <input type="text" id="Description-ip-${interfaceCounter}" name="Description-IP ADD" placeholder="Enter Description Port">
             </div>
@@ -387,11 +387,6 @@ document.getElementById("add-interface-config").addEventListener("click", functi
 
     interfaceConfigs.appendChild(newConfig);
 });
-
-// Handle Removal of Interface Configurations
-function handleRemoveInterfaceConfig(button) {
-    button.closest(".interface-config").remove();
-}
 
 // Save All Configurations
 document.getElementById("save-interface-configs").addEventListener("click", function () {
@@ -429,7 +424,7 @@ function toggleSwitchMode(checkbox) {
         // Show the "Switch Mode" dropdown
         switchModeSection.style.display = "block";
 
-        // Hide the "IP Address" and show "Description" fields
+        // Hide the "IP Address" field but show the "Description" field
         ipAddressField.style.display = "none";
         descriptionField.style.display = "block";
     }
@@ -447,6 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
         toggleSwitchMode(checkbox);
     });
 });
+
 
 
 // IP Static Route Configuration
