@@ -640,3 +640,16 @@ label[for="toggle-lease-1"] {
     display: inline-flex;
     align-items: center; /* จัด checkbox และข้อความให้อยู่แนวเดียวกัน */
 }
+#toggle-lease-1 {
+    margin-left: -130px; /* ลด margin รอบ checkbox */
+    vertical-align: middle; /* จัด checkbox ให้อยู่ในแนวเดียวกับข้อความ */
+}
+
+/* ใช้การเลือกเฉพาะ label ที่อยู่กับ checkbox ที่มี id เป็น toggle-lease-1 */
+#toggle-lease-1 + label {
+    margin-left: -135px;
+    display: inline-flex;
+    align-items: center; /* จัด checkbox และข้อความให้อยู่ในแนวเดียวกัน */
+    gap: 4px; /* ปรับระยะห่างระหว่าง checkbox และข้อความให้เหลือเล็กน้อย */
+    padding: 0; /* ลด padding รอบ label */
+}
