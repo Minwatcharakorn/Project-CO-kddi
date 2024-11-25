@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cisco Switch Console</title>
+</head>
+<body>
+    <h1>Connect to Cisco Switch</h1>
+    <button id="connect">Connect to Switch</button>
+    <button id="send">Send Command</button>
+    <input type="text" id="command" placeholder="Enter Cisco command">
+    <textarea id="output" rows="20" cols="60" placeholder="Output from switch..."></textarea>
+
+    <script>
+        let port;
+        let reader;
+        let outputTextarea = document.getElementById("output");
+        const commandInput = document.getElementById("command");
+
+        // Function to connect to the switch via serial port
+        async function connectToSwitch() {
+            try {
+                // Request a port and open it
+                port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 9600, dataBits: 8, stopBits: 1, parity: "none" });
+
+                outputTextarea.value += "Connected to the Cisco switch.\n";
+
+                // Start reading data from the port
+                const decoder = new TextDecoderStream();
+                const readableStreamClosed = port.readable.pipeTo(decoder.writable);
+                reader = decoder.readable.getReader();
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) {
+                        reader.releaseLock();
+                        break;
+                    }
+                    if (value) {
+                        outputTextarea.value += `Switch: ${value}`;
+                    }
+                }
+            } catch (error) {
+                console.error("Connection Error: ", error);
+                outputTextarea.value += `Error: ${error.message}\n`;
+            }
+        }
+
+        // Function to send a CLI command to the switch
+        async function sendCommandToSwitch() {
+            if (!port) {
+                alert("Please connect to a switch first!");
+                return;
+            }
+
+            const command = commandInput.value.trim();
+            if (command === "") {
+                alert("Please enter a command to send!");
+                return;
+            }
+
+            try {
+                const encoder = new TextEncoder();
+                const writer = port.writable.getWriter();
+
+                // Add a newline to simulate pressing 'Enter' after a command
+                const data = `${command}\r\n`;
+                await writer.write(encoder.encode(data));
+                outputTextarea.value += `You: ${command}\n`;
+
+                writer.releaseLock();
+                commandInput.value = ""; // Clear the command input field
+            } catch (error) {
+                console.error("Send Command Error: ", error);
+                outputTextarea.value += `Error: ${error.message}\n`;
+            }
+        }
+
+        // Add event listeners to buttons
+        document.getElementById("connect").addEventListener("click", connectToSwitch);
+        document.getElementById("send").addEventListener("click", sendCommandToSwitch);
+    </script>
+</body>
+</html>
