@@ -146,7 +146,13 @@ button#upload-file:hover {
     background: #dc3545; /* A red color */
     color: white;
     text-decoration: none; /* Remove underline */
-
+    width: 30%; /* Increased width */
+    padding: 15px; /* Increased padding for a larger button */
+    text-align: center;
+    border-radius: 10px; /* Rounded corners */
+    font-size: 18px; /* Larger font size */
+    display: block; /* Ensure it acts as a block for centering */
+    margin: 20px auto; /* Center the button horizontally */
 }
 button#upload-file, .back-button {
     width: 150px; /* Set a fixed width */
