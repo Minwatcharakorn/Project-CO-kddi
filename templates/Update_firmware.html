@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Switch Management Dashboard</title>
+    <title>Update Firmware</title>
     <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/update_firmware.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 
@@ -19,8 +21,54 @@
             .then(response => response.text())
             .then(data => document.getElementById("sidebar-container").innerHTML = data);
     </script>
-    
 
-    <script src="scripts.js"></script>
+    <div class="content">
+        <div class="content-header">
+            <h2>
+                <i class="fas fa-sync" style="color: #1E90FF;"></i> Update Firmware
+            </h2>
+            <button class="apply-button" onclick="location.href='Update_firmware-Pre-deploy.html'">Apply</button>            
+        </div>
+        <div id="firmware-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="select-all-checkbox"></th>
+                        <th>Firmware Name</th>
+                        <th>Version</th>
+                        <th>Release Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="checkbox" class="firmware-checkbox" data-firmware="V1"></td>
+                        <td>V1 Firmware</td>
+                        <td>1.0.0</td>
+                        <td>2023-01-15</td>
+                        <td>Stable</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="firmware-checkbox" data-firmware="V2"></td>
+                        <td>V2 Firmware</td>
+                        <td>2.0.0</td>
+                        <td>2023-06-20</td>
+                        <td>Beta</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="firmware-checkbox" data-firmware="V3"></td>
+                        <td>V3 Firmware</td>
+                        <td>3.0.0</td>
+                        <td>2023-12-01</td>
+                        <td>Experimental</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="switch-section"></div>
+    </div>
+
+    <script src="../static/js/firmware.js"></script>
 </body>
 </html>

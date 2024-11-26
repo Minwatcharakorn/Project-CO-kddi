@@ -76,3 +76,51 @@ body {
         padding: 80px 10px;
     }
 }
+
+
+.breadcrumb {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    padding: 10px 0;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    color: #6c757d; /* Light gray */
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    color: #007bff; /* Link blue */
+    transition: color 0.3s ease;
+}
+
+.breadcrumb a:hover {
+    color: #0056b3; /* Darker blue on hover */
+}
+
+.breadcrumb span {
+    color: #6c757d; /* Gray for current location */
+}
+
+/* Upload Button Styling */
+.upload-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s;
+}
+
+.upload-button i {
+    font-size: 1.2rem;
+}
+
+.upload-button:hover {
+    background-color: #0056b3;
+}

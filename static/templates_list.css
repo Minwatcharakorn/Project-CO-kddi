@@ -321,3 +321,19 @@ td {
     margin: 0; /* Remove extra margins */
     padding: 0; /* Remove extra padding */
 }
+
+
+.upload-button {
+    background-color: #007bff; /* Green color for the button */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.upload-button:hover {
+    background-color: #0056b3; /* Darker green on hover */
+}

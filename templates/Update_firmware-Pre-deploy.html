@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Firmware Deploy</title>
     <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/update_firmware.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <title>Report</title>
 </head>
 <body>
+    <!-- Sidebar -->
     <div id="sidebar-container"></div>
     
     <script>
@@ -17,6 +20,19 @@
             .then(response => response.text())
             .then(data => document.getElementById("sidebar-container").innerHTML = data);
     </script>
-    
+
+    <div class="content">
+        <div class="content-header">
+            <div class="breadcrumb">
+                <h2><a href="Update_firmware.html"> Update Firmware</a></h2> &gt;
+                <h2><span>Pre-Deployment</span></h2>
+            </div>
+            <button class="apply-button" onclick="location.href='Update_firmware-Deploy.html'">Deploy</button>            
+        </div>
+
+
+    </div>
+    <script src="../static/js/firmware_result.js"></script>
+
 </body>
 </html>

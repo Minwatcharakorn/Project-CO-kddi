@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sidebar</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../static/sidebar_style.css">
 
 </head>
 <body>
@@ -19,13 +19,13 @@
                 <i class="fas fa-user" style="margin-right: 5px; " ></i> Username: <span id="username">JohnDoe</span>
             </span>
             <span>
-                <i class="fas fa-network-wired" style="margin-right: 5px;"></i> IP: <span id="ip-address">192.168.1.0/24</span>
+                <i class="fas fa-network-wired" style="margin-right: 5px; "></i> IP: <span id="ip-address">192.168.1.0/24</span>
             </span>
-            <span style="margin-right: 10px;">
-            <a href="Initial.html" style="color: white; text-decoration: none; ">
+            <span>
+                <a href="Initial.html" style="text-decoration: none;">
+                    <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
+                </a>
             </span>
-                <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
-            </a>
         </div>
     </div>
     
@@ -55,7 +55,7 @@
                 </ul>
             </li> -->
 
-            <li class="sidebar-item" aria-expanded="false">
+            <li class="sidebar-item">
                 <a href="configuration.html">
                     <i class="fas fa-cogs"></i>Create Template
                 </a>
@@ -71,11 +71,6 @@
                 </a>
             </li>
 
-            <li class="sidebar-item">
-                <a href="upload_Templates.html">
-                    <i class="fas fa-upload"></i> Upload Templates
-                </a>
-            </li>
 
             <li class="sidebar-item">
                 <a href="Deploy.html">
@@ -85,6 +80,11 @@
             <li class="sidebar-item">
                 <a href="Update_firmware.html">
                     <i class="fas fa-sync"></i> Update Firmware
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="Logging.html">
+                    <i class="fas fa-book"></i> Logging
                 </a>
             </li>
         </ul>
