@@ -10,6 +10,7 @@ body {
 }
 
 .container {
+    position: relative; /* Add this to make the back button position relative */
     display: flex;
     width: 90%;
     max-width: 1200px;
@@ -18,7 +19,6 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     overflow: hidden;
 }
-
 .login-section, .info-section {
     flex: 1;
     padding: 40px;
@@ -123,4 +123,21 @@ body {
 
 .buttons a:hover {
     background-color: #007bff; /* Hover color */
+}
+
+.back-button-top {
+    position: absolute; /* Position it relative to the container */
+    top: 20px; /* Adjust top distance */
+    left: 20px; /* Adjust left distance */
+    background-color: #555; /* Grey background */
+    color: white; /* White text */
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.back-button-top:hover {
+    background-color: #007bff; /* Hover effect in red */
 }
