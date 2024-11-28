@@ -1,29 +1,27 @@
-const togglePassword = document.getElementById('togglePassword');
-const passwordInput = document.getElementById('password');
-
-togglePassword.addEventListener('click', () => {
-    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-    passwordInput.setAttribute('type', type);
-    togglePassword.classList.toggle('fa-eye-slash');
-    togglePassword.classList.toggle('fa-eye');
-});
-
-// Handle IP and Subnet Mask Combination
-const form = document.getElementById('login-form');
-const ipInput = document.getElementById('ip-address');
-const subnetSelect = document.getElementById('subnet-mask');
-
-form.addEventListener('submit', (e) => {
+document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const ip = ipInput.value;
-    const subnet = subnetSelect.value;
 
-    if (!ip || !subnet) {
-        alert('Please fill out the IP address and select a subnet mask.');
-        return;
+    const ipStart = document.getElementById('ip-start').value.trim();
+    const ipEnd = document.getElementById('ip-end').value.trim();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const subnet = document.getElementById('subnet-mask').value;
+
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ipStart, ipEnd, username, password, subnet }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert('SSH Login successful!');
+            console.log(data.message);
+        } else {
+            throw new Error(data.error);
+        }
+    } catch (err) {
+        alert(`Error: ${err.message}`);
     }
-
-    const fullAddress = `${ip}${subnet}`;
-    console.log('Full Address:', fullAddress);
-    // Add form submission or further processing here
 });

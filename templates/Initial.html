@@ -10,7 +10,7 @@
 <body>
     <div class="container">
         <div class="login-section">
-            <a href="serial-console.html" class="back-button-top">Back</a> <!-- Back button placed here -->
+            <a href="/" class="back-button-top">Back</a>
 
             <div class="loginssh-container">
                 <h2>Network Device Authentication</h2>
@@ -18,7 +18,7 @@
                     <div class="password-container">
                         <input type="text" id="ip-start" placeholder="Start IP Address e.g. 192.168.1.1" required>
                         <input type="text" id="ip-end" placeholder="End IP Address e.g. 192.168.1.255" required>
-                        <select id="subnet-mask" required>
+                        <!-- <select id="subnet-mask" required>
                             <option value="" disabled selected>&nbsp;&nbsp;/</option>
                             <option value="/1">/1</option>
                             <option value="/2">/2</option>
@@ -52,7 +52,7 @@
                             <option value="/30">/30</option>
                             <option value="/31">/31</option>
                             <option value="/32">/32</option>
-                        </select>
+                        </select> -->
                     </div>
                     <div class="username-container">
                         <input type="text" id="username" placeholder="Username" required>
@@ -62,7 +62,7 @@
                         <i id="togglePassword" class="fas fa-eye-slash"></i>
                     </div>
                     <div class="buttons">
-                        <a href="dashboard.html" class="serial-console-button">Login SSH</a>
+                        <button type="button" id="scan-button" class="serial-console-button">Scan Network</button>
                     </div>
                 </form>
             </div>
@@ -75,23 +75,46 @@
     </div>
 
     <script src="../static/js/script-initial.js"></script>
+    <!-- <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const ipStart = localStorage.getItem('ipStart');
+                const ipEnd = localStorage.getItem('ipEnd');
+                const username = localStorage.getItem('username');
+                const password = localStorage.getItem('password');
+                const subnet = localStorage.getItem('subnet');
+
+                if (ipStart && ipEnd && username && password && subnet) {
+                    console.log(`IP Range: ${ipStart} - ${ipEnd}`);
+                    console.log(`Username: ${username}`);
+                    console.log(`Subnet Mask: ${subnet}`);
+                } else {
+                    console.log('Missing required login information.');
+                    // หากไม่ต้องการ redirect หรือ alert เพียงแค่บันทึก log และปล่อยให้หน้าโหลด
+                }
+            });
+    </script> -->
     <script>
-        document.getElementById('login-button').addEventListener('click', function () {
-            const ipStart = document.getElementById('ip-start').value;
-            const ipEnd = document.getElementById('ip-end').value;
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+        document.getElementById('scan-button').addEventListener('click', async () => {
+            const ipStart = document.getElementById('ip-start').value.trim();
+            const ipEnd = document.getElementById('ip-end').value.trim();
 
-            if (!ipStart || !ipEnd || !username || !password) {
-                alert('Please fill in all fields.');
-                return;
+            try {
+                const response = await fetch('/api/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip_start: ipStart, ip_end: ipEnd }),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert('Scan completed. Please check the dashboard for results.');
+                    window.location.href = "/dashboard"; // เปลี่ยนไปยังหน้า Dashboard
+                } else {
+                    throw new Error(result.error || 'Scan failed.');
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
             }
-
-            console.log(`IP Range: ${ipStart} - ${ipEnd}`);
-            console.log(`Username: ${username}`);
-            console.log(`Password: ${password}`);
-
-            // Add your network authentication logic here
         });
     </script>
 </body>
