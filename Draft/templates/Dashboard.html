@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <script>
+        // โหลดไฟล์ HTML ของ Sidebar เข้าไปใน #sidebar-container
+        fetch('sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById("sidebar-container").innerHTML = data);
+    </script>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="content-header">
+            <h2>
+                <i class="fas fa-home" style="color: #1E90FF;"></i> Dashboard Device
+            </h2>  
+        </div>
+
+        <div class="content-body">
+            <div class="table-container">
+                <!-- Table with data similar to the Cisco vManage interface -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Serial No./Token</th>
+                            <th>Hostname</th>
+                            <th>IP</th>
+                            <th>Information</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>C9200-48PXG</td>
+                            <td>2B8ADCEB</td>
+                            <td>Switch</td>
+                            <td>192.168.1.254</td>
+                            <td>
+                                <a href="info.html" class="info-icon" title="Show Device Info and Port Details">
+                                    <span>📄</span>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>C9200-48PL</td>
+                            <td>44ASBDES</td>
+                            <td>ASW-B401</td>
+                            <td>192.168.1.250</td>
+                            <td>
+                                <a href="info.html" class="info-icon" title="Show Device Info and Port Details">
+                                    <span>📄</span> <!-- Icon for "show details" -->
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>C9200-48PL</td>
+                            <td>AA910SBE</td>
+                            <td>CSW-TH_1</td>
+                            <td>192.168.1.178</td>
+                            <td>
+                                <a href="info.html" class="info-icon" title="Show Device Info and Port Details">
+                                    <span>📄</span> <!-- Icon for "show details" -->
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>C9200-48PXG</td>
+                            <td>01A44DES</td>
+                            <td>ASW-B403</td>
+                            <td>192.168.1.251</td>
+                            <td>
+                                <a href="info.html" class="info-icon" title="Show Device Info and Port Details">
+                                    <span>📄</span> <!-- Icon for "show details" -->
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>C9200-48PXG</td>
+                            <td>102POWS</td>
+                            <td>ASW-B404</td>
+                            <td>192.168.1.98</td>
+                            <td>
+                                <a href="info.html" class="info-icon" title="Show Device Info and Port Details">
+                                    <span>📄</span> <!-- Icon for "show details" -->
+                                </a>
+                            </td>
+                        </tr>
+                        <!-- More rows as needed -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
