@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/Logging.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Logging History</title>
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <script>
+        // Load Sidebar into the page
+        fetch('sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById("sidebar-container").innerHTML = data);
+    </script>
+
+    <div class="content">
+        <div class="content-header">
+            <h2><i class="fas fa-book" style="color: #1E90FF;"></i> Logging History Deployment</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Device Name</th>
+                        <th>IP Address</th>
+                        <th>Deployed Template Name</th>
+                        <th>Description</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>26 Nov 2024 10:00:00</td>
+                        <td>CSR-446db3a4-ba82-4ea0</td>
+                        <td>192.168.1.254</td>
+                        <td>ASW Model</td>
+                        <td>Access-Switch by John</td>
+                        <td>
+                            <a href="#" class="info-icon"><span><i class="fas fa-eye"></i></span></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>25 Nov 2024 14:35:10</td>
+                        <td>CSR-90a0192sAA-pop2-se19</td>
+                        <td>192.168.1.98</td>
+                        <td>ASW Model</td>
+                        <td>Access-Switch by John</td>
+                        <td>
+                            <a href="#" class="info-icon"><span><i class="fas fa-eye"></i></span></a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="configModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>ASW Template Details</h2>
+            <pre id="configDetails"></pre>
+        </div>
+    </div>
+    <script src="../static/js/logging.js"></script>
+
+</body>
+</html>
