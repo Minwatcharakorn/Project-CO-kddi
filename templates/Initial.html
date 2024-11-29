@@ -105,15 +105,16 @@
                     body: JSON.stringify({ ip_start: ipStart, ip_end: ipEnd }),
                 });
 
-                const result = await response.json();
                 if (response.ok) {
-                    alert('Scan completed. Please check the dashboard for results.');
-                    window.location.href = "/dashboard"; // เปลี่ยนไปยังหน้า Dashboard
+                    // เปลี่ยนไปหน้า Dashboard โดยตรง
+                    window.location.href = "/dashboard";
                 } else {
+                    const result = await response.json();
                     throw new Error(result.error || 'Scan failed.');
                 }
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                console.error(`Error: ${error.message}`);
+                // สามารถเพิ่มแจ้งเตือนใน console.log หรือไม่ต้องแจ้งเตือนก็ได้
             }
         });
     </script>

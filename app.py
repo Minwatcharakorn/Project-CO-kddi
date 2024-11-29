@@ -20,21 +20,22 @@ def get_available_ports():
 
 async def get_snmp_info(ip, community='public'):
     """Retrieve SNMP information from the device using asyncio."""
-    oid_hostname = '1.3.6.1.2.1.1.5.0'  # OID for Hostname
-    oid_model = '1.3.6.1.2.1.1.1.0'     # OID for Model (sysDescr)
-    oid_serial = '1.3.6.1.2.1.47.1.1.1.1.11.1'  # OID for Serial Number
+    oid_hostname = '.1.3.6.1.2.1.1.5.0'  # OID for Hostname
+    oid_model = '.1.3.6.1.2.1.1.1.0'     # OID for Model (sysDescr)
+    oid_serial_base = '.1.3.6.1.2.1.47.1.1.1.1.11'  # OID base for Serial Number (ENTITY-MIB)
+    # oid_serial = '1.3.6.1.2.1.47.1.1.1.1.11.1'  # OID for Serial Number
 
     info = {"hostname": "N/A", "model": "N/A", "serial": "N/A"}
 
     try:
-        for oid, key in [(oid_hostname, "hostname"), (oid_model, "model"), (oid_serial, "serial")]:
+        for oid, key in [(oid_hostname, "hostname"), (oid_model, "model"), (oid_serial_base, "serial")]:
             # ใช้ get แบบ asynchronous
             result = await get_cmd(
                 SnmpEngine(),
-                CommunityData(community),
-                await UdpTransportTarget.create((ip, 161)),  # Asynchronous Transport Target
+                CommunityData(community),  # ใช้ community ที่ส่งเข้ามา
+                await UdpTransportTarget.create((ip, 161), timeout=5, retries=3),
                 ContextData(),
-                ObjectType(ObjectIdentity(oid))  # OID สำหรับข้อมูลที่ต้องการ
+                ObjectType(ObjectIdentity(oid))
             )
 
             errorIndication, errorStatus, errorIndex, varBinds = result
@@ -206,7 +207,7 @@ async def api_scan():
         return jsonify({"error": "Both start and end IP addresses are required."}), 400
 
     try:
-        await update_switches(ip_start, ip_end)  # เรียกใช้ update_switches แบบ async
+        await update_switches(ip_start, ip_end)  # Update switches list with SNMP info
         return jsonify({"message": "Scan completed successfully.", "switches": switches}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

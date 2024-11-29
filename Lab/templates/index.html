@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SNMP Data Fetcher</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>SNMP Data Fetcher</h1>
+        <form id="snmpForm">
+            <label for="ip">IP Address:</label>
+            <input type="text" id="ip" name="ip" placeholder="Enter IP Address" required>
+            
+            <label for="community">Community String:</label>
+            <input type="text" id="community" name="community" placeholder="public" value="public">
+            
+            <button type="submit">Fetch SNMP Data</button>
+        </form>
+        <div id="results" class="hidden">
+            <h2>SNMP Results</h2>
+            <table>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>Hostname</td>
+                    <td id="hostname">-</td>
+                </tr>
+                <tr>
+                    <td>Model</td>
+                    <td id="model">-</td>
+                </tr>
+                <tr>
+                    <td>Serial Number</td>
+                    <td id="serial">-</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        document.getElementById('snmpForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const ip = document.getElementById('ip').value;
+            const community = document.getElementById('community').value;
+
+            try {
+                const response = await fetch('/api/snmp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip, community }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch SNMP data');
+                }
+
+                const data = await response.json();
+                document.getElementById('hostname').textContent = data.snmp_data.hostname;
+                document.getElementById('model').textContent = data.snmp_data.model;
+                document.getElementById('serial').textContent = data.snmp_data.serial;
+
+                document.getElementById('results').classList.remove('hidden');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
