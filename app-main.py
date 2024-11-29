@@ -5,6 +5,10 @@ import platform
 import os
 from pysnmp.hlapi.v3arch.asyncio import *
 import asyncio
+import paramiko
+from ipaddress import ip_address
+from datetime import datetime
+
 
 app = Flask(__name__)
 
@@ -212,5 +216,5 @@ async def api_scan():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
