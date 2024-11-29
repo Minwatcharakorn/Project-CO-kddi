@@ -18,41 +18,6 @@
                     <div class="password-container">
                         <input type="text" id="ip-start" placeholder="Start IP Address e.g. 192.168.1.1" required>
                         <input type="text" id="ip-end" placeholder="End IP Address e.g. 192.168.1.255" required>
-                        <!-- <select id="subnet-mask" required>
-                            <option value="" disabled selected>&nbsp;&nbsp;/</option>
-                            <option value="/1">/1</option>
-                            <option value="/2">/2</option>
-                            <option value="/3">/3</option>
-                            <option value="/4">/4</option>
-                            <option value="/5">/5</option>
-                            <option value="/6">/6</option>
-                            <option value="/7">/7</option>
-                            <option value="/8">/8</option>
-                            <option value="/9">/9</option>
-                            <option value="/10">/10</option>
-                            <option value="/11">/11</option>
-                            <option value="/12">/12</option>
-                            <option value="/13">/13</option>
-                            <option value="/14">/14</option>
-                            <option value="/15">/15</option>
-                            <option value="/16">/16</option>
-                            <option value="/17">/17</option>
-                            <option value="/18">/18</option>
-                            <option value="/19">/19</option>
-                            <option value="/20">/20</option>
-                            <option value="/21">/21</option>
-                            <option value="/22">/22</option>
-                            <option value="/23">/23</option>
-                            <option value="/24">/24</option>
-                            <option value="/25">/25</option>
-                            <option value="/26">/26</option>
-                            <option value="/27">/27</option>
-                            <option value="/28">/28</option>
-                            <option value="/29">/29</option>
-                            <option value="/30">/30</option>
-                            <option value="/31">/31</option>
-                            <option value="/32">/32</option>
-                        </select> -->
                     </div>
                     <div class="username-container">
                         <input type="text" id="username" placeholder="Username" required>
@@ -62,7 +27,7 @@
                         <i id="togglePassword" class="fas fa-eye-slash"></i>
                     </div>
                     <div class="buttons">
-                        <button id="scan-button" class="serial-console-button">Apply</button>
+                        <button id="scan-button" type="button" class="serial-console-button">Apply</button>
                     </div>
                 </form>
             </div>
@@ -74,31 +39,25 @@
         </div>
     </div>
 
-    <script src="../static/js/script-initial.js"></script>
-    <!-- <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const ipStart = localStorage.getItem('ipStart');
-                const ipEnd = localStorage.getItem('ipEnd');
-                const username = localStorage.getItem('username');
-                const password = localStorage.getItem('password');
-                const subnet = localStorage.getItem('subnet');
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="modal">
+        <div class="modal-content">
+            <div class="loading-spinner"></div>
+            <p>Loading</p>
+        </div>
+    </div>
 
-                if (ipStart && ipEnd && username && password && subnet) {
-                    console.log(`IP Range: ${ipStart} - ${ipEnd}`);
-                    console.log(`Username: ${username}`);
-                    console.log(`Subnet Mask: ${subnet}`);
-                } else {
-                    console.log('Missing required login information.');
-                    // หากไม่ต้องการ redirect หรือ alert เพียงแค่บันทึก log และปล่อยให้หน้าโหลด
-                }
-            });
-    </script> -->
+    <script src="../static/js/script-initial.js"></script>
     <script>
         document.getElementById('scan-button').addEventListener('click', async () => {
             const ipStart = document.getElementById('ip-start').value.trim();
             const ipEnd = document.getElementById('ip-end').value.trim();
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
+
+            // Show the loading modal
+            const loadingModal = document.getElementById('loadingModal');
+            loadingModal.style.display = 'flex';
 
             try {
                 const response = await fetch('/api/login_ssh', {
@@ -115,8 +74,48 @@
                 }
             } catch (error) {
                 console.error(`Error: ${error.message}`);
+                alert(`Error: ${error.message}`);
+            } finally {
+                // Hide the loading modal once processing is complete
+                loadingModal.style.display = 'none';
             }
         });
     </script>
+
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none; /* Ensure the modal is hidden initially */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </body>
 </html>
