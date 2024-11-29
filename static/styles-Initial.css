@@ -141,3 +141,22 @@ body {
 .back-button-top:hover {
     background-color: #007bff; /* Hover effect in red */
 }
+
+.buttons button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 10px 5px;
+    background-color: #333;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 16px;
+    border: none;  /* เพิ่มการกำหนด border */
+    cursor: pointer;  /* ให้แสดงเป็นปุ่มที่สามารถคลิกได้ */
+    transition: background-color 0.3s ease;
+}
+
+.buttons button:hover {
+    background-color: #007bff;
+}

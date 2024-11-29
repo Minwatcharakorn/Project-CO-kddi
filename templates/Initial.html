@@ -62,7 +62,7 @@
                         <i id="togglePassword" class="fas fa-eye-slash"></i>
                     </div>
                     <div class="buttons">
-                        <button type="button" id="scan-button" class="serial-console-button">Scan Network</button>
+                        <button id="scan-button" class="serial-console-button">Apply</button>
                     </div>
                 </form>
             </div>
@@ -97,24 +97,24 @@
         document.getElementById('scan-button').addEventListener('click', async () => {
             const ipStart = document.getElementById('ip-start').value.trim();
             const ipEnd = document.getElementById('ip-end').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
 
             try {
-                const response = await fetch('/api/scan', {
+                const response = await fetch('/api/login_ssh', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ip_start: ipStart, ip_end: ipEnd }),
+                    body: JSON.stringify({ ip_start: ipStart, ip_end: ipEnd, username, password }),
                 });
 
                 if (response.ok) {
-                    // เปลี่ยนไปหน้า Dashboard โดยตรง
                     window.location.href = "/dashboard";
                 } else {
                     const result = await response.json();
-                    throw new Error(result.error || 'Scan failed.');
+                    throw new Error(result.error || 'Login failed.');
                 }
             } catch (error) {
                 console.error(`Error: ${error.message}`);
-                // สามารถเพิ่มแจ้งเตือนใน console.log หรือไม่ต้องแจ้งเตือนก็ได้
             }
         });
     </script>

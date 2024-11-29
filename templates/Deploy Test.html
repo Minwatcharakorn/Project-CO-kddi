@@ -53,82 +53,36 @@
         </div>
     </div>
 
-    <!-- HTML for the Modal -->
-    <div id="commandOutputModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Command Output</h2>
-            <pre id="commandOutputText"></pre>
-        </div>
-    </div>
-
     <script>
+        // Select all checkbox logic
         document.addEventListener('DOMContentLoaded', function() {
             const selectAllCheckbox = document.getElementById('select-all');
             const checkboxes = document.querySelectorAll('.device-checkbox');
-    
+
             selectAllCheckbox.addEventListener('change', function() {
                 checkboxes.forEach(checkbox => checkbox.checked = this.checked);
             });
-    
+
             // Apply button event listener
-            document.getElementById('apply-button').addEventListener('click', async function() {
+            document.getElementById('apply-button').addEventListener('click', function() {
                 const selectedDevices = [];
                 document.querySelectorAll('.device-checkbox:checked').forEach(checkbox => {
                     const row = checkbox.closest('tr');
                     const deviceInfo = {
-                        ip: row.cells[4].innerText
+                        deviceName: row.cells[1].innerText,
+                        ipAddress: row.cells[4].innerText
                     };
                     selectedDevices.push(deviceInfo);
                 });
-    
+
                 if (selectedDevices.length > 0) {
-                    try {
-                        const response = await fetch('/api/send_command', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ devices: selectedDevices })
-                        });
-    
-                        const result = await response.json();
-                        if (response.ok) {
-                            // Format the command output for a clean display
-                            let formattedOutput = '';
-                            for (const [ip, output] of Object.entries(result.output)) {
-                                formattedOutput += `<h3>${ip}:</h3><pre>${output.replace(/\r\n/g, '\n')}</pre>`;
-                            }
-    
-                            // Show command output in the modal
-                            document.getElementById('commandOutputText').innerHTML = formattedOutput;
-                            document.getElementById('commandOutputModal').style.display = 'block';
-                        } else {
-                            throw new Error(result.error);
-                        }
-                    } catch (err) {
-                        console.error(`Error: ${err.message}`);
-                        alert(`Error: ${err.message}`);
-                    }
+                    localStorage.setItem('selectedDevices', JSON.stringify(selectedDevices));
+                    window.location.href = 'template_selection.html';
                 } else {
                     alert('Please select at least one device to apply.');
                 }
             });
-    
-            // JavaScript for Modal functionality
-            const modal = document.getElementById('commandOutputModal');
-            const span = document.getElementsByClassName('close')[0];
-    
-            // Close the modal
-            span.onclick = function() {
-                modal.style.display = 'none';
-            };
-    
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
-            };
         });
     </script>
-    
 </body>
 </html>

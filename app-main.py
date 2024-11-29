@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, session
+from flask_session import Session
 import serial
 import serial.tools.list_ports
 import platform
@@ -7,36 +8,40 @@ from pysnmp.hlapi.v3arch.asyncio import *
 import asyncio
 import paramiko
 from ipaddress import ip_address
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'yoursecretkey'
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+Session(app)
 
 # Global serial connection
 serial_connection = None
 
 switches = []  # List to store scanned devices
 
+
 def get_available_ports():
     """Get a list of available serial ports."""
     ports = serial.tools.list_ports.comports()
     return [port.device for port in ports]
+
 
 async def get_snmp_info(ip, community='public'):
     """Retrieve SNMP information from the device using asyncio."""
     oid_hostname = '.1.3.6.1.2.1.1.5.0'  # OID for Hostname
     oid_model = '.1.3.6.1.2.1.1.1.0'     # OID for Model (sysDescr)
     oid_serial_base = '.1.3.6.1.2.1.47.1.1.1.1.11'  # OID base for Serial Number (ENTITY-MIB)
-    # oid_serial = '1.3.6.1.2.1.47.1.1.1.1.11.1'  # OID for Serial Number
 
     info = {"hostname": "N/A", "model": "N/A", "serial": "N/A"}
 
     try:
         for oid, key in [(oid_hostname, "hostname"), (oid_model, "model"), (oid_serial_base, "serial")]:
-            # ใช้ get แบบ asynchronous
             result = await get_cmd(
                 SnmpEngine(),
-                CommunityData(community),  # ใช้ community ที่ส่งเข้ามา
+                CommunityData(community),
                 await UdpTransportTarget.create((ip, 161), timeout=5, retries=3),
                 ContextData(),
                 ObjectType(ObjectIdentity(oid))
@@ -51,7 +56,6 @@ async def get_snmp_info(ip, community='public'):
                 print(f"Error Status for {oid}: {errorStatus.prettyPrint()} at {errorIndex}")
                 continue
 
-            # ดึงค่าจาก SNMP Response
             for varBind in varBinds:
                 info[key] = str(varBind[1])
                 print(f"Received {key}: {varBind}")
@@ -59,7 +63,7 @@ async def get_snmp_info(ip, community='public'):
         print(f"SNMP error for {ip}: {e}")
 
     return info
-    
+
 
 # Function to scan for devices in the given IP range
 def scan_network(ip_range_start, ip_range_end):
@@ -89,7 +93,6 @@ async def update_switches(ip_range_start, ip_range_end):
 
     for device in devices:
         ip = device['ip']
-        # เรียกใช้ get_snmp_info เพื่อดึงข้อมูล SNMP
         snmp_info = await get_snmp_info(ip)
 
         switches.append({
@@ -100,25 +103,39 @@ async def update_switches(ip_range_start, ip_range_end):
             "status": "Detected"
         })
 
-def get_available_ports():
-    """Get a list of available serial ports."""
-    ports = serial.tools.list_ports.comports()
-    return [port.device for port in ports]
 
 @app.route('/')
 def index():
     """Serve the Serial Console page."""
     return render_template('serial-console.html')
 
+
 @app.route('/initial')
 def initial_page():
     """Serve the SSH Login page."""
     return render_template('Initial.html')
 
+
 @app.route('/dashboard')
 def dashboard_page():
     """Serve the Dashboard page."""
-    return render_template('Dashboard.html',switches=switches)
+    session['switches'] = switches  # Store switches in session
+    session.permanent = True  # Ensure session persists
+    return render_template('Dashboard.html', switches=switches)
+
+
+@app.route('/deploy')
+def deploy_page():
+    """Serve the Deploy page."""
+    switches_from_session = session.get('switches', [])
+    return render_template('Deploy.html', switches=switches_from_session)
+
+
+@app.route('/api/get_switches', methods=['GET'])
+def get_switches():
+    """API to get the list of switches for the Deploy page."""
+    return jsonify(switches), 200
+
 
 @app.route('/api/ports', methods=['GET'])
 def list_ports():
@@ -128,6 +145,7 @@ def list_ports():
         return jsonify(ports), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/connect', methods=['POST'])
 def connect_serial():
@@ -145,6 +163,7 @@ def connect_serial():
         return jsonify({"message": f"Connected to {port} at {baudrate} baud."}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/send', methods=['POST'])
 def send_commands():
@@ -168,6 +187,7 @@ def send_commands():
     else:
         return jsonify({"error": "Serial connection is not established."}), 400
 
+
 @app.route('/api/disconnect', methods=['POST'])
 def disconnect_serial():
     """API to disconnect the serial connection."""
@@ -178,27 +198,84 @@ def disconnect_serial():
         return jsonify({"message": "Disconnected successfully."}), 200
     return jsonify({"error": "No active serial connection."}), 400
 
-# @app.route('/api/login', methods=['POST'])
-# def login_ssh():
-#     """API to handle SSH login."""
-#     data = request.json
-#     ip_start = data.get('ipStart')
-#     ip_end = data.get('ipEnd')
-#     username = data.get('username')
-#     password = data.get('password')
-#     subnet = data.get('subnet')
 
-#     if not all([ip_start, ip_end, username, password, subnet]):
-#         return jsonify({"error": "Missing required fields."}), 400
+@app.route('/api/login_ssh', methods=['POST'])
+async def login_ssh():
+    """API endpoint for SSH login."""
+    data = request.json
+    ip_start = data.get('ip_start')
+    ip_end = data.get('ip_end')
+    username = data.get('username')
+    password = data.get('password')
 
-#     # Debugging logs
-#     print(f"Login attempt: IP Range: {ip_start} - {ip_end}, Subnet: {subnet}, Username: {username}")
+    if not all([ip_start, ip_end, username, password]):
+        return jsonify({"error": "Missing required fields."}), 400
 
-#     # Placeholder for validation:
-#     if username == "kddi" and password == "Kddi@min!":
-#         return jsonify({"message": "SSH login successful."}), 200
-#     else:
-#         return jsonify({"error": "Invalid credentials."}), 401
+    ip_base = '.'.join(ip_start.split('.')[:3])
+    start = int(ip_start.split('.')[-1])
+    end = int(ip_end.split('.')[-1])
+    
+    successful_connections = []
+
+    for i in range(start, end + 1):
+        ip = f"{ip_base}.{i}"
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username=username, password=password, timeout=5)
+            successful_connections.append(ip)
+            ssh.close()
+            print(f"Successfully connected to {ip}")
+        except Exception as e:
+            print(f"Failed to connect to {ip}: {e}")
+
+    if successful_connections:
+        session['username'] = username
+        session['password'] = password
+        session.permanent = True
+        await update_switches(ip_start, ip_end)  # อัปเดต switches หลังจาก login สำเร็จ
+        session['switches'] = switches  # เก็บข้อมูล switches ใน session
+        return jsonify({"message": "SSH login successful", "connected_ips": successful_connections, "switches": switches}), 200
+    else:
+        return jsonify({"error": "SSH login failed for all devices"}), 500
+
+
+@app.route('/api/send_command', methods=['POST'])
+def send_command():
+    """API endpoint to send commands to selected devices via SSH."""
+    data = request.json
+    devices = data.get('devices', [])
+    username = session.get('username')
+    password = session.get('password')
+    command = data.get('command', 'show running-config')
+
+    if not devices:
+        return jsonify({"error": "No devices selected."}), 400
+
+    if not username or not password:
+        return jsonify({"error": "Username or password not found in session."}), 400
+
+    command_output = {}
+
+    for device in devices:
+        ip = device.get('ip')
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username=username, password=password, timeout=5)
+
+            stdin, stdout, stderr = ssh.exec_command(command)
+            output = stdout.read().decode('utf-8')
+            command_output[ip] = output
+
+            ssh.close()
+            print(f"Command sent successfully to {ip}")
+        except Exception as e:
+            command_output[ip] = f"Failed to connect or execute command: {e}"
+            print(f"Failed to connect to {ip}: {e}")
+
+    return jsonify({"message": "Command execution completed.", "output": command_output}), 200
+
 
 @app.route('/api/scan', methods=['POST'])
 async def api_scan():
@@ -211,10 +288,13 @@ async def api_scan():
         return jsonify({"error": "Both start and end IP addresses are required."}), 400
 
     try:
-        await update_switches(ip_start, ip_end)  # Update switches list with SNMP info
+        await update_switches(ip_start, ip_end)
+        session['switches'] = switches
+        session.permanent = True
         return jsonify({"message": "Scan completed successfully.", "switches": switches}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
