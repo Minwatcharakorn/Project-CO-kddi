@@ -1,4 +1,9 @@
+
+
 document.addEventListener("DOMContentLoaded", async () => {
+    const loadingModal = document.getElementById('loadingModal');
+    loadingModal.style.display = 'flex';
+
     const switchId = window.location.pathname.split("/").pop();
     // await switchSelectionChanged();
 
@@ -141,6 +146,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
         console.error("Error loading switch data:", error);
         alert("Failed to load switch information.");
+    } finally {
+        loadingModal.style.display = 'none';
     }
 });
 // async function switchSelectionChanged() {
