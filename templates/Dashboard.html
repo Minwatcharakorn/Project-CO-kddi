@@ -7,6 +7,31 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+<style>
+    .info-icon {
+    text-decoration: none;
+}
+
+.info-icon span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background-color: #007bff; /* สีน้ำเงิน */
+    color: white;
+    border-radius: 50%; /* ปุ่มกลม */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin: auto; /* จัดให้อยู่กลาง cell */
+}
+
+.info-icon span:hover {
+    background-color: #0056b3; /* น้ำเงินเข้มเมื่อ hover */
+    transform: scale(1.1); /* ขยายเมื่อ hover */
+    cursor: pointer;
+}
+
+</style>
 <body>
     <!-- Sidebar -->
     {% include 'sidebar.html' %}
@@ -30,6 +55,7 @@
                             <th>Hostname</th>
                             <th>IP</th>
                             <th>Status</th>
+                            <th>Action</th> <!-- คอลัมน์ใหม่ -->
                         </tr>
                     </thead>
                     <tbody>
@@ -40,6 +66,12 @@
                             <td>{{ switch.hostname }}</td>
                             <td>{{ switch.ip }}</td>
                             <td>{{ switch.status }}</td>
+                            <td>
+                                <!-- ปุ่ม Action -->
+                                <a href="/info/{{ switch.id }}" class="info-icon" title="View Details">
+                                    <span><i class="fas fa-info-circle"></i></span>
+                                </a>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

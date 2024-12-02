@@ -3,409 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../static/styles.css">
-    <link rel="stylesheet" href="../static/info.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='info.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <title>Device Information</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Device Information</title>
 </head>
 <body>
 
     <!-- Sidebar -->
-    <div id="sidebar-container"></div>
-    
-    <script>
-    fetch('sidebar.html')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById("sidebar-container").innerHTML = data;
-            const activeLink = document.querySelector(".sidebar-item a[href='info.html']");
-            if (activeLink) activeLink.parentElement.classList.add("active");
-        })
-        .catch(error => console.error("Error loading sidebar:", error));
-    </script>
- 
+    {% include 'sidebar.html' %}
+
     <!-- Main Container -->
-    <div class="device-info-container" id="sortable">
-        <!-- Dropdown Container -->
-        <div class="dropdown-container">
-            <label for="switchSelector">Select Switch: </label>
-            <select id="switchSelector" onchange="switchSelectionChanged()">
-                <option value="switch1">Switch</option>
-                <option value="switch2">ASW-B401</option>
-                <option value="switch3">CSW-TH_1</option>
-            </select>
-        </div>
+    <div class="device-info-container">
+            <!-- Dropdown Container -->
+            <!-- <div class="dropdown-container">
+                <label for="switchSelector">Select Switch: </label>
+                <select id="switchSelector" onchange="switchSelectionChanged()">
+                    {% for switch in switches %}
+                        <option value="{{ switch['id'] }}" {% if switch['id'] == switch_id %}selected{% endif %}>
+                            {{ switch['hostname'] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div> -->
         
-        <!-- Switch Information Container -->
         <div class="switch-info" id="switchInfoContainer">
-            <h3 id="switchTitle">Switch</h3>
-            <div class="switch-model" id="switchModel">
-                <span>Model: Cisco Catalyst 9300</span>
-            </div>
+            <h3 id="hostnameTop">Switch</h3>
             <div class="switch-details" id="switchDetails">
-                <span>Host Name: Switch</span>
-                <span>MAC Address: 247e.1293.8880</span>
+                <span>Device Model: <span id="devicetypeTop">Loading...</span></span>
             </div>
- 
             <!-- Port Status -->
-            <div class="port-status">
-                <!-- Port Group 1 -->
-                <div class="port-group">
-                    <!-- Port Row 1 -->
-                    <div class="port-row">
-                        <div class="port active"><span class="port-number">01</span><span class="port-label">1G</span></div>
-                        <div class="port active"><span class="port-number">02</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">03</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">04</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">05</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">06</span><span class="port-label">1G</span></div>
-                    </div>
-                    <!-- Port Row 2 -->
-                    <div class="port-row">
-                        <div class="port"><span class="port-number">07</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">08</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">09</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">10</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">11</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">12</span><span class="port-label">1G</span></div>
-                    </div>
-                </div>
- 
-                <!-- Port Group 2 -->
-                <div class="port-group">
-                    <!-- Port Row 3 -->
-                    <div class="port-row">
-                        <div class="port"><span class="port-number">13</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">14</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">15</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">16</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">17</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">18</span><span class="port-label">1G</span></div>
-                    </div>
-                    <!-- Port Row 4 -->
-                    <div class="port-row">
-                        <div class="port"><span class="port-number">19</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">20</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">21</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">22</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">23</span><span class="port-label">1G</span></div>
-                        <div class="port active"><span class="port-number">24</span><span class="port-label">1G</span></div>
-                    </div>
-                </div>
- 
-                <!-- Port Group 3 -->
-                <div class="port-group">
-                    <!-- Port Row 5 -->
-                    <div class="port-row">
-                        <div class="port"><span class="port-number">25</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">26</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">27</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">28</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">29</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">30</span><span class="port-label">1G</span></div>
-                    </div>
-                    <!-- Port Row 6 -->
-                    <div class="port-row">
-                        <div class="port"><span class="port-number">31</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">32</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">33</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">34</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">35</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">36</span><span class="port-label">1G</span></div>
-                    </div>
-                </div>
- 
-                <!-- Port Group 4 -->
-                <div class="port-group">
-                    <!-- Port Row 7 -->
-                    <div class="port-row">
-                        <div class="port"><span class="port-number">37</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">38</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">39</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">40</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">41</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">42</span><span class="port-label">1G</span></div>
-                    </div>
-                    <!-- Port Row 8 -->
-                    <div class="port-row">
-                        <div class="port"><span class="port-number">43</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">44</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">45</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">46</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">47</span><span class="port-label">1G</span></div>
-                        <div class="port"><span class="port-number">48</span><span class="port-label">1G</span></div>
-                    </div>
-                </div>
+            <div class="port-status" id="portStatusContainer">
+                <!-- Dynamic Port Rows will be inserted here by JavaScript -->
             </div>
         </div>
- 
-        <!-- Device Status Container (CPU, Memory, Temperature) -->
+        <!-- Device Status Container -->
         <div class="device-status">
             <h3>Device Status</h3>
-           
-            <div class="chart-row" style="display: flex; gap: 20px;">
-              <div class="chart-container" style="flex: 1;">
-                  <canvas id="cpuUsageChart"></canvas>
-                  <div class="chart-percentage" id="cpuPercentage">45%</div>
-              </div>
-              <div class="chart-container" style="flex: 1;">
-                  <canvas id="memoryUsageChart"></canvas>
-                  <div class="chart-percentage" id="memoryPercentage">62%</div>
-              </div>
-              <div class="chart-container" style="flex: 1;">
-                  <canvas id="temperatureChart"></canvas>
-                  <div class="chart-percentage" id="temperaturePercentage">38°C</div>
-              </div>
+            <div class="chart-container">
+                <div class="chart-item">
+                    <canvas id="cpuChart"></canvas>
+                    <p id="cpuPercent">--%</p>
+                </div>
+                <div class="chart-item">
+                    <canvas id="memoryChart"></canvas>
+                    <p id="memoryPercent">--%</p>
+                </div>
+                <div class="chart-item">
+                    <canvas id="temperatureChart"></canvas>
+                    <p id="temperatureValue">--°C</p>
+                </div>
             </div>
-            <!-- System Information Section -->
+
             <div class="system-info">
                 <div class="system-info-item">
                     <span class="system-info-label">Hostname:</span>
-                    <span class="system-info-value" id="hostname">Switch</span>
+                    <span class="system-info-value" id="hostnameBottom">Loading...</span>
                 </div>
                 <div class="system-info-item">
                     <span class="system-info-label">Device Uptime:</span>
-                    <span class="system-info-value" id="deviceUptime">2 days, 15 hours, 54 minutes</span>
+                    <span class="system-info-value" id="uptime">Loading...</span>
                 </div>
                 <div class="system-info-item">
                     <span class="system-info-label">System Time:</span>
-                    <span class="system-info-value" id="systemTime">18:46:14.102 UTC Thu Dec 19 2019</span>
+                    <span class="system-info-value" id="system-time">Loading...</span>
                 </div>
                 <div class="system-info-item">
-                    <span class="system-info-label">Device Type:</span>
-                    <span class="system-info-value" id="deviceType">C9300-48U</span>
+                    <span class="system-info-label">Device Model:</span>
+                    <span class="system-info-value" id="devicetypeBottom">Loading...</span>
                 </div>
             </div>
- 
         </div>
-        <!-- VLAN Container -->
+
+        <!-- VLAN Information Container -->
         <div class="vlan-info">
             <h3>VLAN Information</h3>
-            <table class="vlan-table">
+            <table id="vlanTableWalk" class="vlan-table">
                 <thead>
                     <tr>
                         <th>VLAN ID</th>
                         <th>Name</th>
                         <th>Status</th>
-                        <th>Ports</th>
                     </tr>
                 </thead>
                 <tbody id="vlanTableBody">
-                    <!-- Default VLAN data -->
-                    <tr>
-                        <td>1</td>
-                        <td>default</td>
-                        <td>active</td>
-                        <td>Gi1/0/1, Gi1/0/2, Gi1/0/3, ...</td>
-                    </tr>
-                    <tr>
-                        <td>103</td>
-                        <td>Top_Fusion</td>
-                        <td>active</td>
-                        <td>Gi1/0/45, Gi1/0/46, ...</td>
+                    <tr id="noVlanMessage" style="display: none;">
+                        <td colspan="4" style="text-align: center;">No VLAN data available</td>
                     </tr>
                 </tbody>
             </table>
-</div>
-
+        </div>
     </div>
- 
-    <script>
-        $(function() {
-            // ทำให้แต่ละกรอบสามารถลากได้และจัดเรียงกันได้
-            $("#sortable").sortable({
-                handle: "h3",  // ใช้หัวข้อ (h3) เป็นจุดที่จับในการลาก
-                placeholder: "sortable-placeholder"
-            });
-        });
-        // Load Sidebar HTML into #sidebar-container
-        fetch('sidebar.html')
-            .then(response => response.text())
-            .then(data => document.getElementById("sidebar-container").innerHTML = data)
-            .catch(error => console.error('Error loading sidebar:', error));
-        
-        // Function to handle switch selection change
-        function switchSelectionChanged() {
-            const selectedSwitch = document.getElementById('switchSelector').value;
-            const switchTitle = document.getElementById('switchTitle');
-            const switchModel = document.getElementById('switchModel');
-            const switchDetails = document.getElementById('switchDetails');
-            const vlanTableBody = document.getElementById('vlanTableBody');
-            const hostname = document.getElementById('hostname');
-            const deviceUptime = document.getElementById('deviceUptime');
-            const systemTime = document.getElementById('systemTime');
-            const deviceType = document.getElementById('deviceType');
 
-            switch (selectedSwitch) {
-                case 'switch1':
-                    switchTitle.innerText = 'Switch';
-                    switchModel.innerHTML = '<span>Model: Cisco Catalyst 9300</span>';
-                    switchDetails.innerHTML = '<span>Host Name: Switch</span><span>MAC Address: 247e.1293.8880</span>';
-                    vlanTableBody.innerHTML = `
-                        <tr>
-                            <td>1</td>
-                            <td>default</td>
-                            <td>active</td>
-                            <td>Gi1/0/1, Gi1/0/2, Gi1/0/3, ...</td>
-                        </tr>
-                        <tr>
-                            <td>103</td>
-                            <td>Top_Fusion</td>
-                            <td>active</td>
-                            <td>Gi1/0/45, Gi1/0/46, ...</td>
-                        </tr>`;
-                    hostname.innerText = 'Switch';
-                    deviceUptime.innerText = '2 days, 15 hours, 54 minutes';
-                    systemTime.innerText = '18:46:14.102 UTC Thu Dec 19 2019';
-                    deviceType.innerText = 'C9300-48U';
-                    break;
-                case 'switch2':
-                    switchTitle.innerText = 'ASW-B401';
-                    switchModel.innerHTML = '<span>Model: Cisco Catalyst 9300</span>';
-                    switchDetails.innerHTML = '<span>Host Name: ASW-B401</span><span>MAC Address: 34fe.12a9.5678</span>';
-                    vlanTableBody.innerHTML = `
-                        <tr>
-                            <td>1</td>
-                            <td>default</td>
-                            <td>active</td>
-                            <td>Gi1/0/5, Gi1/0/6, Gi1/0/7, ...</td>
-                        </tr>
-                        <tr>
-                            <td>104</td>
-                            <td>Development</td>
-                            <td>active</td>
-                            <td>Gi1/0/12, Gi1/0/13, ...</td>
-                        </tr>`;
-                    hostname.innerText = 'ASW-B401';
-                    deviceUptime.innerText = '3 days, 8 hours, 12 minutes';
-                    systemTime.innerText = '12:23:45.000 UTC Fri Dec 20 2019';
-                    deviceType.innerText = 'C9300-48U';
-                    break;
-                case 'switch3':
-                    switchTitle.innerText = 'CSW-TH_1';
-                    switchModel.innerHTML = '<span>Model: Cisco Catalyst 9300</span>';
-                    switchDetails.innerHTML = '<span>Host Name: CSW-TH_1</span><span>MAC Address: 78de.45bc.1234</span>';
-                    vlanTableBody.innerHTML = `
-                        <tr>
-                            <td>1</td>
-                            <td>default</td>
-                            <td>active</td>
-                            <td>Gi1/0/1, Gi1/0/8, Gi1/0/9, ...</td>
-                        </tr>
-                        <tr>
-                            <td>105</td>
-                            <td>Management</td>
-                            <td>active</td>
-                            <td>Gi1/0/20, Gi1/0/21, ...</td>
-                        </tr>`;
-                    hostname.innerText = 'CSW-TH_1';
-                    deviceUptime.innerText = '5 days, 4 hours, 23 minutes';
-                    systemTime.innerText = '14:56:32.500 UTC Sat Dec 21 2019';
-                    deviceType.innerText = 'C9300-48U';
-                    break;
-            }
-            updateCharts();
-        }
-        // Function to update charts with random values
-        function updateCharts() {
-            const cpuValue = Math.floor(Math.random() * 70) +20;
-            cpuUsageChart.data.datasets[0].data = [cpuValue];
-            cpuUsageChart.update();
-            document.getElementById('cpuPercentage').innerText = cpuValue + '%';
-
-            const memoryValue = Math.floor(Math.random() * 75) +25;
-            memoryUsageChart.data.datasets[0].data = [memoryValue];
-            memoryUsageChart.update();
-            document.getElementById('memoryPercentage').innerText = memoryValue + '%';
-
-            const temperatureValue = Math.floor(Math.random() * 30) + 20;
-            temperatureChart.data.datasets[0].data = [temperatureValue];
-            temperatureChart.update();
-            document.getElementById('temperaturePercentage').innerText = temperatureValue + '°C';
-        }
-        
-        // Chart.js for CPU Usage
-        const cpuCtx = document.getElementById('cpuUsageChart').getContext('2d');
-        const cpuUsageValue = Math.floor(Math.random() * 101);
-        document.getElementById('cpuPercentage').innerText = cpuUsageValue + '%';
-        const cpuUsageChart = new Chart(cpuCtx, {
-            type: 'bar',
-            data: {
-                labels: ['CPU Usage'],
-                datasets: [{
-                    label: 'CPU Usage',
-                    data: [cpuUsageValue],
-                    backgroundColor: 'rgba(50, 205, 50, 0.7)',
-                    borderColor: 'rgba(50, 205, 50, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                }
-            }
-        });
-
-        // Chart.js for Memory Usage
-        const memoryCtx = document.getElementById('memoryUsageChart').getContext('2d');
-        const memoryUsageValue = Math.floor(Math.random() * 101);
-        document.getElementById('memoryPercentage').innerText = memoryUsageValue + '%';
-        const memoryUsageChart = new Chart(memoryCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Memory Usage'],
-                datasets: [{
-                    label: 'Memory Usage',
-                    data: [memoryUsageValue],
-                    backgroundColor: 'rgba(30, 144, 255, 0.7)',
-                    borderColor: 'rgba(30, 144, 255, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                }
-            }
-        });
-
-        // Chart.js for Temperature
-        const tempCtx = document.getElementById('temperatureChart').getContext('2d');
-        const temperatureValue = Math.floor(Math.random() * 81) + 20;
-        document.getElementById('temperaturePercentage').innerText = temperatureValue + '°C';
-        const temperatureChart = new Chart(tempCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Temperature'],
-                datasets: [{
-                    label: 'Temperature',
-                    data: [temperatureValue],
-                    backgroundColor: 'rgba(255, 99, 71, 0.7)',
-                    borderColor: 'rgba(255, 99, 71, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                }
-            }
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../static/js/Info.js"></script>
 </body>
 </html>

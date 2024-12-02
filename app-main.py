@@ -23,6 +23,12 @@ serial_connection = None
 switches = []  # List to store scanned devices
 
 
+# Test Sidebar
+# @app.context_processor
+# def inject_sidebar_data():
+#     return dict(switches=switches)
+
+
 def get_available_ports():
     """Get a list of available serial ports."""
     ports = serial.tools.list_ports.comports()
@@ -64,6 +70,89 @@ async def get_snmp_info(ip, community='public'):
 
     return info
 
+@app.route('/api/switch/<int:switch_id>', methods=['GET'])
+async def get_switch_data(switch_id):
+    """API for fetching switch details and port statuses via SNMP."""
+    switch = next((s for s in switches if s['id'] == switch_id), None)
+    if not switch:
+        return jsonify({"error": "Switch not found"}), 404
+
+    ip = switch['ip']
+    snmp_results = {}
+
+    # OIDs for SNMP queries
+    oids = {
+        "hostname": ".1.3.6.1.2.1.1.5.0",  # sysName
+        "uptime": ".1.3.6.1.2.1.1.3.0",  # sysUpTime
+        "system_time": ".1.3.6.1.2.1.25.1.2.0",  # system date/time
+        "device_type": ".1.3.6.1.2.1.1.1.0",  # sysDescr
+        "cpu_usage": "1.3.6.1.4.1.9.2.1.58.0",  # Example CPU OID
+        "memory_usage": "1.3.6.1.4.1.9.2.1.58.0",  # Example Memory OID
+        "temperature": ".1.3.6.1.4.1.9.9.106.1.1.1.0",  # Replace with actual OID for temperature
+        "num_ports": ".1.3.6.1.2.1.2.1.0",  # Number of interfaces (ifNumber)
+        "port_status_base": ".1.3.6.1.2.1.2.2.1.8"  # Base OID for port status (ifOperStatus)
+    }
+
+    try:
+        # SNMP query for general data
+        for key, oid in oids.items():
+            if key == "port_status_base":
+                continue  # Skip the base port status OID for now
+            result = await get_cmd(
+                SnmpEngine(),
+                CommunityData('public'),
+                await UdpTransportTarget.create((ip, 161), timeout=5, retries=3),
+                ContextData(),
+                ObjectType(ObjectIdentity(oid))
+            )
+
+            errorIndication, errorStatus, errorIndex, varBinds = result
+            if errorIndication or errorStatus:
+                snmp_results[key] = "N/A"
+            else:
+                for varBind in varBinds:
+                    snmp_results[key] = str(varBind[1])
+
+        # Detect the number of ports
+        num_ports = int(snmp_results.get("num_ports", 0))
+
+        # Retrieve port statuses
+        port_status = []
+        for i in range(1, num_ports + 1):  # Iterate through each port
+            port_oid = f"{oids['port_status_base']}.{i}"
+            result = await get_cmd(
+                SnmpEngine(),
+                CommunityData('public'),
+                await UdpTransportTarget.create((ip, 161), timeout=5, retries=3),
+                ContextData(),
+                ObjectType(ObjectIdentity(port_oid))
+            )
+
+            errorIndication, errorStatus, errorIndex, varBinds = result
+            if errorIndication or errorStatus:
+                port_status.append("N/A")
+            else:
+                for varBind in varBinds:
+                    port_status.append(str(varBind[1]))  # 1 = UP, 2 = DOWN, etc.
+
+        snmp_results["port_status"] = port_status
+
+        switch_data = {
+            "hostname": snmp_results.get("hostname", "N/A"),
+            "uptime": snmp_results.get("uptime", "N/A"),
+            "system_time": snmp_results.get("system_time", "N/A"),
+            "device_type": snmp_results.get("device_type", "N/A"),
+            "cpu_usage": snmp_results.get("cpu_usage", "N/A"),
+            "memory_usage": snmp_results.get("memory_usage", "N/A"),
+            "temperature": snmp_results.get("temperature", "N/A"),
+            "num_ports": num_ports,
+            "port_status": port_status
+        }
+        return jsonify(switch_data)
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to retrieve SNMP data: {str(e)}"}), 500
+
 
 # Function to scan for devices in the given IP range
 def scan_network(ip_range_start, ip_range_end):
@@ -91,11 +180,12 @@ async def update_switches(ip_range_start, ip_range_end):
     devices = scan_network(ip_range_start, ip_range_end)
     switches.clear()
 
-    for device in devices:
+    for idx, device in enumerate(devices):
         ip = device['ip']
         snmp_info = await get_snmp_info(ip)
 
         switches.append({
+            "id": idx + 1,  # เพิ่ม ID สำหรับแต่ละ Switch
             "model": snmp_info.get("model", "Unknown"),
             "serial": snmp_info.get("serial", "Unknown"),
             "hostname": snmp_info.get("hostname", "Unknown"),
@@ -130,6 +220,25 @@ def deploy_page():
     switches_from_session = session.get('switches', [])
     return render_template('Deploy.html', switches=switches_from_session)
 
+@app.route('/info/<int:switch_id>')
+def switch_info(switch_id):
+    print(f"Accessing info for switch ID: {switch_id}")
+    switch = next((s for s in switches if s.get('id') == switch_id), None)
+    if not switch:
+        print("Switch not found!")
+        return render_template('404.html'), 404
+    print(f"Switch found: {switch}")
+    # ส่ง switch_id ให้หน้า info.html
+    return render_template('info.html', switch_id=switch_id, switches=switches)
+
+
+@app.route('/api/switch/<switch_id>', methods=['GET'])
+def get_switch(switch_id):
+    switch = next((s for s in switches if s['id'] == switch_id), None)
+    if not switch:
+        return jsonify({"error": "Switch not found"}), 404
+
+    return jsonify(switch)
 
 @app.route('/api/get_switches', methods=['GET'])
 def get_switches():
