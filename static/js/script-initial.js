@@ -38,9 +38,13 @@ document.getElementById('scan-button').addEventListener('click', async () => {
         }
     } catch (error) {
         console.error(`Error: ${error.message}`);
-        alert(`Error: ${error.message}`);
+        
+        // Show Modal Error instead of alert
+        showErrorModal(error.message);
     } finally {
         // Hide the loading modal once processing is complete
         loadingModal.style.display = 'none';
     }
 });
+
+
