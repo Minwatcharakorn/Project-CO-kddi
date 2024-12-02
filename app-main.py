@@ -232,13 +232,13 @@ def switch_info(switch_id):
     return render_template('info.html', switch_id=switch_id, switches=switches)
 
 
-@app.route('/api/switch/<switch_id>', methods=['GET'])
-def get_switch(switch_id):
-    switch = next((s for s in switches if s['id'] == switch_id), None)
-    if not switch:
-        return jsonify({"error": "Switch not found"}), 404
+# @app.route('/api/switch/<switch_id>', methods=['GET'])
+# def get_switch(switch_id):
+#     switch = next((s for s in switches if s['id'] == switch_id), None)
+#     if not switch:
+#         return jsonify({"error": "Switch not found"}), 404
 
-    return jsonify(switch)
+#     return jsonify(switch)
 
 @app.route('/api/get_switches', methods=['GET'])
 def get_switches():
