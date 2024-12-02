@@ -282,9 +282,11 @@ body {
     border: 8px solid #f3f3f3;
     border-top: 8px solid #3498db;
     border-radius: 50%;
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     animation: spin 1s linear infinite;
+    margin: 20px auto; /* เพิ่มระยะห่างเพื่อความสวยงาม */
+
 }
 
 @keyframes spin {
