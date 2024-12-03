@@ -150,6 +150,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         loadingModal.style.display = 'none';
     }
 });
+
+
+
 // async function switchSelectionChanged() {
 //     const selectedSwitchId = document.getElementById('switchSelector').value;
 //     console.log("Selected Switch ID:", selectedSwitchId);

@@ -72,7 +72,7 @@ async def get_snmp_info(ip, community='public'):
 
 @app.route('/api/switch/<int:switch_id>', methods=['GET'])
 async def get_switch_data(switch_id):
-    """API for fetching switch details and port statuses via SNMP."""
+    """API for fetching switch details, port statuses, and VLAN information via SNMP."""
     switch = next((s for s in switches if s['id'] == switch_id), None)
     if not switch:
         return jsonify({"error": "Switch not found"}), 404
@@ -94,7 +94,7 @@ async def get_switch_data(switch_id):
     }
 
     try:
-        # SNMP query for general data
+        # Retrieve general SNMP data
         for key, oid in oids.items():
             if key == "port_status_base":
                 continue  # Skip the base port status OID for now
@@ -137,6 +137,10 @@ async def get_switch_data(switch_id):
 
         snmp_results["port_status"] = port_status
 
+        # Retrieve VLAN information
+        vlan_info = await get_vlan_info(ip)
+
+        # Construct the response
         switch_data = {
             "hostname": snmp_results.get("hostname", "N/A"),
             "uptime": snmp_results.get("uptime", "N/A"),
@@ -146,12 +150,14 @@ async def get_switch_data(switch_id):
             "memory_usage": snmp_results.get("memory_usage", "N/A"),
             "temperature": snmp_results.get("temperature", "N/A"),
             "num_ports": num_ports,
-            "port_status": port_status
+            "port_status": port_status,
+            "vlans": vlan_info
         }
         return jsonify(switch_data)
 
     except Exception as e:
         return jsonify({"error": f"Failed to retrieve SNMP data: {str(e)}"}), 500
+
 
 
 # Function to scan for devices in the given IP range
