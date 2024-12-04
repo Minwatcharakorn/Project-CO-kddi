@@ -220,6 +220,12 @@ def listtemplate_page():
     """Serve the List Template page."""
     return render_template('templates-list.html')
 
+@app.route('/uploadtemplate')
+def uploadtemplate_page():
+    """Serve the Upload Template page."""
+    return render_template('upload_Templates.html')
+
+
 @app.route('/deploy')
 def deploy_page():
     """Serve the Deploy page."""
