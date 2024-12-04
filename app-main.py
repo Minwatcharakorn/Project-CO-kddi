@@ -24,12 +24,6 @@ serial_connection = None
 switches = []  # List to store scanned devices
 
 
-# Test Sidebar
-# @app.context_processor
-# def inject_sidebar_data():
-#     return dict(switches=switches)
-
-
 def get_available_ports():
     """Get a list of available serial ports."""
     ports = serial.tools.list_ports.comports()
@@ -220,6 +214,11 @@ def dashboard_page():
 def configuration_page():
     """Serve the Configuration page."""
     return render_template('configuration.html')
+
+@app.route('/listtemplate')
+def listtemplate_page():
+    """Serve the List Template page."""
+    return render_template('templates-list.html')
 
 @app.route('/deploy')
 def deploy_page():
