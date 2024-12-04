@@ -9,6 +9,7 @@ import asyncio
 import paramiko
 from ipaddress import ip_address
 from datetime import datetime, timedelta
+from ipaddress import ip_address, AddressValueError
 
 
 app = Flask(__name__)
@@ -301,6 +302,58 @@ def get_switches():
     """API to get the list of switches for the Deploy page."""
     return jsonify(switches), 200
 
+# Global dictionary to store SSH sessions
+ssh_sessions = {}
+
+@app.route('/api/cli', methods=['POST'])
+def cli_terminal():
+    """Endpoint for sending commands via CLI repeatedly."""
+    data = request.json
+    ip = data.get('ip')
+    command = data.get('command')
+    username = session.get('username')
+    password = session.get('password')
+
+    if not ip or not command:
+        return jsonify({"error": "IP address and command are required"}), 400
+
+    try:
+        # Check if the SSH session already exists
+        if ip not in ssh_sessions:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username=username, password=password, timeout=5)
+            ssh_sessions[ip] = ssh  # Store the SSH session in the global dictionary
+
+        ssh = ssh_sessions[ip]  # Get the existing session
+
+        # Execute the command
+        stdin, stdout, stderr = ssh.exec_command(command)
+        output = stdout.read().decode('utf-8')
+        error = stderr.read().decode('utf-8')
+
+        if error.strip():
+            return jsonify({"error": error.strip()}), 200
+
+        return jsonify({"output": output.strip()}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/get_hostname', methods=['GET'])
+def get_hostname():
+    ip = request.args.get('ip')
+    if not ip:
+        return jsonify({"error": "IP is required"}), 400
+
+    try:
+        # Run the asynchronous SNMP function in a synchronous context
+        snmp_info = asyncio.run(get_snmp_info(ip))
+        hostname = snmp_info.get("hostname", "Unknown")
+        return jsonify({"hostname": hostname}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/ports', methods=['GET'])
 def list_ports():
@@ -310,6 +363,7 @@ def list_ports():
         return jsonify(ports), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 @app.route('/api/connect', methods=['POST'])
