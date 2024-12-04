@@ -84,7 +84,6 @@ async def get_switch_data(switch_id):
     oids = {
         "hostname": ".1.3.6.1.2.1.1.5.0",  # sysName
         "uptime": ".1.3.6.1.2.1.1.3.0",  # sysUpTime
-        "system_time": ".1.3.6.1.2.1.25.1.2.0",  # system date/time
         "device_type": ".1.3.6.1.2.1.1.1.0",  # sysDescr
         "cpu_usage": "1.3.6.1.4.1.9.2.1.58.0",  # Example CPU OID
         "memory_usage": "1.3.6.1.4.1.9.2.1.58.0",  # Example Memory OID
@@ -137,21 +136,18 @@ async def get_switch_data(switch_id):
 
         snmp_results["port_status"] = port_status
 
-        # Retrieve VLAN information
-        vlan_info = await get_vlan_info(ip)
+
 
         # Construct the response
         switch_data = {
             "hostname": snmp_results.get("hostname", "N/A"),
             "uptime": snmp_results.get("uptime", "N/A"),
-            "system_time": snmp_results.get("system_time", "N/A"),
             "device_type": snmp_results.get("device_type", "N/A"),
             "cpu_usage": snmp_results.get("cpu_usage", "N/A"),
             "memory_usage": snmp_results.get("memory_usage", "N/A"),
             "temperature": snmp_results.get("temperature", "N/A"),
             "num_ports": num_ports,
             "port_status": port_status,
-            "vlans": vlan_info
         }
         return jsonify(switch_data)
 
@@ -219,6 +215,10 @@ def dashboard_page():
     session.permanent = True  # Ensure session persists
     return render_template('Dashboard.html', switches=switches)
 
+@app.route('/configuration')
+def configuration_page():
+    """Serve the Configuration page."""
+    return render_template('configuration.html')
 
 @app.route('/deploy')
 def deploy_page():
@@ -237,14 +237,64 @@ def switch_info(switch_id):
     # ส่ง switch_id ให้หน้า info.html
     return render_template('info.html', switch_id=switch_id, switches=switches)
 
+@app.route('/api/vlan/<int:switch_id>', methods=['GET'])
+def get_vlan_info(switch_id):
+    switch = next((s for s in switches if s['id'] == switch_id), None)
+    if not switch:
+        return jsonify({"error": "Switch not found"}), 404
 
-# @app.route('/api/switch/<switch_id>', methods=['GET'])
-# def get_switch(switch_id):
-#     switch = next((s for s in switches if s['id'] == switch_id), None)
-#     if not switch:
-#         return jsonify({"error": "Switch not found"}), 404
+    ip = switch['ip']
+    username = session.get('username')
+    password = session.get('password')
 
-#     return jsonify(switch)
+    if not username or not password:
+        return jsonify({"error": "Authentication details missing"}), 400
+
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(ip, username=username, password=password, timeout=5)
+
+        stdin, stdout, stderr = ssh.exec_command("show vlan brief")
+        output = stdout.read().decode('utf-8')
+        ssh.close()
+
+        # Process VLAN information
+        vlan_data = []
+        lines = output.splitlines()
+        current_vlan = None
+
+        for line in lines[2:]:  # Skip headers
+            parts = line.split()
+            if len(parts) >= 3 and parts[0].isdigit():
+                # หา index ของ status (active, act/unsup) ใน line
+                status_index = next((i for i, val in enumerate(parts[2:], 2) if val in ['active', 'act/unsup']), -1)
+                
+                if status_index != -1:
+                    vlan_id = parts[0]
+                    vlan_name = ' '.join(parts[1:status_index])  # รวมคำทั้งหมดก่อน status เป็นชื่อ VLAN
+                    status = parts[status_index]
+                    ports = ', '.join(parts[status_index + 1:]) if len(parts) > status_index + 1 else "N/A"
+                    
+                    vlan_data.append({
+                        "id": vlan_id,
+                        "name": vlan_name.strip(),
+                        "status": status.strip(),
+                        "ports": ports.strip()
+                    })
+            elif vlan_data and len(parts) > 0:
+                # กรณีพอร์ตต่อจาก VLAN เดิม (บรรทัดถัดไป)
+                vlan_data[-1]["ports"] += ', ' + ' '.join(parts)
+
+        # Clean up ports format (optional, for better readability)
+        for vlan in vlan_data:
+            # Clean up ports: Remove multiple commas, extra spaces
+            vlan["ports"] = ', '.join(filter(None, vlan["ports"].replace(',', ' ').split())).strip()
+
+        return jsonify({"vlan_data": vlan_data}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/get_switches', methods=['GET'])
 def get_switches():

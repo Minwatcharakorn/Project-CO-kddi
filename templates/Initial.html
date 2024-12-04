@@ -16,8 +16,8 @@
                 <h2>Network Device Authentication</h2>
                 <form id="login-form">
                     <div class="password-container">
-                        <input type="text" id="ip-start" placeholder="Start IP Address e.g. 192.168.1.1" required>
-                        <input type="text" id="ip-end" placeholder="End IP Address e.g. 192.168.1.255" required>
+                        <input type="text" id="ip-start" placeholder="192.168.1.1" required>
+                        <input type="text" id="ip-end" placeholder="192.168.1.255" required>
                     </div>
                     <div class="username-container">
                         <input type="text" id="username" placeholder="Username" required>
@@ -46,7 +46,16 @@
             <p>Loading</p>
         </div>
     </div>
-
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+            <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;"></p>
+            <p style="color: #555;"></p>
+            <button id="closeErrorModal" class="buttons" style="margin-top: 20px;">Ok</button>
+        </div>
+    </div>
+    
 
     <script src="../static/js/script-initial.js"></script>
 

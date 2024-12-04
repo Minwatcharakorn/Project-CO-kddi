@@ -304,3 +304,11 @@ body {
     font-size: 18px;
     text-align: center;
 }
+
+.vlan-table td:nth-child(4), 
+.vlan-table th:nth-child(4) {
+    max-width: 250px; /* กำหนดขนาดสูงสุด */
+    white-space: nowrap; /* ป้องกันข้อความแตกบรรทัด */
+    overflow: hidden; /* ซ่อนข้อความเกิน */
+    text-overflow: ellipsis; /* แสดง ... เมื่อข้อความเกิน */
+}
