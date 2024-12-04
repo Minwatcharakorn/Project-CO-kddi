@@ -302,6 +302,11 @@ def get_switches():
     """API to get the list of switches for the Deploy page."""
     return jsonify(switches), 200
 
+
+# ----------------------------------------------------------------------------------
+# ติดปัญหา CLI Terminal
+# ----------------------------------------------------------------------------------
+
 # Global dictionary to store SSH sessions
 ssh_sessions = {}
 
@@ -354,6 +359,9 @@ def get_hostname():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# ----------------------------------------------------------------------------------
+# ติดปัญหา CLI Terminal 
+# ----------------------------------------------------------------------------------
 
 @app.route('/api/ports', methods=['GET'])
 def list_ports():
