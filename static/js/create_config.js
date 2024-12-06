@@ -68,6 +68,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+function handleRemoveInterfaceConfig(button) {
+    const configDiv = button.closest(".interface-config");
+    if (configDiv) {
+        configDiv.remove(); // ลบ configuration ออกจาก DOM
+    }
+}
+
 // Add New Interface Configuration
 document.getElementById("add-interface-config").addEventListener("click", function () {
     const interfaceCounter = document.querySelectorAll(".interface-config").length + 1;

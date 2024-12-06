@@ -76,6 +76,119 @@
             </form>
         </div>
 
+        <!-- Global STP Configuration Section -->
+        <div class="config-section" id="stp-global-config">
+            <h3>Global STP Configuration</h3>
+            <form>
+                <!-- STP Mode -->
+                <label for="stp-mode">STP Mode:</label>
+                <select id="stp-mode" name="stp-mode">
+                    <option value="pvst">PVST (Per VLAN Spanning Tree)</option>
+                    <option value="rapid-pvst">Rapid-PVST</option>
+                    <option value="mst">MST (Multiple Spanning Tree)</option>
+                </select>
+                <br><br>
+
+                <!-- Root Priority -->
+                <label for="stp-root-priority">Set VLAN Root:</label>
+                <input type="number" id="stp-vlan-id-root" name="stp-vlan-id-root" placeholder="VLAN ID" min="1" max="4094">
+                <select id="stp-root-priority" name="stp-root-priority">
+                    <option value="primary">Primary</option>
+                    <option value="secondary">Secondary</option>
+                </select>
+                <br><br>
+
+                <!-- VLAN Priority -->
+                <label for="stp-priority">Set VLAN Priority:</label>
+                <input type="number" id="stp-vlan-id-priority" name="stp-vlan-id-priority" placeholder="VLAN ID" min="1" max="4094">
+                <input type="number" id="stp-priority" name="stp-priority" placeholder="Priority Value (0-61440)" min="0" max="61440" step="4096">
+                <br><br>
+
+                <input type="submit" value="Save Global STP Configuration">
+            </form>
+        </div>
+
+        <!-- Per-Interface STP Configuration Section -->
+        <div class="config-section" id="stp-interface-config">
+            <h3>Per-Interface STP Configuration</h3>
+            <form>
+                <!-- Interface Selection -->
+                <label for="interface-port">Interface Port:</label>
+                <select id="interface-port" name="interface-port">
+                    <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
+                    <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
+                    <!-- Add more ports as needed -->
+                </select>
+                <br><br>
+
+                <!-- Port Cost -->
+                <label for="stp-port-cost">STP Port Cost:</label>
+                <input type="number" id="stp-port-cost" name="stp-port-cost" placeholder="Cost Value">
+                <br><br>
+
+                <!-- BPDU Guard -->
+                <label for="stp-bpduguard">BPDU Guard:</label>
+                <select id="stp-bpduguard" name="stp-bpduguard">
+                    <option value="enable">Enable</option>
+                    <option value="disable">Disable</option>
+                </select>
+                <br><br>
+
+                <!-- Portfast -->
+                <label for="stp-portfast">Portfast:</label>
+                <select id="stp-portfast" name="stp-portfast">
+                    <option value="default">Default</option>
+                    <option value="enable">Enable</option>
+                    <option value="disable">Disable</option>
+                </select>
+                <br><br>
+
+                <!-- Per-VLAN Port Priority -->
+                <label for="stp-vlan-port-priority">Per-VLAN Port Priority:</label>
+                <input type="number" id="stp-vlan-id-port" name="stp-vlan-id-port" placeholder="VLAN ID" min="1" max="4094">
+                <input type="number" id="stp-vlan-port-priority" name="stp-vlan-port-priority" placeholder="Priority Value (0-240)" min="0" max="240" step="16">
+                <br><br>
+
+                <input type="submit" value="Save Interface STP Configuration">
+            </form>
+        </div>
+
+        <!-- VTP Configuration Section -->
+        <div class="config-section" id="vtp-config">
+            <h3>VTP (VLAN Trunking Protocol) Configuration</h3>
+            <form>
+                <!-- VTP Mode -->
+                <label for="vtp-mode">VTP Mode</label>
+                <select id="vtp-mode" name="vtp-mode">
+                    <option value="server">Server</option>
+                    <option value="client">Client</option>
+                    <option value="transparent">Transparent</option>
+                    <option value="off">Off</option>
+                </select>
+                <br><br>
+
+                <!-- VTP Version -->
+                <label for="vtp-version">VTP Version</label>
+                <select id="vtp-version" name="vtp-version">
+                    <option value="1">Version 1</option>
+                    <option value="2">Version 2</option>
+                    <option value="3">Version 3</option>
+                </select>
+                <br><br>
+
+                <!-- VTP Domain -->
+                <label for="vtp-domain">VTP Domain Name</label>
+                <input type="text" id="vtp-domain" name="vtp-domain" placeholder="Enter VTP Domain Name">
+                <br><br>
+
+                <!-- VTP Password -->
+                <label for="vtp-password">VTP Password</label>
+                <input type="password" id="vtp-password" name="vtp-password" placeholder="Enter VTP Password">
+                <br><br>
+
+                <input type="submit" value="Save VTP Configuration">
+            </form>
+        </div>
 
         <!-- Interface Ports -->
         <div class="config-section" id="interface-ports-config">
@@ -92,7 +205,7 @@
                         <label>
                             <input type="checkbox" id="no-switch-1" onchange="toggleSwitchMode(this)"> No Switchmode
                         </label>
-                        <label for="interface-port-1">Interface Port:</label>
+                        <label for="interface-port-1">Interface Port</label>
                         <select id="interface-port-1" name="interface-port">
                             <option value="">--Select Port--</option>
                             <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
@@ -107,7 +220,7 @@
                         </select>
         
                         <div class="Description IP" id="ip-single-1">
-                            <label for="interface-ip-1">IP Address:</label>
+                            <label for="interface-ip-1">IP Address</label>
                             <input type="text" id="interface-ip-1" name="interface-ip" placeholder="Enter IP Address">
                         </div>
 
@@ -118,7 +231,7 @@
         
 
                         <div class="switch-mode-section" id="switch-mode-section-1">
-                            <label for="switch-mode-1">Switch Mode:</label>
+                            <label for="switch-mode-1">Switch Mode</label>
                             <select id="switch-mode-1" name="switch-mode">
                                 <option value="access">Access</option>
                                 <option value="trunk">Trunk</option>
