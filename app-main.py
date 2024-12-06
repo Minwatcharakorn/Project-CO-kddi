@@ -265,20 +265,28 @@ def get_vlan_info(switch_id):
         output = stdout.read().decode('utf-8')
         ssh.close()
 
+        # Log the output for debugging purposes
+        print("Output from 'show vlan brief':")
+        print(output)
+
         # Process VLAN information
         vlan_data = []
         lines = output.splitlines()
-        current_vlan = None
 
-        for line in lines[2:]:  # Skip headers
+        # Check if we have valid data in lines
+        if len(lines) < 3:
+            return jsonify({"error": "Invalid VLAN output format"}), 500
+
+        # Skip the first 2 lines (headers)
+        for line in lines[2:]:
             parts = line.split()
             if len(parts) >= 3 and parts[0].isdigit():
-                # หา index ของ status (active, act/unsup) ใน line
+                # Identify status (active or act/unsup)
                 status_index = next((i for i, val in enumerate(parts[2:], 2) if val in ['active', 'act/unsup']), -1)
                 
                 if status_index != -1:
                     vlan_id = parts[0]
-                    vlan_name = ' '.join(parts[1:status_index])  # รวมคำทั้งหมดก่อน status เป็นชื่อ VLAN
+                    vlan_name = ' '.join(parts[1:status_index])  # Join all parts before the status as VLAN name
                     status = parts[status_index]
                     ports = ', '.join(parts[status_index + 1:]) if len(parts) > status_index + 1 else "N/A"
                     
@@ -288,13 +296,9 @@ def get_vlan_info(switch_id):
                         "status": status.strip(),
                         "ports": ports.strip()
                     })
-            elif vlan_data and len(parts) > 0:
-                # กรณีพอร์ตต่อจาก VLAN เดิม (บรรทัดถัดไป)
-                vlan_data[-1]["ports"] += ', ' + ' '.join(parts)
 
-        # Clean up ports format (optional, for better readability)
+        # Clean up ports format
         for vlan in vlan_data:
-            # Clean up ports: Remove multiple commas, extra spaces
             vlan["ports"] = ', '.join(filter(None, vlan["ports"].replace(',', ' ').split())).strip()
 
         return jsonify({"vlan_data": vlan_data}), 200

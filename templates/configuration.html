@@ -65,7 +65,7 @@
                         <input type="text" id="vlan-name-1" name="vlan-name[]" placeholder="Enter VLAN Name" required>
 
                         <label for="vlan-IP-1">IP Address VLAN</label>
-                        <input type="text" id="vlan-IP-1" name="vlan-IP[]" placeholder="Enter IP Address Vlan" required>
+                        <input type="text" id="vlan-IP-1" name="vlan-IP[]" placeholder="Enter IP Address VLAN" required>
                         <button type="button" class="remove-vlan-row" style="width: auto;">
                             <i class="fas fa-trash-alt"></i>
                         </button>                    
@@ -113,7 +113,7 @@
             <h3>Per-Interface STP Configuration</h3>
             <form>
                 <!-- Interface Selection -->
-                <label for="interface-port">Interface Port:</label>
+                <label for="interface-port">Interface Port</label>
                 <select id="interface-port" name="interface-port">
                     <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
                     <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
@@ -122,12 +122,12 @@
                 <br><br>
 
                 <!-- Port Cost -->
-                <label for="stp-port-cost">STP Port Cost:</label>
+                <label for="stp-port-cost">STP Port Cost</label>
                 <input type="number" id="stp-port-cost" name="stp-port-cost" placeholder="Cost Value">
                 <br><br>
 
                 <!-- BPDU Guard -->
-                <label for="stp-bpduguard">BPDU Guard:</label>
+                <label for="stp-bpduguard">BPDU Guard</label>
                 <select id="stp-bpduguard" name="stp-bpduguard">
                     <option value="enable">Enable</option>
                     <option value="disable">Disable</option>
@@ -135,7 +135,7 @@
                 <br><br>
 
                 <!-- Portfast -->
-                <label for="stp-portfast">Portfast:</label>
+                <label for="stp-portfast">Portfast</label>
                 <select id="stp-portfast" name="stp-portfast">
                     <option value="default">Default</option>
                     <option value="enable">Enable</option>
@@ -163,8 +163,7 @@
                     <option value="server">Server</option>
                     <option value="client">Client</option>
                     <option value="transparent">Transparent</option>
-                    <option value="off">Off</option>
-                </select>
+                    </select>
                 <br><br>
 
                 <!-- VTP Version -->
