@@ -21,7 +21,17 @@
             max-width: 200px; /* เพิ่มขนาดสูงสุดเพื่อไม่ให้ใหญ่เกินไป */
             min-height: 170px; /* เพิ่มความสูงขั้นต่ำ */
         }
-        
+        .error-modal-content{
+            background-color: #fff;
+            padding: 40px; /* เพิ่ม padding ให้ใหญ่ขึ้น */
+            border-radius: 15px; /* เพิ่มมุมโค้งให้ดูดี */
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 50%; /* เพิ่มความกว้างของ modal-content */
+            max-width: 350px; /* เพิ่มขนาดสูงสุดเพื่อไม่ให้ใหญ่เกินไป */
+            min-height: 170px; /* เพิ่มความสูงขั้นต่ำ */
+        }
+
                 /* Loading Spinner */
         .loading-spinner {
             border: 6px solid #f3f3f3; /* เพิ่มขนาดของเส้นขอบเพื่อให้ชัดขึ้น */
