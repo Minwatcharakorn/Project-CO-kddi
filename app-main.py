@@ -83,16 +83,11 @@ async def get_switch_data(switch_id):
         "cpu_usage": "1.3.6.1.4.1.9.2.1.58.0",  # Example CPU OID
         "memory_usage": "1.3.6.1.4.1.9.2.1.58.0",  # Example Memory OID
         "temperature": ".1.3.6.1.4.1.9.9.106.1.1.1.0",  # Replace with actual OID for temperature
-        "num_ports": ".1.3.6.1.2.1.2.1.0",  # Number of interfaces (ifNumber)
-        "port_status_base": ".1.3.6.1.2.1.2.2.1.8",  # Base OID for port status (ifOperStatus)
-        "ifDescr_base": ".1.3.6.1.2.1.2.2.1.2",  # Base OID for interface descriptions
     }
 
     try:
         # Retrieve general SNMP data
         for key, oid in oids.items():
-            if key in ["port_status_base", "ifDescr_base"]:
-                continue  # Skip base OIDs for now
             result = await get_cmd(
                 SnmpEngine(),
                 CommunityData('public'),
@@ -108,58 +103,6 @@ async def get_switch_data(switch_id):
                 for varBind in varBinds:
                     snmp_results[key] = str(varBind[1])
 
-        # Detect the number of ports
-        num_ports = int(snmp_results.get("num_ports", 0))
-
-        # Retrieve interface descriptions
-        interface_descriptions = []
-        for i in range(1, num_ports + 1):
-            if_descr_oid = f"{oids['ifDescr_base']}.{i}"
-            result = await get_cmd(
-                SnmpEngine(),
-                CommunityData('public'),
-                await UdpTransportTarget.create((ip, 161), timeout=5, retries=3),
-                ContextData(),
-                ObjectType(ObjectIdentity(if_descr_oid))
-            )
-
-            errorIndication, errorStatus, errorIndex, varBinds = result
-            if not errorIndication and not errorStatus:
-                for varBind in varBinds:
-                    interface_descriptions.append(str(varBind[1]))
-
-        # Retrieve port statuses
-        port_status = []
-        for i, description in enumerate(interface_descriptions, start=1):
-            # Skip non-physical interfaces
-            if any(
-                invalid in description.lower()
-                for invalid in ["loopback", "null", "vlan", "virtual"]
-            ):
-                continue
-
-            port_oid = f"{oids['port_status_base']}.{i}"
-            result = await get_cmd(
-                SnmpEngine(),
-                CommunityData('public'),
-                await UdpTransportTarget.create((ip, 161), timeout=5, retries=3),
-                ContextData(),
-                ObjectType(ObjectIdentity(port_oid))
-            )
-
-            errorIndication, errorStatus, errorIndex, varBinds = result
-            if errorIndication or errorStatus:
-                port_status.append({"name": description, "status": "N/A"})
-            else:
-                for varBind in varBinds:
-                    port_status.append(
-                        {
-                            "name": description,
-                            "status": "UP" if str(varBind[1]) == "1" else "DOWN",
-                        }
-                    )
-
-        snmp_results["port_status"] = port_status
 
         # Construct the response
         switch_data = {
@@ -169,14 +112,56 @@ async def get_switch_data(switch_id):
             "cpu_usage": snmp_results.get("cpu_usage", "N/A"),
             "memory_usage": snmp_results.get("memory_usage", "N/A"),
             "temperature": snmp_results.get("temperature", "N/A"),
-            "num_ports": num_ports,
-            "port_status": port_status,
         }
         return jsonify(switch_data)
 
     except Exception as e:
         return jsonify({"error": f"Failed to retrieve SNMP data: {str(e)}"}), 500
 
+@app.route('/api/interfaces/<int:switch_id>', methods=['GET'])
+async def get_interfaces(switch_id):
+    """API to fetch physical interface information."""
+    switch = next((s for s in switches if s['id'] == switch_id), None)
+    if not switch:
+        return jsonify({"error": "Switch not found"}), 404
+
+    ip = switch['ip']
+    interface_data = []
+
+    try:
+        # SNMP OIDs for interface data
+        oid_ifDescr = '.1.3.6.1.2.1.2.2.1.2'  # Interface names
+        oid_ifOperStatus = '.1.3.6.1.2.1.2.2.1.8'  # Operational status
+
+        # Retrieve interface names
+        names_result = await bulk_cmd(
+            SnmpEngine(),
+            CommunityData('public'),
+            await UdpTransportTarget.create((ip, 161), timeout=5, retries=3),
+            ContextData(),
+            0, 50,
+            ObjectType(ObjectIdentity(oid_ifDescr))
+        )
+        # Retrieve interface statuses
+        status_result = await bulk_cmd(
+            SnmpEngine(),
+            CommunityData('public'),
+            await UdpTransportTarget.create((ip, 161), timeout=5, retries=3),
+            ContextData(),
+            0, 50,
+            ObjectType(ObjectIdentity(oid_ifOperStatus))
+        )
+
+        for name_var, status_var in zip(names_result[3], status_result[3]):
+            name = str(name_var[1])
+            status = int(status_var[1])
+            if "loopback" not in name.lower() and "vlan" not in name.lower():  # Filter non-physical
+                interface_data.append({"name": name, "status": "Up" if status == 1 else "Down"})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify({"interfaces": interface_data}), 200
 
 
 # Function to scan for devices in the given IP range

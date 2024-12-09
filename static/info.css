@@ -93,62 +93,47 @@ body {
     margin-bottom: 20px;
     position: relative;
 }
-
 .port-status {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 25px;
-    justify-content: center;
-}
-
-.port-group {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.port-row {
-    display: flex;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr); /* Create 12 columns */
+    grid-gap: 10px; /* Add space between grid items */
+    justify-content: center; /* Center the grid within the container */
+    padding: 20px;
+    background-color: #f0f4f7;
+    border-radius: 10px;
 }
 
 .port {
-    width: 40px;
-    height: 40px;
-    background-color: #d3d3d3;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: 40px;
+    height: 50px; /* Increased height to allow more space for the number */
     border-radius: 5px;
-    font-size: 10px;
-    font-weight: bold;
-    color: #333;
-    position: relative;
     border: 1px solid #a0a0a0;
+    position: relative;
+    background-color: #d3d3d3; /* Default background */
 }
 
 .port.active {
-    background-color: #32CD32;
-    color: #FFF;
+    background-color: #32CD32; /* Green for active ports */
 }
 
-.port-label {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
+.port img {
+    width: 30px;
+    height: 30px;
+    margin-top: 10px;
 }
 
 .port-number {
-    position: absolute;
-    top: -20px;
     font-size: 12px;
     font-weight: bold;
-    /* margin-top: -10px; ขยับขึ้นด้านบน */
-
     color: #333;
+    margin-top: 3px; /* Adjust spacing below the image */
+    text-align: center;
+    position: relative;
+    top: -3px; /* Push the number slightly downward */
 }
 
 .chart-percentage {
@@ -268,20 +253,6 @@ body {
     color: #333;
 }
 
-.port-image {
-    width: 40px;
-    height: 40px;
-    display: block;
-    margin: auto;
-}
-
-.port-number {
-    display: block;
-    text-align: center;
-    margin-top: 5px;
-    font-weight: bold;
-    color: #333;
-}
 
 .spinner-overlay {
     position: fixed;

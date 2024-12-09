@@ -113,38 +113,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             ? formatUptime(Math.floor(data.uptime / 100)) 
             : 'N/A';
         document.getElementById('devicetypeBottom').innerText = data.device_type || 'N/A';
-        // document.getElementById('ipAddress').innerText = data.ip || 'N/A';
-
 
         // Prepare data for charts
         const cpuUsage = data.cpu_usage || 0;
         const memoryUsage = data.memory_usage || 0;
         const temperature = data.temperature || 0;
-
-        // Render port statuses dynamically
-        const numPorts = data.num_ports || 0;
-        const portStatus = data.port_status || [];
-        const portContainer = document.getElementById("portStatusContainer");
-
-        for (let i = 0; i < numPorts; i++) {
-            const portDiv = document.createElement("div");
-            portDiv.className = "port";
-
-            const img = document.createElement("img");
-            img.className = "port-image";
-            img.src = portStatus[i] === "1" 
-                ? "/static/img/Port_UP.png"  
-                : "/static/img/Port_DOWN.png";
-            img.alt = portStatus[i] === "1" ? "Port Up" : "Port Down";
-
-            const portNumber = document.createElement("span");
-            portNumber.className = "port-number";
-            portNumber.innerText = i + 1;
-
-            portDiv.appendChild(img);
-            portDiv.appendChild(portNumber);
-            portContainer.appendChild(portDiv);
-        }
 
         // Create individual charts
         const createChart = (ctx, label, value, color) => {
@@ -176,27 +149,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         legend: { display: false },
                         tooltip: { enabled: false }
                     }
-                },
-                plugins: [{
-                    id: 'centerText',
-                    beforeDraw: (chart) => {
-                        const { width } = chart.chartArea;
-                        const { top, height } = chart.chartArea;
-                        const ctx = chart.ctx;
-
-                        ctx.save();
-                        ctx.font = 'bold 16px Arial';
-                        ctx.fillStyle = color;
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-
-                        const centerX = chart.getDatasetMeta(0).data[0].x;
-                        const centerY = top + height / 2;
-
-                        ctx.fillText(`${value}%`, centerX, centerY);
-                        ctx.restore();
-                    }
-                }]
+                }
             });
         };
 
@@ -260,3 +213,44 @@ async function fetchLicenseInfo() {
 // Call fetchLicenseInfo when the page loads
 document.addEventListener("DOMContentLoaded", fetchLicenseInfo);
 
+async function fetchInterfaceInfo() {
+    const switchId = window.location.pathname.split("/").pop();
+    try {
+        const response = await fetch(`/api/interfaces/${switchId}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch interface data. Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const portStatusContainer = document.querySelector(".port-status");
+        portStatusContainer.innerHTML = ""; // Clear existing content
+
+        data.interfaces.forEach((iface, index) => {
+            const portDiv = document.createElement("div");
+            portDiv.classList.add("port");
+            if (iface.status === "Up") {
+                portDiv.classList.add("active");
+            }
+
+            // Add image for port status
+            const portImg = document.createElement("img");
+            portImg.src = iface.status === "Up" ? "/static/img/Port_UP.png" : "/static/img/Port_DOWN.png";
+            portImg.alt = iface.status;
+
+            // Add port number below the image
+            const portLabel = document.createElement("span");
+            portLabel.classList.add("port-number");
+            portLabel.innerText = (index + 1).toString().padStart(2, '0'); // Format as two digits
+
+            portDiv.appendChild(portImg);
+            portDiv.appendChild(portLabel);
+            portStatusContainer.appendChild(portDiv);
+        });
+    } catch (error) {
+        console.error("Error fetching interface data:", error);
+        showErrorModal("Error Loading Interfaces", "Unable to fetch interface information. Please try again.");
+    }
+}
+
+// Call fetchInterfaceInfo when the page loads
+document.addEventListener("DOMContentLoaded", fetchInterfaceInfo);
