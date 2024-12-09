@@ -39,13 +39,33 @@ function showErrorModal(message, description = '') {
     };
 }
 
-// Function to Validate IPv4 Address
+// ฟังก์ชันตรวจสอบ IPv4 Address
 function isValidIPv4(ip) {
     const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/;
     return ipv4Regex.test(ip);
 }
 
-// Validate Inputs
+// ฟังก์ชันแสดง Modal Error
+function showErrorModal(message, description = '') {
+    const errorModal = document.getElementById('errorModal');
+    const errorMessage = document.getElementById('errorMessage');
+    const errorDescription = document.querySelector('#errorModal p:nth-of-type(2)'); // Select the second <p> tag
+
+    // ตั้งค่าข้อความใน Modal
+    errorMessage.textContent = message;
+    errorDescription.textContent = description;
+
+    // แสดง Modal
+    errorModal.style.display = 'flex';
+
+    // ปิด Modal เมื่อกดปุ่ม OK
+    const closeErrorModal = document.getElementById('closeErrorModal');
+    closeErrorModal.onclick = () => {
+        errorModal.style.display = 'none';
+    };
+}
+
+// ฟังก์ชัน Validate Inputs
 function validateInputs(ipStart, ipEnd, username, password) {
     if (!ipStart && !ipEnd && !username && !password) {
         showErrorModal(
@@ -60,6 +80,12 @@ function validateInputs(ipStart, ipEnd, username, password) {
         return false;
     }
 
+    // เงื่อนไขใหม่: ตรวจสอบว่ากรอก End IP หรือไม่
+    if (!ipEnd) {
+        showErrorModal('Missing End IP Address', 'Please provide a valid IPv4 address for End IP.');
+        return false;
+    }
+
     if (!isValidIPv4(ipEnd)) {
         showErrorModal('Invalid End IP Address', 'Please enter a valid IPv4 address for End IP.');
         return false;
@@ -70,26 +96,32 @@ function validateInputs(ipStart, ipEnd, username, password) {
         return false;
     }
 
+    // เงื่อนไขใหม่: ตรวจสอบว่ากรอก Password หรือไม่
     if (!password) {
         showErrorModal('Missing Password', 'Please provide your password to proceed.');
         return false;
     }
 
-    return true; // All inputs are valid
+    return true; // ข้อมูลทั้งหมดถูกต้อง
 }
-// Handle Apply Button Click Event
+
 document.getElementById('scan-button').addEventListener('click', async () => {
-    const ipStart = document.getElementById('ip-start').value.trim();
-    const ipEnd = document.getElementById('ip-end').value.trim();
+    const mode = document.querySelector('input[name="scanMode"]:checked').value;
+    const ipStart = mode === 'single'
+        ? document.getElementById('ip-single').value.trim()
+        : document.getElementById('ip-start').value.trim();
+    const ipEnd = mode === 'range'
+        ? document.getElementById('ip-end').value.trim()
+        : ipStart;
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
 
-    // Validate inputs before sending the request
+    // เรียกฟังก์ชัน Validate Inputs
     if (!validateInputs(ipStart, ipEnd, username, password)) {
-        return; // Stop execution if validation fails
+        return; // หยุดการทำงานหาก Validation ไม่ผ่าน
     }
 
-    // Show the loading modal
+    // แสดง Loading Modal
     const loadingModal = document.getElementById('loadingModal');
     loadingModal.style.display = 'flex';
 
@@ -97,21 +129,49 @@ document.getElementById('scan-button').addEventListener('click', async () => {
         const response = await fetch('/api/login_ssh', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ip_start: ipStart, ip_end: ipEnd, username, password }),
+            body: JSON.stringify({ mode, ip_start: ipStart, ip_end: ipEnd, username, password }),
         });
 
         if (response.ok) {
-            window.location.href = "/dashboard";
+            window.location.href = "/dashboard"; // เปลี่ยนหน้าเมื่อสำเร็จ
         } else {
             const result = await response.json();
-            console.log('Server response:', result); // Debugging
-            throw new Error(result.error || 'Login failed.');
+            showErrorModal('Error', result.error || 'An unknown error occurred.');
         }
     } catch (error) {
-        console.error(`Error: ${error.message}`);
-        showErrorModal('Login Failed', error.message); // Trigger error modal with dynamic message
+        console.error('Error:', error.message);
+        showErrorModal('Error', error.message || 'An unexpected error occurred.');
     } finally {
-        // Hide the loading modal once processing is complete
+        // ซ่อน Loading Modal
         loadingModal.style.display = 'none';
     }
 });
+
+// ตรวจจับการเปลี่ยนโหมด (ใช้ร่วมได้ทั้ง Radio และ Dropdown)
+const scanModeInput = document.querySelectorAll('input[name="scanMode"]'); // สำหรับ Radio Button
+const scanModeSelect = document.getElementById('scanMode'); // สำหรับ Dropdown
+
+// สำหรับ Radio Button
+scanModeInput.forEach(radio => {
+    radio.addEventListener('change', () => {
+        toggleScanMode(radio.value);
+    });
+});
+
+// สำหรับ Dropdown
+scanModeSelect.addEventListener('change', () => {
+    toggleScanMode(scanModeSelect.value);
+});
+
+function toggleScanMode(mode) {
+    const rangeContainer = document.querySelector('.range-container');
+    const singleIpContainer = document.querySelector('.single-ip-container');
+
+    if (mode === 'range') {
+        rangeContainer.style.display = 'flex';
+        singleIpContainer.style.display = 'none';
+    } else if (mode === 'single') {
+        rangeContainer.style.display = 'none';
+        singleIpContainer.style.display = 'block';
+    }
+}

@@ -515,46 +515,68 @@ def disconnect_serial():
         return jsonify({"message": "Disconnected successfully."}), 200
     return jsonify({"error": "No active serial connection."}), 400
 
+async def connect_ssh(ip, username, password, successful_connections):
+    """ฟังก์ชันย่อยสำหรับการเชื่อมต่อ SSH"""
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(ip, username=username, password=password, timeout=5)
+        successful_connections.append(ip)
+        ssh.close()
+        return True
+    except Exception as e:
+        print(f"Failed to connect to {ip}: {e}")
+        return False
 
 @app.route('/api/login_ssh', methods=['POST'])
 async def login_ssh():
     """API endpoint for SSH login."""
     data = request.json
+    mode = data.get('mode', 'range')  # Default mode is 'range'
     ip_start = data.get('ip_start')
-    ip_end = data.get('ip_end')
+    ip_end = data.get('ip_end') if mode == 'range' else ip_start  # Single IP mode uses the same IP for start and end
     username = data.get('username')
     password = data.get('password')
 
-    if not all([ip_start, ip_end, username, password]):
+    if not all([ip_start, username, password]):
         return jsonify({"error": "Missing required fields."}), 400
 
-    ip_base = '.'.join(ip_start.split('.')[:3])
-    start = int(ip_start.split('.')[-1])
-    end = int(ip_end.split('.')[-1])
-    
     successful_connections = []
 
-    for i in range(start, end + 1):
-        ip = f"{ip_base}.{i}"
-        try:
-            ssh = paramiko.SSHClient()
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(ip, username=username, password=password, timeout=5)
-            successful_connections.append(ip)
-            ssh.close()
-            print(f"Successfully connected to {ip}")
-        except Exception as e:
-            print(f"Failed to connect to {ip}: {e}")
+    try:
+        # กำหนดช่วง IP สำหรับโหมด Range
+        if mode == 'range':
+            ip_base = '.'.join(ip_start.split('.')[:3])
+            start = int(ip_start.split('.')[-1])
+            end = int(ip_end.split('.')[-1])
 
-    if successful_connections:
-        session['username'] = username
-        session['password'] = password
-        session.permanent = True
-        await update_switches(ip_start, ip_end)  # อัปเดต switches หลังจาก login สำเร็จ
-        session['switches'] = switches  # เก็บข้อมูล switches ใน session
-        return jsonify({"message": "SSH login successful", "connected_ips": successful_connections, "switches": switches}), 200
-    else:
+            for i in range(start, end + 1):
+                ip = f"{ip_base}.{i}"
+                if await connect_ssh(ip, username, password, successful_connections):
+                    print(f"Successfully connected to {ip}")
+        else:
+            # สำหรับ Single IP
+            if await connect_ssh(ip_start, username, password, successful_connections):
+                print(f"Successfully connected to {ip_start}")
+
+        # อัปเดต Switch หลังการ Login สำเร็จ
+        if successful_connections:
+            session['username'] = username
+            session['password'] = password
+            session.permanent = True
+            await update_switches(ip_start, ip_end)  # อัปเดต switch ในช่วง IP
+            session['switches'] = switches
+            return jsonify({
+                "message": "SSH login successful",
+                "connected_ips": successful_connections,
+                "switches": switches
+            }), 200
+
         return jsonify({"error": "SSH login failed for all devices"}), 500
+
+    except Exception as e:
+        print(f"Error in SSH login: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/api/send_command', methods=['POST'])
