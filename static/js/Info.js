@@ -237,10 +237,10 @@ async function fetchInterfaceInfo() {
             portImg.src = iface.status === "Up" ? "/static/img/Port_UP.png" : "/static/img/Port_DOWN.png";
             portImg.alt = iface.status;
 
-            // Add port number below the image
+            // Add abbreviated port name below the image
             const portLabel = document.createElement("span");
             portLabel.classList.add("port-number");
-            portLabel.innerText = (index + 1).toString().padStart(2, '0'); // Format as two digits
+            portLabel.innerText = iface.name;
 
             portDiv.appendChild(portImg);
             portDiv.appendChild(portLabel);

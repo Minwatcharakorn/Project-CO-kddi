@@ -10,6 +10,7 @@ import paramiko
 from ipaddress import ip_address
 from datetime import datetime, timedelta
 from ipaddress import ip_address, AddressValueError
+import re
 
 
 app = Flask(__name__)
@@ -118,9 +119,25 @@ async def get_switch_data(switch_id):
     except Exception as e:
         return jsonify({"error": f"Failed to retrieve SNMP data: {str(e)}"}), 500
 
+def abbreviate_interface_name(name):
+    abbreviations = {
+        "FastEthernet": "Fa",
+        "GigabitEthernet": "Gig",
+        "TenGigabitEthernet": "TenGig",
+        "TwentyFiveGigE": "25Gig",
+        "FortyGigabitEthernet": "40Gig",
+        "HundredGigE": "100Gig",
+        "Ethernet": "Eth"
+    }
+
+    for full, short in abbreviations.items():
+        if name.startswith(full):
+            return name.replace(full, short, 1)  # แทนที่ชื่อเต็มด้วยชื่อย่อ
+    return name  # กรณีที่ไม่มีชื่อใน Mapping
+
 @app.route('/api/interfaces/<int:switch_id>', methods=['GET'])
 async def get_interfaces(switch_id):
-    """API to fetch physical interface information."""
+    """API สำหรับดึงข้อมูล Physical Interface และย่อชื่อพอร์ต"""
     switch = next((s for s in switches if s['id'] == switch_id), None)
     if not switch:
         return jsonify({"error": "Switch not found"}), 404
@@ -129,11 +146,11 @@ async def get_interfaces(switch_id):
     interface_data = []
 
     try:
-        # SNMP OIDs for interface data
-        oid_ifDescr = '.1.3.6.1.2.1.2.2.1.2'  # Interface names
-        oid_ifOperStatus = '.1.3.6.1.2.1.2.2.1.8'  # Operational status
+        # SNMP OIDs สำหรับดึงข้อมูลพอร์ต
+        oid_ifDescr = '.1.3.6.1.2.1.2.2.1.2'  # Interface Description
+        oid_ifOperStatus = '.1.3.6.1.2.1.2.2.1.8'  # Operational Status
 
-        # Retrieve interface names
+        # ดึงข้อมูล Interface Description
         names_result = await bulk_cmd(
             SnmpEngine(),
             CommunityData('public'),
@@ -142,7 +159,8 @@ async def get_interfaces(switch_id):
             0, 50,
             ObjectType(ObjectIdentity(oid_ifDescr))
         )
-        # Retrieve interface statuses
+
+        # ดึงข้อมูล Interface Status
         status_result = await bulk_cmd(
             SnmpEngine(),
             CommunityData('public'),
@@ -152,17 +170,22 @@ async def get_interfaces(switch_id):
             ObjectType(ObjectIdentity(oid_ifOperStatus))
         )
 
+        # ฟิลเตอร์เฉพาะ Physical Interface
         for name_var, status_var in zip(names_result[3], status_result[3]):
-            name = str(name_var[1])
-            status = int(status_var[1])
-            if "loopback" not in name.lower() and "vlan" not in name.lower():  # Filter non-physical
-                interface_data.append({"name": name, "status": "Up" if status == 1 else "Down"})
+            name = str(name_var[1])  # ชื่อของพอร์ต เช่น GigabitEthernet1/0/1
+            status = int(status_var[1])  # สถานะของพอร์ต เช่น 1 = Up, 2 = Down
+
+            if re.match(r"^(Fast|Gigabit|TenGigabit|TwentyFiveGigE|FortyGigabit|HundredGigE|Ethernet)[a-zA-Z]*[0-9]+(/[\d]+)+$", name):
+                short_name = abbreviate_interface_name(name)  # ย่อชื่อพอร์ต
+                interface_data.append({
+                    "name": short_name,
+                    "status": "Up" if status == 1 else "Down"
+                })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
     return jsonify({"interfaces": interface_data}), 200
-
 
 # Function to scan for devices in the given IP range
 def scan_network(ip_range_start, ip_range_end):

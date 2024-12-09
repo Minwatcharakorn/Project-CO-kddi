@@ -105,16 +105,17 @@ body {
 
 .port {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 50px; /* Increased height to allow more space for the number */
-    border-radius: 5px;
+    flex-direction: column; /* จัดให้ข้อความอยู่ด้านล่าง */
+    align-items: center; /* จัดให้อยู่กึ่งกลางแนวนอน */
+    justify-content: center; /* จัดให้อยู่กึ่งกลางแนวตั้ง */
+    width: 60px; /* กำหนดความกว้างให้พอดี */
+    height: 60px; /* กำหนดความสูงให้พอดี */
+    border-radius: 8px; /* มุมโค้งให้ดูสวยงาม */
     border: 1px solid #a0a0a0;
+    background-color: #d3d3d3; /* สีพื้นหลังเริ่มต้น */
     position: relative;
-    background-color: #d3d3d3; /* Default background */
 }
+
 
 .port.active {
     background-color: #32CD32; /* Green for active ports */
@@ -134,6 +135,8 @@ body {
     text-align: center;
     position: relative;
     top: -3px; /* Push the number slightly downward */
+    word-wrap: break-word; /* รองรับชื่อยาว */
+
 }
 
 .chart-percentage {
