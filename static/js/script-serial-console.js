@@ -1,8 +1,8 @@
 // Predefined commands
 const predefinedCommands = `enable
     conf t
-        hostname Switch4
-        ip domain-name example.com
+        hostname SW-LAB
+        ip domain name SW-LAB.com
         crypto key generate rsa
         1024
         ip ssh version 2
@@ -11,9 +11,15 @@ const predefinedCommands = `enable
             login local
             transport input ssh
             exit
+        vlan 1
+            name LAB_Test
+            exit
         interface vlan 1
-            ip address 192.168.100.115 255.255.255.0
+            ip address 10.10.1.254 255.255.255.0
             no shutdown
+            exit
+        snmp-server community public ro
+        snmp-server community public rw
         end
 write memory`;
 

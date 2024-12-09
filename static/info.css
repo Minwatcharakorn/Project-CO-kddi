@@ -49,6 +49,11 @@ body {
     font-size: 18px;
     color: #333;
 }
+.switch-info h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #333;
+}
 
 .switch-details {
     display: flex;
@@ -72,6 +77,8 @@ body {
     margin-bottom: 20px;
     position: relative;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    flex: 2; /* Occupy more space for Device Status */
+
 }
 
 .device-status h3 {
@@ -168,24 +175,30 @@ body {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
-}
+    font-family: monospace; /* Match CLI appearance */
 
-.vlan-table th, .vlan-table td {
-    border: 1px solid #cfd9e6;
-    padding: 8px;
-    text-align: left;
-    font-size: 14px;
-}
-
-.vlan-table th {
-    background-color: #e9f2ff;
-    color: #333;
 }
 
 .vlan-table td {
-    background-color: #fff;
-    color: #555;
+    text-align: right; /* Align text to the right */
+    padding: 8px 12px; /* Add padding for better spacing */
+    white-space: pre-wrap; /* Allow text wrapping for long content */
+    word-wrap: break-word; /* Break words if necessary */
 }
+
+
+.vlan-table th {
+    background-color: #2d2d2d; /* Darker header background */
+    color: #ffffff; /* White text for the header */
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid #ccc;
+    padding: 8px 12px; /* Add padding for better spacing */
+    white-space: pre-wrap; /* Allow text wrapping for long content */
+    word-wrap: break-word; /* Break words if necessary */
+}
+
+
 .sortable-placeholder {
     background: #f0f4f7;
     border: 2px dashed #cfd9e6;
@@ -194,23 +207,28 @@ body {
 }
 
 .system-info {
-    background-color: #f5f7fa;
+
+    background-color: #f9fafb;
     border: 1px solid #cfd9e6;
-    border-radius: 10px;
-    padding: 15px;
-    margin-top: 40px;
-    margin-bottom: 20px;
-    width: 60%; /* ลดความกว้างของกรอบให้เหลือ 60% ของ container */
-    max-width: 500px; /* กำหนดความกว้างสูงสุดไม่เกิน 500px */
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 50%; /* ลดความกว้างของกรอบให้เหลือ 60% ของ container */
+    /* max-width: 800px; กำหนดความกว้างสูงสุดไม่เกิน 500px */
     margin:left; /* จัดให้อยู่กึ่งกลาง container */
+}
+.system-info h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #333;
 }
 
 
 .system-info-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px dashed #cfd9e6;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
 }
 
 .system-info-item:last-child {
@@ -224,6 +242,7 @@ body {
 
 .system-info-value {
     color: #555;
+    display: block; /* Forces each label-value pair to take up its own line */
 }
 .chart-container {
     display: flex;
@@ -307,8 +326,83 @@ body {
 
 .vlan-table td:nth-child(4), 
 .vlan-table th:nth-child(4) {
-    max-width: 250px; /* กำหนดขนาดสูงสุด */
-    white-space: nowrap; /* ป้องกันข้อความแตกบรรทัด */
+    max-width: none; /* Remove the max-width restriction */
+    white-space: pre-wrap; /* Allow wrapping */
     overflow: hidden; /* ซ่อนข้อความเกิน */
     text-overflow: ellipsis; /* แสดง ... เมื่อข้อความเกิน */
+    word-wrap: break-word; /* Ensure words wrap */
+
+}
+
+.vlan-table td {
+    background-color: #f9f9f9; /* Subtle row background */
+    color: #333; /* Standard text color */
+    border-bottom: 1px solid #ddd;
+}
+
+
+/* Add alternate row colors for better readability */
+.vlan-table tr:nth-child(even) td {
+    background-color: #f0f0f0;
+}
+
+/* Highlight hover effect for rows */
+.vlan-table tr:hover td {
+    background-color: #d9e5f3;
+}
+
+/* Ports column specific styling */
+.vlan-table td:nth-child(4) {
+    text-align: left; /* Align ports to the left for better readability */
+    white-space: pre-wrap; /* Allow wrapping for long lists of ports */
+    word-wrap: break-word;
+    font-family: monospace; /* Use monospace for a CLI-like look */
+}
+
+.info-container {
+    display: flex;
+    justify-content: space-between; /* Spread the sections horizontally */
+    gap: 20px;
+    align-items: flex-start; /* ให้เนื้อหาภายในจัดเรียงที่ด้านบน */
+    margin-top: 20px;
+}
+
+.license-info {
+    align-self: flex-end; /* Align to the right */
+    width: 50%; /* Adjust width as needed */
+    background-color: #f9fafb;
+    border: 1px solid #cfd9e6;
+    font-family: Arial, sans-serif;
+
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add shadow to match system-info */
+}
+
+.license-info h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.license-item {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+
+.license-item:last-child {
+    border-bottom: none;
+}
+
+.license-item p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.system-info, .license-info {
+    flex: 1; /* Ensure both sections take up equal space */
+    display: flex;
+    flex-direction: column; /* Retain vertical stacking of content */
+    justify-content: space-between; /* Distribute content evenly within */
 }

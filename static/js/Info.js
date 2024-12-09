@@ -25,6 +25,7 @@ function showErrorModal(message, description = '') {
     };
 }
 
+// Function to Fetch VLAN Information
 async function fetchVlanInfo() {
     const switchId = window.location.pathname.split("/").pop();
     try {
@@ -41,22 +42,27 @@ async function fetchVlanInfo() {
             data.vlan_data.forEach(vlan => {
                 const row = document.createElement("tr");
 
+                // VLAN ID
                 const idCell = document.createElement("td");
                 idCell.textContent = vlan.id;
+                row.appendChild(idCell);
 
+                // VLAN Name
                 const nameCell = document.createElement("td");
                 nameCell.textContent = vlan.name;
+                row.appendChild(nameCell);
 
+                // Status
                 const statusCell = document.createElement("td");
                 statusCell.textContent = vlan.status;
-
-                const portsCell = document.createElement("td");
-                portsCell.textContent = vlan.ports; // Show all ports here
-
-                row.appendChild(idCell);
-                row.appendChild(nameCell);
                 row.appendChild(statusCell);
+
+                // Ports
+                const portsCell = document.createElement("td");
+                portsCell.classList.add("ports");
+                portsCell.textContent = vlan.ports;
                 row.appendChild(portsCell);
+
                 vlanTableBody.appendChild(row);
             });
         } else {
@@ -70,8 +76,10 @@ async function fetchVlanInfo() {
         );
     }
 }
+
 // Fetch VLAN data when the page is loaded
 document.addEventListener("DOMContentLoaded", fetchVlanInfo);
+
 
 
 // Existing DOMContentLoaded logic
@@ -104,8 +112,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById('uptime').innerText = data.uptime 
             ? formatUptime(Math.floor(data.uptime / 100)) 
             : 'N/A';
-        document.getElementById('devicetypeTop').innerText = data.device_type || 'N/A';
         document.getElementById('devicetypeBottom').innerText = data.device_type || 'N/A';
+        // document.getElementById('ipAddress').innerText = data.ip || 'N/A';
+
 
         // Prepare data for charts
         const cpuUsage = data.cpu_usage || 0;
@@ -211,3 +220,43 @@ document.addEventListener("DOMContentLoaded", async () => {
         loadingModal.style.display = 'none';
     }
 });
+
+
+async function fetchLicenseInfo() {
+    const switchId = window.location.pathname.split("/").pop();
+    try {
+        const response = await fetch(`/api/license/${switchId}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch license data. Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const licenseContainer = document.getElementById("licenseContainer");
+        licenseContainer.innerHTML = ""; // Clear existing content
+
+        if (data.licenses && data.licenses.length > 0) {
+            data.licenses.forEach(license => {
+                const licenseDiv = document.createElement("div");
+                licenseDiv.classList.add("license-item");
+
+                licenseDiv.innerHTML = `
+                    <p><strong>Description:</strong> ${license.description}</p>
+                    <p><strong>Status:</strong> ${license.status}</p>
+                    <p><strong>Type:</strong> ${license.type}</p>
+                    <p><strong>Feature:</strong> ${license.feature}</p>
+                `;
+
+                licenseContainer.appendChild(licenseDiv);
+            });
+        } else {
+            licenseContainer.innerHTML = "<p>No license information available.</p>";
+        }
+    } catch (error) {
+        console.error("Error fetching license data:", error);
+        showErrorModal("Error Loading License Data", "Unable to fetch license information. Please try again.");
+    }
+}
+
+// Call fetchLicenseInfo when the page loads
+document.addEventListener("DOMContentLoaded", fetchLicenseInfo);
+

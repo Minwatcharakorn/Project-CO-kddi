@@ -34,7 +34,7 @@ async def get_snmp_info(ip, community='public'):
     """Retrieve SNMP information from the device using asyncio."""
     oid_hostname = '.1.3.6.1.2.1.1.5.0'  # OID for Hostname
     oid_model = '.1.3.6.1.2.1.1.1.0'     # OID for Model (sysDescr)
-    oid_serial_base = '.1.3.6.1.2.1.47.1.1.1.1.11'  # OID base for Serial Number (ENTITY-MIB)
+    oid_serial_base = '.1.3.6.1.2.1.47.1.1.1.1.11.1'  # OID base for Serial Number (ENTITY-MIB)
 
     info = {"hostname": "N/A", "model": "N/A", "serial": "N/A"}
 
@@ -84,14 +84,15 @@ async def get_switch_data(switch_id):
         "memory_usage": "1.3.6.1.4.1.9.2.1.58.0",  # Example Memory OID
         "temperature": ".1.3.6.1.4.1.9.9.106.1.1.1.0",  # Replace with actual OID for temperature
         "num_ports": ".1.3.6.1.2.1.2.1.0",  # Number of interfaces (ifNumber)
-        "port_status_base": ".1.3.6.1.2.1.2.2.1.8"  # Base OID for port status (ifOperStatus)
+        "port_status_base": ".1.3.6.1.2.1.2.2.1.8",  # Base OID for port status (ifOperStatus)
+        "ifDescr_base": ".1.3.6.1.2.1.2.2.1.2",  # Base OID for interface descriptions
     }
 
     try:
         # Retrieve general SNMP data
         for key, oid in oids.items():
-            if key == "port_status_base":
-                continue  # Skip the base port status OID for now
+            if key in ["port_status_base", "ifDescr_base"]:
+                continue  # Skip base OIDs for now
             result = await get_cmd(
                 SnmpEngine(),
                 CommunityData('public'),
@@ -110,9 +111,33 @@ async def get_switch_data(switch_id):
         # Detect the number of ports
         num_ports = int(snmp_results.get("num_ports", 0))
 
+        # Retrieve interface descriptions
+        interface_descriptions = []
+        for i in range(1, num_ports + 1):
+            if_descr_oid = f"{oids['ifDescr_base']}.{i}"
+            result = await get_cmd(
+                SnmpEngine(),
+                CommunityData('public'),
+                await UdpTransportTarget.create((ip, 161), timeout=5, retries=3),
+                ContextData(),
+                ObjectType(ObjectIdentity(if_descr_oid))
+            )
+
+            errorIndication, errorStatus, errorIndex, varBinds = result
+            if not errorIndication and not errorStatus:
+                for varBind in varBinds:
+                    interface_descriptions.append(str(varBind[1]))
+
         # Retrieve port statuses
         port_status = []
-        for i in range(1, num_ports + 1):  # Iterate through each port
+        for i, description in enumerate(interface_descriptions, start=1):
+            # Skip non-physical interfaces
+            if any(
+                invalid in description.lower()
+                for invalid in ["loopback", "null", "vlan", "virtual"]
+            ):
+                continue
+
             port_oid = f"{oids['port_status_base']}.{i}"
             result = await get_cmd(
                 SnmpEngine(),
@@ -124,14 +149,17 @@ async def get_switch_data(switch_id):
 
             errorIndication, errorStatus, errorIndex, varBinds = result
             if errorIndication or errorStatus:
-                port_status.append("N/A")
+                port_status.append({"name": description, "status": "N/A"})
             else:
                 for varBind in varBinds:
-                    port_status.append(str(varBind[1]))  # 1 = UP, 2 = DOWN, etc.
+                    port_status.append(
+                        {
+                            "name": description,
+                            "status": "UP" if str(varBind[1]) == "1" else "DOWN",
+                        }
+                    )
 
         snmp_results["port_status"] = port_status
-
-
 
         # Construct the response
         switch_data = {
@@ -265,51 +293,96 @@ def get_vlan_info(switch_id):
         output = stdout.read().decode('utf-8')
         ssh.close()
 
-        # Log the output for debugging purposes
-        print("Output from 'show vlan brief':")
-        print(output)
-
-        # Process VLAN information
         vlan_data = []
         lines = output.splitlines()
+        current_vlan = None
 
-        # Check if we have valid data in lines
-        if len(lines) < 3:
-            return jsonify({"error": "Invalid VLAN output format"}), 500
-
-        # Skip the first 2 lines (headers)
         for line in lines[2:]:
             parts = line.split()
-            if len(parts) >= 3 and parts[0].isdigit():
-                # Identify status (active or act/unsup)
-                status_index = next((i for i, val in enumerate(parts[2:], 2) if val in ['active', 'act/unsup']), -1)
-                
-                if status_index != -1:
-                    vlan_id = parts[0]
-                    vlan_name = ' '.join(parts[1:status_index])  # Join all parts before the status as VLAN name
-                    status = parts[status_index]
-                    ports = ', '.join(parts[status_index + 1:]) if len(parts) > status_index + 1 else "N/A"
-                    
-                    vlan_data.append({
-                        "id": vlan_id,
-                        "name": vlan_name.strip(),
-                        "status": status.strip(),
-                        "ports": ports.strip()
-                    })
+            if len(parts) >= 3 and parts[0].isdigit():  # Detect new VLAN
+                vlan_id = parts[0]
+                vlan_name = ' '.join(parts[1:parts.index('active') if 'active' in parts else len(parts)])
+                status = 'active' if 'active' in parts else 'act/unsup'
+                ports = ' '.join(parts[parts.index(status) + 1:]) if len(parts) > parts.index(status) + 1 else "N/A"
 
-        # Clean up ports format
-        for vlan in vlan_data:
-            vlan["ports"] = ', '.join(filter(None, vlan["ports"].replace(',', ' ').split())).strip()
+                # Add current VLAN if any
+                if current_vlan:
+                    vlan_data.append(current_vlan)
+
+                current_vlan = {
+                    "id": vlan_id,
+                    "name": vlan_name.strip(),
+                    "status": status.strip(),
+                    "ports": ports.strip()
+                }
+            elif current_vlan:  # Continuation of previous VLAN
+                current_vlan["ports"] += ' ' + ' '.join(parts)
+
+        # Add the last VLAN
+        if current_vlan:
+            vlan_data.append(current_vlan)
 
         return jsonify({"vlan_data": vlan_data}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 @app.route('/api/get_switches', methods=['GET'])
 def get_switches():
     """API to get the list of switches for the Deploy page."""
     return jsonify(switches), 200
+
+
+@app.route('/api/license/<int:switch_id>', methods=['GET'])
+def get_license_info(switch_id):
+    switch = next((s for s in switches if s['id'] == switch_id), None)
+    if not switch:
+        return jsonify({"error": "Switch not found"}), 404
+
+    ip = switch['ip']
+    username = session.get('username')
+    password = session.get('password')
+
+    if not username or not password:
+        return jsonify({"error": "Authentication details missing"}), 400
+
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(ip, username=username, password=password, timeout=5)
+
+        # Execute `show license all` command
+        stdin, stdout, stderr = ssh.exec_command("show license all")
+        output = stdout.read().decode('utf-8')
+        ssh.close()
+
+        # Parse the license information
+        license_info = {"licenses": []}
+        lines = output.splitlines()
+        current_license = None
+
+        for line in lines:
+            line = line.strip()
+            if line.startswith("Description:"):
+                if current_license:
+                    license_info["licenses"].append(current_license)
+                current_license = {"description": line.replace("Description:", "").strip()}
+            elif line.startswith("Status:"):
+                if current_license:
+                    current_license["status"] = line.replace("Status:", "").strip()
+            elif line.startswith("License type:"):
+                if current_license:
+                    current_license["type"] = line.replace("License type:", "").strip()
+            elif line.startswith("Feature Name:"):
+                if current_license:
+                    current_license["feature"] = line.replace("Feature Name:", "").strip()
+
+        if current_license:
+            license_info["licenses"].append(current_license)
+
+        return jsonify(license_info), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # ----------------------------------------------------------------------------------
