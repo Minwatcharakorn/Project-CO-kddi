@@ -120,13 +120,19 @@ form label {
 
 .vlan-row {
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
-    margin-bottom: 10px;
+    align-items: center;
+    margin-bottom: 15px;
 }
 .vlan-row input {
     flex: 1;
 }
+
+.vlan-row label {
+    flex-basis: 100%; /* Ensure label spans full width */
+}
+
 #add-vlan-row {
     background-color: #007bff;
     color: #fff;
@@ -265,9 +271,9 @@ form label {
 .interface-config {
     margin-bottom: 20px;
     padding: 10px;
-    border: 1px solid #ccc;
+    /* border: 1px solid #ccc; */
     border-radius: 5px;
-    background-color: #fff;
+    /* background-color: #fff; */
 }
 
 
@@ -275,7 +281,7 @@ form label {
     display: none; /* Hide hr elements inside the container */
 }
 
-.interface-config-form label {
+.config-form label {
     display: inline-flex; /* Ensure it aligns horizontally */
     align-items: center;
     gap: 10px; /* Add space between checkbox and label */
@@ -285,10 +291,6 @@ form label {
 
 }
 
-.interface-config-form input[type="checkbox"] {
-    margin: 0; /* Remove default margins */
-    padding: 0; /* Remove default padding */
-}
 
 
 #template-name, #template-description {
@@ -394,4 +396,79 @@ textarea {
 
 #stp-global-config input[type="submit"]:hover, #stp-interface-config input[type="submit"]:hover {
     background-color: #0056b3;
+}
+
+
+/* Template Section */
+.template-section {
+    background-color: #f9f9f9;
+    border: 1px solid #d0d4db;
+    border-radius: 8px;
+    margin-top: 20px;
+    padding: 15px;
+}
+
+/* Hostname Section */
+.hostname-section {
+    background-color: #f9f9f9;
+    border: 1px solid #d0d4db;
+    border-radius: 8px;
+    margin-top: 20px;
+    padding: 15px;
+}
+
+/* Gateway Section */
+.gateway-section {
+    background-color: #f9f9f9;
+    border: 1px solid #d0d4db;
+    border-radius: 8px;
+    margin-top: 20px;
+    padding: 15px;
+}
+
+
+/* Styling for Interface Configuration Form */
+.config-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+/* General Form Group Styling for Consistency */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.form-group textarea {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+.form-group input {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+textarea {
+    resize: none; /* Prevent resizing */
 }

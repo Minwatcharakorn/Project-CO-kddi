@@ -636,4 +636,5 @@ async def api_scan():
 
 
 if __name__ == "__main__":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy()) # ถ้าอยู่บน WebServer Ubuntu แล้วไม่ต้องใช้งานตัวนี้
     app.run(host="0.0.0.0", port=5000, debug=True)

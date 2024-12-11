@@ -37,43 +37,24 @@ function handleRemoveVlanRow(button) {
 
 // Add Event Listeners to Existing Remove Buttons (On Page Load)
 document.addEventListener("DOMContentLoaded", () => {
-    const defaultRemoveButtons = document.querySelectorAll(".remove-vlan-row");
-    defaultRemoveButtons.forEach(button => {
-        button.addEventListener("click", function () {
-            handleRemoveVlanRow(this);
-        });
-    });
-});
-
-
-
-let interfaceCounter = 1;
-
-// Add Event Listeners to Existing Remove Buttons (On Page Load)
-document.addEventListener("DOMContentLoaded", () => {
+    // Attach event listeners to all remove buttons on page load
     const defaultRemoveButtons = document.querySelectorAll(".remove-interface-config");
     defaultRemoveButtons.forEach(button => {
         button.addEventListener("click", function () {
-            handleRemoveInterfaceConfig(this);
+            handleRemoveInterfaceConfig(button);
         });
-    });
-
-    // Initialize "No Switchmode" checkboxes
-    const noSwitchCheckboxes = document.querySelectorAll("input[id^='no-switch-']");
-    noSwitchCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener("change", function () {
-            toggleSwitchMode(this);
-        });
-        toggleSwitchMode(checkbox); // Set initial visibility
     });
 });
 
+// Function to handle removal of interface configuration
 function handleRemoveInterfaceConfig(button) {
     const configDiv = button.closest(".interface-config");
     if (configDiv) {
-        configDiv.remove(); // ลบ configuration ออกจาก DOM
+        configDiv.remove(); // Remove configuration from DOM
     }
 }
+
+let interfaceCounter = 1;
 
 // Add New Interface Configuration
 document.getElementById("add-interface-config").addEventListener("click", function () {
@@ -84,9 +65,6 @@ document.getElementById("add-interface-config").addEventListener("click", functi
     newConfig.className = "interface-config";
     newConfig.innerHTML = `
         <form class="interface-config-form">
-            <label>
-                <input type="checkbox" id="no-switch-${interfaceCounter}" onchange="toggleSwitchMode(this)"> No Switchmode
-            </label>
             <label for="interface-port-${interfaceCounter}">Interface Port:</label>
             <select id="interface-port-${interfaceCounter}" name="interface-port">
                 <option value="">--Select Port--</option>
@@ -100,11 +78,6 @@ document.getElementById("add-interface-config").addEventListener("click", functi
                 <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
                 <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
             </select>
-
-            <div class="Description IP" id="ip-single-${interfaceCounter}" style="display: none;">
-                <label for="interface-ip-${interfaceCounter}">IP Address:</label>
-                <input type="text" id="interface-ip-${interfaceCounter}" name="interface-ip" placeholder="Enter IP Address">
-            </div>
 
             <div class="Description IP" id="Description_ip-${interfaceCounter}">
                 <label for="Description-ip-${interfaceCounter}">Description</label>
@@ -128,12 +101,6 @@ document.getElementById("add-interface-config").addEventListener("click", functi
         newConfig.remove();
     });
 
-    // Attach toggleSwitchMode functionality for the "No Switchmode" checkbox
-    const noSwitchCheckbox = newConfig.querySelector(`#no-switch-${interfaceCounter}`);
-    noSwitchCheckbox.addEventListener("change", function () {
-        toggleSwitchMode(this);
-    });
-
     interfaceConfigs.appendChild(newConfig);
 });
 
@@ -145,51 +112,11 @@ document.getElementById("save-interface-configs").addEventListener("click", func
         const config = {
             interfacePort: formData.get("interface-port"),
             interfacePortRange: formData.get("interface-port-range"),
-            ip: formData.get("interface-ip"),
             description: formData.get("Description-IP ADD"),
-            switchMode: formData.get("no-switch") ? "No SW" : formData.get("switch-mode")
+            switchMode: formData.get("switch-mode")
         };
         configs.push(config);
     });
     console.log("Saved Configurations:", configs);
     alert("Configurations Saved!");
 });
-
-// Function to toggle visibility of IP Address and Description based on "No Switchmode" checkbox
-function toggleSwitchMode(checkbox) {
-    const form = checkbox.closest(".interface-config-form");
-    const switchModeSection = form.querySelector(".switch-mode-section");
-    const ipAddressField = form.querySelector("input[name='interface-ip']").closest("div");
-    const descriptionField = form.querySelector("input[name='Description-IP ADD']").closest("div");
-
-    if (checkbox.checked) {
-        // Hide the "Switch Mode" dropdown
-        switchModeSection.style.display = "none";
-
-        // Show the "IP Address" and "Description" fields
-        ipAddressField.style.display = "block";
-        descriptionField.style.display = "block";
-    } else {
-        // Show the "Switch Mode" dropdown
-        switchModeSection.style.display = "block";
-
-        // Hide the "IP Address" field but show the "Description" field
-        ipAddressField.style.display = "none";
-        descriptionField.style.display = "block";
-    }
-}
-
-// Add Event Listeners to the "No Switchmode" checkboxes
-document.addEventListener("DOMContentLoaded", () => {
-    const noSwitchCheckboxes = document.querySelectorAll("input[id^='no-switch-']");
-    noSwitchCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener("change", function () {
-            toggleSwitchMode(this);
-        });
-
-        // Initialize the state based on the current checkbox value
-        toggleSwitchMode(checkbox);
-    });
-});
-
-
