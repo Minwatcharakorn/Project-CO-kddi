@@ -1,58 +1,76 @@
-let vlanCounter = 1; // Counter for VLAN rows
+let vlanCounter = 1;
 
-// Add New VLAN Row
+// Add New VLAN Form
 document.getElementById("add-vlan-row").addEventListener("click", function () {
     vlanCounter++;
     const vlanRows = document.getElementById("vlan-rows");
 
-    const newVlanRow = document.createElement("div");
-    newVlanRow.className = "vlan-row";
-    newVlanRow.innerHTML = `
-        <label for="vlan-id-${vlanCounter}">VLAN ID</label>
-        <input type="number" id="vlan-id-${vlanCounter}" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
+    // Create a new VLAN form container
+    const newVlanForm = document.createElement("form");
+    newVlanForm.className = "config-form vlan-form"; // Add a specific class for VLAN forms
+    newVlanForm.id = `vlan-form-${vlanCounter}`;
 
-        <label for="vlan-name-${vlanCounter}">VLAN Name</label>
-        <input type="text" id="vlan-name-${vlanCounter}" name="vlan-name[]" placeholder="Enter VLAN Name" required>
+    // Add VLAN form content
+    newVlanForm.innerHTML = `
+        <div class="vlan-row form-group">
+            <label for="vlan-id-${vlanCounter}">VLAN ID</label>
+            <input type="number" id="vlan-id-${vlanCounter}" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
 
-        <label for="vlan-IP-${vlanCounter}">IP Address VLAN</label>
-        <input type="text" id="vlan-IP-${vlanCounter}" name="vlan-IP[]" placeholder="Enter IP Address VLAN" required>
+            <label for="vlan-name-${vlanCounter}">VLAN Name</label>
+            <input type="text" id="vlan-name-${vlanCounter}" name="vlan-name[]" placeholder="Enter VLAN Name" required>
 
-        <button type="button" class="remove-vlan-row" style="width: auto;">
-            <i class="fas fa-trash-alt"></i>
-        </button>
+            <label for="vlan-IP-${vlanCounter}">IP Address VLAN</label>
+            <input type="text" id="vlan-IP-${vlanCounter}" name="vlan-IP[]" placeholder="Enter IP Address VLAN" required>
+
+            <button type="button" class="remove-vlan-form" style="width: auto;">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
     `;
 
     // Add event listener to the remove button
-    newVlanRow.querySelector(".remove-vlan-row").addEventListener("click", function () {
-        handleRemoveVlanRow(this);
+    newVlanForm.querySelector(".remove-vlan-form").addEventListener("click", function () {
+        handleRemoveVlanForm(this);
     });
 
-    vlanRows.appendChild(newVlanRow);
+    vlanRows.appendChild(newVlanForm);
 });
 
-// Handle Remove VLAN Row
-function handleRemoveVlanRow(button) {
-    button.closest(".vlan-row").remove(); // Remove VLAN row immediately
+// Handle Remove VLAN Form
+function handleRemoveVlanForm(button) {
+    button.closest(".vlan-form").remove();
 }
 
-// Add Event Listeners to Existing Remove Buttons (On Page Load)
+// Attach Event Listeners on Page Load
 document.addEventListener("DOMContentLoaded", () => {
-    // Attach event listeners to all remove buttons on page load
-    const defaultRemoveButtons = document.querySelectorAll(".remove-interface-config");
-    defaultRemoveButtons.forEach(button => {
+    const removeButtons = document.querySelectorAll(".remove-vlan-form");
+    removeButtons.forEach(button => {
         button.addEventListener("click", function () {
-            handleRemoveInterfaceConfig(button);
+            handleRemoveVlanForm(button);
         });
     });
 });
 
-// Function to handle removal of interface configuration
-function handleRemoveInterfaceConfig(button) {
-    const configDiv = button.closest(".interface-config");
-    if (configDiv) {
-        configDiv.remove(); // Remove configuration from DOM
-    }
-}
+// Handle Form Submission
+document.getElementById("vlan-multiple-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    // Collect VLAN data
+    const vlanData = [];
+    const vlanForms = document.querySelectorAll(".vlan-form");
+    vlanForms.forEach(form => {
+        const vlanId = form.querySelector('input[name="vlan-id[]"]').value;
+        const vlanName = form.querySelector('input[name="vlan-name[]"]').value;
+        const vlanIP = form.querySelector('input[name="vlan-IP[]"]').value;
+
+        vlanData.push({ vlanId, vlanName, vlanIP });
+    });
+
+    console.log("Submitted VLAN Data:", vlanData);
+
+    // Optional: Add logic to send this data to the server
+    alert("VLAN Configuration Saved!");
+});
 
 let interfaceCounter = 1;
 
@@ -64,7 +82,7 @@ document.getElementById("add-interface-config").addEventListener("click", functi
     const newConfig = document.createElement("div");
     newConfig.className = "interface-config";
     newConfig.innerHTML = `
-        <form class="interface-config-form">
+        <form class="config-form">
             <label for="interface-port-${interfaceCounter}">Interface Port:</label>
             <select id="interface-port-${interfaceCounter}" name="interface-port">
                 <option value="">--Select Port--</option>
@@ -92,7 +110,9 @@ document.getElementById("add-interface-config").addEventListener("click", functi
                 </select>
             </div>
             <br>
-            <button type="button" class="remove-interface-config">Remove Configuration</button>
+            <button type="button" class="remove-vlan-row" style="width: auto;">
+                <i class="fas fa-trash-alt"></i>
+            </button>
         </form>
     `;
 

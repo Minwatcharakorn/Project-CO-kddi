@@ -155,13 +155,13 @@ form label {
     cursor: pointer;
     transition: background-color 0.3s ease;
     margin: 0;
-    position: relative; /* ใช้ตำแหน่งที่สัมพันธ์กับตำแหน่งเดิม */
+    position: relative; 
     top: -5px;
     align-self: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: auto; /* กำหนดขนาดปุ่ม Remove */
+    width: auto; 
 }
 
 .remove-vlan-row:hover {
