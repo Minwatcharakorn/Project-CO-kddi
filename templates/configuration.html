@@ -55,10 +55,10 @@
         <!-- Create VLANs -->
         <div class="config-section" id="create-vlan-multiple">
             <h3>Create VLANs</h3>
+            <button type="button" id="add-vlan-row" class="styled-button">Add VLAN</button>
+            <br><br>
             <form id="vlan-multiple-form" class="config-form">
                 <div id="vlan-rows">
-                    <button type="button" id="add-vlan-row" class="styled-button">Add VLAN</button>
-                    <br><br>
                     <div class="vlan-row form-group">
                         <label for="vlan-id-1">VLAN ID</label>
                         <input type="number" id="vlan-id-1" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
@@ -74,8 +74,10 @@
                         </button>
                     </div>
                 </div>
-                <input type="submit" value="Save VLANs Configuration" class="styled-button">
             </form>
+            <br>
+            <input type="submit" value="Save VLANs Configuration" class="styled-button">
+
         </div>
 
         <!-- Global STP Configuration Section -->
@@ -159,16 +161,14 @@
         <div class="config-section" id="vtp-config">
             <h3>VTP (VLAN Trunking Protocol) Configuration</h3>
             <form>
-                <!-- VTP Mode -->
                 <label for="vtp-mode">VTP Mode</label>
                 <select id="vtp-mode" name="vtp-mode">
                     <option value="server">Server</option>
                     <option value="client">Client</option>
                     <option value="transparent">Transparent</option>
-                    </select>
+                </select>
                 <br><br>
 
-                <!-- VTP Version -->
                 <label for="vtp-version">VTP Version</label>
                 <select id="vtp-version" name="vtp-version">
                     <option value="1">Version 1</option>
@@ -177,17 +177,15 @@
                 </select>
                 <br><br>
 
-                <!-- VTP Domain -->
                 <label for="vtp-domain">VTP Domain Name</label>
                 <input type="text" id="vtp-domain" name="vtp-domain" placeholder="Enter VTP Domain Name">
                 <br><br>
 
-                <!-- VTP Password -->
                 <label for="vtp-password">VTP Password</label>
                 <input type="password" id="vtp-password" name="vtp-password" placeholder="Enter VTP Password">
                 <br><br>
 
-                <input type="submit" value="Save VTP Configuration">
+                <input type="submit" value="Save VTP Configuration" class="styled-button">
             </form>
         </div>
 
@@ -230,7 +228,6 @@
                                 <option value="trunk">Trunk</option>
                             </select>
                         </div>
-                        <br>
         
                         <button type="button" class="remove-interface-config">Remove Configuration</button>
                     </form>

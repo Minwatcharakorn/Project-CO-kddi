@@ -58,56 +58,7 @@ body {
     position: fixed;
     height: 100%;
 }
-/* ลบเส้นขอบและเงาออกจากเมนู Sidebar */
-.sidebar {
-    border: none;
-    box-shadow: none;
-    background-color: #333;;
-}
 
-/* ลบเส้นขอบออกจากรายการเมนู */
-.sidebar-menu .sidebar-item {
-    border: none;
-    box-shadow: none;
-}
-
-.sidebar-menu {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.sidebar-item {
-    display: flex;
-    align-items: center;
-    padding: 15px 20px;
-    font-size: 1rem;
-    color: #cdd4df; /* Lighter gray text for better readability */
-    transition: background-color 0.3s;
-}
-
-/* ปรับสไตล์การแสดงผลของลิงก์ใน Sidebar ให้ไม่มีเส้นขอบ */
-.sidebar-item a {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    color: inherit;
-}
-/* เปลี่ยนสีตัวอักษรของลิงก์ใน Sidebar */
-.sidebar-item a {
-    color: #FFFFFF; /* เปลี่ยนสีตัวอักษรเป็นสีขาวหรือสีที่ต้องการ */
-}
-
-/* เปลี่ยนสีตัวอักษรของลิงก์ที่เลือกอยู่ (active) */
-.sidebar-item.active a {
-    color: #ffffff; /* เปลี่ยนเป็นสีที่ต้องการเมื่อ active เช่น สีทอง */
-}
-
-/* เพิ่มสไตล์ลิงก์เมื่อมีการโฮเวอร์ */
-.sidebar-item a:hover {
-    color: #00BFFF; /* เปลี่ยนสีเมื่อโฮเวอร์ เช่น สีฟ้าสว่าง */
-}
 
 .sidebar-menu {
     list-style: none;
@@ -191,7 +142,8 @@ body {
     flex: 1;
     padding: 80px 20px 20px 270px; /* Space for sidebar and top nav */
     overflow-y: auto;
-    
+    overflow-x: hidden; /* ซ่อน Scrollbar */
+
 }
 
 .content-header {

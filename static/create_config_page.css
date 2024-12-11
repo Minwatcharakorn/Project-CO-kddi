@@ -9,7 +9,9 @@ body {
     border: 1px solid #d0d4db;
     border-radius: 8px;
     background-color: #f9f9f9;
-    width: 100%; /* ยังคงให้ความกว้างเต็มจอ */
+    width: 90%; /* Fit within the parent container */
+    box-sizing: border-box; /* Include padding in the width */
+
 }
 
 h2, h3 {
@@ -155,7 +157,7 @@ form label {
     cursor: pointer;
     transition: background-color 0.3s ease;
     margin: 0;
-    position: relative; 
+    position: relative; /* ใช้ตำแหน่งที่สัมพันธ์กับตำแหน่งเดิม */
     top: -5px;
     align-self: center;
     display: flex;
@@ -304,100 +306,6 @@ form label {
 textarea {
     resize: none; /* Prevent resizing */
 }
-
-
-/* STP & VTP Configurations */
- #vtp-config {
-    margin-top: 20px;
-    padding: 15px;
-    border: 1px solid #d0d4db;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    width: 100%;
-}
-
-#vtp-config h3 {
-    color: #333;
-    margin-bottom: 10px;
-}
-
-#vtp-config label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-#vtp-config select, 
-#vtp-config input {
-    width: 100%;
-    max-width: 300px;
-    padding: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-#vtp-config input[type="submit"] {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    width: auto;
-    transition: background-color 0.3s ease;
-}
-
-#vtp-config input[type="submit"]:hover {
-    background-color: #0056b3;
-}
-
-/* Global STP Config Styles */
-#stp-global-config, #stp-interface-config {
-    margin-top: 20px;
-    padding: 15px;
-    border: 1px solid #d0d4db;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    width: 100%;
-}
-
-#stp-global-config h3, #stp-interface-config h3 {
-    color: #333;
-    margin-bottom: 10px;
-}
-
-#stp-global-config label, #stp-interface-config label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-#stp-global-config input, #stp-interface-config input, 
-#stp-global-config select, #stp-interface-config select {
-    width: 100%;
-    max-width: 300px;
-    padding: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-#stp-global-config input[type="submit"], #stp-interface-config input[type="submit"] {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    width: auto;
-    transition: background-color 0.3s ease;
-}
-
-#stp-global-config input[type="submit"]:hover, #stp-interface-config input[type="submit"]:hover {
-    background-color: #0056b3;
-}
-
 
 /* Template Section */
 .template-section {

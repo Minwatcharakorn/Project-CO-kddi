@@ -61,3 +61,24 @@
         .modal-content button:hover {
             background-color: #c0392b; /* สีแดงเข้มเมื่อ hover */
         }
+.error-modal-button {
+    background-color: #dc3545; /* Red background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    padding: 10px 20px; /* Add padding for better sizing */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 16px; /* Adjust font size */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+}
+
+.error-modal-button:hover {
+    background-color: #c82333; /* Darker red on hover */
+    transform: scale(1.05); /* Slight zoom effect */
+}
+
+.error-modal-button:active {
+    background-color: #a71d2a; /* Even darker red when clicked */
+    transform: scale(0.95); /* Slight scale-down on click */
+}
+

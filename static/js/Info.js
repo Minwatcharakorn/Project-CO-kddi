@@ -21,6 +21,7 @@ function showErrorModal(message, description = '') {
     // Add event listener to close the modal
     const closeErrorModal = document.getElementById('closeErrorModal');
     closeErrorModal.onclick = () => {
+        const errorModal = document.getElementById('errorModal');
         errorModal.style.display = 'none';
     };
 }
