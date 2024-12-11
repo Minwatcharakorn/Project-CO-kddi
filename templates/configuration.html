@@ -25,39 +25,41 @@
         <!-- Template Information -->
         <div class="config-section" id="template-information-config">
             <h3>Template Information</h3>
-            <form>
+            <form class="config-form">
                 <!-- Template Name -->
-                <label for="template-name">Template Name</label>
-                <input type="text" id="template-name" name="template-name" placeholder="Enter Template Name" style="width: auto;" required>
+                <div class="form-group">
+                    <label for="template-name">Template Name</label>
+                    <input type="text" id="template-name" name="template-name" placeholder="Enter Template Name" required>
+                    <label for="template-description">Description</label>
+                    <textarea id="template-description" name="template-description" placeholder="Enter Template Description" rows="3" required></textarea>
 
-                <!-- Description -->
-                <label for="template-description">Description</label>
-                <textarea id="template-description" name="template-description" placeholder="Enter Template Description" style="width: auto;" rows="3" required></textarea>
-                <br><br>
+                </div>
 
-                <input type="submit" value="Save Templates Information">
+                <input type="submit" value="Save Templates Information" class="styled-button">
             </form>
         </div>
 
 
         <!-- Hostname Configuration -->
-        <div class="config-section" id="Hostname-config">
+        <div class="config-section" id="hostname-config">
             <h3>Hostname Configuration</h3>
-            <form>
-                <label for="Host_name">Hostname</label>
-                <input type="text" id="Host-name" name="Host-name" placeholder="Enter Hostname" style="width: auto;"><br><br>
-                <input type="submit" value="Save Hostname Configuration">
+            <form class="config-form">
+                <div class="form-group">
+                    <label for="host-name">Hostname</label>
+                    <input type="text" id="host-name" name="host-name" placeholder="Enter Hostname" required>
+                </div>
+                <input type="submit" value="Save Hostname Configuration" class="styled-button">
             </form>
         </div>
 
         <!-- Create VLANs -->
         <div class="config-section" id="create-vlan-multiple">
             <h3>Create VLANs</h3>
-            <form id="vlan-multiple-form">
+            <form id="vlan-multiple-form" class="config-form">
                 <div id="vlan-rows">
-                    <button type="button" id="add-vlan-row">Add VLAN</button>
+                    <button type="button" id="add-vlan-row" class="styled-button">Add VLAN</button>
                     <br><br>
-                    <div class="vlan-row">
+                    <div class="vlan-row form-group">
                         <label for="vlan-id-1">VLAN ID</label>
                         <input type="number" id="vlan-id-1" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
 
@@ -66,13 +68,13 @@
 
                         <label for="vlan-IP-1">IP Address VLAN</label>
                         <input type="text" id="vlan-IP-1" name="vlan-IP[]" placeholder="Enter IP Address VLAN" required>
+
                         <button type="button" class="remove-vlan-row" style="width: auto;">
                             <i class="fas fa-trash-alt"></i>
-                        </button>                    
+                        </button>
                     </div>
                 </div>
-
-                <input type="submit" value="Save VLANs Configuration">
+                <input type="submit" value="Save VLANs Configuration" class="styled-button">
             </form>
         </div>
 
@@ -200,10 +202,7 @@
             <div id="interface-configs">
                 <!-- Default Configuration -->
                 <div class="interface-config">
-                    <form class="interface-config-form">
-                        <label>
-                            <input type="checkbox" id="no-switch-1" onchange="toggleSwitchMode(this)"> No Switchmode
-                        </label>
+                    <form class="config-form">
                         <label for="interface-port-1">Interface Port</label>
                         <select id="interface-port-1" name="interface-port">
                             <option value="">--Select Port--</option>
