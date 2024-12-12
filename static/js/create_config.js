@@ -230,11 +230,17 @@ document.getElementById("add-interface-config").addEventListener("click", functi
     interfaceConfigs.appendChild(newConfig);
 
     // Add event listeners for dynamic elements
+    const dropdownButton = document.getElementById(`dropdown-button-${interfaceCounter}`);
+    const dropdownContent = document.getElementById(`dropdown-content-${interfaceCounter}`);
+
+    dropdownButton.addEventListener("click", function () {
+        dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
+    });
+
     newConfig.querySelector(".remove-interface-config").addEventListener("click", function () {
         newConfig.remove();
     });
 });
-
 // Save All Configurations
 document.getElementById("save-interface-configs").addEventListener("click", function () {
     const configs = [];
