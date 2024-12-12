@@ -429,12 +429,30 @@ textarea {
 
 
 #selected-ports-container {
-    margin-bottom: 15px;
-    border: 1px solid black; /* Bold border */
-    padding: 15px;
+    margin-top: 5px;
+    margin-bottom: 0; /* ไม่มีระยะห่างด้านล่าง */
+    padding: 10px;
+    border-radius: 5px;
     background-color: white;
     text-align: left;
+    height: 450px;
+    overflow-y: hidden;
+    width: 100%;
 }
+
+#selected-ports-box {
+    white-space: normal; /* อนุญาตให้ข้อความห่อ */
+    overflow: hidden; /* ปิดการแสดง scroll */
+    padding: 5px;
+    border: 1px solid #d0d4db;
+    background-color: #f9f9f9;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.5; /* เพิ่มความสูงระหว่างบรรทัด */
+    height: 500px; /* ความสูงของกรอบ */
+    width: 100%; /* ความกว้างของกรอบ */
+}
+
 
 #selected-ports-container h4 {
     border-bottom: 1px solid black; /* Underline for header */
@@ -467,10 +485,12 @@ textarea {
 }
 
 #dropdown-container {
-    border: 2px solid black; /* Bold border */
     padding: 10px;
     background-color: white;
     text-align: center;
+    width: 100%;
+    margin-top: -10px; /* ไม่มีระยะห่างด้านบน */
+
 }
 
 
@@ -478,6 +498,7 @@ textarea {
     position: relative;
     display: inline-block;
     margin-top: 10px;
+    width: 50%;
     text-align: center; /* Center align the dropdown button */
 }
 
@@ -502,14 +523,14 @@ textarea {
 }
 
 #dropdown-button {
-    width: 100%;
     background-color: white;
-    color: black;
-    padding: 10px;
-    font-size: 16px;
-    border: 2px solid #d0d4db;
+    border: 1px solid #d0d4db;
+    padding: 8px 10px;
+    font-size: 14px;
+    border-radius: 4px;
     cursor: pointer;
-    text-align: left;
+    text-align: center;
+    width: 100%;
 }
 
 #dropdown-button:after {
@@ -517,21 +538,24 @@ textarea {
     float: right;
     margin-left: 10px;
 }
+#dropdown-button:hover {
+    background-color: #f1f1f1;
+}
 
 .dropdown-content {
-    display: none; /* ซ่อนเริ่มต้น */
-    position: absolute; /* ตำแหน่งอิสระ */
+    display: none; /* ซ่อน dropdown เป็นค่าเริ่มต้น */
+    position: relative;
     background-color: white;
     border: 1px solid #d0d4db;
-    z-index: 10; /* ให้อยู่ด้านหน้า */
-    width: 250px; /* จำกัดความกว้าง */
-    max-height: 200px; /* จำกัดความสูง */
-    overflow-y: auto; /* เพิ่ม scroll หาก Dropdown มีข้อมูลยาวเกิน */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+    z-index: 10;
+    width: 100%;
+    max-height: 300px; /* จำกัดความสูง */
+    overflow-y: auto; /* เปิดการเลื่อนแนวตั้ง */
+    overflow-x: hidden; /* เปิดการเลื่อนแนวตั้ง */
+    padding: 10px;
     border-radius: 4px;
-    padding: 10px; /* เพิ่ม padding ภายใน */
-    font-size: 14px; /* ปรับฟอนต์ให้เล็กลง */
 }
+
 
 .dropdown-content label {
     display: flex; /* จัด Checkbox และข้อความในแนวนอน */
@@ -545,6 +569,7 @@ textarea {
 .dropdown-content label:hover {
     background-color: #f1f1f1; /* เพิ่มสีเมื่อ hover */
     border-radius: 4px; /* ขอบมน */
+    width: 3.5%;
 }
 
 .dropdown-content input[type="checkbox"] {
@@ -560,7 +585,7 @@ textarea {
 
 /* ปุ่ม Dropdown */
 #interface-port-dropdown {
-    width: 100%;
+    width: 50%;
     padding: 10px;
     font-size: 16px;
     border: 1px solid #d0d4db;

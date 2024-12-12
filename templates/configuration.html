@@ -190,64 +190,59 @@
         </div>
 
         <!-- Interface Ports -->
-        <div class="config-section" id="interface-ports-config">
-            <h3>Interface Port Configuration</h3>
+<!-- Interface Ports -->
+<div class="config-section" id="interface-ports-config">
+    <h3>Interface Port Configuration</h3>
 
-            <button type="button" id="add-interface-config" class="styled-button">Add Interface Configuration</button>
-            <br><br>
+    <button type="button" id="add-interface-config" class="styled-button">Add Interface Configuration</button>
+    <br><br>
 
-            <div id="interface-configs">
-                <!-- Default Configuration -->
-                <div class="interface-config">
-                    <form class="config-form">
-                        <!-- Dropdown ที่มี Checkbox -->
-                        <label for="interface-port-dropdown" style="font-weight: bold;">Select Interface Ports</label>
-                        <div class="custom-dropdown">
-                            <button type="button" id="dropdown-button">-- Select Ports --</button>
-                            <div id="dropdown-content" class="dropdown-content">
-                                <label>
-                                    <input type="checkbox" value="GigabitEthernet0/1" class="interface-port-checkbox"> GigabitEthernet0/1
-                                </label>
-                                <label>
-                                    <input type="checkbox" value="GigabitEthernet0/2" class="interface-port-checkbox"> GigabitEthernet0/2
-                                </label>
-                                <label>
-                                    <input type="checkbox" value="GigabitEthernet0/3" class="interface-port-checkbox"> GigabitEthernet0/3
-                                </label>
-                                <label>
-                                    <input type="checkbox" value="GigabitEthernet0/4" class="interface-port-checkbox"> GigabitEthernet0/4
-                                </label>
-                            </div>
-                        </div>
-                        <br>
-
-                        <!-- กรอบแสดง Interface Ports ที่เลือก -->
-                        <div id="selected-ports-container" style="margin-top: 15px; border: 1px solid #d0d4db; padding: 10px; border-radius: 5px; background-color: #f9f9f9;">
-                            <h4 style="margin-bottom: 10px;">Selected Ports:</h4>
-                            <ul id="selected-ports-list" style="list-style: none; padding: 0; margin: 0;"></ul>
-                        </div>
-
-                        <div class="Description IP" id="Description_ip-id" style="margin-top: 15px;">
-                            <label for="Description-ip" style="font-weight: bold;">Description</label>
-                            <input type="text" id="Description-ip" name="Description-IP ADD" placeholder="Enter Description Port">
-                        </div>
-
-                        <div class="switch-mode-section" id="switch-mode-section-1" style="margin-top: 15px;">
-                            <label for="switch-mode-1" style="font-weight: bold;">Switch Mode</label>
-                            <select id="switch-mode-1" name="switch-mode">
-                                <option value="access">Access</option>
-                                <option value="trunk">Trunk</option>
-                            </select>
-                        </div>
-
-                        <button type="button" class="remove-interface-config styled-button" style="margin-top: 15px; background-color: #dc3545; color: white;">Remove Configuration</button>
-                    </form>
-                    <hr style="margin-top: 15px; border: none; border-top: 1px solid #ccc;">
+    <div id="interface-configs">
+        <!-- Default Configuration -->
+        <div class="interface-config">
+            <form class="config-form">
+                <!-- Dropdown with Checkbox -->
+                <label for="interface-port-dropdown" style="font-weight: bold;">Select Interface Ports</label>
+                
+                <!-- Container to Display Selected Ports -->
+                <div id="selected-ports-container">
+                    <h4 >Selected Ports:</h4>
+                    <div id="selected-ports-box">
+                        <!-- Dynamically Added Selected Ports -->
+                    </div>
                 </div>
-            </div>
+                    <!-- Dropdown for Interface Port Selection -->
+                <div id="dropdown-container">
+                    <button type="button" id="dropdown-button">-- Select Ports --</button>
+                    <div id="dropdown-content" class="dropdown-content">
+                        <!-- Dynamic ports will be appended here by JavaScript -->
+                    </div>
+                </div>
 
-            <input type="submit" value="Save All Interface Configurations" class="styled-button" id="save-interface-configs" style="margin-top: 15px;">
+                <!-- Description Input -->
+                <div class="Description IP" id="Description_ip-id" style="margin-top: 15px;">
+                    <label for="Description-ip" style="font-weight: bold;">Description</label>
+                    <input type="text" id="Description-ip" name="Description-IP ADD" placeholder="Enter Description Port">
+                </div>
+
+                <!-- Switch Mode Selection -->
+                <div class="switch-mode-section" id="switch-mode-section-1" style="margin-top: 15px;">
+                    <label for="switch-mode-1" style="font-weight: bold;">Switch Mode</label>
+                    <select id="switch-mode-1" name="switch-mode">
+                        <option value="access">Access</option>
+                        <option value="trunk">Trunk</option>
+                    </select>
+                </div>
+
+                <!-- Remove Configuration Button -->
+                <button type="button" class="remove-interface-config styled-button" style="margin-top: 15px; background-color: #dc3545; color: white;">Remove Configuration</button>
+            </form>
+            <hr style="margin-top: 15px; border: none; border-top: 1px solid #ccc;">
         </div>
+    </div>
+
+    <input type="submit" value="Save All Interface Configurations" class="styled-button" id="save-interface-configs" style="margin-top: 15px;">
+</div>
 
         <!-- NTP Configuration Section -->
         <div class="config-section" id="ntp-config">

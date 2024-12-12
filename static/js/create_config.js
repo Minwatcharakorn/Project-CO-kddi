@@ -162,16 +162,53 @@ document.querySelector("#ntp-config form").addEventListener("submit", function (
     alert(`NTP Server: ${ntpServer}\nClock Timezone: ${clockTimezone}\nConfiguration Saved!`);
 });
 
+// สร้าง Set สำหรับเก็บพอร์ตที่เลือก
 const selectedPorts = new Set();
 
-// Toggle dropdown visibility
+// ตัวอย่างรายการพอร์ต (คุณสามารถเพิ่มหรือดึงข้อมูลนี้จากเซิร์ฟเวอร์ได้)
+// สร้างรายการพอร์ตจำนวน 48 พอร์ตสำหรับ GigabitEthernet
+const ports = [];
+
+// เพิ่ม GigabitEthernet 0/1 ถึง 0/48
+for (let i = 1; i <= 48; i++) {
+    ports.push(`GigabitEthernet0/${i}`);
+}
+
+// เพิ่ม GigabitEthernet 1/0/1 ถึง 1/0/48
+for (let i = 1; i <= 48; i++) {
+    ports.push(`GigabitEthernet1/0/${i}`);
+}
+
+// เพิ่ม FastEthernet 0/1 ถึง 0/24
+for (let i = 1; i <= 48; i++) {
+    ports.push(`FastEthernet0/${i}`);
+}
+
+// เพิ่ม FastEthernet 1/0/1 ถึง 1/0/24
+for (let i = 1; i <= 48; i++) {
+    ports.push(`FastEthernet1/0/${i}`);
+}
+
+
+// ฟังก์ชันสำหรับแสดง dropdown เมื่อคลิกปุ่ม
 document.getElementById("dropdown-button").addEventListener("click", function () {
     const dropdownContent = document.getElementById("dropdown-content");
+    // สลับการแสดง/ซ่อน dropdown
     dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
 });
 
-// Handle checkbox selection
-document.getElementById("dropdown-content").addEventListener("change", function (e) {
+// เพิ่มรายการพอร์ตใน dropdown
+const dropdownContent = document.getElementById("dropdown-content");
+ports.forEach(port => {
+    const label = document.createElement("label");
+    label.innerHTML = `
+        <input type="checkbox" value="${port}" class="interface-port-checkbox"> ${port}
+    `;
+    dropdownContent.appendChild(label);
+});
+
+// ฟังก์ชันจัดการเมื่อมีการเลือก/ยกเลิกการเลือกพอร์ต
+dropdownContent.addEventListener("change", function (e) {
     if (e.target.classList.contains("interface-port-checkbox")) {
         const port = e.target.value;
         if (e.target.checked) {
@@ -183,13 +220,12 @@ document.getElementById("dropdown-content").addEventListener("change", function 
     }
 });
 
-// Update selected ports list
+// ฟังก์ชันสำหรับอัปเดตรายการพอร์ตที่เลือกในกล่องแสดงผล
 function updateSelectedPorts() {
-    const selectedList = document.getElementById("selected-ports-list");
-    selectedList.innerHTML = "";
-    selectedPorts.forEach(port => {
-        const listItem = document.createElement("li");
-        listItem.textContent = port;
-        selectedList.appendChild(listItem);
-    });
+    const selectedPortsBox = document.getElementById("selected-ports-box");
+    selectedPortsBox.innerHTML = ""; // ล้างเนื้อหาเก่าออก
+
+    // แปลง Set ของพอร์ตเป็น Array และรวมเป็นข้อความคั่นด้วยจุลภาค
+    const portsText = Array.from(selectedPorts).join(", ");
+    selectedPortsBox.textContent = portsText; // แสดงผลในรูปแบบข้อความ
 }
