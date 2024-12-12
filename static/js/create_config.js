@@ -132,61 +132,107 @@ let interfaceCounter = 1;
 
 // Add New Interface Configuration
 document.getElementById("add-interface-config").addEventListener("click", function () {
-    const interfaceCounter = document.querySelectorAll(".interface-config").length + 1;
+    interfaceCounter++;
     const interfaceConfigs = document.getElementById("interface-configs");
 
     const newConfig = document.createElement("div");
     newConfig.className = "interface-config";
     newConfig.innerHTML = `
         <form class="config-form">
-            <label for="interface-port-${interfaceCounter}">Interface Port</label>
-            <select id="interface-port-${interfaceCounter}" name="interface-port">
-                <option value="">--Select Port--</option>
-                <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
-                <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
-            </select>
+            <!-- Dropdown with Checkbox -->
+            <label for="interface-port-dropdown-${interfaceCounter}" style="font-weight: bold;">Select Interface Ports</label>
+            
+            <!-- Container to Display Selected Ports -->
+            <div id="selected-ports-container-${interfaceCounter}">
+                <h4>Selected Ports</h4>
+                <div id="selected-ports-box-${interfaceCounter}">
+                    <!-- Dynamically Added Selected Ports -->
+                </div>
+            </div>
 
-            <span>to</span>
-            <select id="interface-port-range-${interfaceCounter}" name="interface-port-range">
-                <option value="">--Select Port (Optional)--</option>
-                <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
-                <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
-            </select>
+            <!-- Dropdown for Interface Port Selection -->
+            <div id="dropdown-container-${interfaceCounter}">
+                <button type="button" id="dropdown-button-${interfaceCounter}" class="styled-button">
+                    Select Ports
+                </button>
+                <div id="dropdown-content-${interfaceCounter}" class="dropdown-content">
+                    <!-- Fixed Chassis Section -->
+                    <div id="fixed-chassis-section-${interfaceCounter}">
+                        <h4>Fixed Chassis</h4>
+                        <label>
+                            <input type="checkbox" id="select-all-fixed-chassis-${interfaceCounter}"> Select All Fixed Chassis
+                        </label>
+                        <div id="fixed-chassis-ports-${interfaceCounter}">
+                            <!-- Dynamically Added Ports -->
+                        </div>
+                    </div>
+                    
+                    <!-- Modular Chassis Section -->
+                    <div id="modular-chassis-section-${interfaceCounter}">
+                        <h4>Modular/Stackable Chassis</h4>
+                        <label>
+                            <input type="checkbox" id="select-all-modular-chassis-${interfaceCounter}"> Select All Modular/Stackable Chassis
+                        </label>
+                        <div id="modular-chassis-ports-${interfaceCounter}">
+                            <!-- Dynamically Added Ports -->
+                        </div>
+                    </div>
+                    
+                    <!-- TenGigabitEthernet -->
+                    <div id="ten-gigabit-section-${interfaceCounter}">
+                        <h4>TenGigabitEthernet</h4>
+                        <label>
+                            <input type="checkbox" id="select-all-ten-gigabit-${interfaceCounter}"> Select All TenGigabitEthernet
+                        </label>
+                        <div id="ten-gigabit-ports-${interfaceCounter}">
+                            <!-- Dynamically Added Ports -->
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <div class="Description IP" id="Description_ip-${interfaceCounter}">
-                <label for="Description-ip-${interfaceCounter}">Description</label>
+            <!-- Description Input -->
+            <div class="Description-IP">
+                <label for="Description-ip-${interfaceCounter}" style="font-weight: bold;">Description</label>
                 <input type="text" id="Description-ip-${interfaceCounter}" name="Description-IP ADD" placeholder="Enter Description Port">
             </div>
 
-            <div class="switch-mode-section" id="switch-mode-section-${interfaceCounter}">
-                <label for="switch-mode-${interfaceCounter}">Switch Mode</label>
+            <!-- Switch Mode Selection -->
+            <div class="switch-mode-section">
+                <label for="switch-mode-${interfaceCounter}" style="font-weight: bold;">Switch Mode</label>
                 <select id="switch-mode-${interfaceCounter}" name="switch-mode">
-                    <option value="access">Access</option>
+                    <option value="access" selected>Access</option>
                     <option value="trunk">Trunk</option>
                 </select>
             </div>
-            <button type="button" class="remove-interface-config" style="width: auto;">
-                Remove Configuration
-            </button>
+
+            <!-- VLAN ID Input -->
+            <div class="vlan-id-section" id="vlan-id-section-${interfaceCounter}">
+                <label for="vlan-id-input-${interfaceCounter}" style="font-weight: bold;">VLAN ID</label>
+                <input type="number" id="vlan-id-input-${interfaceCounter}" name="vlan-id-input" placeholder="Enter VLAN ID" value="1" min="1" max="4094" required>
+                <small id="vlan-error-${interfaceCounter}" style="color: red; display: none;">VLAN ID must be between 1 and 4094.</small>
+            </div>
+
+            <!-- Allowed VLANs Section -->
+            <div class="vlan-trunk-section" id="vlan-trunk-section-${interfaceCounter}" style="display: none;">
+                <label for="trunk-allowed-vlan-${interfaceCounter}" style="font-weight: bold;">Allowed VLANs</label>
+                <input type="text" id="trunk-allowed-vlan-${interfaceCounter}" name="trunk-allowed-vlan" placeholder="e.g., 20,30,40 or all" value="1" required>
+                <small id="vlan-trunk-error-${interfaceCounter}" style="color: red; display: none;">Invalid VLAN format. Use numbers separated by commas or "all".</small>
+            </div>
+
+            <!-- Remove Configuration Button -->
+            <button type="button" class="remove-interface-config styled-button" style="margin-top: 10px; background-color: #dc3545; color: white;">Remove Configuration</button>
         </form>
+        <hr style="margin-top: 10px; border: none; border-top: 1px solid #ccc;">
     `;
 
-    // Add event listener for remove button
+    // Append the new configuration to the container
+    interfaceConfigs.appendChild(newConfig);
+
+    // Add event listeners for dynamic elements
     newConfig.querySelector(".remove-interface-config").addEventListener("click", function () {
         newConfig.remove();
     });
-
-    interfaceConfigs.appendChild(newConfig);
-});
-
-// Remove Interface Configuration (using delegation for all rows)
-document.getElementById("interface-configs").addEventListener("click", function (e) {
-    if (e.target.classList.contains("remove-interface-config") || e.target.closest(".remove-interface-config")) {
-        const interfaceConfig = e.target.closest(".interface-config");
-        if (interfaceConfig) {
-            interfaceConfig.remove();
-        }
-    }
 });
 
 // Save All Configurations
@@ -196,7 +242,6 @@ document.getElementById("save-interface-configs").addEventListener("click", func
         const formData = new FormData(form);
         const config = {
             interfacePort: formData.get("interface-port"),
-            interfacePortRange: formData.get("interface-port-range"),
             description: formData.get("Description-IP ADD"),
             switchMode: formData.get("switch-mode")
         };
@@ -205,7 +250,6 @@ document.getElementById("save-interface-configs").addEventListener("click", func
     console.log("Saved Configurations:", configs);
     alert("Configurations Saved!");
 });
-
 
 // Handle NTP Form Submission
 document.querySelector("#ntp-config form").addEventListener("submit", function (e) {
