@@ -524,13 +524,15 @@ textarea {
 }
 
 #dropdown-button {
-    background-color: white;
-    border: 1px solid #d0d4db;
-    padding: 8px 10px;
-    font-size: 14px;
-    border-radius: 4px;
-    cursor: pointer;
+    background: linear-gradient(90deg, #1e90ff, #007bff); /* เพิ่ม gradient */
+    color: #fff; /* เปลี่ยนสีตัวอักษรเป็นสีขาว */
+    border: none; /* ลบเส้นขอบ */
+    padding: 10px 20px; /* เพิ่มพื้นที่ภายในปุ่ม */
+    font-size: 16px; /* เพิ่มขนาดฟอนต์ */
+    cursor: pointer; /* แสดง pointer เมื่อโฮเวอร์ */
     text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+    transition: all 0.3s ease; /* เพิ่มเอฟเฟกต์เมื่อเปลี่ยนสถานะ */
     width: 100%;
 }
 
@@ -540,7 +542,8 @@ textarea {
     margin-left: 10px;
 }
 #dropdown-button:hover {
-    background-color: #f1f1f1;
+    background: linear-gradient(90deg, #007bff, #0056b3); /* เปลี่ยนสีเมื่อโฮเวอร์ */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* เพิ่มความชัดของเงา */
 }
 
 .dropdown-content {
@@ -569,8 +572,8 @@ textarea {
 
 .dropdown-content label:hover {
     background-color: #f1f1f1; /* เพิ่มสีเมื่อ hover */
-    border-radius: 4px; /* ขอบมน */
-    width: 3.5%;
+    border-radius: 3px; /* ขอบมน */
+    width: 3.9%;
 }
 
 .dropdown-content input[type="checkbox"] {
@@ -632,4 +635,45 @@ textarea {
 #ten-gigabit-ports label {
     display: block;
     margin-left: 20px;
+}
+
+
+/* จัดระยะห่างระหว่าง label และ input */
+.switch-mode-section, .vlan-id-section ,.Description-IP,.vlan-trunk-section {
+    margin-bottom: -15px; /* ลดระยะห่างระหว่างแต่ละ section */
+}
+
+.Description-IP{
+    margin-bottom: -25px;
+}
+
+.switch-mode-section label,
+.vlan-id-section label ,
+.Description-IP label ,
+.vlan-trunk-section label{
+    margin-bottom: 5px; /* ลดระยะห่างระหว่าง label และ input */
+    display: block; /* ให้ label อยู่คนละบรรทัด */
+}
+
+.switch-mode-section label , .switch-mode-section select {
+    margin-left: -6px;
+}
+
+.switch-mode-section select,
+.vlan-id-section input {
+    width: 100%; /* ให้ input และ select มีความกว้างเต็ม container */
+    max-width: 300px; /* จำกัดความกว้างไม่เกิน 300px */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.vlan-id-section {
+    margin-top: -10px; /* ลดระยะห่างระหว่าง VLAN ID กับ Switch Mode */
+}
+
+.vlan-trunk-section{
+    margin-top: -10px; 
+    margin-bottom: 15px;
 }

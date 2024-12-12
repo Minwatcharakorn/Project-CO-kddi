@@ -65,6 +65,69 @@ document.getElementById("vlan-multiple-form").addEventListener("submit", functio
     alert("VLAN Configuration Saved!");
 });
 
+function toggleVlanSections() {
+    const switchMode = document.getElementById("switch-mode-1").value;
+    const vlanSection = document.getElementById("vlan-id-section-1");
+    const trunkSection = document.getElementById("vlan-trunk-section-1");
+
+    if (switchMode === "access") {
+        vlanSection.style.display = "block"; // Show VLAN ID input
+        trunkSection.style.display = "none"; // Hide Allowed VLANs input
+    } else if (switchMode === "trunk") {
+        vlanSection.style.display = "none"; // Hide VLAN ID input
+        trunkSection.style.display = "block"; // Show Allowed VLANs input
+    }
+}
+
+// Set default visibility when the page loads
+window.addEventListener("DOMContentLoaded", function () {
+    toggleVlanSections(); // Apply initial visibility
+});
+
+// Event listener for Switch Mode selection
+document.getElementById("switch-mode-1").addEventListener("change", toggleVlanSections);
+
+// Validate VLAN ID input
+document.getElementById("vlan-id-input-1").addEventListener("input", function () {
+    const vlanError = document.getElementById("vlan-error-1");
+    const minVlan = 1;
+    const maxVlan = 4094;
+    const value = parseInt(this.value, 10);
+
+    if (isNaN(value) || value < minVlan || value > maxVlan) {
+        vlanError.style.display = "block"; // Show error message
+        this.setCustomValidity(`VLAN ID must be between ${minVlan} and ${maxVlan}.`);
+        alert(
+            `Invalid VLAN ID!\n` +
+            `- VLAN ID must be a number between ${minVlan} and ${maxVlan}.`
+        ); // Alert user about the error
+    } else {
+        vlanError.style.display = "none"; // Hide error message
+        this.setCustomValidity(""); // Clear custom validity
+    }
+});
+
+// Validate Allowed VLANs input
+document.getElementById("trunk-allowed-vlan-1").addEventListener("input", function () {
+    const trunkError = document.getElementById("vlan-trunk-error-1");
+    const value = this.value.trim();
+    const vlanPattern = /^(\d{1,4}(-\d{1,4})?,?)+$|^all$/;
+
+    if (!vlanPattern.test(value)) {
+        trunkError.style.display = "block"; // Show error message
+        this.setCustomValidity("Invalid VLAN format. Use numbers separated by commas or 'all'.");
+        alert(
+            "Invalid VLAN input!\n" +
+            "- Use numbers between 1 and 4094.\n" +
+            "- Separate multiple VLANs with commas (e.g., 10,20,30).\n" +
+            "- Use 'all' to allow all VLANs."
+        ); // Alert user about the error
+    } else {
+        trunkError.style.display = "none"; // Hide error message
+        this.setCustomValidity(""); // Clear custom validity
+    }
+});
+
 let interfaceCounter = 1;
 
 // Add New Interface Configuration
