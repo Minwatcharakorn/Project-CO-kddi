@@ -451,6 +451,7 @@ textarea {
     line-height: 1.5; /* เพิ่มความสูงระหว่างบรรทัด */
     height: 500px; /* ความสูงของกรอบ */
     width: 100%; /* ความกว้างของกรอบ */
+    overflow-y: auto;
 }
 
 
@@ -599,4 +600,36 @@ textarea {
 #interface-port-checkbox-container {
     margin-top: 15px;
     display: none; /* ซ่อนโดยเริ่มต้น */
+}
+
+
+#fixed-chassis-section, #modular-chassis-section {
+    margin-bottom: 20px;
+}
+
+#fixed-chassis-section label, #modular-chassis-section label  {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+}
+
+#fixed-chassis-ports label, #modular-chassis-ports label {
+    display: block;
+    margin-left: 20px;
+}
+
+
+#ten-gigabit-section {
+    margin-bottom: 20px;
+}
+
+#ten-gigabit-section label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+}
+
+#ten-gigabit-ports label {
+    display: block;
+    margin-left: 20px;
 }

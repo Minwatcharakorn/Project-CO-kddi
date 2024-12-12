@@ -162,54 +162,128 @@ document.querySelector("#ntp-config form").addEventListener("submit", function (
     alert(`NTP Server: ${ntpServer}\nClock Timezone: ${clockTimezone}\nConfiguration Saved!`);
 });
 
-// สร้าง Set สำหรับเก็บพอร์ตที่เลือก
+// Initialize ports for Fixed Chassis, Modular Chassis, and TenGigabitEthernet
+const fixedChassisPorts = [];
+const modularChassisPorts = [];
+const TenGigabitEthernet = [];
 const selectedPorts = new Set();
 
-// ตัวอย่างรายการพอร์ต (คุณสามารถเพิ่มหรือดึงข้อมูลนี้จากเซิร์ฟเวอร์ได้)
-// สร้างรายการพอร์ตจำนวน 48 พอร์ตสำหรับ GigabitEthernet
-const ports = [];
-
-// เพิ่ม GigabitEthernet 0/1 ถึง 0/48
+// Add Fixed Chassis ports (GigabitEthernet0/1 to GigabitEthernet0/48)
 for (let i = 1; i <= 48; i++) {
-    ports.push(`GigabitEthernet0/${i}`);
+    fixedChassisPorts.push(`GigabitEthernet0/${i}`);
 }
 
-// เพิ่ม GigabitEthernet 1/0/1 ถึง 1/0/48
+// Add Modular Chassis ports (GigabitEthernet1/0/1 to GigabitEthernet1/0/48)
 for (let i = 1; i <= 48; i++) {
-    ports.push(`GigabitEthernet1/0/${i}`);
+    modularChassisPorts.push(`GigabitEthernet1/0/${i}`);
 }
 
-// เพิ่ม FastEthernet 0/1 ถึง 0/24
-for (let i = 1; i <= 48; i++) {
-    ports.push(`FastEthernet0/${i}`);
+// Add FastEthernet ports (FastEthernet0/1 to FastEthernet0/48)
+for (let i = 1; i <= 8; i++) {
+    TenGigabitEthernet.push(`TenGigabitEthernet0/${i}`);
 }
 
-// เพิ่ม FastEthernet 1/0/1 ถึง 1/0/24
-for (let i = 1; i <= 48; i++) {
-    ports.push(`FastEthernet1/0/${i}`);
+// Add additional Modular Chassis ranges (GigabitEthernet1/1/1 to GigabitEthernet1/1/48 and GigabitEthernet1/2/1 to GigabitEthernet1/2/48)
+for (let i = 1; i <= 24; i++) {
+    modularChassisPorts.push(`GigabitEthernet1/1/${i}`);
 }
 
+for (let i = 1; i <= 24; i++) {
+    modularChassisPorts.push(`GigabitEthernet1/2/${i}`);
 
-// ฟังก์ชันสำหรับแสดง dropdown เมื่อคลิกปุ่ม
+}
+
+// Toggle dropdown visibility
 document.getElementById("dropdown-button").addEventListener("click", function () {
     const dropdownContent = document.getElementById("dropdown-content");
-    // สลับการแสดง/ซ่อน dropdown
     dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
 });
 
-// เพิ่มรายการพอร์ตใน dropdown
-const dropdownContent = document.getElementById("dropdown-content");
-ports.forEach(port => {
+// Add Fixed Chassis ports dynamically
+const fixedChassisContainer = document.getElementById("fixed-chassis-ports");
+fixedChassisPorts.forEach(port => {
     const label = document.createElement("label");
     label.innerHTML = `
-        <input type="checkbox" value="${port}" class="interface-port-checkbox"> ${port}
+        <input type="checkbox" value="${port}" class="fixed-chassis-checkbox"> ${port}
+    `;
+    fixedChassisContainer.appendChild(label);
+});
+
+// Add Modular Chassis ports dynamically
+const modularChassisContainer = document.getElementById("modular-chassis-ports");
+modularChassisPorts.forEach(port => {
+    const label = document.createElement("label");
+    label.innerHTML = `
+        <input type="checkbox" value="${port}" class="modular-chassis-checkbox"> ${port}
+    `;
+    modularChassisContainer.appendChild(label);
+});
+
+// Add FastEthernet ports dynamically
+const dropdownContent = document.getElementById("ten-gigabit-ports");
+TenGigabitEthernet.forEach(port => {
+    const label = document.createElement("label");
+    label.innerHTML = `
+        <input type="checkbox" value="${port}" class="ten-gigabitEthernet-checkbox"> ${port}
     `;
     dropdownContent.appendChild(label);
 });
 
-// ฟังก์ชันจัดการเมื่อมีการเลือก/ยกเลิกการเลือกพอร์ต
-dropdownContent.addEventListener("change", function (e) {
-    if (e.target.classList.contains("interface-port-checkbox")) {
+// "Select All" for Fixed Chassis
+document.getElementById("select-all-fixed-chassis").addEventListener("change", function (e) {
+    const checkboxes = document.querySelectorAll(".fixed-chassis-checkbox");
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = e.target.checked;
+        if (e.target.checked) {
+            selectedPorts.add(checkbox.value);
+        } else {
+            selectedPorts.delete(checkbox.value);
+        }
+    });
+    updateSelectedPorts();
+});
+
+// "Select All" for Modular Chassis
+document.getElementById("select-all-modular-chassis").addEventListener("change", function (e) {
+    const checkboxes = document.querySelectorAll(".modular-chassis-checkbox");
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = e.target.checked;
+        if (e.target.checked) {
+            selectedPorts.add(checkbox.value);
+        } else {
+            selectedPorts.delete(checkbox.value);
+        }
+    });
+    updateSelectedPorts();
+});
+
+
+// "Select All" for Modular Chassis
+document.getElementById("select-all-ten-gigabit").addEventListener("change", function (e) {
+    const checkboxes = document.querySelectorAll(".ten-gigabitEthernet-checkbox");
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = e.target.checked;
+        if (e.target.checked) {
+            selectedPorts.add(checkbox.value);
+        } else {
+            selectedPorts.delete(checkbox.value);
+        }
+    });
+    updateSelectedPorts();
+});
+
+// Update selected ports display
+function updateSelectedPorts() {
+    const selectedPortsBox = document.getElementById("selected-ports-box");
+    selectedPortsBox.innerHTML = "";
+
+    const portsText = Array.from(selectedPorts).join(", ");
+    selectedPortsBox.textContent = portsText;
+}
+
+// Handle individual checkbox selection
+document.getElementById("dropdown-content").addEventListener("change", function (e) {
+    if (e.target.type === "checkbox" && e.target.className.includes("checkbox")) {
         const port = e.target.value;
         if (e.target.checked) {
             selectedPorts.add(port);
@@ -219,13 +293,3 @@ dropdownContent.addEventListener("change", function (e) {
         updateSelectedPorts();
     }
 });
-
-// ฟังก์ชันสำหรับอัปเดตรายการพอร์ตที่เลือกในกล่องแสดงผล
-function updateSelectedPorts() {
-    const selectedPortsBox = document.getElementById("selected-ports-box");
-    selectedPortsBox.innerHTML = ""; // ล้างเนื้อหาเก่าออก
-
-    // แปลง Set ของพอร์ตเป็น Array และรวมเป็นข้อความคั่นด้วยจุลภาค
-    const portsText = Array.from(selectedPorts).join(", ");
-    selectedPortsBox.textContent = portsText; // แสดงผลในรูปแบบข้อความ
-}

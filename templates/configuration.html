@@ -212,12 +212,43 @@
                     </div>
                 </div>
                     <!-- Dropdown for Interface Port Selection -->
-                <div id="dropdown-container">
-                    <button type="button" id="dropdown-button">-- Select Ports --</button>
-                    <div id="dropdown-content" class="dropdown-content">
-                        <!-- Dynamic ports will be appended here by JavaScript -->
+                    <div id="dropdown-container">
+                        <button type="button" id="dropdown-button">ten-gigabit-ports</button>
+                        <div id="dropdown-content" class="dropdown-content">
+                            <!-- Fixed Chassis Section -->
+                            <div id="fixed-chassis-section">
+                                <h4>Fixed Chassis</h4>
+                                <label>
+                                    <input type="checkbox" id="select-all-fixed-chassis"> Select All Fixed Chassis
+                                </label>
+                                <div id="fixed-chassis-ports">
+                                    <!-- Dynamically Added Ports -->
+                                </div>
+                            </div>
+                    
+                            <!-- Modular Chassis Section -->
+                            <div id="modular-chassis-section">
+                                <h4>Modular/Stackable Chassis</h4>
+                                <label>
+                                    <input type="checkbox" id="select-all-modular-chassis"> Select All Modular/Stackable Chassis
+                                </label>
+                                <div id="modular-chassis-ports">
+                                    <!-- Dynamically Added Ports -->
+                                </div>
+                            </div>
+                            
+                            <!-- TenGigabitEthernet -->
+                            <div id="ten-gigabit-section">
+                                <h4>TenGigabitEthernet</h4>
+                                <label>
+                                    <input type="checkbox" id="select-all-ten-gigabit"> Select All TenGigabitEthernet
+                                </label>
+                                <div id="ten-gigabit-ports">
+
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
                 <!-- Description Input -->
                 <div class="Description IP" id="Description_ip-id" style="margin-top: 15px;">
