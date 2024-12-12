@@ -76,7 +76,7 @@ document.getElementById("add-interface-config").addEventListener("click", functi
     newConfig.className = "interface-config";
     newConfig.innerHTML = `
         <form class="config-form">
-            <label for="interface-port-${interfaceCounter}">Interface Port:</label>
+            <label for="interface-port-${interfaceCounter}">Interface Port</label>
             <select id="interface-port-${interfaceCounter}" name="interface-port">
                 <option value="">--Select Port--</option>
                 <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
@@ -96,7 +96,7 @@ document.getElementById("add-interface-config").addEventListener("click", functi
             </div>
 
             <div class="switch-mode-section" id="switch-mode-section-${interfaceCounter}">
-                <label for="switch-mode-${interfaceCounter}">Switch Mode:</label>
+                <label for="switch-mode-${interfaceCounter}">Switch Mode</label>
                 <select id="switch-mode-${interfaceCounter}" name="switch-mode">
                     <option value="access">Access</option>
                     <option value="trunk">Trunk</option>
@@ -142,3 +142,54 @@ document.getElementById("save-interface-configs").addEventListener("click", func
     console.log("Saved Configurations:", configs);
     alert("Configurations Saved!");
 });
+
+
+// Handle NTP Form Submission
+document.querySelector("#ntp-config form").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const ntpServer = document.getElementById("ntp-server").value;
+    const clockTimezone = document.getElementById("clock-timezone").value;
+
+    const ntpConfig = {
+        server: ntpServer,
+        timezone: clockTimezone,
+    };
+
+    console.log("Submitted NTP Configuration:", ntpConfig);
+
+    // Optional: Add logic to send configuration to the server or apply to switch
+    alert(`NTP Server: ${ntpServer}\nClock Timezone: ${clockTimezone}\nConfiguration Saved!`);
+});
+
+const selectedPorts = new Set();
+
+// Toggle dropdown visibility
+document.getElementById("dropdown-button").addEventListener("click", function () {
+    const dropdownContent = document.getElementById("dropdown-content");
+    dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
+});
+
+// Handle checkbox selection
+document.getElementById("dropdown-content").addEventListener("change", function (e) {
+    if (e.target.classList.contains("interface-port-checkbox")) {
+        const port = e.target.value;
+        if (e.target.checked) {
+            selectedPorts.add(port);
+        } else {
+            selectedPorts.delete(port);
+        }
+        updateSelectedPorts();
+    }
+});
+
+// Update selected ports list
+function updateSelectedPorts() {
+    const selectedList = document.getElementById("selected-ports-list");
+    selectedList.innerHTML = "";
+    selectedPorts.forEach(port => {
+        const listItem = document.createElement("li");
+        listItem.textContent = port;
+        selectedList.appendChild(listItem);
+    });
+}

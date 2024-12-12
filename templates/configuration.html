@@ -192,59 +192,85 @@
         <!-- Interface Ports -->
         <div class="config-section" id="interface-ports-config">
             <h3>Interface Port Configuration</h3>
-            <br>
 
-            <button type="button" id="add-interface-config">Add Interface Configuration</button>
+            <button type="button" id="add-interface-config" class="styled-button">Add Interface Configuration</button>
             <br><br>
-        
+
             <div id="interface-configs">
                 <!-- Default Configuration -->
                 <div class="interface-config">
                     <form class="config-form">
-                        <label for="interface-port-1">Interface Port</label>
-                        <select id="interface-port-1" name="interface-port">
-                            <option value="">--Select Port--</option>
-                            <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
-                            <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
-                        </select>
-
-                        <span>to</span>
-                        <select id="interface-port-range-1" name="interface-port-range">
-                            <option value="">--Select Port (Optional)--</option>
-                            <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
-                            <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
-                        </select>
-        
-                        <div class="Description IP" id="Description_ip-id">
-                            <label for="Description-ip">Description</label>
-                            <input type="text" id="Description-ip" name="Description-IP ADD" placeholder="Enter Description Port ">
+                        <!-- Dropdown ที่มี Checkbox -->
+                        <label for="interface-port-dropdown" style="font-weight: bold;">Select Interface Ports</label>
+                        <div class="custom-dropdown">
+                            <button type="button" id="dropdown-button">-- Select Ports --</button>
+                            <div id="dropdown-content" class="dropdown-content">
+                                <label>
+                                    <input type="checkbox" value="GigabitEthernet0/1" class="interface-port-checkbox"> GigabitEthernet0/1
+                                </label>
+                                <label>
+                                    <input type="checkbox" value="GigabitEthernet0/2" class="interface-port-checkbox"> GigabitEthernet0/2
+                                </label>
+                                <label>
+                                    <input type="checkbox" value="GigabitEthernet0/3" class="interface-port-checkbox"> GigabitEthernet0/3
+                                </label>
+                                <label>
+                                    <input type="checkbox" value="GigabitEthernet0/4" class="interface-port-checkbox"> GigabitEthernet0/4
+                                </label>
+                            </div>
                         </div>
-        
+                        <br>
 
-                        <div class="switch-mode-section" id="switch-mode-section-1">
-                            <label for="switch-mode-1">Switch Mode</label>
+                        <!-- กรอบแสดง Interface Ports ที่เลือก -->
+                        <div id="selected-ports-container" style="margin-top: 15px; border: 1px solid #d0d4db; padding: 10px; border-radius: 5px; background-color: #f9f9f9;">
+                            <h4 style="margin-bottom: 10px;">Selected Ports:</h4>
+                            <ul id="selected-ports-list" style="list-style: none; padding: 0; margin: 0;"></ul>
+                        </div>
+
+                        <div class="Description IP" id="Description_ip-id" style="margin-top: 15px;">
+                            <label for="Description-ip" style="font-weight: bold;">Description</label>
+                            <input type="text" id="Description-ip" name="Description-IP ADD" placeholder="Enter Description Port">
+                        </div>
+
+                        <div class="switch-mode-section" id="switch-mode-section-1" style="margin-top: 15px;">
+                            <label for="switch-mode-1" style="font-weight: bold;">Switch Mode</label>
                             <select id="switch-mode-1" name="switch-mode">
                                 <option value="access">Access</option>
                                 <option value="trunk">Trunk</option>
                             </select>
                         </div>
-        
-                        <button type="button" class="remove-interface-config">Remove Configuration</button>
+
+                        <button type="button" class="remove-interface-config styled-button" style="margin-top: 15px; background-color: #dc3545; color: white;">Remove Configuration</button>
                     </form>
-                    <hr>
+                    <hr style="margin-top: 15px; border: none; border-top: 1px solid #ccc;">
                 </div>
             </div>
-        
-            <input type="submit" value="Save All Interface Configurations" class="styled-button" id="save-interface-configs">
+
+            <input type="submit" value="Save All Interface Configurations" class="styled-button" id="save-interface-configs" style="margin-top: 15px;">
         </div>
 
+        <!-- NTP Configuration Section -->
+        <div class="config-section" id="ntp-config">
+            <h3>NTP Configuration</h3>
+            <form>
+                <label for="ntp-server">NTP Server</label>
+                <input type="text" id="ntp-server" name="ntp-server" placeholder="Enter NTP Server Address (e.g., 203.158.118.2)" required>
+                <br><br>
+                
+                <label for="clock-timezone">Clock Timezone</label>
+                <input type="text" id="clock-timezone" name="clock-timezone" placeholder="Enter Timezone (e.g., BKK +7)" required>
+                <br><br>
 
+                <input type="submit" value="Save NTP Configuration" class="styled-button">
+            </form>
+        </div>
 
         <div class="config-section" id="default-gateway-config">
             <h3>Default Gateway Configuration</h3>
             <form>
                 <label for="default-gateway">Default Gateway</label>
-                <input type="text" id="default-gateway" name="default-gateway" placeholder="Enter Default Gateway" style="width: auto;"><br>
+                <input type="text" id="default-gateway" name="default-gateway" placeholder="Enter Default Gateway" style="width: auto;">
+                <br><br>
                 <input type="submit" value="Save Gateway Configuration">
             </form>
         </div>
