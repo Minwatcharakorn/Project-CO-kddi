@@ -214,9 +214,6 @@ form label {
     color: #333;
 }
 
-
-
-
 .styled-button {
     background-color: #007bff; /* สีน้ำเงิน */
     color: white;
@@ -284,7 +281,7 @@ form label {
 .config-form label {
     display: inline-flex; /* Ensure it aligns horizontally */
     align-items: center;
-    gap: 10px; /* Add space between checkbox and label */
+    gap: 10px; 
     margin-top: 10px; 
     margin-right: 1100px; 
     white-space: nowrap; /* ป้องกันข้อความตกบรรทัด */
@@ -394,8 +391,8 @@ textarea {
 /* Container สำหรับ Interface Port */
 #interface-port-options {
     display: flex;
-    flex-wrap: wrap; /* ให้ checkbox อยู่หลายบรรทัดหากความกว้างไม่พอ */
-    gap: 10px; /* เพิ่มช่องว่างระหว่าง checkbox */
+    flex-wrap: wrap; 
+    gap: 10px; 
 }
 
 .interface-port-checkbox {
@@ -676,4 +673,182 @@ textarea {
 .vlan-trunk-section{
     margin-top: -10px; 
     margin-bottom: 15px;
+}
+
+
+[id^="selected-ports-container-"] {
+    margin-top: 5px;
+    margin-bottom: 0; /* ไม่มีระยะห่างด้านล่าง */
+    padding: 10px;
+    border-radius: 5px;
+    background-color: white;
+    text-align: left;
+    height: 450px;
+    overflow-y: hidden;
+    width: 100%;
+}
+ 
+[id^="selected-ports-box"] {
+    white-space: normal; /* อนุญาตให้ข้อความห่อ */
+    overflow: hidden; /* ปิดการแสดง scroll */
+    padding: 5px;
+    border: 1px solid #d0d4db;
+    background-color: #f9f9f9;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.5; /* เพิ่มความสูงระหว่างบรรทัด */
+    height: 500px; /* ความสูงของกรอบ */
+    width: 100%; /* ความกว้างของกรอบ */
+    overflow-y: auto;
+}
+
+[id^="selected-ports-container-"] h4 {
+    border-bottom: 1px solid black; /* Underline for header */
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+[id^="dropdown-container-"] {
+    padding: 10px;
+    background-color: white;
+    text-align: center;
+    width: 100%;
+    margin-top: -10px; /* ไม่มีระยะห่างด้านบน */
+}
+
+[id^="dropdown-button-"] {
+    background: linear-gradient(90deg, #1e90ff, #007bff); /* เพิ่ม gradient */
+    color: #fff; /* เปลี่ยนสีตัวอักษรเป็นสีขาว */
+    border: none; /* ลบเส้นขอบ */
+    padding: 10px 20px; /* เพิ่มพื้นที่ภายในปุ่ม */
+    font-size: 16px; /* เพิ่มขนาดฟอนต์ */
+    cursor: pointer; /* แสดง pointer เมื่อโฮเวอร์ */
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+    transition: all 0.3s ease; /* เพิ่มเอฟเฟกต์เมื่อเปลี่ยนสถานะ */
+    width: 100%;
+}
+
+[id^="dropdown-button-"]:after {
+    content: '\25BC';
+    float: right;
+    margin-left: 10px;
+}
+
+/* ตกแต่งปุ่มและไอคอนเมื่อ Hover */
+[id^="dropdown-button-"]:hover {
+    background: linear-gradient(90deg, #007bff, #0056b3); /* เปลี่ยนสีเมื่อโฮเวอร์ */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* เพิ่มความชัดของเงา */
+}
+
+[id^="dropdown-content-"]{
+    display: none; /* ซ่อน dropdown เป็นค่าเริ่มต้น */
+    position: relative;
+    background-color: white;
+    border: 1px solid #d0d4db;
+    z-index: 10;
+    width: 100%;
+    max-height: 300px; /* จำกัดความสูง */
+    overflow-y: auto; /* เปิดการเลื่อนแนวตั้ง */
+    overflow-x: hidden; /* เปิดการเลื่อนแนวตั้ง */
+    padding: 10px;
+    border-radius: 4px;
+}
+
+
+
+[id^="dropdown-content-"] label {
+    display: flex; /* จัด Checkbox และข้อความในแนวนอน */
+    align-items: center; /* จัดกึ่งกลางแนวตั้ง */
+    gap: 10px; /* ระยะห่างระหว่าง Checkbox และข้อความ */
+    font-size: 14px; /* ขนาดตัวอักษร */
+    padding: 5px; /* เพิ่มช่องว่างรอบรายการ */
+    cursor: pointer; /* เปลี่ยนเป็นมือเมื่อ hover */
+}
+
+
+[id^="dropdown-content-"] label:hover {
+    background-color: #f1f1f1; /* เพิ่มสีเมื่อ hover */
+    border-radius: 3px; /* ขอบมน */
+    width: 3.9%;
+}
+
+[id^="dropdown-content-"] input[type="checkbox"] {
+    width: 16px; /* ความกว้าง */
+    height: 16px; /* ความสูง */
+    margin: 0; /* ลบระยะห่างรอบ */
+    cursor: pointer;
+}
+
+
+[id^="dropdown-content-"] input[type="checkbox"] {
+    width: 16px; /* ความกว้าง */
+    height: 16px; /* ความสูง */
+    margin: 0; /* ลบระยะห่างรอบ */
+    cursor: pointer;
+}
+
+[id^="interface-port-dropdown-"] {
+    width: 50%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #d0d4db;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: white;
+    color: black;
+}
+[id^="fixed-chassis-section-"] {
+    margin-bottom: 20px;
+}
+
+[id^="fixed-chassis-section-"] {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+}
+
+[id^="modular-chassis-section-"] {
+    margin-bottom: 20px;
+
+}
+
+
+
+
+
+
+[id^="fixed-chassis-ports-"] label {
+    display: block;
+    margin-left: 20px;
+    font-weight: bold;
+
+}
+[id^="modular-chassis-ports-"] label {
+    display: block;
+    margin-left: 20px;
+}
+
+[id^="ten-gigabit-ports-"] label {
+    display: block;
+    margin-left: 20px;
+}
+
+
+[id^="dropdown-content-"] input[type="checkbox"] {
+    margin-right: 8px; /* เพิ่มระยะห่างระหว่าง Checkbox และข้อความ */
+    transform: scale(1.2); /* ขยายขนาดของ Checkbox */
+    cursor: pointer; /* เปลี่ยนเคอร์เซอร์เป็น Pointer */
+}
+
+
+[id^="dropdown-content-"] label {
+    display: flex; /* ใช้ Flexbox เพื่อจัดวาง Checkbox และข้อความ */
+    align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+    padding: 5px 10px; /* เพิ่ม Padding รอบ ๆ Label */
+    font-size: 14px; /* กำหนดขนาดข้อความ */
+    color: #333; /* สีข้อความ */
 }
