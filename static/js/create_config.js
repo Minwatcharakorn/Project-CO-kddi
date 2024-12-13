@@ -283,30 +283,30 @@ function initializeDropdown(interfaceCounter) {
     document.getElementById(`select-all-fixed-chassis-${interfaceCounter}`).addEventListener("change", function (e) {
         const checkboxes = document.querySelectorAll(`.fixed-chassis-checkbox-${interfaceCounter}`);
         checkboxes.forEach(checkbox => (checkbox.checked = e.target.checked));
-        updateSelectedPorts(selectedPortsBox, dropdownContent);
+        updateSelectedPortsAdd(selectedPortsBox, dropdownContent);
     });
 
     document.getElementById(`select-all-modular-chassis-${interfaceCounter}`).addEventListener("change", function (e) {
         const checkboxes = document.querySelectorAll(`.modular-chassis-checkbox-${interfaceCounter}`);
         checkboxes.forEach(checkbox => (checkbox.checked = e.target.checked));
-        updateSelectedPorts(selectedPortsBox, dropdownContent);
+        updateSelectedPortsAdd(selectedPortsBox, dropdownContent);
     });
 
     document.getElementById(`select-all-ten-gigabit-${interfaceCounter}`).addEventListener("change", function (e) {
         const checkboxes = document.querySelectorAll(`.ten-gigabitEthernet-checkbox-${interfaceCounter}`);
         checkboxes.forEach(checkbox => (checkbox.checked = e.target.checked));
-        updateSelectedPorts(selectedPortsBox, dropdownContent);
+        updateSelectedPortsAdd(selectedPortsBox, dropdownContent);
     });
 
     // เพิ่ม Event ให้กับ Checkbox แต่ละอัน
     dropdownContent.addEventListener("change", function (e) {
         if (e.target.type === "checkbox") {
-            updateSelectedPorts(selectedPortsBox, dropdownContent);
+            updateSelectedPortsAdd(selectedPortsBox, dropdownContent);
         }
     });
 }
 // ฟังก์ชันอัปเดตรายการพอร์ตที่เลือก
-function updateSelectedPorts(selectedPortsBox, dropdownContent) {
+function updateSelectedPortsAdd(selectedPortsBox, dropdownContent) {
     const selectedPorts = Array.from(dropdownContent.querySelectorAll("input:checked"))
         .map(checkbox => checkbox.value)
         .join(", ");
