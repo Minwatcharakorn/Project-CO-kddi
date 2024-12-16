@@ -197,112 +197,12 @@
     <br><br>
 
     <div id="interface-configs">
-        <!-- Default Configuration -->
-        <div class="interface-config">
-            <form class="config-form">
-                <!-- Dropdown with Checkbox -->
-                <label for="interface-port-dropdown" style="font-weight: bold;">Select Interface Ports</label>
-                
-                <!-- Container to Display Selected Ports -->
-                <div id="selected-ports-container">
-                    <h4 >Selected Ports</h4>
-                    <div id="selected-ports-box">
-                        <!-- Dynamically Added Selected Ports -->
-                    </div>
-                </div>
-                    <!-- Dropdown for Interface Port Selection -->
-                    <div id="dropdown-container">
-                        <button type="button" id="dropdown-button">
-                            Select Ports
-                        </button>
-                        <div id="dropdown-content" class="dropdown-content">
-                            <!-- Fixed Chassis Section -->
-                            <div id="fixed-chassis-section">
-                                <h4>Fixed Chassis</h4>
-                                <label>
-                                    <input type="checkbox" id="select-all-fixed-chassis"> Select All Fixed Chassis
-                                </label>
-                                <div id="fixed-chassis-ports">
-                                    <!-- Dynamically Added Ports -->
-                                </div>
-                            </div>
-                    
-                            <!-- Modular Chassis Section -->
-                            <div id="modular-chassis-section">
-                                <h4>Modular/Stackable Chassis</h4>
-                                <label>
-                                    <input type="checkbox" id="select-all-modular-chassis"> Select All Modular/Stackable Chassis
-                                </label>
-                                <div id="modular-chassis-ports">
-                                    <!-- Dynamically Added Ports -->
-                                </div>
-                            </div>
-                            
-                            <!-- TenGigabitEthernet -->
-                            <div id="ten-gigabit-section">
-                                <h4>TenGigabitEthernet</h4>
-                                <label>
-                                    <input type="checkbox" id="select-all-ten-gigabit"> Select All TenGigabitEthernet
-                                </label>
-                                <div id="ten-gigabit-ports">
-                                    
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                <!-- Description Input -->
-                <div class="Description-IP" id="Description_ip-id">
-                    <label for="Description-ip" style="font-weight: bold;">Description</label>
-                    <input type="text" id="Description-ip" name="Description-IP ADD" placeholder="Enter Description Port">
-                </div>
-
-                <!-- Switch Mode Selection -->
-                <div class="switch-mode-section" id="switch-mode-section-1">
-                    <label for="switch-mode-1" style="font-weight: bold;">Switch Mode</label>
-                    <select id="switch-mode-1" name="switch-mode">
-                        <option value="access" selected>Access</option> <!-- ตั้งค่าเริ่มต้น -->
-                        <option value="trunk">Trunk</option>
-                    </select>
-                </div>
-                <!-- VLAN ID Input -->
-                <div class="vlan-id-section" id="vlan-id-section-1">
-                    <label for="vlan-id-input-1" style="font-weight: bold;">VLAN ID</label>
-                    <input 
-                        type="number" 
-                        id="vlan-id-input-1" 
-                        name="vlan-id-input" 
-                        placeholder="Enter VLAN ID" 
-                        value="1"
-                        min="1" 
-                        max="4094" 
-                        required>
-                    <small id="vlan-error-1" style="color: red; display: none;">VLAN ID must be between 1 and 4094.</small>
-                </div>
-
-                <!-- Allowed VLANs Section (hidden by default) -->
-                <div class="vlan-trunk-section" id="vlan-trunk-section-1" style="display: none; margin-bottom: -25px;">
-                    <label for="trunk-allowed-vlan-1" style="font-weight: bold;">Allowed VLANs</label>
-                    <input 
-                        type="text" 
-                        id="trunk-allowed-vlan-1" 
-                        name="trunk-allowed-vlan" 
-                        placeholder="e.g., 20,30,40 or all" 
-                        value="1" 
-                        required>
-                    <small id="vlan-trunk-error-1" style="color: red; display: none;">Invalid VLAN format. Use numbers separated by commas or "all".</small>
-                </div>
-
-
-                <!-- Remove Configuration Button -->
-                <button type="button" class="remove-interface-config styled-button" style="margin-top: 10px; background-color: #dc3545; color: white;">Remove Configuration</button>
-            </form>
-            <hr style="margin-top: 10px; border: none; border-top: 1px solid #ccc;">
-        </div>
+        <!-- Dynamic Interface Configurations will be added here -->
     </div>
 
     <input type="submit" value="Save All Interface Configurations" class="styled-button" id="save-interface-configs" style="margin-top: 5px;">
 </div>
+
 
         <!-- NTP Configuration Section -->
         <div class="config-section" id="ntp-config">

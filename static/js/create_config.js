@@ -65,77 +65,12 @@ document.getElementById("vlan-multiple-form").addEventListener("submit", functio
     alert("VLAN Configuration Saved!");
 });
 
-function toggleVlanSections() {
-    const switchMode = document.getElementById("switch-mode-1").value;
-    const vlanSection = document.getElementById("vlan-id-section-1");
-    const trunkSection = document.getElementById("vlan-trunk-section-1");
-
-    if (switchMode === "access") {
-        vlanSection.style.display = "block"; // Show VLAN ID input
-        trunkSection.style.display = "none"; // Hide Allowed VLANs input
-    } else if (switchMode === "trunk") {
-        vlanSection.style.display = "none"; // Hide VLAN ID input
-        trunkSection.style.display = "block"; // Show Allowed VLANs input
-    }
-}
-
-// Set default visibility when the page loads
-window.addEventListener("DOMContentLoaded", function () {
-    toggleVlanSections(); // Apply initial visibility
-});
-
-// Event listener for Switch Mode selection
-document.getElementById("switch-mode-1").addEventListener("change", toggleVlanSections);
-
-// Validate VLAN ID input
-document.getElementById("vlan-id-input-1").addEventListener("input", function () {
-    const vlanError = document.getElementById("vlan-error-1");
-    const minVlan = 1;
-    const maxVlan = 4094;
-    const value = parseInt(this.value, 10);
-
-    if (isNaN(value) || value < minVlan || value > maxVlan) {
-        vlanError.style.display = "block"; // Show error message
-        this.setCustomValidity(`VLAN ID must be between ${minVlan} and ${maxVlan}.`);
-        alert(
-            `Invalid VLAN ID!\n` +
-            `- VLAN ID must be a number between ${minVlan} and ${maxVlan}.`
-        ); // Alert user about the error
-    } else {
-        vlanError.style.display = "none"; // Hide error message
-        this.setCustomValidity(""); // Clear custom validity
-    }
-});
-
-// Validate Allowed VLANs input
-document.getElementById("trunk-allowed-vlan-1").addEventListener("input", function () {
-    const trunkError = document.getElementById("vlan-trunk-error-1");
-    const value = this.value.trim();
-    const vlanPattern = /^(\d{1,4}(-\d{1,4})?,?)+$|^all$/;
-
-    if (!vlanPattern.test(value)) {
-        trunkError.style.display = "block"; // Show error message
-        this.setCustomValidity("Invalid VLAN format. Use numbers separated by commas or 'all'.");
-        alert(
-            "Invalid VLAN input!\n" +
-            "- Use numbers between 1 and 4094.\n" +
-            "- Separate multiple VLANs with commas (e.g., 10,20,30).\n" +
-            "- Use 'all' to allow all VLANs."
-        ); // Alert user about the error
-    } else {
-        trunkError.style.display = "none"; // Hide error message
-        this.setCustomValidity(""); // Clear custom validity
-    }
-});
-
 let interfaceCounter = 1;
 
 // Add New Interface Configuration
 document.getElementById("add-interface-config").addEventListener("click", function () {
     interfaceCounter++;
     const interfaceConfigs = document.getElementById("interface-configs");
-
-    // สร้าง HTML สำหรับ Config ใหม่
     const newConfig = document.createElement("div");
     newConfig.className = "interface-config";
     newConfig.innerHTML = `
@@ -195,122 +130,99 @@ document.getElementById("add-interface-config").addEventListener("click", functi
     initializeRemoveButton(newConfig);
 });
 
+
 // ฟังก์ชันจัดการ Dropdown
+let selectedPortsGlobal = []; // เก็บ ports ที่ถูกเลือกไว้ทั้งหมด
+
 function initializeDropdown(interfaceCounter) {
     const dropdownButton = document.getElementById(`dropdown-button-${interfaceCounter}`);
     const dropdownContent = document.getElementById(`dropdown-content-${interfaceCounter}`);
     const selectedPortsBox = document.getElementById(`selected-ports-box-${interfaceCounter}`);
-
-    // เพิ่ม Event ให้ปุ่ม Select Ports
-    dropdownButton.addEventListener("click", function () {
+    
+    // Toggle Dropdown Visibility
+    dropdownButton.addEventListener("click", () => {
         dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
     });
 
-    // สร้างพอร์ตสำหรับ Fixed Chassis
-    const fixedChassisPorts = [];
-    for (let i = 1; i <= 48; i++) {
-        fixedChassisPorts.push(`GigabitEthernet0/${i}`);
-    }
+    // Define port groups
+    const portGroups = [
+        { name: "Fixed Chassis", id: "fixed-chassis", range: generatePorts("GigabitEthernet0/", 48) },
+        { name: "Modular/Stackable Chassis", id: "modular-chassis", range: [...generatePorts("GigabitEthernet1/0/", 48), ...generatePorts("GigabitEthernet1/1/", 24), ...generatePorts("GigabitEthernet1/2/", 24)] },
+        { name: "TenGigabitEthernet", id: "ten-gigabit", range: generatePorts("TenGigabitEthernet0/", 8) },
+    ];
 
-    // สร้างพอร์ตสำหรับ Modular Chassis
-    const modularChassisPorts = [];
-    for (let i = 1; i <= 48; i++) {
-        modularChassisPorts.push(`GigabitEthernet1/0/${i}`);
-    }
-    for (let i = 1; i <= 24; i++) {
-        modularChassisPorts.push(`GigabitEthernet1/1/${i}`);
-        modularChassisPorts.push(`GigabitEthernet1/2/${i}`);
-    }
+    // Create port sections
+    dropdownContent.innerHTML = ""; // Clear previous content
+    portGroups.forEach(({ name, id, range }) => {
+        const section = document.createElement("div");
+        section.innerHTML = `
+            <h4>${name}</h4>
+            <label><input type="checkbox" id="select-all-${id}-${interfaceCounter}"> Select All ${name}</label>
+        `;
+        const container = document.createElement("div");
 
-    // สร้างพอร์ตสำหรับ TenGigabitEthernet
-    const tenGigabitEthernetPorts = [];
-    for (let i = 1; i <= 8; i++) {
-        tenGigabitEthernetPorts.push(`TenGigabitEthernet0/${i}`);
-    }
+        range.forEach(port => {
+            const isChecked = selectedPortsGlobal.includes(port) ? "disabled" : "";
+            container.innerHTML += `
+                <label>
+                    <input type="checkbox" value="${port}" class="${id}-checkbox-${interfaceCounter}" ${isChecked}> ${port}
+                </label>`;
+        });
+        section.appendChild(container);
+        dropdownContent.appendChild(section);
 
-    // สร้าง Section Fixed Chassis
-    const fixedChassisSection = document.createElement("div");
-    fixedChassisSection.innerHTML = `
-        <h4>Fixed Chassis</h4>
-        <label>
-            <input type="checkbox" id="select-all-fixed-chassis-${interfaceCounter}"> Select All Fixed Chassis
-        </label>
-    `;
-    const fixedChassisContainer = document.createElement("div");
-    fixedChassisPorts.forEach(port => {
-        const label = document.createElement("label");
-        label.innerHTML = `<input type="checkbox" value="${port}" class="fixed-chassis-checkbox-${interfaceCounter}"> ${port}`;
-        fixedChassisContainer.appendChild(label);
-    });
-    fixedChassisSection.appendChild(fixedChassisContainer);
-    dropdownContent.appendChild(fixedChassisSection);
-
-    // สร้าง Section Modular Chassis
-    const modularChassisSection = document.createElement("div");
-    modularChassisSection.innerHTML = `
-        <h4>Modular/Stackable Chassis</h4>
-        <label>
-            <input type="checkbox" id="select-all-modular-chassis-${interfaceCounter}"> Select All Modular/Stackable Chassis
-        </label>
-    `;
-    const modularChassisContainer = document.createElement("div");
-    modularChassisPorts.forEach(port => {
-        const label = document.createElement("label");
-        label.innerHTML = `<input type="checkbox" value="${port}" class="modular-chassis-checkbox-${interfaceCounter}"> ${port}`;
-        modularChassisContainer.appendChild(label);
-    });
-    modularChassisSection.appendChild(modularChassisContainer);
-    dropdownContent.appendChild(modularChassisSection);
-
-    // สร้าง Section TenGigabitEthernet
-    const tenGigabitSection = document.createElement("div");
-    tenGigabitSection.innerHTML = `
-        <h4>TenGigabitEthernet</h4>
-        <label>
-            <input type="checkbox" id="select-all-ten-gigabit-${interfaceCounter}"> Select All TenGigabitEthernet
-        </label>
-    `;
-    const tenGigabitContainer = document.createElement("div");
-    tenGigabitEthernetPorts.forEach(port => {
-        const label = document.createElement("label");
-        label.innerHTML = `<input type="checkbox" value="${port}" class="ten-gigabitEthernet-checkbox-${interfaceCounter}"> ${port}`;
-        tenGigabitContainer.appendChild(label);
-    });
-    tenGigabitSection.appendChild(tenGigabitContainer);
-    dropdownContent.appendChild(tenGigabitSection);
-
-    // เพิ่ม Event ให้กับปุ่ม Select All
-    document.getElementById(`select-all-fixed-chassis-${interfaceCounter}`).addEventListener("change", function (e) {
-        const checkboxes = document.querySelectorAll(`.fixed-chassis-checkbox-${interfaceCounter}`);
-        checkboxes.forEach(checkbox => (checkbox.checked = e.target.checked));
-        updateSelectedPortsAdd(selectedPortsBox, dropdownContent);
-    });
-
-    document.getElementById(`select-all-modular-chassis-${interfaceCounter}`).addEventListener("change", function (e) {
-        const checkboxes = document.querySelectorAll(`.modular-chassis-checkbox-${interfaceCounter}`);
-        checkboxes.forEach(checkbox => (checkbox.checked = e.target.checked));
-        updateSelectedPortsAdd(selectedPortsBox, dropdownContent);
-    });
-
-    document.getElementById(`select-all-ten-gigabit-${interfaceCounter}`).addEventListener("change", function (e) {
-        const checkboxes = document.querySelectorAll(`.ten-gigabitEthernet-checkbox-${interfaceCounter}`);
-        checkboxes.forEach(checkbox => (checkbox.checked = e.target.checked));
-        updateSelectedPortsAdd(selectedPortsBox, dropdownContent);
-    });
-
-    // เพิ่ม Event ให้กับ Checkbox แต่ละอัน
-    dropdownContent.addEventListener("change", function (e) {
-        if (e.target.type === "checkbox") {
+        // Add "Select All" functionality
+        document.getElementById(`select-all-${id}-${interfaceCounter}`).addEventListener("change", e => {
+            container.querySelectorAll(`.${id}-checkbox-${interfaceCounter}`).forEach(checkbox => {
+                if (!checkbox.disabled) {
+                    checkbox.checked = e.target.checked;
+                }
+            });
             updateSelectedPortsAdd(selectedPortsBox, dropdownContent);
-        }
+        });
+    });
+
+    // Update selected ports on change
+    dropdownContent.addEventListener("change", () => {
+        updateSelectedPortsAdd(selectedPortsBox, dropdownContent);
     });
 }
-// ฟังก์ชันอัปเดตรายการพอร์ตที่เลือก
+// Generate port ranges
+function generatePorts(prefix, count) {
+    return Array.from({ length: count }, (_, i) => `${prefix}${i + 1}`);
+}
+
+// Update selected ports display
 function updateSelectedPortsAdd(selectedPortsBox, dropdownContent) {
-    const selectedPorts = Array.from(dropdownContent.querySelectorAll("input:checked"))
-        .map(checkbox => checkbox.value)
-        .join(", ");
-    selectedPortsBox.textContent = selectedPorts || "No ports selected";
+    const checkboxes = dropdownContent.querySelectorAll("input[type='checkbox']:checked");
+    const selectedPorts = Array.from(checkboxes)
+        .filter(checkbox => checkbox.value !== "on") // ตัดคำว่า "on" ออก
+        .filter(checkbox => !checkbox.disabled)      // ข้าม checkbox ที่ disabled
+        .map(checkbox => checkbox.value);
+
+    selectedPortsBox.textContent = selectedPorts.length > 0 ? selectedPorts.join(", ") : "No ports selected";
+
+    // Update global selected ports list
+    updateGlobalSelectedPorts();
+}
+
+function updateGlobalSelectedPorts() {
+    selectedPortsGlobal = [];
+    document.querySelectorAll(".config-form").forEach(form => {
+        const portsBox = form.querySelector("[id^='selected-ports-box']");
+        if (portsBox) {
+            const ports = portsBox.textContent.split(", ").filter(p => p.trim());
+            selectedPortsGlobal.push(...ports);
+        }
+    });
+    // Reinitialize all dropdowns to reflect disabled ports
+    reinitializeDropdowns();
+}
+
+function reinitializeDropdowns() {
+    document.querySelectorAll(".dropdown-content").forEach((dropdown, index) => {
+        initializeDropdown(index + 1);
+    });
 }
 
 // ฟังก์ชันจัดการ Switch Mode
@@ -371,134 +283,4 @@ document.querySelector("#ntp-config form").addEventListener("submit", function (
     alert(`NTP Server: ${ntpServer}\nClock Timezone: ${clockTimezone}\nConfiguration Saved!`);
 });
 
-// Initialize ports for Fixed Chassis, Modular Chassis, and TenGigabitEthernet
-const fixedChassisPorts = [];
-const modularChassisPorts = [];
-const TenGigabitEthernet = [];
-const selectedPorts = new Set();
 
-// Add Fixed Chassis ports (GigabitEthernet0/1 to GigabitEthernet0/48)
-for (let i = 1; i <= 48; i++) {
-    fixedChassisPorts.push(`GigabitEthernet0/${i}`);
-}
-
-// Add Modular Chassis ports (GigabitEthernet1/0/1 to GigabitEthernet1/0/48)
-for (let i = 1; i <= 48; i++) {
-    modularChassisPorts.push(`GigabitEthernet1/0/${i}`);
-}
-
-// Add FastEthernet ports (FastEthernet0/1 to FastEthernet0/48)
-for (let i = 1; i <= 8; i++) {
-    TenGigabitEthernet.push(`TenGigabitEthernet0/${i}`);
-}
-
-// Add additional Modular Chassis ranges (GigabitEthernet1/1/1 to GigabitEthernet1/1/48 and GigabitEthernet1/2/1 to GigabitEthernet1/2/48)
-for (let i = 1; i <= 24; i++) {
-    modularChassisPorts.push(`GigabitEthernet1/1/${i}`);
-}
-
-for (let i = 1; i <= 24; i++) {
-    modularChassisPorts.push(`GigabitEthernet1/2/${i}`);
-
-}
-
-// Toggle dropdown visibility
-document.getElementById("dropdown-button").addEventListener("click", function () {
-    const dropdownContent = document.getElementById("dropdown-content");
-    dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
-});
-
-// Add Fixed Chassis ports dynamically
-const fixedChassisContainer = document.getElementById("fixed-chassis-ports");
-fixedChassisPorts.forEach(port => {
-    const label = document.createElement("label");
-    label.innerHTML = `
-        <input type="checkbox" value="${port}" class="fixed-chassis-checkbox"> ${port}
-    `;
-    fixedChassisContainer.appendChild(label);
-});
-
-// Add Modular Chassis ports dynamically
-const modularChassisContainer = document.getElementById("modular-chassis-ports");
-modularChassisPorts.forEach(port => {
-    const label = document.createElement("label");
-    label.innerHTML = `
-        <input type="checkbox" value="${port}" class="modular-chassis-checkbox"> ${port}
-    `;
-    modularChassisContainer.appendChild(label);
-});
-
-// Add FastEthernet ports dynamically
-const dropdownContent = document.getElementById("ten-gigabit-ports");
-TenGigabitEthernet.forEach(port => {
-    const label = document.createElement("label");
-    label.innerHTML = `
-        <input type="checkbox" value="${port}" class="ten-gigabitEthernet-checkbox"> ${port}
-    `;
-    dropdownContent.appendChild(label);
-});
-
-// "Select All" for Fixed Chassis
-document.getElementById("select-all-fixed-chassis").addEventListener("change", function (e) {
-    const checkboxes = document.querySelectorAll(".fixed-chassis-checkbox");
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = e.target.checked;
-        if (e.target.checked) {
-            selectedPorts.add(checkbox.value);
-        } else {
-            selectedPorts.delete(checkbox.value);
-        }
-    });
-    updateSelectedPorts();
-});
-
-// "Select All" for Modular Chassis
-document.getElementById("select-all-modular-chassis").addEventListener("change", function (e) {
-    const checkboxes = document.querySelectorAll(".modular-chassis-checkbox");
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = e.target.checked;
-        if (e.target.checked) {
-            selectedPorts.add(checkbox.value);
-        } else {
-            selectedPorts.delete(checkbox.value);
-        }
-    });
-    updateSelectedPorts();
-});
-
-
-// "Select All" for Modular Chassis
-document.getElementById("select-all-ten-gigabit").addEventListener("change", function (e) {
-    const checkboxes = document.querySelectorAll(".ten-gigabitEthernet-checkbox");
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = e.target.checked;
-        if (e.target.checked) {
-            selectedPorts.add(checkbox.value);
-        } else {
-            selectedPorts.delete(checkbox.value);
-        }
-    });
-    updateSelectedPorts();
-});
-
-// Update selected ports display
-function updateSelectedPorts() {
-    const selectedPortsBox = document.getElementById("selected-ports-box");
-    selectedPortsBox.innerHTML = "";
-
-    const portsText = Array.from(selectedPorts).join(", ");
-    selectedPortsBox.textContent = portsText;
-}
-
-// Handle individual checkbox selection
-document.getElementById("dropdown-content").addEventListener("change", function (e) {
-    if (e.target.type === "checkbox" && e.target.className.includes("checkbox")) {
-        const port = e.target.value;
-        if (e.target.checked) {
-            selectedPorts.add(port);
-        } else {
-            selectedPorts.delete(port);
-        }
-        updateSelectedPorts();
-    }
-});
