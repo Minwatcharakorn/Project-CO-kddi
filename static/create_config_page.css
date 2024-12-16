@@ -606,3 +606,8 @@ textarea {
     font-weight: bold;
     color: #333;
 }
+
+
+.switch-mode-section {
+    margin-left: -10px;
+}
