@@ -607,7 +607,19 @@ textarea {
     color: #333;
 }
 
+.switch-mode-section select {
+    margin-left: -5px;
+}
+.switch-mode-section label {
+    margin-left: -8px;
+    margin-top: -20px;
+}
 
-.switch-mode-section {
-    margin-left: -10px;
+.vlan-id-section {
+    margin-top: -20px;
+}
+
+.vlan-trunk-section {
+    margin-top: -20px;
+
 }
