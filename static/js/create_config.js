@@ -282,5 +282,3 @@ document.querySelector("#ntp-config form").addEventListener("submit", function (
     // Optional: Add logic to send configuration to the server or apply to switch
     alert(`NTP Server: ${ntpServer}\nClock Timezone: ${clockTimezone}\nConfiguration Saved!`);
 });
-
-

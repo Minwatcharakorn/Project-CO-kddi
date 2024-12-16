@@ -503,12 +503,14 @@ textarea {
 
 
 [id^="dropdown-content-"] label {
-    display: flex; /* จัด Checkbox และข้อความในแนวนอน */
-    align-items: center; /* จัดกึ่งกลางแนวตั้ง */
-    gap: 10px; /* ระยะห่างระหว่าง Checkbox และข้อความ */
-    font-size: 14px; /* ขนาดตัวอักษร */
-    padding: 5px; /* เพิ่มช่องว่างรอบรายการ */
-    cursor: pointer; /* เปลี่ยนเป็นมือเมื่อ hover */
+    display: flex; /* Arrange in a row */
+    align-items: center;
+    gap: 10px; /* Space between checkbox and text */
+    padding: 5px;
+    margin-bottom: 5px; /* Add spacing between lines */
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
 }
 
 
@@ -518,12 +520,6 @@ textarea {
     width: 3.9%;
 }
 
-[id^="dropdown-content-"] input[type="checkbox"] {
-    width: 16px; /* ความกว้าง */
-    height: 16px; /* ความสูง */
-    margin: 0; /* ลบระยะห่างรอบ */
-    cursor: pointer;
-}
 
 
 [id^="dropdown-content-"] input[type="checkbox"] {
@@ -531,7 +527,11 @@ textarea {
     height: 16px; /* ความสูง */
     margin: 0; /* ลบระยะห่างรอบ */
     cursor: pointer;
+    margin-right: 8px; /* เพิ่มระยะห่างระหว่าง Checkbox และข้อความ */
+    transform: scale(1.2); /* ขยายขนาดของ Checkbox */
+    cursor: pointer; /* เปลี่ยนเคอร์เซอร์เป็น Pointer */
 }
+
 
 [id^="interface-port-dropdown-"] {
     width: 50%;
@@ -587,11 +587,22 @@ textarea {
 }
 
 
-[id^="dropdown-content-"] label {
-    display: flex; /* ใช้ Flexbox เพื่อจัดวาง Checkbox และข้อความ */
-    align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
-    padding: 5px 10px; /* เพิ่ม Padding รอบ ๆ Label */
-    font-size: 14px; /* กำหนดขนาดข้อความ */
-    color: #333; /* สีข้อความ */
+[id^="dropdown-content-"] {
+    display: none; /* Ensure visibility during testing */
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    border-radius: 4px;
+    background-color: #fff;
+    max-height: 300px; /* Add scroll if too long */
+    overflow-y: auto;
 }
-    
+
+
+[id^="dropdown-content-"] h4 {
+    margin: 10px 0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
