@@ -262,6 +262,13 @@ def uploadtemplate_page():
     return render_template('upload_Templates.html')
 
 
+@app.route('/remoteconfig')
+def remoteconfig_page():
+    """Serve the Remote Config page with switch data."""
+    switches_from_session = session.get('switches', [])  # Get switches from session
+    return render_template('remoteconfig.html', switches=switches_from_session)
+
+
 @app.route('/deploy')
 def deploy_page():
     """Serve the Deploy page."""
@@ -482,6 +489,58 @@ def get_hostname():
 # ----------------------------------------------------------------------------------
 # ติดปัญหา CLI Terminal 
 # ----------------------------------------------------------------------------------
+
+@app.route('/api/remote_send_command_save', methods=['POST'])
+def remote_send_command_and_save():
+    """Send selected commands to devices and save output to TXT files."""
+    data = request.json
+    devices = data.get('devices', [])
+    commands = data.get('commands', [])
+    username = session.get('username')
+    password = session.get('password')
+
+    if not devices or not commands:
+        return jsonify({"error": "Devices and commands are required"}), 400
+
+    if not username or not password:
+        return jsonify({"error": "Username or password not found in session"}), 400
+
+    # ตรวจสอบและสร้างโฟลเดอร์ outputs ถ้ายังไม่มี
+    output_dir = "./outputs"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    results = {}
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")  # เวลาปัจจุบันสำหรับชื่อไฟล์
+
+    for device in devices:
+        ip = device.get('ip')
+        hostname = device.get('hostname', ip)
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username=username, password=password, timeout=5)
+
+            # บันทึกผลลัพธ์ทั้งหมดในไฟล์เดียว
+            output = f"Device: {hostname} ({ip})\n" + "="*50 + "\n"
+            for command in commands:
+                stdin, stdout, stderr = ssh.exec_command(command)
+                command_output = stdout.read().decode('utf-8')
+                output += f"Command: {command}\n{command_output}\n" + "-"*50 + "\n"
+
+            ssh.close()
+
+            # บันทึก Output ลงไฟล์
+            filename = f"output_{hostname}_{timestamp}.txt"
+            filepath = os.path.join(output_dir, filename)
+            with open(filepath, "w") as file:
+                file.write(output)
+
+            results[ip] = {"status": "Success", "file": filename}
+        except Exception as e:
+            results[ip] = {"status": "Failed", "error": str(e)}
+
+    return jsonify({"message": "Commands executed and output saved.", "results": results}), 200
 
 @app.route('/api/ports', methods=['GET'])
 def list_ports():

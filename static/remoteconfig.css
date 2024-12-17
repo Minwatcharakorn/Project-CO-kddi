@@ -1,0 +1,7 @@
+.select2-container--default .select2-results__option {
+    display: flex;
+    align-items: center;
+}
+.select2-container--default .select2-results__option input {
+    margin-right: 10px;
+}
