@@ -402,7 +402,7 @@ ssh_sessions = {}
 
 @app.route('/api/cli', methods=['POST'])
 def cli_terminal():
-    """Endpoint for sending commands via CLI repeatedly."""
+    """Maintain a single SSH session and wait for prompt before sending commands."""
     data = request.json
     ip = data.get('ip')
     command = data.get('command')
@@ -410,30 +410,59 @@ def cli_terminal():
     password = session.get('password')
 
     if not ip or not command:
+        print("Error: Missing IP or command")  # Debug missing input
         return jsonify({"error": "IP address and command are required"}), 400
 
     try:
-        # Check if the SSH session already exists
-        if ip not in ssh_sessions:
+        # ตรวจสอบและสร้าง SSH Session ใหม่ถ้าไม่มี
+        if ip not in ssh_sessions or not ssh_sessions[ip]['channel'].get_transport().is_active():
+            print(f"Creating new SSH session for {ip}")  # Debug SSH creation
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, username=username, password=password, timeout=5)
-            ssh_sessions[ip] = ssh  # Store the SSH session in the global dictionary
 
-        ssh = ssh_sessions[ip]  # Get the existing session
+            channel = ssh.invoke_shell()
+            ssh_sessions[ip] = {'ssh': ssh, 'channel': channel}
 
-        # Execute the command
-        stdin, stdout, stderr = ssh.exec_command(command)
-        output = stdout.read().decode('utf-8')
-        error = stderr.read().decode('utf-8')
+            # รอให้ prompt พร้อมก่อนส่งคำสั่ง
+            while not channel.recv_ready():
+                pass
+            output = channel.recv(1024).decode('utf-8')
+            print(f"Initial prompt: {output}")  # Debug initial prompt output
 
-        if error.strip():
-            return jsonify({"error": error.strip()}), 200
+        # ใช้ Session เดิม ส่งคำสั่งไปยังอุปกรณ์
+        channel = ssh_sessions[ip]['channel']
+        print(f"Sending command: {command}")  # Debug คำสั่งที่ถูกส่ง
+        channel.send(f"{command}\n")
+
+        # อ่านผลลัพธ์คำสั่ง
+        output = ""
+        while not channel.recv_ready():
+            pass
+        while channel.recv_ready():
+            response = channel.recv(1024).decode('utf-8')
+            output += response
+        print(f"Command output: {output}")  # Debug ผลลัพธ์ที่ส่งกลับมาจากอุปกรณ์
 
         return jsonify({"output": output.strip()}), 200
 
     except Exception as e:
+        print(f"Error occurred: {str(e)}")  # Debug ข้อผิดพลาด
         return jsonify({"error": str(e)}), 500
+    
+    
+@app.route('/api/cli/terminate', methods=['POST'])
+def terminate_ssh_session():
+    data = request.json
+    ip = data.get('ip')
+
+    if ip in ssh_sessions:
+        ssh_sessions[ip]['ssh'].close()
+        del ssh_sessions[ip]
+        return jsonify({"message": f"SSH session for {ip} terminated."}), 200
+
+    return jsonify({"error": "No active session for this IP."}), 404
+
 
 @app.route('/api/get_hostname', methods=['GET'])
 def get_hostname():

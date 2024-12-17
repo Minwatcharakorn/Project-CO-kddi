@@ -74,68 +74,60 @@
 <!-- ติดปัญหา Modal CLI Termianl -->
 
     <script>
-        let currentIP = "";
-        let currentHostname = ""; // เก็บ hostname จริง
+let currentIP = "";
+let currentHostname = ""; // เก็บ hostname จริง
+let cliSessionActive = false; // ตรวจสอบสถานะเซสชัน
 
-        function openCLIModal(ip) {
-            currentIP = ip;
+function openCLIModal(ip) {
+    currentIP = ip;
 
-            // ดึง hostname จริงจาก backend
-            fetch(`/api/get_hostname?ip=${ip}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.hostname) {
-                        currentHostname = data.hostname;
-                        document.getElementById('terminalHeader').textContent = `${currentIP} - ${currentHostname} Terminal`;
-                        document.getElementById('cliOutput').textContent = `${currentHostname}> `; // Prompt เริ่มต้น
-                    }
-                })
-                .catch(err => {
-                    console.error("Error fetching hostname:", err);
-                });
+    // ดึง hostname จริงจาก backend
+    fetch(`/api/get_hostname?ip=${ip}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.hostname) {
+                currentHostname = data.hostname;
+                document.getElementById('cliOutput').textContent = `${currentHostname}> `;
+            }
+        })
+        .catch(err => console.error("Error fetching hostname:", err));
 
-            document.getElementById('cliModal').style.display = 'flex';
+    document.getElementById('cliModal').style.display = 'flex';
+    cliSessionActive = true; // เปิดเซสชัน
+}
+
+function sendCommand() {
+    const commandInput = document.getElementById('cliCommand').value.trim();
+    if (!commandInput) return;
+
+    fetch('/api/cli', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ip: currentIP, command: commandInput })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const outputElement = document.getElementById('cliOutput');
+        if (data.error) {
+            outputElement.textContent += `\nError: ${data.error}`;
+        } else {
+            outputElement.textContent += `\n${data.output}`;
         }
+        outputElement.scrollTop = outputElement.scrollHeight;
+    })
+    .catch(err => console.error('Error:', err));
+    document.getElementById('cliCommand').value = "";
+}
 
-        function sendCommand() {
-            const commandInput = document.getElementById('cliCommand').value.trim();
-            if (!commandInput) return;
+function closeModal() {
+    fetch('/api/cli/terminate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ip: currentIP })
+    });
+    document.getElementById('cliModal').style.display = 'none';
+}
 
-            const outputElement = document.getElementById('cliOutput');
-            outputElement.textContent += `\n${currentHostname}> ${commandInput}`; // แสดงคำสั่งที่ผู้ใช้พิมพ์
-
-            fetch('/api/cli', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ip: currentIP, command: commandInput })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        outputElement.textContent += `\nError: ${data.error}`;
-                    } else {
-                        const responseLines = data.output.split('\n');
-                        const lastLine = responseLines[responseLines.length - 1];
-
-                        // อัปเดต output และ prompt ใหม่
-                        outputElement.textContent += `\n${data.output.trim()}`;
-                        outputElement.textContent += `\n${lastLine}`;
-                        if (lastLine.includes('(')) {
-                            currentHostname = lastLine.split('(')[0].trim();
-                        }
-                    }
-                    outputElement.scrollTop = outputElement.scrollHeight; // Scroll ลงล่างสุด
-                })
-                .catch(err => {
-                    console.error('Error:', err);
-                    outputElement.textContent += `\nError: ${err.message}`;
-                });
-
-            document.getElementById('cliCommand').value = ""; // เคลียร์ input
-        }
-        function closeModal() {
-            document.getElementById('cliModal').style.display = 'none';
-        }
     </script>
 </body>
 </html>
