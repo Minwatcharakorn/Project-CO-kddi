@@ -138,7 +138,7 @@ function initializeDropdown(interfaceCounter) {
     const dropdownButton = document.getElementById(`dropdown-button-${interfaceCounter}`);
     const dropdownContent = document.getElementById(`dropdown-content-${interfaceCounter}`);
     const selectedPortsBox = document.getElementById(`selected-ports-box-${interfaceCounter}`);
-    
+
     // Toggle Dropdown Visibility
     dropdownButton.addEventListener("click", () => {
         dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
@@ -147,44 +147,52 @@ function initializeDropdown(interfaceCounter) {
     // Define port groups
     const portGroups = [
         { name: "Fixed Chassis", id: "fixed-chassis", range: generatePorts("GigabitEthernet0/", 48) },
-        { name: "Modular/Stackable Chassis", id: "modular-chassis", range: [...generatePorts("GigabitEthernet1/0/", 48), ...generatePorts("GigabitEthernet1/1/", 24), ...generatePorts("GigabitEthernet1/2/", 24)] },
+        { name: "Modular/Stackable Chassis", id: "modular-chassis", range: [...generatePorts("GigabitEthernet1/0/", 48)] },
         { name: "TenGigabitEthernet", id: "ten-gigabit", range: generatePorts("TenGigabitEthernet0/", 8) },
     ];
 
-    // Create port sections
-    dropdownContent.innerHTML = ""; // Clear previous content
+    // Clear dropdown content
+    dropdownContent.innerHTML = "";
+
     portGroups.forEach(({ name, id, range }) => {
         const section = document.createElement("div");
         section.innerHTML = `
             <h4>${name}</h4>
-            <label><input type="checkbox" id="select-all-${id}-${interfaceCounter}"> Select All ${name}</label>
+            <label>
+                <input type="checkbox" id="select-all-${id}-${interfaceCounter}"> Select All ${name}
+            </label>
         `;
+
         const container = document.createElement("div");
 
         range.forEach(port => {
-            const isChecked = selectedPortsGlobal.includes(port) ? "disabled" : "";
+            const isDisabled = selectedPortsGlobal.includes(port) ? "disabled" : "";
             container.innerHTML += `
                 <label>
-                    <input type="checkbox" value="${port}" class="${id}-checkbox-${interfaceCounter}" ${isChecked}> ${port}
+                    <input type="checkbox" value="${port}" class="${id}-checkbox-${interfaceCounter}" ${isDisabled}> ${port}
                 </label>`;
         });
+
         section.appendChild(container);
         dropdownContent.appendChild(section);
 
         // Add "Select All" functionality
-        document.getElementById(`select-all-${id}-${interfaceCounter}`).addEventListener("change", e => {
+        const selectAllCheckbox = document.getElementById(`select-all-${id}-${interfaceCounter}`);
+        selectAllCheckbox.addEventListener("change", e => {
             container.querySelectorAll(`.${id}-checkbox-${interfaceCounter}`).forEach(checkbox => {
                 if (!checkbox.disabled) {
                     checkbox.checked = e.target.checked;
                 }
             });
             updateSelectedPortsAdd(selectedPortsBox, dropdownContent);
+            updateGlobalSelectedPorts();
         });
-    });
 
-    // Update selected ports on change
-    dropdownContent.addEventListener("change", () => {
-        updateSelectedPortsAdd(selectedPortsBox, dropdownContent);
+        // Update ports when individual checkboxes are changed
+        container.addEventListener("change", () => {
+            updateSelectedPortsAdd(selectedPortsBox, dropdownContent);
+            updateGlobalSelectedPorts();
+        });
     });
 }
 // Generate port ranges
@@ -207,16 +215,19 @@ function updateSelectedPortsAdd(selectedPortsBox, dropdownContent) {
 }
 
 function updateGlobalSelectedPorts() {
-    selectedPortsGlobal = [];
+    selectedPortsGlobal = []; // รีเซ็ต global port list
     document.querySelectorAll(".config-form").forEach(form => {
-        const portsBox = form.querySelector("[id^='selected-ports-box']");
-        if (portsBox) {
-            const ports = portsBox.textContent.split(", ").filter(p => p.trim());
+        const selectedPortsBox = form.querySelector("[id^='selected-ports-box']");
+        if (selectedPortsBox) {
+            const ports = selectedPortsBox.textContent.split(", ").filter(p => p.trim());
             selectedPortsGlobal.push(...ports);
         }
     });
-    // Reinitialize all dropdowns to reflect disabled ports
-    reinitializeDropdowns();
+
+    // รีเฟรช Dropdown ทุกตัวให้ตรงกับสถานะล่าสุด
+    document.querySelectorAll("[id^='dropdown-content-']").forEach((dropdown, index) => {
+        initializeDropdown(index + 1);
+    });
 }
 
 function reinitializeDropdowns() {
@@ -246,7 +257,8 @@ function initializeSwitchModeToggle(interfaceCounter) {
 function initializeRemoveButton(newConfig) {
     const removeButton = newConfig.querySelector(".remove-interface-config");
     removeButton.addEventListener("click", function () {
-        newConfig.remove();
+        newConfig.remove(); // ลบอินเทอร์เฟซที่เลือก
+        updateGlobalSelectedPorts(); // คืนสถานะพอร์ตให้เลือกได้อีกครั้ง
     });
 }
 // Save All Configurations
@@ -281,4 +293,27 @@ document.querySelector("#ntp-config form").addEventListener("submit", function (
 
     // Optional: Add logic to send configuration to the server or apply to switch
     alert(`NTP Server: ${ntpServer}\nClock Timezone: ${clockTimezone}\nConfiguration Saved!`);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const hostnameInput = document.getElementById("hostname-input");
+    const saveButton = document.getElementById("save-hostname");
+    const cancelButton = document.getElementById("cancel-hostname");
+
+    saveButton.addEventListener("click", () => {
+        if (hostnameInput.value.trim() === "") {
+            alert("Please enter a hostname!");
+            return;
+        }
+        hostnameInput.disabled = true; // ล็อก input
+        saveButton.style.display = "none";
+        cancelButton.style.display = "inline-block";
+    });
+
+    cancelButton.addEventListener("click", () => {
+        hostnameInput.disabled = false; // ปลดล็อก input
+        hostnameInput.value = ""; // ล้างค่า input
+        cancelButton.style.display = "none";
+        saveButton.style.display = "inline-block";
+    });
 });

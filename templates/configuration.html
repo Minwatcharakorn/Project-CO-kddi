@@ -40,17 +40,20 @@
         </div>
 
 
-        <!-- Hostname Configuration -->
-        <div class="config-section" id="hostname-config">
-            <h3>Hostname Configuration</h3>
-            <form class="config-form">
-                <div class="form-group">
-                    <label for="host-name">Hostname</label>
-                    <input type="text" id="host-name" name="host-name" placeholder="Enter Hostname" required>
-                </div>
-                <input type="submit" value="Save Hostname Configuration" class="styled-button">
-            </form>
+<!-- Hostname Configuration -->
+<div class="config-section">
+    <h3>Hostname Configuration</h3>
+    <form id="config-form">
+        <div class="form-group">
+
+            <label for="hostname-input"><strong>Hostname</strong></label>
+            <input type="text" id="hostname-input" placeholder="Enter Hostname" required>
         </div>
+    </form>
+    <!-- ปุ่ม Save และ Cancel อยู่นอก Form -->
+    <button type="button" id="save-hostname" class="btn btn-primary">Save Hostname Configuration</button>
+    <button type="button" id="cancel-hostname" class="btn btn-secondary" style="display: none;">Cancel</button>
+</div>
 
         <!-- Create VLANs -->
         <div class="config-section" id="create-vlan-multiple">
@@ -76,15 +79,14 @@
                 </div>
             </form>
             <br>
-            <input type="submit" value="Save VLANs Configuration" class="styled-button">
-
+            <button type="button" class="save-vlan-row btn btn-primary">Save</button>
+            <button type="button" class="cancel-vlan-row btn btn-secondary" style="display: none;">Cancel</button>
         </div>
 
         <!-- Global STP Configuration Section -->
-        <div class="config-section" id="stp-global-config">
+        <!-- <div class="config-section" id="stp-global-config">
             <h3>Global STP Configuration</h3>
             <form>
-                <!-- STP Mode -->
                 <label for="stp-mode">STP Mode:</label>
                 <select id="stp-mode" name="stp-mode">
                     <option value="pvst">PVST (Per VLAN Spanning Tree)</option>
@@ -93,7 +95,6 @@
                 </select>
                 <br><br>
 
-                <!-- Root Priority -->
                 <label for="stp-root-priority">Set VLAN Root:</label>
                 <input type="number" id="stp-vlan-id-root" name="stp-vlan-id-root" placeholder="VLAN ID" min="1" max="4094">
                 <select id="stp-root-priority" name="stp-root-priority">
@@ -102,7 +103,6 @@
                 </select>
                 <br><br>
 
-                <!-- VLAN Priority -->
                 <label for="stp-priority">Set VLAN Priority:</label>
                 <input type="number" id="stp-vlan-id-priority" name="stp-vlan-id-priority" placeholder="VLAN ID" min="1" max="4094">
                 <input type="number" id="stp-priority" name="stp-priority" placeholder="Priority Value (0-61440)" min="0" max="61440" step="4096">
@@ -112,25 +112,20 @@
             </form>
         </div>
 
-        <!-- Per-Interface STP Configuration Section -->
         <div class="config-section" id="stp-interface-config">
             <h3>Per-Interface STP Configuration</h3>
             <form>
-                <!-- Interface Selection -->
                 <label for="interface-port">Interface Port</label>
                 <select id="interface-port" name="interface-port">
                     <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
                     <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
-                    <!-- Add more ports as needed -->
                 </select>
                 <br><br>
 
-                <!-- Port Cost -->
                 <label for="stp-port-cost">STP Port Cost</label>
                 <input type="number" id="stp-port-cost" name="stp-port-cost" placeholder="Cost Value">
                 <br><br>
 
-                <!-- BPDU Guard -->
                 <label for="stp-bpduguard">BPDU Guard</label>
                 <select id="stp-bpduguard" name="stp-bpduguard">
                     <option value="enable">Enable</option>
@@ -138,7 +133,6 @@
                 </select>
                 <br><br>
 
-                <!-- Portfast -->
                 <label for="stp-portfast">Portfast</label>
                 <select id="stp-portfast" name="stp-portfast">
                     <option value="default">Default</option>
@@ -147,7 +141,6 @@
                 </select>
                 <br><br>
 
-                <!-- Per-VLAN Port Priority -->
                 <label for="stp-vlan-port-priority">Per-VLAN Port Priority:</label>
                 <input type="number" id="stp-vlan-id-port" name="stp-vlan-id-port" placeholder="VLAN ID" min="1" max="4094">
                 <input type="number" id="stp-vlan-port-priority" name="stp-vlan-port-priority" placeholder="Priority Value (0-240)" min="0" max="240" step="16">
@@ -155,7 +148,7 @@
 
                 <input type="submit" value="Save Interface STP Configuration">
             </form>
-        </div>
+        </div> -->
 
         <!-- VTP Configuration Section -->
         <div class="config-section" id="vtp-config">
