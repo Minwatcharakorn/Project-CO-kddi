@@ -410,13 +410,11 @@ def cli_terminal():
     password = session.get('password')
 
     if not ip or not command:
-        print("Error: Missing IP or command")  # Debug missing input
         return jsonify({"error": "IP address and command are required"}), 400
 
     try:
-        # ตรวจสอบและสร้าง SSH Session ใหม่ถ้าไม่มี
+        # Check and create SSH session if not exists
         if ip not in ssh_sessions or not ssh_sessions[ip]['channel'].get_transport().is_active():
-            print(f"Creating new SSH session for {ip}")  # Debug SSH creation
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, username=username, password=password, timeout=5)
@@ -424,33 +422,36 @@ def cli_terminal():
             channel = ssh.invoke_shell()
             ssh_sessions[ip] = {'ssh': ssh, 'channel': channel}
 
-            # รอให้ prompt พร้อมก่อนส่งคำสั่ง
+            # Clear initial prompt
             while not channel.recv_ready():
                 pass
-            output = channel.recv(1024).decode('utf-8')
-            print(f"Initial prompt: {output}")  # Debug initial prompt output
+            channel.recv(1024)
 
-        # ใช้ Session เดิม ส่งคำสั่งไปยังอุปกรณ์
+        # Send the command and handle `--More--`
         channel = ssh_sessions[ip]['channel']
-        print(f"Sending command: {command}")  # Debug คำสั่งที่ถูกส่ง
         channel.send(f"{command}\n")
-
-        # อ่านผลลัพธ์คำสั่ง
         output = ""
-        while not channel.recv_ready():
-            pass
-        while channel.recv_ready():
-            response = channel.recv(1024).decode('utf-8')
-            output += response
-        print(f"Command output: {output}")  # Debug ผลลัพธ์ที่ส่งกลับมาจากอุปกรณ์
 
-        return jsonify({"output": output.strip()}), 200
+        while True:
+            while not channel.recv_ready():
+                pass
+            chunk = channel.recv(1024).decode('utf-8')
+            output += chunk
+
+            # Check for 'More' prompt and send space to continue
+            if "--More--" in chunk:
+                channel.send(" ")  # Send space to continue output
+            else:
+                break
+
+        # Remove echoed command and clean output
+        clean_output = "\n".join(line for line in output.splitlines() if command not in line)
+        return jsonify({"output": clean_output.strip()}), 200
 
     except Exception as e:
-        print(f"Error occurred: {str(e)}")  # Debug ข้อผิดพลาด
         return jsonify({"error": str(e)}), 500
     
-    
+
 @app.route('/api/cli/terminate', methods=['POST'])
 def terminate_ssh_session():
     data = request.json
