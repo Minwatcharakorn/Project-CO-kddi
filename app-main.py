@@ -1,16 +1,14 @@
-from flask import Flask, request, jsonify, render_template, session
+from flask import Flask, request, jsonify, render_template, session , send_file
 from flask_session import Session
-import serial
-import serial.tools.list_ports
 import platform
 import os
 from pysnmp.hlapi.v3arch.asyncio import *
 import asyncio
 import paramiko
-from ipaddress import ip_address
 from datetime import datetime, timedelta
-from ipaddress import ip_address, AddressValueError
 import re
+import io
+import time
 
 
 app = Flask(__name__)
@@ -23,13 +21,6 @@ Session(app)
 serial_connection = None
 
 switches = []  # List to store scanned devices
-
-
-def get_available_ports():
-    """Get a list of available serial ports."""
-    ports = serial.tools.list_ports.comports()
-    return [port.device for port in ports]
-
 
 async def get_snmp_info(ip, community='public'):
     """Retrieve SNMP information from the device using asyncio."""
@@ -262,11 +253,13 @@ def uploadtemplate_page():
     return render_template('upload_Templates.html')
 
 
-@app.route('/remoteconfig')
-def remoteconfig_page():
+@app.route('/saveconfig')
+def saveconfig_page():
     """Serve the Remote Config page with switch data."""
     switches_from_session = session.get('switches', [])  # Get switches from session
-    return render_template('remoteconfig.html', switches=switches_from_session)
+    print("Switches in session:", switches_from_session)  # Debug ดูข้อมูลใน Session
+
+    return render_template('saveconfig.html', switches=switches_from_session)
 
 
 @app.route('/deploy')
@@ -295,6 +288,8 @@ def get_vlan_info(switch_id):
     ip = switch['ip']
     username = session.get('username')
     password = session.get('password')
+
+    print(ip)
 
     if not username or not password:
         return jsonify({"error": "Authentication details missing"}), 400
@@ -490,86 +485,90 @@ def get_hostname():
 # ติดปัญหา CLI Terminal 
 # ----------------------------------------------------------------------------------
 
-@app.route('/api/remote_send_command_save', methods=['POST'])
-def remote_send_command_and_save():
-    """Send selected commands to devices and save output to TXT files."""
+@app.route('/api/save_send_command_save', methods=['POST'])
+def save_send_command_and_download():
+    """Send selected commands to devices via SSH and download output as a text file."""
     data = request.json
-    devices = data.get('devices', [])
-    commands = data.get('commands', [])
-    username = session.get('username')
-    password = session.get('password')
+    devices = data.get('devices', [])  # List of devices with IP and hostname
+    commands = data.get('commands', [])  # List of commands to send
+    username = session.get('username')  # Get username from session
+    password = session.get('password')  # Get password from session
 
+    # Validate required data
     if not devices or not commands:
         return jsonify({"error": "Devices and commands are required"}), 400
 
     if not username or not password:
         return jsonify({"error": "Username or password not found in session"}), 400
 
-    # ตรวจสอบและสร้างโฟลเดอร์ outputs ถ้ายังไม่มี
-    output_dir = "./outputs"
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    results = {}
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")  # เวลาปัจจุบันสำหรับชื่อไฟล์
+    # Prepare a memory buffer for the output content
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")  # Generate a timestamp for the file
+    memory_file = io.BytesIO()  # Use in-memory file for output storage
+    content = ""  # Initialize content as an empty string
 
     for device in devices:
-        ip = device.get('ip')
-        hostname = device.get('hostname', ip)
+        ip = device.get('ip')  # Get the device IP
+        hostname = device.get('hostname', ip)  # Use hostname or fallback to IP
         try:
+            # Establish an SSH connection to the device
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(ip, username=username, password=password, timeout=5)
+            ssh.connect(ip, username=username, password=password, timeout=10)
+            
+            # Start an interactive SSH shell session
+            channel = ssh.invoke_shell()
+            time.sleep(1)  # Wait for the shell to initialize
+            channel.recv(1024)  # Clear initial output buffer
+            
+            # Append device header to the output content
+            content += f"Device: {hostname} ({ip})\n{'='*50}\n"
 
-            # บันทึกผลลัพธ์ทั้งหมดในไฟล์เดียว
-            output = f"Device: {hostname} ({ip})\n" + "="*50 + "\n"
+            # Send each command sequentially
             for command in commands:
-                stdin, stdout, stderr = ssh.exec_command(command)
-                command_output = stdout.read().decode('utf-8')
-                output += f"Command: {command}\n{command_output}\n" + "-"*50 + "\n"
+                # Disable CLI pagination for specific commands
+                if command.strip().lower() == "show running-config":
+                    channel.send("terminal length 0\n")
+                    time.sleep(1)
+                    channel.recv(1024)  # Clear any extra output
 
+                # Send the command to the device
+                channel.send(f"{command}\n")
+                time.sleep(1)  # Wait for command execution
+                
+                # Collect the output
+                output = ""
+                while True:
+                    if channel.recv_ready():  # Check if there is data to read
+                        chunk = channel.recv(1024).decode('utf-8')  # Decode the received data
+                        output += chunk
+                        # Stop collecting output when the prompt or "end" is detected
+                        if "#" in chunk or "end" in chunk:
+                            break
+                
+                # Add the command header and output, with separators
+                content += f"\n{'-'*20} Command: {command} {'-'*20}\n"
+                content += f"{output.strip()}\n"
+
+            # Append separator for clarity between devices
+            content += f"\n{'='*50}\n"
+
+            # Close the SSH session
             ssh.close()
-
-            # บันทึก Output ลงไฟล์
-            filename = f"output_{hostname}_{timestamp}.txt"
-            filepath = os.path.join(output_dir, filename)
-            with open(filepath, "w") as file:
-                file.write(output)
-
-            results[ip] = {"status": "Success", "file": filename}
         except Exception as e:
-            results[ip] = {"status": "Failed", "error": str(e)}
+            # Add an error message to the output if SSH connection fails
+            content += f"Failed to connect to {hostname} ({ip}): {str(e)}\n{'-'*50}\n"
 
-    return jsonify({"message": "Commands executed and output saved.", "results": results}), 200
+    memory_file.write(content.encode('utf-8'))  # Encode string to bytes
+    memory_file.seek(0)  
 
-@app.route('/api/ports', methods=['GET'])
-def list_ports():
-    """API to list available serial ports."""
-    try:
-        ports = get_available_ports()
-        return jsonify(ports), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    filename = f"output_{timestamp}.txt"
 
-
-
-@app.route('/api/connect', methods=['POST'])
-def connect_serial():
-    """API to connect to a serial port."""
-    global serial_connection
-    data = request.json
-    port = data.get('port')
-    baudrate = data.get('baudrate', 9600)
-
-    if not port:
-        return jsonify({"error": "Serial port is required"}), 400
-
-    try:
-        serial_connection = serial.Serial(port, baudrate, timeout=1)
-        return jsonify({"message": f"Connected to {port} at {baudrate} baud."}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
+    return send_file(
+        memory_file,
+        as_attachment=True,  
+        download_name=filename,  
+        mimetype='text/plain'  
+    )
 
 @app.route('/api/send', methods=['POST'])
 def send_commands():
