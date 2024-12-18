@@ -518,7 +518,7 @@ def save_send_command_and_download():
             # Start an interactive SSH shell session
             channel = ssh.invoke_shell()
             time.sleep(1)  # Wait for the shell to initialize
-            channel.recv(1024)  # Clear initial output buffer
+            channel.recv(1048576)  # Clear initial output buffer
             
             # Append device header to the output content
             content += f"Device: {hostname} ({ip})\n{'='*50}\n"
@@ -529,7 +529,7 @@ def save_send_command_and_download():
                 if command.strip().lower() == "show running-config":
                     channel.send("terminal length 0\n")
                     time.sleep(1)
-                    channel.recv(1024)  # Clear any extra output
+                    channel.recv(1048576)  # Clear any extra output
 
                 # Send the command to the device
                 channel.send(f"{command}\n")
@@ -539,7 +539,7 @@ def save_send_command_and_download():
                 output = ""
                 while True:
                     if channel.recv_ready():  # Check if there is data to read
-                        chunk = channel.recv(1024).decode('utf-8')  # Decode the received data
+                        chunk = channel.recv(1048576).decode('utf-8')  # Decode the received data
                         output += chunk
                         # Stop collecting output when the prompt or "end" is detected
                         if "#" in chunk or "end" in chunk:
@@ -550,13 +550,13 @@ def save_send_command_and_download():
                 content += f"{output.strip()}\n"
 
             # Append separator for clarity between devices
-            content += f"\n{'='*50}\n"
+            content += f"\n{'='*50}\n\n"
 
             # Close the SSH session
             ssh.close()
         except Exception as e:
             # Add an error message to the output if SSH connection fails
-            content += f"Failed to connect to {hostname} ({ip}): {str(e)}\n{'-'*50}\n"
+            content += f"\n\n{'='*50}\nFailed to connect to {hostname} ({ip}): {str(e)}\n{'='*50}\n\n"
 
     memory_file.write(content.encode('utf-8'))  # Encode string to bytes
     memory_file.seek(0)  
