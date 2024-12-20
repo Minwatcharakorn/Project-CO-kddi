@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, session , send_file
+from flask import Flask, request, jsonify, render_template, session , send_file , redirect
 from flask_session import Session
 import platform
 import os
@@ -233,8 +233,7 @@ def initial_page():
 @app.route('/dashboard')
 def dashboard_page():
     """Serve the Dashboard page."""
-    session['switches'] = switches  # Store switches in session
-    session.permanent = True  # Ensure session persists
+    switches = session.get('switches', [])
     return render_template('Dashboard.html', switches=switches)
 
 @app.route('/configuration')
@@ -267,6 +266,12 @@ def deploy_page():
     """Serve the Deploy page."""
     switches_from_session = session.get('switches', [])
     return render_template('Deploy.html', switches=switches_from_session)
+
+@app.route('/logout')
+def logout():
+    """Clear session except switches and redirect to Initial page."""
+    session.clear()  # ล้างข้อมูลทั้งหมดใน session
+    return redirect('/initial')  # เปลี่ยนเส้นทางไปที่หน้า Initial
 
 @app.route('/info/<int:switch_id>')
 def switch_info(switch_id):
@@ -489,12 +494,11 @@ def get_hostname():
 def save_send_command_and_download():
     """Send selected commands to devices via SSH and download output as a text file."""
     data = request.json
-    devices = data.get('devices', [])  # List of devices with IP and hostname
-    commands = data.get('commands', [])  # List of commands to send
-    username = session.get('username')  # Get username from session
-    password = session.get('password')  # Get password from session
+    devices = data.get('devices', [])  
+    commands = data.get('commands', [])  
+    username = session.get('username')  
+    password = session.get('password')  
 
-    # Validate required data
     if not devices or not commands:
         return jsonify({"error": "Devices and commands are required"}), 400
 
@@ -510,7 +514,6 @@ def save_send_command_and_download():
         ip = device.get('ip')  # Get the device IP
         hostname = device.get('hostname', ip)  # Use hostname or fallback to IP
         try:
-            # Establish an SSH connection to the device
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, username=username, password=password, timeout=10)
@@ -521,7 +524,7 @@ def save_send_command_and_download():
             channel.recv(314572800)  # Clear initial output buffer
             
             # Append device header to the output content
-            content += f"Device: {hostname} ({ip})\n{'='*50}\n"
+            content += f"Device: {hostname} ({ip})\n{'='*90}\n"
 
             # Send each command sequentially
             for command in commands:
@@ -531,11 +534,9 @@ def save_send_command_and_download():
                     time.sleep(1)
                     channel.recv(5242880)  # Clear any extra output
 
-                # Send the command to the device
                 channel.send(f"{command}\n")
-                time.sleep(1)  # Wait for command execution
+                time.sleep(1)  
                 
-                # Collect the output
                 output = ""
                 while True:
                     if channel.recv_ready():  # Check if there is data to read
@@ -550,7 +551,7 @@ def save_send_command_and_download():
                 content += f"{output.strip()}\n"
 
             # Append separator for clarity between devices
-            content += f"\n{'='*50}\n\n"
+            content += f"\n{'='*90}\n\n"
 
             # Close the SSH session
             ssh.close()
@@ -618,11 +619,11 @@ async def connect_ssh(ip, username, password, successful_connections):
 
 @app.route('/api/login_ssh', methods=['POST'])
 async def login_ssh():
-    """API endpoint for SSH login."""
+    """Login and store IP range or single IP in session."""
     data = request.json
     mode = data.get('mode', 'range')  # Default mode is 'range'
     ip_start = data.get('ip_start')
-    ip_end = data.get('ip_end') if mode == 'range' else ip_start  # Single IP mode uses the same IP for start and end
+    ip_end = data.get('ip_end') if mode == 'range' else ip_start  # Single IP uses the same start and end
     username = data.get('username')
     password = data.get('password')
 
@@ -632,7 +633,7 @@ async def login_ssh():
     successful_connections = []
 
     try:
-        # กำหนดช่วง IP สำหรับโหมด Range
+        # Perform SSH connection
         if mode == 'range':
             ip_base = '.'.join(ip_start.split('.')[:3])
             start = int(ip_start.split('.')[-1])
@@ -643,17 +644,21 @@ async def login_ssh():
                 if await connect_ssh(ip, username, password, successful_connections):
                     print(f"Successfully connected to {ip}")
         else:
-            # สำหรับ Single IP
             if await connect_ssh(ip_start, username, password, successful_connections):
                 print(f"Successfully connected to {ip_start}")
 
-        # อัปเดต Switch หลังการ Login สำเร็จ
+        # Store session data
         if successful_connections:
             session['username'] = username
             session['password'] = password
+            session['ip_start'] = ip_start
+            session['ip_end'] = ip_end if mode == 'range' else None
             session.permanent = True
-            await update_switches(ip_start, ip_end)  # อัปเดต switch ในช่วง IP
+
+            # Update switches in session
+            await update_switches(ip_start, ip_end)
             session['switches'] = switches
+
             return jsonify({
                 "message": "SSH login successful",
                 "connected_ips": successful_connections,
@@ -661,9 +666,7 @@ async def login_ssh():
             }), 200
 
         return jsonify({"error": "SSH login failed for all devices"}), 500
-
     except Exception as e:
-        print(f"Error in SSH login: {e}")
         return jsonify({"error": str(e)}), 500
 
 

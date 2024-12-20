@@ -17,13 +17,24 @@
         </div>
         <div class="nav-info">
             <span style="margin-right: 20px;">
-                <i class="fas fa-user" style="margin-right: 5px; " ></i> Username: <span id="username">JohnDoe</span>
+                <i class="fas fa-user" style="margin-right: 5px;"></i> 
+                Username: <span id="username">{{ session.get('username', 'N/A') }}</span>
             </span>
             <span>
-                <i class="fas fa-network-wired" style="margin-right: 5px; "></i> IP: <span id="ip-address">192.168.1.0/24</span>
+                <i class="fas fa-network-wired" style="margin-right: 5px;"></i> 
+                IP: 
+                <span id="ip-address">
+                    {% if session.get('ip_start') and session.get('ip_end') %}
+                        {{ session.get('ip_start', 'N/A') }} - {{ session.get('ip_end', 'N/A') }}
+                    {% elif session.get('ip_start') %}
+                        {{ session.get('ip_start', 'N/A') }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </span>
             </span>
             <span>
-                <a href="/initial" style="text-decoration: none;">
+                <a href="/logout" style="text-decoration: none;">
                     <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
                 </a>
             </span>

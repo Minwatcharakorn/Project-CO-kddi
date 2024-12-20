@@ -323,3 +323,44 @@ body {
     font-size: 16px;
     line-height: 1.5; /* ระยะห่างระหว่างบรรทัด */
 }
+
+.header-buttons {
+    display: flex;
+    justify-content: space-between; /* จัดให้ปุ่มห่างกัน */
+    align-items: center; /* จัดตำแหน่งให้อยู่ในแนวเดียวกัน */
+}
+
+.back-button-top {
+    display: inline-block;
+    text-decoration: none; /* ลบเส้นใต้ */
+    background-color: #007bff; /* สีพื้นหลัง */
+    color: white; /* สีตัวอักษร */
+    padding: 10px 20px; /* เพิ่มพื้นที่ภายใน */
+    border-radius: 5px; /* มุมโค้ง */
+    font-size: 14px; /* ขนาดตัวอักษร */
+    text-align: center; /* จัดข้อความให้อยู่กลาง */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-left: 20px; /* เพิ่มระยะห่างระหว่างปุ่ม */
+
+}
+
+.back-button-top:hover,
+.dashboard-button-top:hover {
+    background-color: #0056b3; /* สีเข้มขึ้นเมื่อ hover */
+    transform: scale(1.05); /* ขยายเล็กน้อยเมื่อ hover */
+}
+
+
+.dashboard-button-top {
+    display: inline-block;
+    text-decoration: none; /* ลบเส้นใต้ */
+    background-color: #007bff; /* สีพื้นหลัง */
+    color: white; /* สีตัวอักษร */
+    padding: 10px 20px; /* เพิ่มพื้นที่ภายใน */
+    border-radius: 5px; /* มุมโค้ง */
+    font-size: 14px; /* ขนาดตัวอักษร */
+    text-align: center; /* จัดข้อความให้อยู่กลาง */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-left: 370px;
+    margin-top: -20px; 
+}

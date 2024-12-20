@@ -268,14 +268,19 @@ form label {
 .interface-config {
     margin-bottom: 20px;
     padding: 10px;
-    /* border: 1px solid #ccc; */
-    border-radius: 5px;
-    /* background-color: #fff; */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
 }
 
+.interface-config label {
+    font-weight: bold;
+}
 
 .interface-config hr {
-    display: none; /* Hide hr elements inside the container */
+    margin-top: 20px;
+    border: none;
+    border-top: 1px solid #ccc;
 }
 
 .config-form label {

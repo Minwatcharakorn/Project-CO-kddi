@@ -69,178 +69,141 @@ let interfaceCounter = 1;
 
 // Add New Interface Configuration
 document.getElementById("add-interface-config").addEventListener("click", function () {
-    interfaceCounter++;
     const interfaceConfigs = document.getElementById("interface-configs");
     const newConfig = document.createElement("div");
     newConfig.className = "interface-config";
     newConfig.innerHTML = `
         <form class="config-form">
-            <!-- Dropdown เลือกพอร์ต -->
-            <label for="interface-port-dropdown-${interfaceCounter}" style="font-weight: bold;">Select Interface Ports</label>
-            <div id="selected-ports-container-${interfaceCounter}">
-                <h4>Selected Ports</h4>
-                <div id="selected-ports-box-${interfaceCounter}"></div>
-            </div>
-            <div id="dropdown-container-${interfaceCounter}">
-                <button type="button" id="dropdown-button-${interfaceCounter}">
-                    Select Ports
-                </button>
-                <div id="dropdown-content-${interfaceCounter}" class="dropdown-content"></div>
-            </div>
+            <!-- Dropdown for Port Selection -->    
+            <label for="interface-port-select-${interfaceCounter}" style="font-weight: bold;">Select Ports</label>
+            <select id="interface-port-select-${interfaceCounter}" class="interface-port-select" multiple="multiple" style="width: 100%;"></select>
+            <br><br>
 
             <!-- Description -->
             <div class="Description-IP">
-                <label for="Description-ip-${interfaceCounter}" style="font-weight: bold;">Description</label>
-                <input type="text" id="Description-ip-${interfaceCounter}" name="Description-IP" placeholder="Enter Description Port">
+                <label for="description-${interfaceCounter}" style="font-weight: bold;">Description</label>
+                <input type="text" id="description-${interfaceCounter}" name="description" placeholder="Enter Description">
             </div>
 
             <!-- Switch Mode -->
             <div class="switch-mode-section">
                 <label for="switch-mode-${interfaceCounter}" style="font-weight: bold;">Switch Mode</label>
                 <select id="switch-mode-${interfaceCounter}" name="switch-mode">
-                    <option value="access" selected>Access</option>
+                    <option value="access">Access</option>
                     <option value="trunk">Trunk</option>
                 </select>
             </div>
 
-            <!-- VLAN ID -->
+            <!-- VLAN ID Section -->
             <div class="vlan-id-section" id="vlan-id-section-${interfaceCounter}">
                 <label for="vlan-id-input-${interfaceCounter}" style="font-weight: bold;">VLAN ID</label>
-                <input type="number" id="vlan-id-input-${interfaceCounter}" name="vlan-id-input" placeholder="Enter VLAN ID" value="1" min="1" max="4094" required>
+                <input type="number" id="vlan-id-input-${interfaceCounter}" name="vlan-id" placeholder="Enter VLAN ID" min="1" max="4094">
             </div>
 
-            <!-- Allowed VLANs -->
+            <!-- Trunk Allowed VLANs Section -->
             <div class="vlan-trunk-section" id="vlan-trunk-section-${interfaceCounter}" style="display: none;">
                 <label for="trunk-allowed-vlan-${interfaceCounter}" style="font-weight: bold;">Allowed VLANs</label>
-                <input type="text" id="trunk-allowed-vlan-${interfaceCounter}" name="trunk-allowed-vlan" placeholder="e.g., 20,30,40 or all" required>
+                <input type="text" id="trunk-allowed-vlan-${interfaceCounter}" name="trunk-allowed-vlan" placeholder="e.g., 20,30,40 or all">
             </div>
 
-            <!-- ปุ่มลบ -->
+            <!-- Remove Button -->
             <button type="button" class="remove-interface-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
         </form>
         <hr style="margin-top: 20px; border: none; border-top: 1px solid #ccc;">
     `;
-
-    // เพิ่ม Config ใหม่ในหน้า
     interfaceConfigs.appendChild(newConfig);
 
-    // เรียกใช้ฟังก์ชันสำหรับ Config ใหม่
+    // Initialize Dropdown and Switch Mode
     initializeDropdown(interfaceCounter);
     initializeSwitchModeToggle(interfaceCounter);
+
+    // Remove Configuration Button
     initializeRemoveButton(newConfig);
+
+    interfaceCounter++;
 });
 
+let selectedPortsGlobal = []; // เก็บพอร์ตที่ถูกเลือกไว้ในทุก config
 
-// ฟังก์ชันจัดการ Dropdown
-let selectedPortsGlobal = []; // เก็บ ports ที่ถูกเลือกไว้ทั้งหมด
 
-function initializeDropdown(interfaceCounter) {
-    const dropdownButton = document.getElementById(`dropdown-button-${interfaceCounter}`);
-    const dropdownContent = document.getElementById(`dropdown-content-${interfaceCounter}`);
-    const selectedPortsBox = document.getElementById(`selected-ports-box-${interfaceCounter}`);
-
-    // Toggle Dropdown Visibility
-    dropdownButton.addEventListener("click", () => {
-        dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
+// Initialize Select2 Dropdown for Ports
+// Initialize Select2 Dropdown for Ports
+function initializeDropdown(counter) {
+    const selectElement = document.getElementById(`interface-port-select-${counter}`);
+    $(selectElement).select2({
+        placeholder: "Select Ports",
+        allowClear: true
     });
 
     // Define port groups
     const portGroups = [
-        { name: "Fixed Chassis", id: "fixed-chassis", range: generatePorts("GigabitEthernet0/", 48) },
-        { name: "Modular/Stackable Chassis", id: "modular-chassis", range: [...generatePorts("GigabitEthernet1/0/", 48)] },
-        { name: "TenGigabitEthernet", id: "ten-gigabit", range: generatePorts("TenGigabitEthernet0/", 8) },
+        { name: "Fixed Chassis", range: generatePorts("GigabitEthernet0/", 48) },
+        { name: "Modular Chassis", range: generatePorts("GigabitEthernet1/0/", 48) },
+        { name: "TenGigabitEthernet", range: generatePorts("TenGigabitEthernet0/", 8) }
     ];
 
-    // Clear dropdown content
-    dropdownContent.innerHTML = "";
+    // Populate ports in dropdown
+    portGroups.forEach(group => {
+        const groupOption = new Option(group.name, '', false, false);
+        $(groupOption).attr('disabled', 'disabled');
+        $(selectElement).append(groupOption);
 
-    portGroups.forEach(({ name, id, range }) => {
-        const section = document.createElement("div");
-        section.innerHTML = `
-            <h4>${name}</h4>
-            <label>
-                <input type="checkbox" id="select-all-${id}-${interfaceCounter}"> Select All ${name}
-            </label>
-        `;
-
-        const container = document.createElement("div");
-
-        range.forEach(port => {
-            const isDisabled = selectedPortsGlobal.includes(port) ? "disabled" : "";
-            container.innerHTML += `
-                <label>
-                    <input type="checkbox" value="${port}" class="${id}-checkbox-${interfaceCounter}" ${isDisabled}> ${port}
-                </label>`;
-        });
-
-        section.appendChild(container);
-        dropdownContent.appendChild(section);
-
-        // Add "Select All" functionality
-        const selectAllCheckbox = document.getElementById(`select-all-${id}-${interfaceCounter}`);
-        selectAllCheckbox.addEventListener("change", e => {
-            container.querySelectorAll(`.${id}-checkbox-${interfaceCounter}`).forEach(checkbox => {
-                if (!checkbox.disabled) {
-                    checkbox.checked = e.target.checked;
-                }
-            });
-            updateSelectedPortsAdd(selectedPortsBox, dropdownContent);
-            updateGlobalSelectedPorts();
-        });
-
-        // Update ports when individual checkboxes are changed
-        container.addEventListener("change", () => {
-            updateSelectedPortsAdd(selectedPortsBox, dropdownContent);
-            updateGlobalSelectedPorts();
+        group.range.forEach(port => {
+            const isDisabled = selectedPortsGlobal.includes(port); // Check if port is already selected
+            const portOption = new Option(port, port, false, false);
+            if (isDisabled) {
+                $(portOption).attr('disabled', 'disabled'); // Disable if already selected
+            }
+            $(selectElement).append(portOption);
         });
     });
+
+    // Update global ports list when selection changes
+    $(selectElement).on("select2:select", function (e) {
+        const selectedPort = e.params.data.id;
+        if (!selectedPortsGlobal.includes(selectedPort)) {
+            selectedPortsGlobal.push(selectedPort);
+        }
+        refreshPortAvailability(); // Refresh other dropdowns
+    });
+
+    $(selectElement).on("select2:unselect", function (e) {
+        const unselectedPort = e.params.data.id;
+        const index = selectedPortsGlobal.indexOf(unselectedPort);
+        if (index > -1) {
+            selectedPortsGlobal.splice(index, 1);
+        }
+        refreshPortAvailability(); // Refresh other dropdowns
+    });
 }
-// Generate port ranges
+
+
+// Generate port ranges dynamically
 function generatePorts(prefix, count) {
     return Array.from({ length: count }, (_, i) => `${prefix}${i + 1}`);
 }
 
-// Update selected ports display
-function updateSelectedPortsAdd(selectedPortsBox, dropdownContent) {
-    const checkboxes = dropdownContent.querySelectorAll("input[type='checkbox']:checked");
-    const selectedPorts = Array.from(checkboxes)
-        .filter(checkbox => checkbox.value !== "on") // ตัดคำว่า "on" ออก
-        .filter(checkbox => !checkbox.disabled)      // ข้าม checkbox ที่ disabled
-        .map(checkbox => checkbox.value);
-
-    selectedPortsBox.textContent = selectedPorts.length > 0 ? selectedPorts.join(", ") : "No ports selected";
-
-    // Update global selected ports list
-    updateGlobalSelectedPorts();
-}
-
-function updateGlobalSelectedPorts() {
-    selectedPortsGlobal = []; // รีเซ็ต global port list
-    document.querySelectorAll(".config-form").forEach(form => {
-        const selectedPortsBox = form.querySelector("[id^='selected-ports-box']");
-        if (selectedPortsBox) {
-            const ports = selectedPortsBox.textContent.split(", ").filter(p => p.trim());
-            selectedPortsGlobal.push(...ports);
-        }
-    });
-
-    // รีเฟรช Dropdown ทุกตัวให้ตรงกับสถานะล่าสุด
-    document.querySelectorAll("[id^='dropdown-content-']").forEach((dropdown, index) => {
-        initializeDropdown(index + 1);
+function refreshPortAvailability() {
+    document.querySelectorAll(".interface-port-select").forEach(select => {
+        const selectElement = $(select);
+        const selectedValues = selectElement.val() || []; // Get currently selected values
+        selectElement.find("option").each(function () {
+            const port = $(this).val();
+            if (port && selectedPortsGlobal.includes(port) && !selectedValues.includes(port)) {
+                $(this).attr("disabled", "disabled"); // Disable if already selected globally
+            } else {
+                $(this).removeAttr("disabled"); // Enable if not globally selected
+            }
+        });
+        selectElement.trigger("change.select2"); // Refresh Select2 UI
     });
 }
 
-function reinitializeDropdowns() {
-    document.querySelectorAll(".dropdown-content").forEach((dropdown, index) => {
-        initializeDropdown(index + 1);
-    });
-}
-
-// ฟังก์ชันจัดการ Switch Mode
-function initializeSwitchModeToggle(interfaceCounter) {
-    const switchMode = document.getElementById(`switch-mode-${interfaceCounter}`);
-    const vlanSection = document.getElementById(`vlan-id-section-${interfaceCounter}`);
-    const trunkSection = document.getElementById(`vlan-trunk-section-${interfaceCounter}`);
+// Handle Switch Mode Toggle
+function initializeSwitchModeToggle(counter) {
+    const switchMode = document.getElementById(`switch-mode-${counter}`);
+    const vlanSection = document.getElementById(`vlan-id-section-${counter}`);
+    const trunkSection = document.getElementById(`vlan-trunk-section-${counter}`);
 
     switchMode.addEventListener("change", function () {
         if (this.value === "access") {
@@ -253,28 +216,47 @@ function initializeSwitchModeToggle(interfaceCounter) {
     });
 }
 
-// ฟังก์ชันลบ Config
+// Remove Configuration
 function initializeRemoveButton(newConfig) {
     const removeButton = newConfig.querySelector(".remove-interface-config");
     removeButton.addEventListener("click", function () {
-        newConfig.remove(); // ลบอินเทอร์เฟซที่เลือก
-        updateGlobalSelectedPorts(); // คืนสถานะพอร์ตให้เลือกได้อีกครั้ง
+        // Remove selected ports from global list
+        const selectElement = newConfig.querySelector(".interface-port-select");
+        const selectedPorts = $(selectElement).val(); // Get selected ports
+        if (selectedPorts) {
+            selectedPorts.forEach(port => {
+                const index = selectedPortsGlobal.indexOf(port);
+                if (index > -1) {
+                    selectedPortsGlobal.splice(index, 1); // Remove port from global list
+                }
+            });
+        }
+
+        // Remove configuration element
+        newConfig.remove();
+
+        // Refresh dropdown availability for all remaining configurations
+        refreshPortAvailability();
     });
 }
+
 // Save All Configurations
 document.getElementById("save-interface-configs").addEventListener("click", function () {
     const configs = [];
     document.querySelectorAll(".config-form").forEach(form => {
-        const formData = new FormData(form);
-        const config = {
-            interfacePort: formData.get("interface-port"),
-            description: formData.get("Description-IP ADD"),
-            switchMode: formData.get("switch-mode")
-        };
-        configs.push(config);
+        const selectedPorts = $(form.querySelector(".interface-port-select")).val();
+        const description = form.querySelector("input[name='description']").value;
+        const switchMode = form.querySelector("select[name='switch-mode']").value;
+
+        configs.push({
+            ports: selectedPorts,
+            description: description,
+            mode: switchMode
+        });
     });
+
     console.log("Saved Configurations:", configs);
-    alert("Configurations Saved!");
+    alert("Configurations Saved Successfully!");
 });
 
 // Handle NTP Form Submission
