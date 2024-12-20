@@ -35,10 +35,14 @@
 
         <div class="content-body">
             <label for="command-select"><strong>Select Command</strong></label>
-            <select id="command-select" multiple="multiple" style="width: 400px;">
+            <select id="command-select" multiple="multiple" style="width: 600px;">
                 <option value="show running-config">Show Running Config</option>
                 <option value="show vlan brief">Show VLAN Brief</option>
                 <option value="show ip interface brief">Show IP Interface Brief</option>
+                <option value="show interfaces status">Show Interfaces Status</option>
+                <option value="show interfaces description">Show Interfaces Description</option>
+                <option value="show spanning-tree summary">Show Spanning Tree Summary</option>
+                <option value="show etherchannel summary">Show EtherChannel Summary</option>
             </select>
             <div class="table-container">
                 <table>
@@ -85,6 +89,17 @@
         </div>
     </div>
 
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal">
+        <div class="error-modal-content">
+            <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+            <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;"></p>
+            <p style="color: #555;"></p>
+            <br>
+            <button id="closeErrorModal" class="error-modal-button">OK</button>
+        </div>
+    </div>
 
     <!-- Loading Modal -->
     <div id="loadingModal" class="modal" style="z-index: 1050;">
