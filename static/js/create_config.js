@@ -119,6 +119,11 @@ document.getElementById("add-interface-config").addEventListener("click", functi
 
     // Remove Configuration Button
     initializeRemoveButton(newConfig);
+    
+    document.body.style.overflow = "hidden";
+
+    const container = document.querySelector(".content");
+    container.style.overflowY = "scroll";
 
     interfaceCounter++;
 });
