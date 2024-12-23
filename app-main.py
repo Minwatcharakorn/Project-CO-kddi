@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, session , send_file , redirect , Response
+from flask import Flask, request, jsonify, render_template, session , send_file , redirect
 from flask_session import Session
 import platform
 import os
