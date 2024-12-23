@@ -1,0 +1,156 @@
+
+/* Sidebar */
+.sidebar {
+    background-color: #000000;
+    color: #fff;
+    width: 250px;
+    padding-top: 60px;
+    position: fixed;
+    height: 100%;
+    border: none;
+    box-shadow: none;
+}
+
+/* Sidebar Menu */
+.sidebar-menu {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Sidebar Item */
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    font-size: 1rem;
+    color: #cdd4df;
+    transition: background-color 0.3s;
+    text-decoration: none;
+    border-radius: 5px;
+    gap: 10px;
+}
+
+/* ปรับสไตล์การแสดงผลของลิงก์ใน Sidebar ให้ไม่มีเส้นขอบ */
+.sidebar-item a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+}
+
+
+.sidebar-item:hover {
+    background-color: #3c4b5c;
+    color: #fff;
+    cursor: pointer;
+}
+
+.sidebar-item.active {
+    background-color: #3c4b5c;
+    color: #fff;
+}
+
+/* Sidebar Item Icon */
+.sidebar-item a i {
+    color: #1E90FF;
+    transition: color 0.3s ease;
+}
+
+.sidebar-item a:hover i {
+    color: #00BFFF;
+}
+
+/* เปลี่ยนสีตัวอักษรของลิงก์ใน Sidebar */
+.sidebar-item a {
+    color: #FFFFFF; /* เปลี่ยนสีตัวอักษรเป็นสีขาวหรือสีที่ต้องการ */
+}
+
+/* เปลี่ยนสีตัวอักษรของลิงก์ที่เลือกอยู่ (active) */
+.sidebar-item.active a {
+    color: #ffffff; /* เปลี่ยนเป็นสีที่ต้องการเมื่อ active เช่น สีทอง */
+}
+
+/* เพิ่มสไตล์ลิงก์เมื่อมีการโฮเวอร์ */
+.sidebar-item a:hover {
+    color: #00BFFF; /* เปลี่ยนสีเมื่อโฮเวอร์ เช่น สีฟ้าสว่าง */
+}
+
+/* Submenu */
+.submenu {
+    list-style: none;
+    padding-left: 20px;
+    margin-top: 5px;
+    display: none;
+    flex-direction: column;
+}
+
+.sidebar-item.has-submenu:hover .submenu {
+    display: flex;
+}
+
+/* Submenu Item */
+.submenu li {
+    padding: 10px 20px;
+    background-color: #1a1c23;
+    border-radius: 4px;
+    color: #b0b3b8;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.submenu li:hover {
+    background-color: #2c2f36;
+    color: #fff;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
+}
+
+@media (max-width: 576px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 10px;
+    }
+}
+.nav-info {
+    display: flex; /* จัดเรียงไอคอนและข้อความในแนวนอน */
+    align-items: center; /* จัดตำแหน่งในแนวตั้งให้ตรงกัน */
+    gap: 15px; /* เพิ่มช่องว่างระหว่างแต่ละส่วน */
+}
+
+.nav-info span {
+    display: flex; /* ใช้ flexbox เพื่อจัดเรียงไอคอนและข้อความ */
+    align-items: center; /* จัดตำแหน่งในแนวตั้งให้ตรงกัน */
+    gap: 5px; /* เพิ่มระยะห่างระหว่างไอคอนและข้อความ */
+    color: #d1d5db; /* สีฟอนต์ */
+}
+
+.nav-info a {
+    color: #d1d5db; /* สีข้อความ */
+    text-decoration: none; /* ลบเส้นใต้ลิงก์ */
+    display: flex; /* ใช้ flexbox */
+    align-items: center; /* จัดข้อความและไอคอนให้อยู่ในแนวเดียวกัน */
+    gap: 5px; /* ระยะห่างระหว่างไอคอนกับข้อความ */
+}
+
+.nav-info a:hover {
+    color: #00BFFF; /* สีเมื่อโฮเวอร์ */
+}
+
+.nav-info i {
+    font-size: 1rem; /* ขนาดของไอคอน */
+}
+
+.top-nav {
+    background-color: #000000;
+}
