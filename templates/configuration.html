@@ -6,6 +6,8 @@
     <title>Switch Management Configuration - Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='create_config_page.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Modal_loading.css') }}">
+
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -38,24 +40,22 @@
 
                 </div>
 
-                <input type="submit" value="Save Templates Information" class="styled-button">
-            </form>
+            <button type="button" id="save-template" class="styled-button">Save Templates Information</button>
+            <button type="button" id="cancel-template" class="styled-button" style="display: none;">Cancel</button>            </form>
         </div>
 
 
 <!-- Hostname Configuration -->
 <div class="config-section">
     <h3>Hostname Configuration</h3>
-    <form id="config-form">
+    <form id="hostname-form">
         <div class="form-group">
-
             <label for="hostname-input"><strong>Hostname</strong></label>
             <input type="text" id="hostname-input" placeholder="Enter Hostname" required>
         </div>
     </form>
-    <!-- ปุ่ม Save และ Cancel อยู่นอก Form -->
-    <button type="button" id="save-hostname" class="btn btn-primary">Save Hostname Configuration</button>
-    <button type="button" id="cancel-hostname" class="btn btn-secondary" style="display: none;">Cancel</button>
+    <button type="button" id="save-hostname" class="styled-button" >Save Hostname Configuration</button>
+    <button type="button" id="cancel-hostname" class="styled-button"  style="display: none;">Cancel</button>
 </div>
 
         <!-- Create VLANs -->
@@ -65,16 +65,17 @@
             <br><br>
             <form id="vlan-multiple-form" class="config-form">
                 <div id="vlan-rows">
+                    <!-- Example of VLAN Row -->
                     <div class="vlan-row form-group">
                         <label for="vlan-id-1">VLAN ID</label>
                         <input type="number" id="vlan-id-1" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
-
+        
                         <label for="vlan-name-1">VLAN Name</label>
                         <input type="text" id="vlan-name-1" name="vlan-name[]" placeholder="Enter VLAN Name" required>
-
+        
                         <label for="vlan-IP-1">IP Address VLAN</label>
                         <input type="text" id="vlan-IP-1" name="vlan-IP[]" placeholder="Enter IP Address VLAN" required>
-
+        
                         <button type="button" class="remove-vlan-row" style="width: auto;">
                             <i class="fas fa-trash-alt"></i>
                         </button>
@@ -82,8 +83,8 @@
                 </div>
             </form>
             <br>
-            <button type="button" class="save-vlan-row btn btn-primary">Save</button>
-            <button type="button" class="cancel-vlan-row btn btn-secondary" style="display: none;">Cancel</button>
+            <button type="button" id="save-vlan-config" class="btn btn-primary">Save VLAN Configuration</button>
+            <button type="button" id="cancel-vlan-config" class="btn btn-secondary" style="display: none;">Cancel</button>
         </div>
 
         <!-- Global STP Configuration Section -->
@@ -156,7 +157,7 @@
         <!-- VTP Configuration Section -->
         <div class="config-section" id="vtp-config">
             <h3>VTP (VLAN Trunking Protocol) Configuration</h3>
-            <form>
+            <form id="vtp-form">
                 <label for="vtp-mode">VTP Mode</label>
                 <select id="vtp-mode" name="vtp-mode">
                     <option value="server">Server</option>
@@ -164,7 +165,7 @@
                     <option value="transparent">Transparent</option>
                 </select>
                 <br><br>
-
+        
                 <label for="vtp-version">VTP Version</label>
                 <select id="vtp-version" name="vtp-version">
                     <option value="1">Version 1</option>
@@ -172,32 +173,33 @@
                     <option value="3">Version 3</option>
                 </select>
                 <br><br>
-
+        
                 <label for="vtp-domain">VTP Domain Name</label>
-                <input type="text" id="vtp-domain" name="vtp-domain" placeholder="Enter VTP Domain Name">
+                <input type="text" id="vtp-domain" name="vtp-domain" placeholder="Enter VTP Domain Name" required>
                 <br><br>
-
+        
                 <label for="vtp-password">VTP Password</label>
-                <input type="password" id="vtp-password" name="vtp-password" placeholder="Enter VTP Password">
+                <input type="password" id="vtp-password" name="vtp-password" placeholder="Enter VTP Password" required>
                 <br><br>
-
-                <input type="submit" value="Save VTP Configuration" class="styled-button">
+        
+                <button type="button" id="save-vtp-config" class="styled-button">Save VTP Configuration</button>
+                <button type="button" id="cancel-vtp-config" class="styled-button" style="display: none;">Cancel</button>
             </form>
         </div>
 
-<!-- Interface Ports -->
-<div class="config-section" id="interface-ports-config">
-    <h3>Interface Port Configuration</h3>
+        <!-- Interface Ports -->
+        <div class="config-section" id="interface-ports-config">
+            <h3>Interface Port Configuration</h3>
 
-    <button type="button" id="add-interface-config" class="styled-button">Add Interface Configuration</button>
-    <br><br>
+            <button type="button" id="add-interface-config" class="styled-button">Add Interface Configuration</button>
+            <br><br>
 
-    <div id="interface-configs">
-        <!-- Dynamic Interface Configurations will be added here -->
-    </div>
+            <div id="interface-configs">
+                <!-- Dynamic Interface Configurations will be added here -->
+            </div>
 
-    <input type="submit" value="Save All Interface Configurations" class="styled-button" id="save-interface-configs" style="margin-top: 5px;">
-</div>
+            <input type="submit" value="Save All Interface Configurations" class="styled-button" id="save-interface-configs" style="margin-top: 5px;">
+        </div>
 
 
         <!-- NTP Configuration Section -->
@@ -216,27 +218,20 @@
             </form>
         </div>
 
-        <div class="config-section" id="default-gateway-config">
+        <div class="config-section" id="gateway-config">
             <h3>Default Gateway Configuration</h3>
-            <form>
-                <label for="default-gateway">Default Gateway</label>
-                <input type="text" id="default-gateway" name="default-gateway" placeholder="Enter Default Gateway" style="width: auto;">
-                <br><br>
-                <input type="submit" value="Save Gateway Configuration">
+            <form id="gateway-form">
+                <label for="default-gateway"><strong>Default Gateway</strong></label>
+                <input type="text" id="default-gateway" placeholder="Enter Default Gateway" required>
             </form>
-        </div>
+            <button type="button" id="save-gateway-config" class="styled-button">Save Gateway Configuration</button>
+            <button type="button" id="cancel-gateway-config" class="styled-button"  style="display: none;">Cancel</button>
+        </div> 
 
 
-        <div class="save-config-button">
-            <button class="download-btn">
-                SAVE CONFIG Template
-                <span class="icon" style="color: white;">
-                    <i class="fas fa-download"></i>
-                </span>
-            </button>
-        </div>
+        <button id="save-config-template" class="styled-button">Save Config Templates</button>
+
     </div>
-    <script src="../static/js/create_config.js"></script>
-
+     <script src="../static/js/create_config.js"></script>
 </body>
 </html>

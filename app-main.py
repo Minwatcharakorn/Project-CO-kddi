@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, session , send_file , redirect
+from flask import Flask, request, jsonify, render_template, session , send_file , redirect , Response
 from flask_session import Session
 import platform
 import os
@@ -724,7 +724,6 @@ async def api_scan():
         return jsonify({"message": "Scan completed successfully.", "switches": switches}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 if __name__ == "__main__":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy()) # ถ้าอยู่บน WebServer Ubuntu แล้วไม่ต้องใช้งานตัวนี้

@@ -1,68 +1,100 @@
-let vlanCounter = 1;
+document.addEventListener("DOMContentLoaded", () => {
+    const saveButtonVLAN = document.getElementById("save-vlan-config");
+    const cancelButtonVLAN = document.getElementById("cancel-vlan-config");
+    const vlanForm = document.getElementById("vlan-multiple-form");
+    const addVLANButton = document.getElementById("add-vlan-row");
+    const vlanRowsContainer = document.getElementById("vlan-rows");
 
-// Add New VLAN Form
-document.getElementById("add-vlan-row").addEventListener("click", function () {
-    const vlanCounter = document.querySelectorAll(".vlan-row").length + 1; // นับจำนวน VLAN ปัจจุบัน
-    const vlanRows = document.getElementById("vlan-rows");
+    // Regular Expression for IPv4 Address Validation
+    const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
-    // Create a new VLAN form container
-    const newVlanRow = document.createElement("div"); // ใช้ div สำหรับ container
-    newVlanRow.className = "vlan-row form-group"; // เพิ่ม class สำหรับ styling
-    newVlanRow.id = `vlan-row-${vlanCounter}`;
+    // Save VLAN Configuration
+    saveButtonVLAN.addEventListener("click", () => {
+        const vlanRows = document.querySelectorAll(".vlan-row");
+        let allValid = true;
 
-    // Add VLAN form content
-    newVlanRow.innerHTML = `
-        <label for="vlan-id-${vlanCounter}">VLAN ID</label>
-        <input type="number" id="vlan-id-${vlanCounter}" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
+        vlanRows.forEach(row => {
+            const vlanID = row.querySelector('input[name="vlan-id[]"]');
+            const vlanIP = row.querySelector('input[name="vlan-IP[]"]');
 
-        <label for="vlan-name-${vlanCounter}">VLAN Name</label>
-        <input type="text" id="vlan-name-${vlanCounter}" name="vlan-name[]" placeholder="Enter VLAN Name" required>
+            // Validate VLAN ID
+            if (vlanID.value < 1 || vlanID.value > 4094) {
+                alert(`Invalid VLAN ID: ${vlanID.value}. VLAN ID must be between 1 and 4094.`);
+                allValid = false;
+                return;
+            }
 
-        <label for="vlan-IP-${vlanCounter}">IP Address VLAN</label>
-        <input type="text" id="vlan-IP-${vlanCounter}" name="vlan-IP[]" placeholder="Enter IP Address VLAN" required>
+            // Validate IPv4 Address
+            if (!ipv4Regex.test(vlanIP.value)) {
+                alert(`Invalid IPv4 Address: ${vlanIP.value}. Please enter a valid IPv4 address.`);
+                allValid = false;
+                return;
+            }
+        });
 
-        <button type="button" class="remove-vlan-row" style="width: auto;">
-            <i class="fas fa-trash-alt"></i>
-        </button>
-    `;
+        if (!allValid) return;
 
-    // Add event listener to the remove button
-    newVlanRow.querySelector(".remove-vlan-row").addEventListener("click", function () {
-        newVlanRow.remove(); // ลบ VLAN Form นี้
+        // Lock all fields
+        vlanRows.forEach(row => {
+            const inputs = row.querySelectorAll("input");
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+        });
+
+        saveButtonVLAN.style.display = "none";
+        cancelButtonVLAN.style.display = "inline-block";
+        addVLANButton.disabled = true; // Disable "Add VLAN" button
     });
 
-    vlanRows.appendChild(newVlanRow); // เพิ่ม VLAN Form ใน container
-});
+    // Cancel VLAN Configuration
+    cancelButtonVLAN.addEventListener("click", () => {
+        const vlanRows = document.querySelectorAll(".vlan-row");
 
-// Remove VLAN Form (using delegation for all rows)
-document.getElementById("vlan-rows").addEventListener("click", function (e) {
-    if (e.target.classList.contains("remove-vlan-row") || e.target.closest(".remove-vlan-row")) {
-        const vlanRow = e.target.closest(".vlan-row");
-        if (vlanRow) {
-            vlanRow.remove();
+        // Unlock all fields
+        vlanRows.forEach(row => {
+            const inputs = row.querySelectorAll("input");
+            inputs.forEach(input => {
+                input.disabled = false;
+            });
+        });
+
+        saveButtonVLAN.style.display = "inline-block";
+        cancelButtonVLAN.style.display = "none";
+        addVLANButton.disabled = false; // Enable "Add VLAN" button
+    });
+
+    // Add VLAN Row
+    addVLANButton.addEventListener("click", () => {
+        const vlanCounter = document.querySelectorAll(".vlan-row").length + 1;
+        const newVLANRow = document.createElement("div");
+        newVLANRow.className = "vlan-row form-group";
+        newVLANRow.innerHTML = `
+            <label for="vlan-id-${vlanCounter}">VLAN ID</label>
+            <input type="number" id="vlan-id-${vlanCounter}" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
+
+            <label for="vlan-name-${vlanCounter}">VLAN Name</label>
+            <input type="text" id="vlan-name-${vlanCounter}" name="vlan-name[]" placeholder="Enter VLAN Name" required>
+
+            <label for="vlan-IP-${vlanCounter}">IP Address VLAN</label>
+            <input type="text" id="vlan-IP-${vlanCounter}" name="vlan-IP[]" placeholder="Enter IP Address VLAN" required>
+
+            <button type="button" class="remove-vlan-row" style="width: auto;">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        `;
+        vlanRowsContainer.appendChild(newVLANRow);
+    });
+
+    // Event Delegation for Removing VLAN Rows
+    vlanRowsContainer.addEventListener("click", (event) => {
+        if (event.target.classList.contains("remove-vlan-row") || event.target.closest(".remove-vlan-row")) {
+            const vlanRow = event.target.closest(".vlan-row");
+            if (vlanRow) {
+                vlanRow.remove();
+            }
         }
-    }
-});
-
-// Handle Form Submission
-document.getElementById("vlan-multiple-form").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    // Collect VLAN data
-    const vlanData = [];
-    const vlanForms = document.querySelectorAll(".vlan-row");
-    vlanForms.forEach(form => {
-        const vlanId = form.querySelector('input[name="vlan-id[]"]').value;
-        const vlanName = form.querySelector('input[name="vlan-name[]"]').value;
-        const vlanIP = form.querySelector('input[name="vlan-IP[]"]').value;
-
-        vlanData.push({ vlanId, vlanName, vlanIP });
     });
-
-    console.log("Submitted VLAN Data:", vlanData);
-
-    // Optional: Add logic to send this data to the server
-    alert("VLAN Configuration Saved!");
 });
 
 let interfaceCounter = 1;
@@ -283,24 +315,137 @@ document.querySelector("#ntp-config form").addEventListener("submit", function (
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    const hostnameInput = document.getElementById("hostname-input");
-    const saveButton = document.getElementById("save-hostname");
-    const cancelButton = document.getElementById("cancel-hostname");
+    const saveButton = document.getElementById("save-template");
+    const cancelButton = document.getElementById("cancel-template");
+    const templateName = document.getElementById("template-name");
+    const templateDescription = document.getElementById("template-description");
 
     saveButton.addEventListener("click", () => {
-        if (hostnameInput.value.trim() === "") {
-            alert("Please enter a hostname!");
+        if (templateName.value.trim() === "" || templateDescription.value.trim() === "") {
+            alert("Please fill out all fields!");
             return;
         }
-        hostnameInput.disabled = true; // ล็อก input
+        templateName.disabled = true;
+        templateDescription.disabled = true;
         saveButton.style.display = "none";
         cancelButton.style.display = "inline-block";
     });
 
     cancelButton.addEventListener("click", () => {
-        hostnameInput.disabled = false; // ปลดล็อก input
-        hostnameInput.value = ""; // ล้างค่า input
+        templateName.disabled = false;
+        templateDescription.disabled = false;
+        templateName.value = ""; // Optional: clear the input
+        templateDescription.value = ""; // Optional: clear the input
         cancelButton.style.display = "none";
         saveButton.style.display = "inline-block";
+    });
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const saveButtonHostname = document.getElementById("save-hostname");
+    const cancelButtonHostname = document.getElementById("cancel-hostname");
+    const hostnameInput = document.getElementById("hostname-input");
+
+    saveButtonHostname.addEventListener("click", () => {
+        if (hostnameInput.value.trim() === "") {
+            alert("Please enter a hostname!");
+            return;
+        }
+        hostnameInput.disabled = true;
+        saveButtonHostname.style.display = "none";
+        cancelButtonHostname.style.display = "inline-block";
+    });
+
+    cancelButtonHostname.addEventListener("click", () => {
+        hostnameInput.disabled = false;
+        hostnameInput.value = ""; // Optional: Clear the input if needed
+        cancelButtonHostname.style.display = "none";
+        saveButtonHostname.style.display = "inline-block";
+    });
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const saveButtonVTP = document.getElementById("save-vtp-config");
+    const cancelButtonVTP = document.getElementById("cancel-vtp-config");
+    const vtpForm = document.getElementById("vtp-form");
+
+    // Save VTP Configuration
+    saveButtonVTP.addEventListener("click", () => {
+        const vtpDomain = document.getElementById("vtp-domain");
+        const vtpPassword = document.getElementById("vtp-password");
+
+        // Validate VTP Domain Name and Password
+        if (vtpDomain.value.trim() === "") {
+            alert("VTP Domain Name cannot be empty!");
+            return;
+        }
+
+        if (vtpPassword.value.trim() === "") {
+            alert("VTP Password cannot be empty!");
+            return;
+        }
+
+        // Lock all fields
+        const inputs = vtpForm.querySelectorAll("input, select");
+        inputs.forEach(input => {
+            input.disabled = true;
+        });
+
+        saveButtonVTP.style.display = "none";
+        cancelButtonVTP.style.display = "inline-block";
+    });
+
+    // Cancel VTP Configuration
+    cancelButtonVTP.addEventListener("click", () => {
+        const inputs = vtpForm.querySelectorAll("input, select");
+        inputs.forEach(input => {
+            input.disabled = false;
+        });
+
+        saveButtonVTP.style.display = "inline-block";
+        cancelButtonVTP.style.display = "none";
+    });
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const saveButton = document.getElementById("save-gateway-config");
+    const cancelButton = document.getElementById("cancel-gateway-config");
+    const gatewayForm = document.getElementById("gateway-form");
+
+    // Save Gateway Configuration
+    saveButton.addEventListener("click", () => {
+        const gatewayInput = document.getElementById("default-gateway");
+        const gatewayValue = gatewayInput.value.trim();
+
+        // Regular Expression for IPv4 validation
+        const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}$/;
+
+        if (!ipv4Regex.test(gatewayValue)) {
+            alert("Please enter a valid IPv4 address (e.g., 192.168.1.1).");
+            return;
+        }
+
+        // Lock all fields
+        const inputs = gatewayForm.querySelectorAll("input, select");
+        inputs.forEach(input => {
+            input.disabled = true;
+        });
+
+        saveButton.style.display = "none";
+        cancelButton.style.display = "inline-block";
+    });
+
+    // Cancel Gateway Configuration
+    cancelButton.addEventListener("click", () => {
+        const inputs = gatewayForm.querySelectorAll("input, select");
+        inputs.forEach(input => {
+            input.disabled = false;
+        });
+
+        saveButton.style.display = "inline-block";
+        cancelButton.style.display = "none";
     });
 });

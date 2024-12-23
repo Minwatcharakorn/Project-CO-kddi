@@ -686,4 +686,76 @@ textarea {
     border-color: #007bff;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
     outline: none;
-} */
+} */    
+
+
+#cancel-template {
+    background-color: #dc3545; /* Red background */
+    color: white; /* White text */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#cancel-template:hover {
+    background-color: #b02a37; /* Darker red on hover */
+}
+
+#cancel-hostname {
+    background-color: #dc3545; /* Red background */
+    color: white; /* White text */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#cancel-hostname:hover {
+    background-color: #b02a37; /* Darker red on hover */
+}
+
+
+#cancel-vlan-config {
+    background-color: #dc3545; /* Red background */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#cancel-vlan-config:hover {
+    background-color: #b02a37; /* Darker red on hover */
+}
+
+#cancel-vtp-config {
+    background-color: #dc3545; /* Red background */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#cancel-vtp-config:hover {
+    background-color: #b02a37; /* Darker red on hover */
+}
+
+#cancel-gateway-config {
+    background-color: #dc3545; /* Red background */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#cancel-gateway-config:hover {
+    background-color: #b02a37; /* Darker red on hover */
+}
