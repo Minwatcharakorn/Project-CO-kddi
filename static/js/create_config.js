@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const vlanForm = document.getElementById("vlan-multiple-form");
     const addVLANButton = document.getElementById("add-vlan-row");
     const vlanRowsContainer = document.getElementById("vlan-rows");
+    let isVlanConfigSaved = false; // ค่าเริ่มต้นคือยังไม่ได้กด Save
 
     // Regular Expression for IPv4 Address Validation
     const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
@@ -91,8 +92,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        if (!allValid) return;
-
+        if (!allValid) {
+            isVlanConfigSaved = true; // เปลี่ยนสถานะเป็น "บันทึกแล้ว"
+        }
         // Lock all fields
         vlanRows.forEach((row) => {
             const inputs = row.querySelectorAll("input, select");
@@ -606,25 +608,29 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
 
     // VLAN Configuration
     const vlanRows = document.querySelectorAll('.vlan-row');
+
     vlanRows.forEach(row => {
         const vlanId = row.querySelector('input[name="vlan-id[]"]');
         const vlanName = row.querySelector('input[name="vlan-name[]"]');
         const vlanIp = row.querySelector('input[name="vlan-IP[]"]');
         const subnetMask = row.querySelector('select[name="subnet-mask[]"]');
 
-        // Add VLAN ID
-        if (vlanId && vlanId.value.trim() !== '') {
-            configData += `vlan ${vlanId.value}\n`;
+        // Check if VLAN fields are disabled (indicating they've been saved)
+        if (vlanId.disabled && vlanName.disabled && vlanIp.disabled && subnetMask.disabled) {
+            // Add VLAN ID
+            if (vlanId && vlanId.value.trim() !== '') {
+                configData += `vlan ${vlanId.value}\n`;
 
-            // Add VLAN Name if provided
-            if (vlanName && vlanName.value.trim() !== '') {
-                configData += ` name ${vlanName.value}\n`;
-            }
+                // Add VLAN Name if provided
+                if (vlanName && vlanName.value.trim() !== '') {
+                    configData += ` name ${vlanName.value}\n`;
+                }
 
-            // Add interface and IP Address if IP is provided
-            if (vlanIp && vlanIp.value.trim() !== '') {
-                configData += `interface vlan ${vlanId.value}\n`;
-                configData += ` ip address ${vlanIp.value} ${subnetMask.value}\n exit\n`;
+                // Add interface and IP Address if IP is provided
+                if (vlanIp && vlanIp.value.trim() !== '') {
+                    configData += `interface vlan ${vlanId.value}\n`;
+                    configData += ` ip address ${vlanIp.value} ${subnetMask.value}\n exit\n`;
+                }
             }
         }
     });
@@ -661,6 +667,7 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
     // Inject Data into Modal and Show
     openModalPreview(configData);
 });
+
 // Download Configuration as .txt File
 document.getElementById('download-config').addEventListener('click', () => {
     const configData = document.getElementById('preview-configuration-content').textContent; // ตรวจสอบว่าใช้ ID "preview-configuration-content" จริงหรือไม่
