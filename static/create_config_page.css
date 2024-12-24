@@ -3,6 +3,11 @@ body {
     display: flex;
 }
 
+/* Error Styling */
+.input-error {
+    border: 2px solid #ff0000; /* Red border for error */
+    background-color: #ffc6c6; /* Light red background */
+}
 .config-section {
     padding: 20px;
     border: 1px solid #ccc;
@@ -801,5 +806,19 @@ textarea {
 }
 
 #cancel-gateway-config:hover {
+    background-color: #b02a37; /* Darker red on hover */
+}
+
+#cancel-interface-configs {
+    background-color: #dc3545; /* Red background */
+    color: white; /* White text */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#cancel-interface-configs:hover {
     background-color: #b02a37; /* Darker red on hover */
 }

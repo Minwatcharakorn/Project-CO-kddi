@@ -42,28 +42,38 @@ document.addEventListener("DOMContentLoaded", () => {
     saveButtonVLAN.addEventListener("click", () => {
         const vlanRows = document.querySelectorAll(".vlan-row");
         let allValid = true;
-    
+
         vlanRows.forEach((row) => {
             const vlanID = row.querySelector('input[name="vlan-id[]"]');
             const vlanName = row.querySelector('input[name="vlan-name[]"]');
             const vlanIP = row.querySelector('input[name="vlan-IP[]"]');
             const subnetMask = row.querySelector('select[name="subnet-mask[]"]');
-    
-            // Validate VLAN ID
+
+            // Reset error states
+            vlanID.classList.remove("input-error");
+            vlanName.classList.remove("input-error");
+            vlanIP.classList.remove("input-error");
+
+            // Validate VLAN ID (required and within range)
             if (vlanID.value.trim() === '' || isNaN(vlanID.value) || vlanID.value < 1 || vlanID.value > 4094) {
+                vlanID.classList.add("input-error");
                 alert(`Invalid VLAN ID: ${vlanID.value}. VLAN ID is required and must be between 1 and 4094.`);
                 allValid = false;
                 return;
             }
-    
-            // Optional: Validate VLAN Name
-            if (vlanName.value.trim() !== '' && /\s/.test(vlanName.value)) {
-                alert(`Invalid VLAN Name: ${vlanName.value}. VLAN Name cannot contain spaces.`);
-                allValid = false;
-                return;
+
+            // Validate VLAN Name (English letters only, no spaces allowed)
+            if (vlanName.value.trim() !== '') {
+                const vlanNameRegex = /^[a-zA-Z0-9-_]+$/; // Allow English letters, numbers, dashes, and underscores
+                if (!vlanNameRegex.test(vlanName.value)) {
+                    vlanName.classList.add("input-error");
+                    alert(`Invalid VLAN Name: ${vlanName.value}. VLAN Name must contain only English letters, numbers, dashes, or underscores.`);
+                    allValid = false;
+                    return;
+                }
             }
-    
-            // Optional: Validate IPv4 Address
+
+            // Optional: Validate IPv4 Address (if provided)
             if (vlanIP.value.trim() !== '') {
                 const octets = vlanIP.value.split('.');
                 if (
@@ -73,19 +83,16 @@ document.addEventListener("DOMContentLoaded", () => {
                         return num >= 0 && num <= 255;
                     })
                 ) {
+                    vlanIP.classList.add("input-error");
                     alert(`Invalid IPv4 Address: ${vlanIP.value}. Please enter a valid IPv4 address.`);
                     allValid = false;
                     return;
                 }
             }
-    
-            console.log(
-                `VLAN ID: ${vlanID.value}, Name: ${vlanName.value}, IP: ${vlanIP.value}, Subnet: ${subnetMask.value}`
-            );
         });
-    
+
         if (!allValid) return;
-    
+
         // Lock all fields
         vlanRows.forEach((row) => {
             const inputs = row.querySelectorAll("input, select");
@@ -93,12 +100,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 input.disabled = true;
             });
         });
-    
+
         saveButtonVLAN.style.display = "none";
         cancelButtonVLAN.style.display = "inline-block";
         addVLANButton.disabled = true; // Disable "Add VLAN" button
     });
-    
+        
     // Cancel VLAN Configuration
     cancelButtonVLAN.addEventListener("click", () => {
         const vlanRows = document.querySelectorAll(".vlan-row");
@@ -192,7 +199,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-let interfaceCounter = 1;
+let interfaceCounter = 1; // Counter to keep track of interface configurations
+let isLocked = false; // Global lock state tracker
 
 // Add New Interface Configuration
 document.getElementById("add-interface-config").addEventListener("click", function () {
@@ -236,7 +244,6 @@ document.getElementById("add-interface-config").addEventListener("click", functi
             <!-- Remove Button -->
             <button type="button" class="remove-interface-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
         </form>
-        <hr style="margin-top: 20px; border: none; border-top: 1px solid #ccc;">
     `;
     interfaceConfigs.appendChild(newConfig);
 
@@ -246,56 +253,60 @@ document.getElementById("add-interface-config").addEventListener("click", functi
 
     // Remove Configuration Button
     initializeRemoveButton(newConfig);
-    
-    document.body.style.overflow = "hidden";
 
-    const container = document.querySelector(".content");
-    container.style.overflowY = "scroll";
+    // If configurations are locked, lock the new form
+    if (isLocked) {
+        const inputs = newConfig.querySelectorAll("input, select");
+        inputs.forEach((input) => {
+            input.disabled = true;
+        });
+    }
 
     interfaceCounter++;
 });
 
-let selectedPortsGlobal = []; // เก็บพอร์ตที่ถูกเลือกไว้ในทุก config
+// Adjusted Overflow Management
+document.body.style.overflow = "hidden";
+const container = document.querySelector(".content");
+container.style.overflowY = "scroll";
 
+let selectedPortsGlobal = []; // Global list of selected ports
 
 // Initialize Select2 Dropdown for Ports
 function initializeDropdown(counter) {
     const selectElement = document.getElementById(`interface-port-select-${counter}`);
     $(selectElement).select2({
         placeholder: "Select Ports",
-        allowClear: true
+        allowClear: true,
     });
 
-    // Define port groups
     const portGroups = [
         { name: "Fixed Chassis", range: generatePorts("GigabitEthernet0/", 48) },
         { name: "Modular Chassis", range: generatePorts("GigabitEthernet1/0/", 48) },
-        { name: "TenGigabitEthernet", range: generatePorts("TenGigabitEthernet0/", 8) }
+        { name: "TenGigabitEthernet", range: generatePorts("TenGigabitEthernet0/", 8) },
     ];
 
-    // Populate ports in dropdown
-    portGroups.forEach(group => {
-        const groupOption = new Option(group.name, '', false, false);
-        $(groupOption).attr('disabled', 'disabled');
+    portGroups.forEach((group) => {
+        const groupOption = new Option(group.name, "", false, false);
+        $(groupOption).attr("disabled", "disabled");
         $(selectElement).append(groupOption);
 
-        group.range.forEach(port => {
-            const isDisabled = selectedPortsGlobal.includes(port); // Check if port is already selected
+        group.range.forEach((port) => {
+            const isDisabled = selectedPortsGlobal.includes(port);
             const portOption = new Option(port, port, false, false);
             if (isDisabled) {
-                $(portOption).attr('disabled', 'disabled'); // Disable if already selected
+                $(portOption).attr("disabled", "disabled");
             }
             $(selectElement).append(portOption);
         });
     });
 
-    // Update global ports list when selection changes
     $(selectElement).on("select2:select", function (e) {
         const selectedPort = e.params.data.id;
         if (!selectedPortsGlobal.includes(selectedPort)) {
             selectedPortsGlobal.push(selectedPort);
         }
-        refreshPortAvailability(); // Refresh other dropdowns
+        refreshPortAvailability();
     });
 
     $(selectElement).on("select2:unselect", function (e) {
@@ -304,10 +315,9 @@ function initializeDropdown(counter) {
         if (index > -1) {
             selectedPortsGlobal.splice(index, 1);
         }
-        refreshPortAvailability(); // Refresh other dropdowns
+        refreshPortAvailability();
     });
 }
-
 
 // Generate port ranges dynamically
 function generatePorts(prefix, count) {
@@ -315,18 +325,18 @@ function generatePorts(prefix, count) {
 }
 
 function refreshPortAvailability() {
-    document.querySelectorAll(".interface-port-select").forEach(select => {
+    document.querySelectorAll(".interface-port-select").forEach((select) => {
         const selectElement = $(select);
-        const selectedValues = selectElement.val() || []; // Get currently selected values
+        const selectedValues = selectElement.val() || [];
         selectElement.find("option").each(function () {
             const port = $(this).val();
             if (port && selectedPortsGlobal.includes(port) && !selectedValues.includes(port)) {
-                $(this).attr("disabled", "disabled"); // Disable if already selected globally
+                $(this).attr("disabled", "disabled");
             } else {
-                $(this).removeAttr("disabled"); // Enable if not globally selected
+                $(this).removeAttr("disabled");
             }
         });
-        selectElement.trigger("change.select2"); // Refresh Select2 UI
+        selectElement.trigger("change.select2");
     });
 }
 
@@ -351,43 +361,71 @@ function initializeSwitchModeToggle(counter) {
 function initializeRemoveButton(newConfig) {
     const removeButton = newConfig.querySelector(".remove-interface-config");
     removeButton.addEventListener("click", function () {
-        // Remove selected ports from global list
         const selectElement = newConfig.querySelector(".interface-port-select");
-        const selectedPorts = $(selectElement).val(); // Get selected ports
+        const selectedPorts = $(selectElement).val();
         if (selectedPorts) {
-            selectedPorts.forEach(port => {
+            selectedPorts.forEach((port) => {
                 const index = selectedPortsGlobal.indexOf(port);
                 if (index > -1) {
-                    selectedPortsGlobal.splice(index, 1); // Remove port from global list
+                    selectedPortsGlobal.splice(index, 1);
                 }
             });
         }
 
-        // Remove configuration element
         newConfig.remove();
-
-        // Refresh dropdown availability for all remaining configurations
         refreshPortAvailability();
     });
 }
 
 // Save All Configurations
 document.getElementById("save-interface-configs").addEventListener("click", function () {
-    const configs = [];
-    document.querySelectorAll(".config-form").forEach(form => {
-        const selectedPorts = $(form.querySelector(".interface-port-select")).val();
-        const description = form.querySelector("input[name='description']").value;
-        const switchMode = form.querySelector("select[name='switch-mode']").value;
+    const interfaceForms = document.querySelectorAll(".config-form");
 
-        configs.push({
-            ports: selectedPorts,
-            description: description,
-            mode: switchMode
+    // Lock all inputs and selects, but keep Remove Configuration buttons enabled
+    interfaceForms.forEach((form) => {
+        const inputs = form.querySelectorAll("input, select");
+        const removeButton = form.querySelector(".remove-interface-config");
+
+        // Lock inputs and selects
+        inputs.forEach((input) => {
+            input.disabled = true;
+        });
+
+        // Keep Remove Configuration button enabled
+        if (removeButton) {
+            removeButton.disabled = false;
+        }
+    });
+
+    isLocked = true; // Update lock state
+
+    // Hide the Save All button and show the Cancel button
+    const saveButton = document.getElementById("save-interface-configs");
+    const cancelButton = document.getElementById("cancel-interface-configs");
+    saveButton.style.display = "none";
+    cancelButton.style.display = "inline-block";
+});
+
+// Cancel All Configurations
+document.getElementById("cancel-interface-configs").addEventListener("click", function () {
+    const interfaceForms = document.querySelectorAll(".config-form");
+
+    // Unlock all inputs, selects, and buttons
+    interfaceForms.forEach((form) => {
+        const inputs = form.querySelectorAll("input, select, button");
+
+        inputs.forEach((input) => {
+            input.disabled = false;
         });
     });
 
-    console.log("Saved Configurations:", configs);
-    alert("Configurations Saved Successfully!");
+    isLocked = false; // Update lock state
+
+    // Hide the Cancel button and show the Save All button
+    const saveButton = document.getElementById("save-interface-configs");
+    const cancelButton = document.getElementById("cancel-interface-configs");
+    saveButton.style.display = "inline-block";
+    cancelButton.style.display = "none";
 });
 
 // Handle NTP Form Submission
@@ -403,9 +441,6 @@ document.querySelector("#ntp-config form").addEventListener("submit", function (
     };
 
     console.log("Submitted NTP Configuration:", ntpConfig);
-
-    // Optional: Add logic to send configuration to the server or apply to switch
-    alert(`NTP Server: ${ntpServer}\nClock Timezone: ${clockTimezone}\nConfiguration Saved!`);
 });
 
 document.addEventListener("DOMContentLoaded", () => {
