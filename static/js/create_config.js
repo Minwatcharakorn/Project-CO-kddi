@@ -449,3 +449,114 @@ document.addEventListener("DOMContentLoaded", () => {
         cancelButton.style.display = "none";
     });
 });
+
+
+// Open Modal
+function openModalPreview(data) {
+    const modal = document.getElementById('preview-configuration-template');
+    const modalContent = document.getElementById('preview-configuration-content');
+    modalContent.textContent = data; // Populate modal content with the provided data
+    modal.style.display = 'flex'; // Display the modal
+}
+
+// Close Modal
+function closeModal() {
+    const modal = document.getElementById('preview-configuration-template');
+    modal.style.display = 'none'; // Hide the modal
+}
+
+// Generate and Open Modal Content
+document.getElementById('save-config-templates').addEventListener('click', () => {
+    let configData = 'enable\nconfiguration terminal\n'; // เพิ่มคำสั่งเริ่มต้น
+
+    // Hostname Configuration
+    const hostnameInput = document.getElementById('hostname-input');
+    if (hostnameInput && hostnameInput.disabled) {
+        configData += `hostname ${hostnameInput.value}\n`;
+    }
+
+    // VLAN Configuration
+    const vlanRows = document.querySelectorAll('.vlan-row');
+    vlanRows.forEach(row => {
+        const vlanId = row.querySelector('input[name="vlan-id[]"]');
+        const vlanName = row.querySelector('input[name="vlan-name[]"]');
+        const vlanIp = row.querySelector('input[name="vlan-IP[]"]'); // เพิ่มการอ่านค่า IP Address
+
+        if (vlanId.disabled && vlanName.disabled && vlanIp.disabled) {
+            configData += `vlan ${vlanId.value}\n name ${vlanName.value}\n`;
+            configData += `interface vlan ${vlanId.value}\n ip address ${vlanIp.value} 255.255.255.0\n exit\n`; // เพิ่ม interface vlan และ ip address
+        }
+    });
+
+    // Default Gateway Configuration
+    const defaultGateway = document.getElementById('default-gateway');
+    if (defaultGateway && defaultGateway.disabled) {
+        configData += `ip default-gateway ${defaultGateway.value}\n`;
+    }
+
+    // VTP Configuration
+    const vtpForm = document.getElementById('vtp-form');
+    const vtpInputs = vtpForm.querySelectorAll('input, select');
+    let vtpConfigured = true;
+    vtpInputs.forEach(input => {
+        if (!input.disabled) {
+            vtpConfigured = false;
+        }
+    });
+    if (vtpConfigured) {
+        const vtpMode = document.getElementById('vtp-mode').value;
+        const vtpVersion = document.getElementById('vtp-version').value;
+        const vtpDomain = document.getElementById('vtp-domain').value;
+        const vtpPassword = document.getElementById('vtp-password').value;
+
+        configData += `vtp mode ${vtpMode}\n`;
+        configData += `vtp version ${vtpVersion}\n`;
+        configData += `vtp domain ${vtpDomain}\n`;
+        configData += `vtp password ${vtpPassword}\n`;
+    }
+
+    configData += 'end\nwrite memory\n'; // เพิ่มคำสั่งปิดท้าย
+
+    // Inject Data into Modal and Show
+    openModalPreview(configData);
+});
+// Download Configuration as .txt File
+document.getElementById('download-config').addEventListener('click', () => {
+    const configData = document.getElementById('preview-configuration-content').textContent; // ตรวจสอบว่าใช้ ID "preview-configuration-content" จริงหรือไม่
+
+    fetch('/save-and-download-config', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ configData }) // ส่ง configData ไปยัง Flask
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Failed to download file');
+        return response.blob();
+    })
+    .then(blob => {
+        // สร้างชื่อไฟล์พร้อมวันที่และเวลา
+        const now = new Date();
+        const timestamp = now.toISOString().replace('T', '-').replace(/:/g, '-').split('.')[0];
+        const filename = `configuration_${timestamp}.txt`;
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+
+// Ensure that the modal closes when clicking the close button
+document.getElementById('modal-preview').addEventListener('click', event => {
+    if (event.target.id === 'modal-preview') {
+        closeModal();
+    }
+});

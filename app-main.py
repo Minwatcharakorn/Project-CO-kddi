@@ -725,6 +725,28 @@ async def api_scan():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/save-and-download-config', methods=['POST'])
+def save_and_download_config():
+    data = request.json  # รับข้อมูล JSON จาก JavaScript
+    config_data = data.get('configData', '')  # ดึง configData จากคำขอ
+
+    # ตรวจสอบว่ามีข้อมูลใน configData หรือไม่
+    if not config_data:
+        return jsonify({"error": "No configuration data provided"}), 400
+
+    # สร้างชื่อไฟล์พร้อมวันที่
+    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    filename = f'configuration_{timestamp}.txt'
+
+    # ส่งไฟล์กลับไปให้ JavaScript
+    return send_file(
+        io.BytesIO(config_data.encode('utf-8')),
+        as_attachment=True,
+        download_name=filename,
+        mimetype='text/plain'
+    )
+
+
 if __name__ == "__main__":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy()) # ถ้าอยู่บน WebServer Ubuntu แล้วไม่ต้องใช้งานตัวนี้
     app.run(host="0.0.0.0", port=5000, debug=True)

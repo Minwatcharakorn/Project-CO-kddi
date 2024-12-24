@@ -229,9 +229,27 @@
         </div> 
 
 
-        <button id="save-config-template" class="styled-button">Save Config Templates</button>
-
+        <div class="save-config-container">
+            <button id="save-config-templates" class="styled2-button">
+                <i class="fa-solid fa-file-arrow-down"></i> Save Config Templates
+            </button>
+        </div>
     </div>
+
+    <!-- Modal Preview Template -->
+    <div id="preview-configuration-template" class="preview-modal">
+        <div class="preview-modal-content">
+            <h2 class="preview-modal-header">Preview Configuration</h2>
+            <div id="preview-configuration-content" class="preview-modal-content-body cli-style">
+                <!-- Configuration details will be injected here dynamically -->
+            </div>
+            <div class="preview-modal-footer">
+                <button id="download-config" class="preview-modal-button">Download</button>
+                <button onclick="closeModal()" class="preview-modal-button" style="background-color: #dc3545;">Close</button>
+            </div>
+        </div>
+    </div>
+
      <script src="../static/js/create_config.js"></script>
 </body>
 </html>

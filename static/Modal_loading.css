@@ -149,3 +149,67 @@
 .close-btn:hover {
     color: #000;
 }
+
+.preview-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.preview-modal-content {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 600px;
+    width: 80%;
+}
+
+.preview-modal-header {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.preview-modal-content-body {
+    font-size: 1em;
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+}
+
+.preview-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.preview-modal-button {
+    background-color: #1E90FF;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.preview-modal-button:hover {
+    background-color: #1C86EE;
+}
+
+/* ตกแต่งส่วน CLI */
+.cli-style {
+    background-color: #000000; /* สีพื้นหลังเหมือน CLI */
+    color: #ffffff; /* สีตัวอักษรเขียว */
+    font-family: "Courier New", Courier, monospace; /* ฟอนต์ CLI */
+    font-size: 1em;
+    padding: 15px;
+    border: 2px solid #555555; /* กรอบสีเทา */
+    border-radius: 5px;
+    white-space: pre-wrap; /* รักษารูปแบบการเว้นบรรทัด */
+    overflow-y: auto; /* เลื่อนถ้าข้อมูลยาว */
+    max-height: 300px; /* กำหนดความสูงสูงสุด */
+}

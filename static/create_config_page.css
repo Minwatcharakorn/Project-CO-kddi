@@ -234,7 +234,35 @@ form label {
     background-color: #004080; /* สีน้ำเงินเข้มที่สุดเมื่อคลิก */
 }
 
+.save-config-container {
+    display: flex;
+    justify-content: center; /* จัดปุ่มไว้ตรงกลาง */
+    margin-top: 20px; /* ระยะห่างด้านบน */
+}
 
+.styled2-button {
+    display: inline-flex;
+    align-items: center; /* จัดไอคอนและข้อความให้อยู่ในแนวเดียวกัน */
+    background-color: #1E90FF; /* สีพื้นหลัง */
+    color: white; /* สีข้อความ */
+    border: none; /* ไม่มีขอบ */
+    padding: 10px 20px; /* ระยะห่างภายใน */
+    border-radius: 5px; /* มุมโค้งมน */
+    font-size: 16px; /* ขนาดตัวอักษร */
+    cursor: pointer; /* เปลี่ยนเคอร์เซอร์เมื่อชี้ */
+    transition: background-color 0.3s ease; /* การเปลี่ยนสี */
+}
+.styled2-button i {
+    margin-right: 10px; /* ระยะห่างระหว่างไอคอนกับข้อความ */
+    font-size: 18px; /* ขนาดไอคอน */
+}
+.styled2-button:hover {
+    background-color: #0056b3; /* สีน้ำเงินเข้มเมื่อ hover */
+}
+
+.styled2-button:active {
+    background-color: #004080; /* สีน้ำเงินเข้มที่สุดเมื่อคลิก */
+}
 
 
 #add-interface-config {
