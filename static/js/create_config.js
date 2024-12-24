@@ -42,31 +42,50 @@ document.addEventListener("DOMContentLoaded", () => {
     saveButtonVLAN.addEventListener("click", () => {
         const vlanRows = document.querySelectorAll(".vlan-row");
         let allValid = true;
-
+    
         vlanRows.forEach((row) => {
             const vlanID = row.querySelector('input[name="vlan-id[]"]');
+            const vlanName = row.querySelector('input[name="vlan-name[]"]');
             const vlanIP = row.querySelector('input[name="vlan-IP[]"]');
             const subnetMask = row.querySelector('select[name="subnet-mask[]"]');
-
+    
             // Validate VLAN ID
-            if (vlanID.value < 1 || vlanID.value > 4094) {
-                alert(`Invalid VLAN ID: ${vlanID.value}. VLAN ID must be between 1 and 4094.`);
+            if (vlanID.value.trim() === '' || isNaN(vlanID.value) || vlanID.value < 1 || vlanID.value > 4094) {
+                alert(`Invalid VLAN ID: ${vlanID.value}. VLAN ID is required and must be between 1 and 4094.`);
                 allValid = false;
                 return;
             }
-
-            // Validate IPv4 Address
-            if (!ipv4Regex.test(vlanIP.value)) {
-                alert(`Invalid IPv4 Address: ${vlanIP.value}. Please enter a valid IPv4 address.`);
+    
+            // Optional: Validate VLAN Name
+            if (vlanName.value.trim() !== '' && /\s/.test(vlanName.value)) {
+                alert(`Invalid VLAN Name: ${vlanName.value}. VLAN Name cannot contain spaces.`);
                 allValid = false;
                 return;
             }
-
-            console.log(`VLAN ID: ${vlanID.value}, IP: ${vlanIP.value}, Subnet: ${subnetMask.value}`);
+    
+            // Optional: Validate IPv4 Address
+            if (vlanIP.value.trim() !== '') {
+                const octets = vlanIP.value.split('.');
+                if (
+                    octets.length !== 4 ||
+                    !octets.every(octet => {
+                        const num = parseInt(octet, 10);
+                        return num >= 0 && num <= 255;
+                    })
+                ) {
+                    alert(`Invalid IPv4 Address: ${vlanIP.value}. Please enter a valid IPv4 address.`);
+                    allValid = false;
+                    return;
+                }
+            }
+    
+            console.log(
+                `VLAN ID: ${vlanID.value}, Name: ${vlanName.value}, IP: ${vlanIP.value}, Subnet: ${subnetMask.value}`
+            );
         });
-
+    
         if (!allValid) return;
-
+    
         // Lock all fields
         vlanRows.forEach((row) => {
             const inputs = row.querySelectorAll("input, select");
@@ -74,10 +93,27 @@ document.addEventListener("DOMContentLoaded", () => {
                 input.disabled = true;
             });
         });
-
+    
         saveButtonVLAN.style.display = "none";
         cancelButtonVLAN.style.display = "inline-block";
         addVLANButton.disabled = true; // Disable "Add VLAN" button
+    });
+    
+    // Cancel VLAN Configuration
+    cancelButtonVLAN.addEventListener("click", () => {
+        const vlanRows = document.querySelectorAll(".vlan-row");
+    
+        // Unlock all fields
+        vlanRows.forEach((row) => {
+            const inputs = row.querySelectorAll("input, select");
+            inputs.forEach((input) => {
+                input.disabled = false;
+            });
+        });
+    
+        saveButtonVLAN.style.display = "inline-block";
+        cancelButtonVLAN.style.display = "none";
+        addVLANButton.disabled = false; // Enable "Add VLAN" button
     });
 
     // Cancel VLAN Configuration
@@ -140,6 +176,16 @@ document.addEventListener("DOMContentLoaded", () => {
             const vlanRow = event.target.closest(".vlan-row");
             if (vlanRow) {
                 vlanRow.remove();
+    
+                // Check if all rows are removed
+                if (vlanRowsContainer.querySelectorAll(".vlan-row").length === 0) {
+                    // Reset Save/Cancel Buttons
+                    saveButtonVLAN.style.display = "inline-block";
+                    cancelButtonVLAN.style.display = "none";
+    
+                    // Enable Add VLAN button
+                    addVLANButton.disabled = false;
+                }
             }
         }
     });
@@ -515,7 +561,7 @@ function closeModal() {
 
 // Generate and Open Modal Content
 document.getElementById('save-config-templates').addEventListener('click', () => {
-    let configData = 'enable\nconfiguration terminal\n'; // Start with initial commands
+    let configData = 'enable\nconfigure terminal\n'; // Start with initial commands
 
     // Hostname Configuration
     const hostnameInput = document.getElementById('hostname-input');
@@ -529,17 +575,28 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
         const vlanId = row.querySelector('input[name="vlan-id[]"]');
         const vlanName = row.querySelector('input[name="vlan-name[]"]');
         const vlanIp = row.querySelector('input[name="vlan-IP[]"]');
-        const subnetMask = row.querySelector('select[name="subnet-mask[]"]'); // Fetch subnet mask
+        const subnetMask = row.querySelector('select[name="subnet-mask[]"]');
 
-        if (vlanId.disabled && vlanName.disabled && vlanIp.disabled && subnetMask.disabled) {
-            configData += `vlan ${vlanId.value}\n name ${vlanName.value}\n`;
-            configData += `interface vlan ${vlanId.value}\n ip address ${vlanIp.value} ${subnetMask.value}\n exit\n`;
+        // Add VLAN ID
+        if (vlanId && vlanId.value.trim() !== '') {
+            configData += `vlan ${vlanId.value}\n`;
+
+            // Add VLAN Name if provided
+            if (vlanName && vlanName.value.trim() !== '') {
+                configData += ` name ${vlanName.value}\n`;
+            }
+
+            // Add interface and IP Address if IP is provided
+            if (vlanIp && vlanIp.value.trim() !== '') {
+                configData += `interface vlan ${vlanId.value}\n`;
+                configData += ` ip address ${vlanIp.value} ${subnetMask.value}\n exit\n`;
+            }
         }
     });
 
     // Default Gateway Configuration
     const defaultGateway = document.getElementById('default-gateway');
-    if (defaultGateway && defaultGateway.disabled) {
+    if (defaultGateway && defaultGateway.disabled && defaultGateway.value.trim() !== '') {
         configData += `ip default-gateway ${defaultGateway.value}\n`;
     }
 
