@@ -121,16 +121,50 @@ form label {
 .vlan-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 15px;
     align-items: center;
     margin-bottom: 15px;
 }
-.vlan-row input {
-    flex: 1;
+.remove-vlan-row {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -0.5%;
 }
-
 .vlan-row label {
     flex-basis: 100%; /* Ensure label spans full width */
+}
+
+.vlan-row input,
+.vlan-row select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    max-width: 300px;
+    width: 100%; /* Ensure full width */
+}
+
+.vlan-row .ip-address-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex: 1; /* Take up remaining space */
+}
+
+.vlan-row .ip-address-container input {
+    flex: 2; /* Make the input field larger than the dropdown */
+}
+
+.vlan-row .ip-address-container select {
+    flex: 1; /* Make the dropdown smaller */
+    padding: 5px;
 }
 
 #add-vlan-row {
@@ -145,25 +179,6 @@ form label {
 #add-vlan-row:hover {
     background-color: #0056b3;
 }
-/* Remove Button Styles */
-.remove-vlan-row {
-    background-color: #dc3545;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin: 0;
-    position: relative; /* ใช้ตำแหน่งที่สัมพันธ์กับตำแหน่งเดิม */
-    top: -5px;
-    align-self: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: auto; 
-}
-
 .remove-vlan-row:hover {
     background-color: #b02a37;
 }
@@ -193,7 +208,8 @@ form label {
 }
 
 .inline-fields > div {
-    flex: 0 0 auto; /* Ensure fields don’t stretch unnecessarily */
+    flex: 0 1 auto; /* Prevent excessive stretching */
+    margin-right: -36.3%;
 }
 
 .inline-fields input,

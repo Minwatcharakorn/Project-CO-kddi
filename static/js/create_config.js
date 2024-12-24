@@ -8,14 +8,45 @@ document.addEventListener("DOMContentLoaded", () => {
     // Regular Expression for IPv4 Address Validation
     const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
+    // Generate Subnet Mask Options
+    function generateSubnetMaskDropdown(id) {
+        const subnetMaskDropdown = document.createElement("select");
+        subnetMaskDropdown.id = `subnet-mask-${id}`;
+        subnetMaskDropdown.name = "subnet-mask[]";
+        subnetMaskDropdown.required = true;
+
+        for (let i = 1; i <= 32; i++) {
+            const value = (0xFFFFFFFF << (32 - i)) >>> 0;
+            const subnetStr = [
+                (value >>> 24) & 0xFF,
+                (value >>> 16) & 0xFF,
+                (value >>> 8) & 0xFF,
+                value & 0xFF,
+            ].join(".");
+            const option = document.createElement("option");
+            option.value = subnetStr;
+            option.textContent = `${subnetStr} /${i}`;
+            subnetMaskDropdown.appendChild(option);
+        }
+
+        return subnetMaskDropdown;
+    }
+
+    // Populate Subnet Masks for Existing Rows
+    document.querySelectorAll(".vlan-row").forEach((row, index) => {
+        const subnetMaskDropdown = generateSubnetMaskDropdown(index + 1);
+        row.querySelector("select[name='subnet-mask[]']").append(...subnetMaskDropdown.children);
+    });
+
     // Save VLAN Configuration
     saveButtonVLAN.addEventListener("click", () => {
         const vlanRows = document.querySelectorAll(".vlan-row");
         let allValid = true;
 
-        vlanRows.forEach(row => {
+        vlanRows.forEach((row) => {
             const vlanID = row.querySelector('input[name="vlan-id[]"]');
             const vlanIP = row.querySelector('input[name="vlan-IP[]"]');
+            const subnetMask = row.querySelector('select[name="subnet-mask[]"]');
 
             // Validate VLAN ID
             if (vlanID.value < 1 || vlanID.value > 4094) {
@@ -30,14 +61,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 allValid = false;
                 return;
             }
+
+            console.log(`VLAN ID: ${vlanID.value}, IP: ${vlanIP.value}, Subnet: ${subnetMask.value}`);
         });
 
         if (!allValid) return;
 
         // Lock all fields
-        vlanRows.forEach(row => {
-            const inputs = row.querySelectorAll("input");
-            inputs.forEach(input => {
+        vlanRows.forEach((row) => {
+            const inputs = row.querySelectorAll("input, select");
+            inputs.forEach((input) => {
                 input.disabled = true;
             });
         });
@@ -52,9 +85,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const vlanRows = document.querySelectorAll(".vlan-row");
 
         // Unlock all fields
-        vlanRows.forEach(row => {
-            const inputs = row.querySelectorAll("input");
-            inputs.forEach(input => {
+        vlanRows.forEach((row) => {
+            const inputs = row.querySelectorAll("input, select");
+            inputs.forEach((input) => {
                 input.disabled = false;
             });
         });
@@ -70,25 +103,40 @@ document.addEventListener("DOMContentLoaded", () => {
         const newVLANRow = document.createElement("div");
         newVLANRow.className = "vlan-row form-group";
         newVLANRow.innerHTML = `
-            <label for="vlan-id-${vlanCounter}">VLAN ID</label>
-            <input type="number" id="vlan-id-${vlanCounter}" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
-
-            <label for="vlan-name-${vlanCounter}">VLAN Name</label>
-            <input type="text" id="vlan-name-${vlanCounter}" name="vlan-name[]" placeholder="Enter VLAN Name" required>
-
+            <div class="inline-fields">
+                <div>
+                    <label for="vlan-id-${vlanCounter}">VLAN ID</label>
+                    <input type="number" id="vlan-id-${vlanCounter}" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
+                </div>
+                <div>
+                    <label for="vlan-name-${vlanCounter}">VLAN Name</label>
+                    <input type="text" id="vlan-name-${vlanCounter}" name="vlan-name[]" placeholder="Enter VLAN Name" required>
+                </div>
+            </div>
+    
             <label for="vlan-IP-${vlanCounter}">IP Address VLAN</label>
-            <input type="text" id="vlan-IP-${vlanCounter}" name="vlan-IP[]" placeholder="Enter IP Address VLAN" required>
-
-            <button type="button" class="remove-vlan-row" style="width: auto;">
-                <i class="fas fa-trash-alt"></i>
-            </button>
+            <div class="ip-address-container">
+                <input type="text" id="vlan-IP-${vlanCounter}" name="vlan-IP[]" placeholder="Enter IP Address VLAN" required>
+                <select id="subnet-mask-${vlanCounter}" name="subnet-mask[]" required></select>
+                <button type="button" class="remove-vlan-row">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
         `;
+    
+        // Generate and append subnet mask options
+        const subnetMaskDropdown = generateSubnetMaskDropdown(vlanCounter);
+        newVLANRow.querySelector("select").append(...subnetMaskDropdown.children);
+    
         vlanRowsContainer.appendChild(newVLANRow);
     });
 
     // Event Delegation for Removing VLAN Rows
     vlanRowsContainer.addEventListener("click", (event) => {
-        if (event.target.classList.contains("remove-vlan-row") || event.target.closest(".remove-vlan-row")) {
+        if (
+            event.target.classList.contains("remove-vlan-row") ||
+            event.target.closest(".remove-vlan-row")
+        ) {
             const vlanRow = event.target.closest(".vlan-row");
             if (vlanRow) {
                 vlanRow.remove();
@@ -96,6 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
 
 let interfaceCounter = 1;
 
@@ -163,7 +212,6 @@ document.getElementById("add-interface-config").addEventListener("click", functi
 let selectedPortsGlobal = []; // เก็บพอร์ตที่ถูกเลือกไว้ในทุก config
 
 
-// Initialize Select2 Dropdown for Ports
 // Initialize Select2 Dropdown for Ports
 function initializeDropdown(counter) {
     const selectElement = document.getElementById(`interface-port-select-${counter}`);
@@ -467,7 +515,7 @@ function closeModal() {
 
 // Generate and Open Modal Content
 document.getElementById('save-config-templates').addEventListener('click', () => {
-    let configData = 'enable\nconfiguration terminal\n'; // เพิ่มคำสั่งเริ่มต้น
+    let configData = 'enable\nconfiguration terminal\n'; // Start with initial commands
 
     // Hostname Configuration
     const hostnameInput = document.getElementById('hostname-input');
@@ -480,11 +528,12 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
     vlanRows.forEach(row => {
         const vlanId = row.querySelector('input[name="vlan-id[]"]');
         const vlanName = row.querySelector('input[name="vlan-name[]"]');
-        const vlanIp = row.querySelector('input[name="vlan-IP[]"]'); // เพิ่มการอ่านค่า IP Address
+        const vlanIp = row.querySelector('input[name="vlan-IP[]"]');
+        const subnetMask = row.querySelector('select[name="subnet-mask[]"]'); // Fetch subnet mask
 
-        if (vlanId.disabled && vlanName.disabled && vlanIp.disabled) {
+        if (vlanId.disabled && vlanName.disabled && vlanIp.disabled && subnetMask.disabled) {
             configData += `vlan ${vlanId.value}\n name ${vlanName.value}\n`;
-            configData += `interface vlan ${vlanId.value}\n ip address ${vlanIp.value} 255.255.255.0\n exit\n`; // เพิ่ม interface vlan และ ip address
+            configData += `interface vlan ${vlanId.value}\n ip address ${vlanIp.value} ${subnetMask.value}\n exit\n`;
         }
     });
 
@@ -515,7 +564,7 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
         configData += `vtp password ${vtpPassword}\n`;
     }
 
-    configData += 'end\nwrite memory\n'; // เพิ่มคำสั่งปิดท้าย
+    configData += 'end\nwrite memory\n'; // Add closing commands
 
     // Inject Data into Modal and Show
     openModalPreview(configData);
