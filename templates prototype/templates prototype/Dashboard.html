@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Device</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    {% include 'sidebar.html' %}
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="content-header">
+            <h2>
+                <i class="fas fa-home" style="color: #1E90FF;"></i> Dashboard Device
+            </h2>  
+        </div>
+
+        <div class="content-body">
+            <div class="table-container">
+                <!-- Table with data similar to the Cisco vManage interface -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Serial No./Token</th>
+                            <th>Hostname</th>
+                            <th>IP</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for switch in switches %}
+                        <tr>
+                            <td>{{ switch.model }}</td>
+                            <td>{{ switch.serial }}</td>
+                            <td>{{ switch.hostname }}</td>
+                            <td>{{ switch.ip }}</td>
+                            <td>{{ switch.status }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

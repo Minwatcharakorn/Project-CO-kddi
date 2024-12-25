@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Templates</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    {% include 'sidebar.html' %}
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="content-header">
+            <div class="breadcrumb">
+                <h2><a href="{{ url_for('deploy_page') }}">Devices</a></h2> &gt;
+                <h2>
+                    <i class="fas fa-file-alt" style="color: #1E90FF;"></i> Select Template
+                </h2>
+            </div>
+            <button id="apply-template-button" class="apply-button">Apply</button>
+        </div>
+
+        <div class="content-body">
+            <div class="table-container">
+                <!-- Template Table -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th><input type="radio" name="select-template" id="select-template-radio"></th>
+                            <th>Template Name</th>
+                            <th>Description</th>
+                            <th>Last Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for template in templates %}
+                        <tr>
+                            <td><input type="radio" name="template_id" value="{{ template.id }}"></td>
+                            <td>{{ template.name }}</td>
+                            <td>{{ template.description }}</td>
+                            <td>{{ template.last_updated }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('apply-template-button').addEventListener('click', async function () {
+            const selectedTemplate = document.querySelector('input[name="template_id"]:checked');
+            
+            if (selectedTemplate) {
+                try {
+                    const response = await fetch('/api/select_template', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ template_id: selectedTemplate.value })
+                    });
+
+                    const result = await response.json();
+                    if (response.ok) {
+                        window.location.href = '/pre_deployment'; // Redirect ไปหน้า Pre-Deployment
+                    } else {
+                        throw new Error(result.error);
+                    }
+                } catch (err) {
+                    console.error(`Error: ${err.message}`);
+                    alert(`Error: ${err.message}`);
+                }
+            } else {
+                alert('Please select a template.');
+            }
+        });
+    </script>
+    <script>
+        document.getElementById('next-button').addEventListener('click', function() {
+            window.location.href = "pre_deployment.html";
+        });
+    </script>
+</body>
+</html>

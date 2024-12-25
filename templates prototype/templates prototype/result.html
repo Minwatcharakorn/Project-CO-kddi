@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Deployment</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/result.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <script>
+        // Load the sidebar into the container
+        fetch('sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById("sidebar-container").innerHTML = data);
+    </script>
+
+    <div class="content">
+        <div class="content-header">
+            <div class="breadcrumb">
+                <h2><a href="Deploy.html">Devices</a></h2> &gt; 
+                <h2><a href="template_selection.html">Select Templates</a></h2> &gt; 
+                <h2><span>Pre-Deployment</span></h2>
+            </div>
+            <button id="deploy-button" class="deploy-button">Deploy</button>
+        </div>
+
+        <div class="result-container">
+            <h3>Selected Devices and Templates</h3><br>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Device Name</th>
+                        <th>IP Address</th>
+                        <th>Selected Template</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody id="result-table-body">
+                    <!-- Rows will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Retrieve selected devices and the selected template from local storage
+        const selectedDevices = JSON.parse(localStorage.getItem('selectedDevices')) || [];
+        const selectedTemplate = JSON.parse(localStorage.getItem('selectedTemplates'))[0] || { templateName: 'N/A', description: 'N/A' };
+
+        const resultTableBody = document.getElementById('result-table-body');
+        selectedDevices.forEach((device, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${device.deviceName}</td>
+                <td>${device.ipAddress}</td>
+                <td>${selectedTemplate.templateName}</td>
+                <td>${selectedTemplate.description}</td>
+            `;
+            resultTableBody.appendChild(row);
+        });
+
+        // Deploy button event listener
+        document.getElementById('deploy-button').addEventListener('click', function() {
+            // Store deployment details in local storage
+            localStorage.setItem('deploymentDetails', JSON.stringify({
+                devices: selectedDevices,
+                template: selectedTemplate
+            }));
+            // Redirect to deployment log page
+            window.location.href = 'deployment_log.html';
+        });
+    </script>
+
+    <script src="../static/js/result.js"></script>
+</body>
+</html>

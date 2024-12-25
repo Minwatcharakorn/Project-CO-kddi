@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="../static/styles-Initial.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-section">
+            <a href="/" class="back-button-top">Back</a>
+
+            <div class="loginssh-container">
+                <h2>Network Device Authentication</h2>
+                <form id="login-form">
+                    <div class="password-container">
+                        <input type="text" id="ip-start" placeholder="Start IP Address e.g. 192.168.1.1" required>
+                        <input type="text" id="ip-end" placeholder="End IP Address e.g. 192.168.1.255" required>
+                    </div>
+                    <div class="username-container">
+                        <input type="text" id="username" placeholder="Username" required>
+                    </div>
+                    <div class="password-container">
+                        <input type="password" id="password" placeholder="Password" required>
+                        <i id="togglePassword" class="fas fa-eye-slash"></i>
+                    </div>
+                    <div class="buttons">
+                        <button id="scan-button" type="button" class="serial-console-button">Apply</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="info-section">
+            <h1>Welcome back!</h1>
+            <p>Please sign in to your SSH account.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit...</p>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="modal">
+        <div class="modal-content">
+            <div class="loading-spinner"></div>
+            <p>Loading</p>
+        </div>
+    </div>
+
+    <script src="../static/js/script-initial.js"></script>
+
+</body>
+</html>

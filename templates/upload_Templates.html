@@ -3,16 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Switch Management Dashboard</title>
+    <title>Upload Template</title>
     <link rel="stylesheet" href="../static/upload_templates.css">
     <link rel="stylesheet" href="../static/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <style>
+        /* เพิ่มสไตล์สำหรับการแจ้งสถานะ */
+        #upload-status {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        #upload-status .success {
+            color: green;
+        }
+        #upload-status .error {
+            color: red;
+        }
+        .command-box {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .command-box pre {
+            margin: 0;
+            font-family: monospace;
+        }
+    </style>
 </head>
 <body>
     <!-- Sidebar -->
     {% include 'sidebar.html' %}
-
 
     <!-- Main Content -->
     <div class="content">
@@ -20,27 +42,36 @@
             <div class="breadcrumb">
                 <h2><a href="/listtemplate">List Templates</a></h2> &gt; 
                 <h2><span>Upload Template</span></h2>
-            </div>        
+            </div>
         </div>
         <div class="content-body">
-            <div class="template-container">
-                <button class="upload-button">
+            <form id="upload-form" action="/uploadtemplate" method="post" enctype="multipart/form-data">
+                <div>
+                    <label for="template_name">Template Name:</label>
+                    <input type="text" name="template_name" id="template_name" required>
+                </div>
+		</br>
+                <div>
+                    <label for="description">Description:</label>
+                    <input type="text" name="description" id="description" required>
+                </div>
+		</br>
+                <div>
+                    <label for="file">Upload File (.txt only):</label>
+                    <input type="file" name="file" id="file" accept=".txt" required>
+                </div>
+		</br>
+                <button type="submit" class="upload-button">
                     <i class="fas fa-upload"></i> Upload Template
                 </button>
-                <div class="command-box">
-                    <pre>enable
-    config t
-        do show run
-        ........
-        ........
-        ........
-        ........
-        end
-    </pre>
-                </div>
+            </form>
+            <div id="upload-status"></div>
+            <div class="command-box">
+                <pre id="file-content">Uploaded file content will appear here...</pre>
             </div>
         </div>
     </div>
 
+    <script src="../static/js/upload_templates.js"></script>
 </body>
 </html>

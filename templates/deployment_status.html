@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment Status</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+    <div class="content">
+        <h2>Deployment Status</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Device</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for device, status in results.items() %}
+                <tr>
+                    <td>{{ device }}</td>
+                    <td>{{ status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

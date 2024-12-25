@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serial Console</title>
+    <link rel="stylesheet" href="../static/styles-serial-console.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Initial Port Serial</h1>
+        <div class="main-section">
+            <!-- Serial Settings -->
+            <div class="console-settings">
+                <h3>Basic Serial Settings</h3>
+                <div class="serial-settings-row">
+                    <div>
+                        <label for="serial-port">Serial Port</label>
+                        <select id="serial-port">
+                            <option value="" disabled selected>Choose at session start</option>
+                            <option value="COM1">COM1</option>
+                            <option value="COM2">COM2</option>
+                            <option value="COM3">COM3</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="speed">Speed (bps)</label>
+                        <select id="speed">
+                            <option value="1200">1200</option>
+                            <option value="2400">2400</option>
+                            <option value="4800">4800</option>
+                            <option value="9600">9600</option>
+                            <option value="19200">19200</option>
+                            <option value="38400">38400</option>
+                            <option value="57600">57600</option>
+                            <option value="115200">115200</option>
+                            <option value="230400">230400</option>
+                            <option value="460800">460800</option>
+                            <option value="921600">921600</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="upload-file">Upload File</button>
+                <input type="file" id="file-input" style="display: none;">
+                <textarea id="command-area">
+enable
+    conf t
+        hostname Switch4
+        ip domain-name example.com
+        crypto key generate rsa
+        1024
+        ip ssh version 2
+        username admin privilege 15 secret password123
+        line vty 0 15
+            login local
+            transport input ssh
+            exit
+        interface vlan 1
+            ip address 192.168.100.115 255.255.255.0
+            no shutdown
+        end
+write memory
+                </textarea>
+                <button id="deploy-button">Deploy</button>
+                
+            </div>
+
+            <!-- <div class="protocol-settings">
+                <h3>SNMP (Simple Network Management Protocol)</h3>
+                <div>
+                    <input type="checkbox" id="snmp-public" />
+                    <label for="snmp-public">Public Read-only Access</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="snmp-private" />
+                    <label for="snmp-private">Private Read-write Access</label>
+                </div>
+
+                <h3>SSH (Secure Shell)</h3>
+                <div>
+                    <label for="domain-name">Domain Name:</label>
+                    <input type="text" id="domain-name" placeholder="Enter Domain Name" />
+                </div>
+                <div>
+                    <label for="rsa-key">RSA Key Size:</label>
+                    <select id="rsa-key">
+                        <option value="512">512-bit</option>
+                        <option value="1024">1024-bit</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="ssh-username">Username:</label>
+                    <input type="text" id="ssh-username" placeholder="Enter Username" />
+                </div>
+                <div>
+                    <label for="ssh-password">Password:</label>
+                    <input type="password" id="ssh-password" placeholder="Enter Password" />
+                </div>
+            </div>
+        </div> -->
+
+        <!-- Back Button -->
+        <a href="Initial.html" class="back-button"> SSH Login</a>
+    </div>
+
+    <script src="../static/js/script-serial-console.js"></script>
+</body>
+</html>

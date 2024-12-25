@@ -17,14 +17,14 @@
             <div class="breadcrumb">
                 <h2>
                     <i class="fas fa-tools" style="color: #1E90FF;"></i> Devices
-                </h2>             
-             </div>
+                </h2>
+            </div>
             <button id="apply-button" class="apply-button">Apply</button>
         </div>
 
         <div class="content-body">
             <div class="table-container">
-                <!-- Table with data similar to the Cisco vManage interface -->
+                <!-- Table with data -->
                 <table>
                     <thead>
                         <tr>
@@ -39,7 +39,7 @@
                     <tbody id="device-table-body">
                         {% for switch in switches %}
                         <tr>
-                            <td><input type="checkbox" class="device-checkbox"></td>
+                            <td><input type="checkbox" class="device-checkbox" data-ip="{{ switch.ip }}"></td>
                             <td>{{ switch.model }}</td>
                             <td>{{ switch.serial }}</td>
                             <td>{{ switch.hostname }}</td>
@@ -53,54 +53,32 @@
         </div>
     </div>
 
-    <!-- HTML for the Modal -->
-    <div id="commandOutputModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Command Output</h2>
-            <pre id="commandOutputText"></pre>
-        </div>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const selectAllCheckbox = document.getElementById('select-all');
             const checkboxes = document.querySelectorAll('.device-checkbox');
-    
+
             selectAllCheckbox.addEventListener('change', function() {
                 checkboxes.forEach(checkbox => checkbox.checked = this.checked);
             });
-    
-            // Apply button event listener
+
             document.getElementById('apply-button').addEventListener('click', async function() {
                 const selectedDevices = [];
                 document.querySelectorAll('.device-checkbox:checked').forEach(checkbox => {
-                    const row = checkbox.closest('tr');
-                    const deviceInfo = {
-                        ip: row.cells[4].innerText
-                    };
-                    selectedDevices.push(deviceInfo);
+                    selectedDevices.push(checkbox.getAttribute('data-ip'));
                 });
-    
+
                 if (selectedDevices.length > 0) {
                     try {
-                        const response = await fetch('/api/send_command', {
+                        const response = await fetch('/api/select_devices', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ devices: selectedDevices })
                         });
-    
+
                         const result = await response.json();
                         if (response.ok) {
-                            // Format the command output for a clean display
-                            let formattedOutput = '';
-                            for (const [ip, output] of Object.entries(result.output)) {
-                                formattedOutput += `<h3>${ip}:</h3><pre>${output.replace(/\r\n/g, '\n')}</pre>`;
-                            }
-    
-                            // Show command output in the modal
-                            document.getElementById('commandOutputText').innerHTML = formattedOutput;
-                            document.getElementById('commandOutputModal').style.display = 'block';
+                            window.location.href = '/select_templates'; // Redirect ไปหน้า Templates
                         } else {
                             throw new Error(result.error);
                         }
@@ -112,23 +90,12 @@
                     alert('Please select at least one device to apply.');
                 }
             });
-    
-            // JavaScript for Modal functionality
-            const modal = document.getElementById('commandOutputModal');
-            const span = document.getElementsByClassName('close')[0];
-    
-            // Close the modal
-            span.onclick = function() {
-                modal.style.display = 'none';
-            };
-    
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
-            };
         });
     </script>
-    
+    <script>
+        document.getElementById('next-button').addEventListener('click', function() {
+            window.location.href = "template_selection.html";
+        });
+    </script>
 </body>
 </html>

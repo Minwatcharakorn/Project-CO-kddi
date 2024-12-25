@@ -25,41 +25,39 @@
         <!-- Template Information -->
         <div class="config-section" id="template-information-config">
             <h3>Template Information</h3>
-            <form class="config-form">
+            <form>
                 <!-- Template Name -->
-                <div class="form-group">
-                    <label for="template-name">Template Name</label>
-                    <input type="text" id="template-name" name="template-name" placeholder="Enter Template Name" required>
-                    <label for="template-description">Description</label>
-                    <textarea id="template-description" name="template-description" placeholder="Enter Template Description" rows="3" required></textarea>
+                <label for="template-name">Template Name</label>
+                <input type="text" id="template-name" name="template-name" placeholder="Enter Template Name" style="width: auto;" required>
 
-                </div>
+                <!-- Description -->
+                <label for="template-description">Description</label>
+                <textarea id="template-description" name="template-description" placeholder="Enter Template Description" style="width: auto;" rows="3" required></textarea>
+                <br><br>
 
-                <input type="submit" value="Save Templates Information" class="styled-button">
+                <input type="submit" value="Save Templates Information">
             </form>
         </div>
 
 
         <!-- Hostname Configuration -->
-        <div class="config-section" id="hostname-config">
+        <div class="config-section" id="Hostname-config">
             <h3>Hostname Configuration</h3>
-            <form class="config-form">
-                <div class="form-group">
-                    <label for="host-name">Hostname</label>
-                    <input type="text" id="host-name" name="host-name" placeholder="Enter Hostname" required>
-                </div>
-                <input type="submit" value="Save Hostname Configuration" class="styled-button">
+            <form>
+                <label for="Host_name">Hostname</label>
+                <input type="text" id="Host-name" name="Host-name" placeholder="Enter Hostname" style="width: auto;"><br><br>
+                <input type="submit" value="Save Hostname Configuration">
             </form>
         </div>
 
         <!-- Create VLANs -->
         <div class="config-section" id="create-vlan-multiple">
             <h3>Create VLANs</h3>
-            <form id="vlan-multiple-form" class="config-form">
+            <form id="vlan-multiple-form">
                 <div id="vlan-rows">
-                    <button type="button" id="add-vlan-row" class="styled-button">Add VLAN</button>
+                    <button type="button" id="add-vlan-row">Add VLAN</button>
                     <br><br>
-                    <div class="vlan-row form-group">
+                    <div class="vlan-row">
                         <label for="vlan-id-1">VLAN ID</label>
                         <input type="number" id="vlan-id-1" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
 
@@ -68,13 +66,13 @@
 
                         <label for="vlan-IP-1">IP Address VLAN</label>
                         <input type="text" id="vlan-IP-1" name="vlan-IP[]" placeholder="Enter IP Address VLAN" required>
-
                         <button type="button" class="remove-vlan-row" style="width: auto;">
                             <i class="fas fa-trash-alt"></i>
-                        </button>
+                        </button>                    
                     </div>
                 </div>
-                <input type="submit" value="Save VLANs Configuration" class="styled-button">
+
+                <input type="submit" value="Save VLANs Configuration">
             </form>
         </div>
 
@@ -202,7 +200,10 @@
             <div id="interface-configs">
                 <!-- Default Configuration -->
                 <div class="interface-config">
-                    <form class="config-form">
+                    <form class="interface-config-form">
+                        <label>
+                            <input type="checkbox" id="no-switch-1" onchange="toggleSwitchMode(this)"> No Switchmode
+                        </label>
                         <label for="interface-port-1">Interface Port</label>
                         <select id="interface-port-1" name="interface-port">
                             <option value="">--Select Port--</option>
@@ -217,6 +218,11 @@
                             <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
                         </select>
         
+                        <div class="Description IP" id="ip-single-1">
+                            <label for="interface-ip-1">IP Address</label>
+                            <input type="text" id="interface-ip-1" name="interface-ip" placeholder="Enter IP Address">
+                        </div>
+
                         <div class="Description IP" id="Description_ip-id">
                             <label for="Description-ip">Description</label>
                             <input type="text" id="Description-ip" name="Description-IP ADD" placeholder="Enter Description Port ">

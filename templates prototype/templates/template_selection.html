@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Templates List</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/templates_list.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <script>
+        // Load the sidebar into the container
+        fetch('sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById("sidebar-container").innerHTML = data);
+    </script>
+
+    <div class="content">
+        <div class="content-header">
+            <div class="breadcrumb">
+                <h2><a href="Deploy.html">Devices</a></h2> &gt;
+                <h2><span>Select Templates</span></h2>
+            </div>
+            <button id="apply-button" class="apply-button">Apply</button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th><input type="radio" id="select-all-templates" disabled></th>
+                        <th>No</th>
+                        <th>Templates Name</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Last Updated</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="radio" name="template-radio" class="template-radio"></td>
+                        <td>1</td>
+                        <td>CSW-1 Template</td>
+                        <td>Core-Switch by John</td>
+                        <td>text</td>
+                        <td>29 Sep 2024 18:43:50</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-edit" onclick="openModal('CSW Template', 'Visit')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-edit" onclick="openModal('CSW Template', 'Edit')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="template-radio" class="template-radio"></td>
+                        <td>2</td>
+                        <td>DSW Model</td>
+                        <td>Distribution by John</td>
+                        <td>text</td>
+                        <td>4 Oct 2024 15:30:12</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-edit" onclick="openModal('DSW Model', 'Visit')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-edit" onclick="openModal('DSW Model', 'Edit')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="template-radio" class="template-radio"></td>
+                        <td>3</td>
+                        <td>CSW-2 Template</td>
+                        <td>Core-Switch by John</td>
+                        <td>text</td>
+                        <td>29 Sep 2024 18:43:50</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-edit" onclick="openModal('CSW-2 Template', 'Visit')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-edit" onclick="openModal('CSW-2 Template', 'Edit')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="template-radio" class="template-radio"></td>
+                        <td>4</td>
+                        <td>Access Template</td>
+                        <td>Access Switch by Ball</td>
+                        <td>text</td>
+                        <td>8 Sep 2024 15:20:50</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-edit" onclick="openModal('Access Template', 'Visit')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-edit" onclick="openModal('Access Template', 'Edit')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- Repeat similar rows for other templates -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modal-title">Template Details</h3>
+            <div id="command-output" class="terminal">
+                <pre>
+                enable
+                config t
+                do show run
+                ......</pre>
+            </div>
+            <div id="edit-area" style="display: none;">
+                <textarea id="edit-textarea" style="width: 100%; height: 200px;">enable
+    config t
+    do show run
+    ......</textarea>
+                <button class="btn-save" style="margin-top: 20px;">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Apply button event listener
+        document.getElementById('apply-button').addEventListener('click', function() {
+            const selectedTemplate = document.querySelector('.template-radio:checked');
+            if (selectedTemplate) {
+                const row = selectedTemplate.closest('tr');
+                const templateInfo = {
+                    templateName: row.cells[2].innerText,
+                    description: row.cells[3].innerText
+                };
+                localStorage.setItem('selectedTemplates', JSON.stringify([templateInfo]));
+                window.location.href = 'result.html';
+            } else {
+                alert('Please select a template to apply.');
+            }
+        });
+
+        // Open modal logic
+        function openModal(templateName, action) {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const editArea = document.getElementById('edit-area');
+
+            modalTitle.textContent = `${action} ${templateName}`;
+            if (action === 'Edit') {
+                editArea.style.display = 'block';
+            } else {
+                editArea.style.display = 'none';
+            }
+
+            modal.style.display = 'block';
+        }
+
+        // Close modal logic
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'none';
+        }
+    </script>
+
+    <script src="../static/js/temples.js"></script>
+</body>
+</html>
