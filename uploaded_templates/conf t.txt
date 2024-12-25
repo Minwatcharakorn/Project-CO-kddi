@@ -1,0 +1,15 @@
+conf t
+hostname Switch4
+ip domain-name example.com
+crypto key generate rsa
+1024
+ip ssh version 2
+username admin privilege 15 secret password123
+line vty 0 15
+login local
+transport input ssh
+interface vlan 1
+ip address 192.168.100.115 255.255.255.0
+no shutdown
+end
+wri

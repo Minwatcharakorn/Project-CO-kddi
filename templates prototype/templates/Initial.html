@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="../static/styles-Initial.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-section">
+            <a href="/" class="back-button-top">Back</a>
+
+            <div class="loginssh-container">
+                <h2>Network Device Authentication</h2>
+                <form id="scan-form">
+                    <div class="mode-selection">
+                        <label>
+                            <input type="radio" name="scanMode" value="range" checked>
+                            Scan IP Range
+                        </label>
+                        <label>
+                            <input type="radio" name="scanMode" value="single">
+                            Scan Single IP
+                        </label>
+                    </div>
+                    
+                    <!-- กลุ่มสำหรับ IP Range -->
+                    <div class="range-container">
+                        <input type="text" id="ip-start" placeholder="Start IP (e.g., 192.168.1.1)">
+                        <input type="text" id="ip-end" placeholder="End IP (e.g., 192.168.1.255)">
+                    </div>
+                    
+                    <!-- กลุ่มสำหรับ Single IP -->
+                    <div class="single-ip-container" style="display: none;">
+                        <input type="text" id="ip-single" placeholder="Single IP (e.g., 192.168.1.1)">
+                    </div>
+                
+                    <!-- Username and Password -->
+                    <div class="username-container">
+                        <input type="text" id="username" placeholder="Username" required>
+                    </div>
+                    <div class="password-container">
+                        <input type="password" id="password" placeholder="Password" required>
+                        <i id="togglePassword" class="fas fa-eye-slash"></i>
+                    </div>
+                
+                    <div class="buttons">
+                        <button id="scan-button" type="button" class="serial-console-button">Scan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="info-section">
+            <h1><i class="fas fa-cogs"></i> Welcome To Website ! <i class="fas fa-cogs"></i></h1>
+            <div class="description">
+                <p>This tool allows you to authenticate and configure multiple network devices simultaneously.</p>
+                <p>Provide the IP range or single IP address along with your SSH credentials to start managing and configuring your devices at once.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="modal">
+        <div class="modal-content">
+            <div class="loading-spinner"></div>
+            <p>Loading</p>
+        </div>
+    </div>
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+            <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;"></p>
+            <p style="color: #555;"></p>
+            <button id="closeErrorModal" class="buttons" style="margin-top: 20px;">OK</button>
+        </div>
+    </div>
+    
+
+    <script src="../static/js/script-initial.js"></script>
+
+</body>
+</html>

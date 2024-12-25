@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, session , send_file , redirect
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for, flash
 from flask_session import Session
 import platform
 import os
@@ -7,20 +7,53 @@ import asyncio
 import paramiko
 from datetime import datetime, timedelta
 import re
-import io
+import psycopg2
 import time
+from datetime import datetime, timedelta
+import pytz
 
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'
 app.config['SECRET_KEY'] = 'yoursecretkey'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 Session(app)
 
+UPLOAD_FOLDER = 'uploaded_templates'
+ALLOWED_EXTENSIONS = {'txt'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 # Global serial connection
 serial_connection = None
 
 switches = []  # List to store scanned devices
+
+# เชื่อมต่อกับฐานข้อมูล
+def get_db_connection():
+    try:
+        conn = psycopg2.connect(
+            dbname="logdb",
+            user="logdb",
+            password="kddiadmin",
+            host="127.0.0.1",
+            port="5432"
+        )
+        print("Database connected successfully!")
+        return conn
+    except Exception as e:
+        print(f"Database connection error: {e}")
+        raise
+
+def get_available_ports():
+    """Get a list of available serial ports."""
+    ports = serial.tools.list_ports.comports()
+    return [port.device for port in ports]
+
+# ฟังก์ชันตรวจสอบชนิดไฟล์
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 async def get_snmp_info(ip, community='public'):
     """Retrieve SNMP information from the device using asyncio."""
@@ -241,24 +274,193 @@ def configuration_page():
     """Serve the Configuration page."""
     return render_template('configuration.html')
 
-@app.route('/listtemplate')
+@app.route('/listtemplate', methods=['GET'])
 def listtemplate_page():
-    """Serve the List Template page."""
-    return render_template('templates-list.html')
+    """Serve the List Template page as HTML."""
+    try:
+        conn = psycopg2.connect(
+            dbname="logdb",
+            user="logdb",
+            password="kddiadmin",
+            host="127.0.0.1",
+            port="5432"
+        )
+        cursor = conn.cursor()
 
-@app.route('/uploadtemplate')
-def uploadtemplate_page():
-    """Serve the Upload Template page."""
+        cursor.execute("""
+            SELECT id, template_name, description, type, last_updated
+            FROM templates
+            ORDER BY last_updated DESC;
+        """)
+        templates = cursor.fetchall()
+
+        return render_template('templates-list.html', templates=templates)
+    except Exception as e:
+        return f"Error: {e}"
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/api/templates', methods=['GET'])
+def get_templates_json():
+    """Return templates as JSON for AJAX."""
+    try:
+        conn = psycopg2.connect(
+            dbname="logdb",
+            user="logdb",
+            password="kddiadmin",
+            host="127.0.0.1",
+            port="5432"
+        )
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id, template_name, description, type, last_updated
+            FROM templates
+            ORDER BY last_updated DESC;
+        """)
+        templates = cursor.fetchall()
+
+        # แปลงข้อมูลเป็น JSON
+        template_list = [{"id": row[0], "template_name": row[1], "description": row[2], "type": row[3], "last_updated": str(row[4])} for row in templates]
+
+        return jsonify({"templates": template_list})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/viewtemplate/<int:template_id>', methods=['GET'])
+def view_template(template_id):
+    """View the content of a specific template."""
+    try:
+        conn = psycopg2.connect(
+            dbname="logdb",
+            user="logdb",
+            password="kddiadmin",
+            host="127.0.0.1",
+            port="5432"
+        )
+        cursor = conn.cursor()
+
+        cursor.execute("""
+        SELECT file_data FROM templates WHERE id = %s;
+        """, (template_id,))
+        result = cursor.fetchone()
+
+        if result and result[0]:
+            # แปลงข้อมูลจาก BYTEA เป็นข้อความ
+            file_content = result[0].tobytes().decode('utf-8', errors='ignore')
+            return jsonify({"content": file_content})  # ส่งข้อมูลเป็น JSON
+        else:
+            return jsonify({"content": "No content found for this template"}), 404
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+
+@app.route('/updatetemplate/<int:template_id>', methods=['POST'])
+def update_template(template_id):
+    try:
+        data = request.get_json()
+        updated_content = data.get('content')
+
+        # เชื่อมต่อกับฐานข้อมูล
+        conn = psycopg2.connect(
+            dbname="logdb",
+            user="logdb",
+            password="kddiadmin",
+            host="127.0.0.1",
+            port="5432"
+        )
+        cursor = conn.cursor()
+
+        # อัปเดตข้อมูลในฐานข้อมูล
+        cursor.execute("""
+            UPDATE templates
+            SET file_data = decode(%s, 'escape')
+            WHERE id = %s
+        """, (updated_content.encode('utf-8').decode('utf-8'), template_id))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Template updated successfully!"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/deletetemplate/<int:template_id>', methods=['DELETE'])
+def delete_template(template_id):
+    """Delete a template from the database."""
+    try:
+        # เชื่อมต่อกับฐานข้อมูล
+        conn = psycopg2.connect(
+            dbname="logdb",
+            user="logdb",
+            password="kddiadmin",
+            host="127.0.0.1",
+            port="5432"
+        )
+        cursor = conn.cursor()
+
+        # ลบข้อมูลในฐานข้อมูล
+        cursor.execute("DELETE FROM templates WHERE id = %s", (template_id,))
+
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Template deleted successfully!"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/uploadtemplate', methods=['GET', 'POST'])
+def upload_template():
+    """Handle the upload of a new template."""
+    if request.method == 'POST':
+        try:
+            # รับข้อมูลจากฟอร์ม
+            template_name = request.form.get('template_name')
+            description = request.form.get('description')
+            file = request.files.get('file')
+
+            if not template_name or not description or not file:
+                return jsonify({"error": "Missing required fields"}), 400
+
+            if not allowed_file(file.filename):
+                return jsonify({"error": "Invalid file type. Only .txt files are allowed."}), 400
+
+            # อ่านเนื้อหาไฟล์
+            file_content = file.read().decode('utf-8')
+
+            # บันทึกลงฐานข้อมูล
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO templates (template_name, description, type, file_data, last_updated)
+                VALUES (%s, %s, %s, %s, NOW())
+            """, (template_name, description, 'txt', file_content))
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+            return jsonify({"message": f"Template '{template_name}' uploaded successfully!"}), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
     return render_template('upload_Templates.html')
 
-
-@app.route('/saveconfig')
-def saveconfig_page():
-    """Serve the Remote Config page with switch data."""
-    switches_from_session = session.get('switches', [])  # Get switches from session
-    print("Switches in session:", switches_from_session)  # Debug ดูข้อมูลใน Session
-
-    return render_template('saveconfig.html', switches=switches_from_session)
 
 
 @app.route('/deploy')
@@ -267,19 +469,324 @@ def deploy_page():
     switches_from_session = session.get('switches', [])
     return render_template('Deploy.html', switches=switches_from_session)
 
-@app.route('/logout')
-def logout():
-    """Clear session except switches and redirect to Initial page."""
-    session.clear()  # ล้างข้อมูลทั้งหมดใน session
-    return redirect('/initial')  # เปลี่ยนเส้นทางไปที่หน้า Initial
+@app.route('/api/deploy', methods=['POST'])
+def deploy_api():
+    """API สำหรับการส่งคำสั่งไปยังอุปกรณ์ที่เลือก."""
+    selected_devices = session.get('selected_devices', [])
+    selected_template_id = session.get('selected_template', None)
+
+    if not selected_devices or not selected_template_id:
+        return jsonify({"error": "Missing devices or template selection"}), 400
+
+    deployment_logs = []
+
+    # ดึงคำสั่งจากฐานข้อมูล
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT file_data, template_name, description FROM templates WHERE id = %s", (selected_template_id,))
+        template = cursor.fetchone()
+
+        if not template or not template[0]:
+            return jsonify({"error": "Template data is missing or invalid."}), 404
+
+        # แปลง Binary หรือ MemoryView เป็น String และแยกคำสั่ง
+        if isinstance(template[0], memoryview):
+            template_commands = template[0].tobytes().decode('utf-8').strip().splitlines()
+        elif isinstance(template[0], bytes):
+            template_commands = template[0].decode('utf-8').strip().splitlines()
+        else:
+            return jsonify({"error": "Template data is not in the expected format."}), 500
+
+        if not template_commands:
+            return jsonify({"error": "Template commands are empty or cannot be parsed."}), 500
+
+        template_name = template[1]
+        template_description = template[2] or "No description"
+    except Exception as e:
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+    # ส่งคำสั่งไปยังอุปกรณ์แต่ละตัว
+    for device in session.get('switches', []):
+        if device['ip'] in selected_devices:
+            try:
+                hostname = device.get('hostname', 'Unknown')  # ดึง hostname จาก device
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(device['ip'], username=session.get('username'), password=session.get('password'), timeout=10)
+
+                # ใช้ interactive shell สำหรับคำสั่งที่ต้องการโหมด session
+                shell = ssh.invoke_shell()
+                output_log = []
+
+                for command in template_commands:
+                    try:
+                        shell.send(command + '\n')
+                        time.sleep(1)  # รอการประมวลผลคำสั่ง
+                        while not shell.recv_ready():
+                            time.sleep(0.5)
+                        output = shell.recv(314572800).decode('utf-8').strip()
+
+                        if 'Error' in output:
+                            output_log.append(f"Error in '{command}': {output}")
+                            break
+                        output_log.append(output)
+                    except Exception as cmd_error:
+                        output_log.append(f"Error executing command '{command}': {str(cmd_error)}")
+                        break
+
+                # บันทึก log ลงฐานข้อมูล
+                save_deployment_log(
+                    device={"ip": device['ip'], "hostname": hostname},
+                    template_name=template_name,
+                    status="Success" if not any("Error" in log for log in output_log) else "Failure",
+                    details="\n".join(output_log),
+                    description=template_description
+                )
+
+                deployment_logs.append({
+                    "hostname": hostname,
+                    "ip": device['ip'],
+                    "template_name": template_name,
+                    "status": "Success" if not any("Error" in log for log in output_log) else "Failure",
+                    "details": "\n".join(output_log)
+                })
+
+                ssh.close()
+            except Exception as e:
+                deployment_logs.append({
+                    "hostname": hostname,
+                    "ip": device['ip'],
+                    "template_name": template_name,
+                    "status": "Failure",
+                    "details": f"SSH connection error: {str(e)}"
+                })
+
+                save_deployment_log(
+                    device={"ip": device['ip'], "hostname": hostname},
+                    template_name=template_name,
+                    status="Failure",
+                    details=str(e),
+                    description=template_description
+                )
+
+    session['deployment_logs'] = deployment_logs
+    return jsonify({"message": "Deployment completed", "logs": deployment_logs}), 200
+
+
+def save_deployment_log(device, template_name, status, details, description):
+    """บันทึก log ลงฐานข้อมูล."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO deployment_logs (device_ip, hostname, template_name, status, details, description, timestamp)
+            VALUES (%s, %s, %s, %s, %s, %s, NOW())
+        """, (device['ip'], device['hostname'], template_name, status, details, description))
+        conn.commit()
+    except Exception as log_error:
+        print(f"Error saving deployment log: {log_error}")
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+
+def convert_to_bangkok_time(utc_time):
+    bangkok_offset = timedelta(hours=7)  # UTC+7
+    bangkok_time = utc_time + bangkok_offset
+    return bangkok_time.strftime('%Y-%m-%d %H:%M:%S')
+
+@app.route('/api/logging', methods=['GET'])
+def get_logging():
+    """API สำหรับดึงข้อมูล log การ deploy."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT hostname, device_ip, template_name, status, details, description, timestamp
+            FROM deployment_logs
+            ORDER BY timestamp DESC
+        """)
+        logs = cursor.fetchall()
+
+        log_list = []
+        for log in logs:
+            # ตรวจสอบ timestamp และแปลงเวลา
+            timestamp_utc = log[6]
+            if timestamp_utc:
+                timestamp_bangkok = convert_to_bangkok_time(timestamp_utc)
+            else:
+                timestamp_bangkok = "N/A"
+
+            log_list.append({
+                "hostname": log[0],
+                "ip": log[1],
+                "template_name": log[2],
+                "status": log[3],
+                "details": log[4],
+                "description": log[5] or "No description",  # จัดการกรณี description ว่าง
+                "timestamp": timestamp_bangkok
+            })
+
+        return jsonify({"logs": log_list}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+@app.route('/select_devices', methods=['POST'])
+def select_devices():
+    selected_devices = request.form.getlist('devices')  # Get selected devices from form
+    if not selected_devices:
+        flash("Please select at least one device.")
+        return redirect('/deploy')
+
+    # Save selected devices in session
+    session['selected_devices'] = selected_devices
+    flash("Devices selected successfully!")
+    return redirect('/select_templates')
+
+
+@app.route('/api/select_devices', methods=['POST'])
+def api_select_devices():
+    data = request.json
+    selected_devices = data.get('devices', [])
+
+    if not selected_devices:
+        return jsonify({"error": "No devices selected."}), 400
+
+    session['selected_devices'] = selected_devices
+    return jsonify({"message": "Devices selected successfully!"}), 200
+
+@app.route('/select_templates', methods=['GET'])
+def select_templates():
+    """แสดงหน้าเลือก Templates โดยดึงข้อมูลจากฐานข้อมูล"""
+    if not session.get('selected_devices'):
+        return redirect('/deploy')  # หากไม่ได้เลือก Devices กลับไปหน้า Deploy
+
+    try:
+        # เชื่อมต่อกับฐานข้อมูล
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Query Templates จากตารางในฐานข้อมูล
+        cursor.execute("""
+            SELECT id, template_name, description, last_updated
+            FROM templates
+            ORDER BY last_updated DESC;
+        """)
+        templates = cursor.fetchall()
+
+        # แปลงข้อมูลให้เป็น list ของ dictionary
+        template_list = [
+            {"id": row[0], "name": row[1], "description": row[2], "last_updated": row[3]}
+            for row in templates
+        ]
+
+        return render_template('select_templates.html', templates=template_list)
+
+    except Exception as e:
+        print(f"Database error: {e}")
+        flash("Unable to fetch templates from the database.")
+        return redirect('/deploy')
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/api/select_template', methods=['POST'])
+def api_select_template():
+    data = request.json
+    selected_template = data.get('template_id')
+
+    if not selected_template:
+        return jsonify({"error": "No template selected."}), 400
+
+    session['selected_template'] = selected_template
+    return jsonify({"message": "Template selected successfully!"}), 200
+
+
+@app.route('/pre_deployment', methods=['GET'])
+def pre_deployment():
+    """แสดงหน้า Pre-Deployment"""
+    selected_devices = session.get('selected_devices', [])
+    selected_template = session.get('selected_template')
+
+    # Debug Logs
+    print(f"Selected Devices (IPs): {selected_devices}")
+    print(f"Switches in Session: {session.get('switches', [])}")
+    print(f"Selected Template: {selected_template}")
+
+    if not selected_devices or not selected_template:
+        flash("Please complete the previous steps.")
+        return redirect('/deploy')
+
+    # ดึงข้อมูล Devices ที่เลือก (จับคู่ด้วย IP address)
+    devices_data = session.get('switches', [])
+    selected_devices_data = [device for device in devices_data if device['ip'] in selected_devices]
+
+    # Debug Log: Selected Devices Data
+    print(f"Selected Devices Data: {selected_devices_data}")
+
+    # Query Template
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id, template_name, description
+            FROM templates
+            WHERE id = %s
+        """, (selected_template,))
+        template = cursor.fetchone()
+
+        if not template:
+            flash("Selected template not found in the database.")
+            return redirect('/select_templates')
+
+        template_data = {"id": template[0], "name": template[1], "description": template[2]}
+
+    except Exception as e:
+        print(f"Database error: {e}")
+        flash("An error occurred while fetching template details.")
+        return redirect('/select_templates')
+
+    finally:
+        cursor.close()
+        conn.close()
+
+    return render_template('pre_deployment.html', devices=selected_devices_data, template=template_data)
+
+
+@app.route('/deployment_log', methods=['GET'])
+def deployment_log():
+    """แสดงหน้า Deployment Log"""
+    deployment_logs = session.get('deployment_logs', [])
+    return render_template('deployment_log.html', deployment_logs=deployment_logs)
+
+
+@app.route('/logging_page')
+def logging_page():
+    """Serve the Logging page."""
+    return render_template('Logging.html')
+
 
 @app.route('/info/<int:switch_id>')
 def switch_info(switch_id):
     print(f"Accessing info for switch ID: {switch_id}")
     switch = next((s for s in switches if s.get('id') == switch_id), None)
-    if not switch:
-        print("Switch not found!")
-        return render_template('404.html'), 404
+
     print(f"Switch found: {switch}")
     # ส่ง switch_id ให้หน้า info.html
     return render_template('info.html', switch_id=switch_id, switches=switches)

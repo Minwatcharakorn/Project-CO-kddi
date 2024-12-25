@@ -9,16 +9,13 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Sidebar -->
     {% include 'sidebar.html' %}
 
     <div class="content">
-        
-
         <div class="content-header">
             <h2>
                 <i class="fas fa-list" style="color: #1E90FF;"></i> List Templates
-            </h2>            
+            </h2>
             <button class="upload-button" onclick="location.href='/uploadtemplate'">
                 <i class="fas fa-upload"></i> Upload Template
             </button>
@@ -28,122 +25,59 @@
             <table>
                 <thead>
                     <tr>
-                        <th>No</th>
-                        <th>Templates Name</th>
+                        <th onclick="sortTable(0)">NO <i class="fas fa-sort"></i></th>
+                        <th>Template Name</th>
                         <th>Description</th>
                         <th>Type</th>
-                        <th>Last Updated</th>
+                        <th onclick="sortTable(4)">Last Updated <i class="fas fa-sort"></i></th>
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="template-table-body">
+                    {% for template in templates %}
                     <tr>
-                        <td>1</td>
-                        <td>CSR-446db3a4-ba82-4ea0</td>
-                        <td>Core-Switch by John</td>
-                        <td>txt</td>
-                        <td>29 Sep 2024 18:43:50</td>
+                        <td>{{ template[0] }}</td>
+                        <td>{{ template[1] }}</td>
+                        <td>{{ template[2] }}</td>
+                        <td>{{ template[3] }}</td>
+                        <td>{{ template[4] }}</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn-edit" onclick="openModal('CSW Template', 'Visit')">
+                                <button class="btn-view" onclick="openModal('{{ template[0] }}', 'Visit')">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="btn-edit" onclick="openModal('CSW Template', 'Edit')">
+                                <button class="btn-edit" onclick="openModal({{ template[0] }}, 'Edit')">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn-delete" onclick="deleteTemplate('CSW Template')">
+                                <button class="btn-delete" onclick="deleteTemplate('{{ template[0] }}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>DSW Model</td>
-                        <td>Distribution by John</td>
-                        <td>txt</td>
-                        <td>4 Oct 2024 15:30:12</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-edit" onclick="openModal('CSW Template', 'Visit')">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn-edit" onclick="openModal('CSW Template', 'Edit')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn-delete" onclick="deleteTemplate('CSW Template')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>CSW-2 Template</td>
-                        <td>Core-Switch by John</td>
-                        <td>txt</td>
-                        <td>29 Sep 2024 18:43:50</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-edit" onclick="openModal('CSW Template', 'Visit')">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn-edit" onclick="openModal('CSW Template', 'Edit')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn-delete" onclick="deleteTemplate('CSW Template')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>Access Template</td>
-                        <td>Access Switch by Ball</td>
-                        <td>txt</td>
-                        <td>8 Sep 2024 15:20:50</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-edit" onclick="openModal('CSW Template', 'Visit')">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn-edit" onclick="openModal('CSW Template', 'Edit')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn-delete" onclick="deleteTemplate('CSW Template')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <!-- Repeat similar rows for other templates -->
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 
+    <!-- Modal -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
             <h3 id="modal-title">Template Details</h3>
             <div id="command-output" class="terminal">
-                <pre>
-                enable
-                config t
-                do show run
-                ......</pre>
+                <pre id="template-details"></pre>
             </div>
             <div id="edit-area" style="display: none;">
-                <textarea id="edit-textarea" style="width: 100%; height: 200px;">enable
-    config t
-    do show run
-    ......</textarea>
-                <button class="btn-save" style="margin-top: 20px;">Save</button>
+                <textarea id="edit-textarea" style="width: 100%; height: 200px;"></textarea>
+                <button class="btn-save" onclick="saveTemplate()">Save</button>
             </div>
         </div>
     </div>
 
-    <script src="../static/js/temples.js"></script>
+    <!-- Load the JavaScript at the end -->
+    <script src="../static/js/templates.js"></script>
+    <script src="../static/js/sort.js"></script>
 </body>
 </html>

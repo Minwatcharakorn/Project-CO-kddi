@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='info.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Modal_loading.css') }}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Device Information</title>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    {% include 'sidebar.html' %}
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="modal">
+        <div class="modal-content">
+            <div class="loading-spinner"></div>
+            <p>Loading</p>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal">
+        <div class="error-modal-content">
+            <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+            <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;"></p>
+            <p style="color: #555;"></p>
+            <button id="closeErrorModal" class="buttons" style="margin-top: 20px;">Ok</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="device-info-container">
+        <!-- Dropdown Container -->
+        <div class="dropdown-container">
+            <label for="switchSelector">Select Switch: </label>
+            <select id="switchSelector" onchange="switchSelectionChanged()">
+                {% for switch in switches %}
+                    <option value="{{ switch['id'] }}" {% if switch['id'] == switch_id %}selected{% endif %}>
+                        {{ switch['hostname'] }} ({{ switch['ip'] }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="switch-info">
+            <h3 id="hostnameTop">Switch</h3>
+            <h4>Port Status</h4>
+            
+            <div class="port-status"></div>
+
+        </div>
+
+        <!-- Device Status -->
+        <div class="device-status">
+            <h3>Device Status</h3>
+            <div class="chart-container">
+                <div class="chart-item">
+                    <canvas id="cpuChart"></canvas>
+                    <p id="cpuPercent">--%</p>
+                </div>
+                <div class="chart-item">
+                    <canvas id="memoryChart"></canvas>
+                    <p id="memoryPercent">--%</p>
+                </div>
+                <div class="chart-item">
+                    <canvas id="temperatureChart"></canvas>
+                    <p id="temperatureValue">--°C</p>
+                </div>
+            </div>
+
+            <!-- Info and License Container -->
+            <div class="info-container">
+                <!-- System Info -->
+                <div class="system-info">
+                    <h3>System Information</h3>
+                    <div class="system-info-item">
+                        <p><strong>Hostname:</strong> <span id="hostnameBottom">Loading...</span></p>
+                    </div>
+                    <div class="system-info-item">
+                        <p><strong>Device Uptime:</strong> <span id="uptime">Loading...</span></p>
+                    </div>
+                    <div class="system-info-item">
+                        <p><strong>Model:</strong> <span id="devicetypeBottom">Loading...</span></p>
+                    </div>
+                </div>
+
+                <!-- License Information -->
+                <div class="license-info">
+                    <h3>License Information</h3>
+                    <div id="licenseContainer">
+                        <!-- Dynamic content from JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+                <!-- VLAN Information Container -->
+        <div class="vlan-info">
+            <!-- <h3>VLAN Information</h3> -->
+            <table id="vlanTable" class="vlan-table">
+                <thead>
+                    <tr>
+                        <th>VLAN ID</th>
+                        <th>VLAN Name</th>
+                        <th>Status</th>
+                        <th>Ports</th>
+                    </tr>
+                </thead>
+                <tbody id="vlanTableBody">
+                    <tr id="noVlanMessage" style="display: none;">
+                        <td colspan="4" style="text-align: center;">No VLAN data available</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../static/js/Info.js"></script>
+    <script>
+        function switchSelectionChanged() {
+            const selectedSwitchId = document.getElementById('switchSelector').value;
+            window.location.href = `/info/${selectedSwitchId}`;
+        }
+    </script>
+</body>
+</html>
