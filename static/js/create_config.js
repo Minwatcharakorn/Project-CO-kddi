@@ -378,66 +378,143 @@ function initializeRemoveButton(newConfig) {
     });
 }
 
-/// Save All Configurations
-document.getElementById("save-interface-configs").addEventListener("click", function () {
-    const interfaceForms = document.querySelectorAll(".config-form");
+// Remove Interface Configuration
+document.addEventListener('click', function (e) {
+    if (e.target && e.target.classList.contains('remove-interface-config')) {
+        const configForm = e.target.closest('.interface-config');
+        if (configForm) {
+            configForm.remove(); // Remove the form
+        }
 
-    // Lock all inputs and selects, but keep Remove Configuration buttons enabled
+        // Check if all forms are removed
+        const interfaceForms = document.querySelectorAll('.interface-config');
+        const saveButton = document.getElementById('save-interface-configs');
+        const cancelButton = document.getElementById('cancel-interface-configs');
+        const addInterfaceButton = document.getElementById('add-interface-config');
+
+        if (interfaceForms.length === 0) {
+            // Switch Cancel button back to Save
+            cancelButton.style.display = 'none';
+            saveButton.style.display = 'inline-block';
+
+            // Enable Add Interface Configuration button
+            addInterfaceButton.disabled = false;
+        }
+    }
+});
+
+// Function to validate Description
+function validateDescription(description) {
+    const descriptionRegex = /^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>_\-\s]*$/; // Allow letters, numbers, special characters, and spaces
+    return descriptionRegex.test(description);
+}
+
+// Function to validate VLAN ID
+function validateVlanId(vlanId) {
+    return vlanId >= 1 && vlanId <= 4094; // Ensure VLAN ID is within range
+}
+
+// Function to validate Allowed VLANs (Trunk Mode)
+function validateAllowedVlans(allowedVlans) {
+    const vlanSyntaxRegex = /^(all|(\d{1,4})(,\d{1,4})*)$/; // Match 'all' or comma-separated numbers
+    return vlanSyntaxRegex.test(allowedVlans);
+}
+
+
+// Save All Configurations
+document.getElementById("save-interface-configs").addEventListener("click", function () {
+    const interfaceForms = document.querySelectorAll(".interface-config");
+
+    let isValid = true;
+
+    // Reset error states before validation
+    interfaceForms.forEach((form) => {
+        const inputs = form.querySelectorAll("input, select");
+        inputs.forEach((input) => {
+            input.classList.remove("input-error"); // Remove error class
+        });
+    });
+
+    // Iterate through each form and validate inputs
+    interfaceForms.forEach((form) => {
+        const descriptionInput = form.querySelector("input[name='description']");
+        const vlanIdInput = form.querySelector("input[name='vlan-id']");
+        const allowedVlansInput = form.querySelector("input[name='trunk-allowed-vlan']");
+        const switchMode = form.querySelector("select[name='switch-mode']").value;
+
+        // Validate Description
+        if (descriptionInput && !validateDescription(descriptionInput.value.trim())) {
+            descriptionInput.classList.add("input-error");
+            isValid = false;
+        }
+
+        // Validate VLAN ID
+        if (vlanIdInput && vlanIdInput.value.trim() !== "" && !validateVlanId(Number(vlanIdInput.value.trim()))) {
+            vlanIdInput.classList.add("input-error");
+            isValid = false;
+        }
+
+        // Validate Allowed VLANs (if trunk mode)
+        if (switchMode === "trunk" && allowedVlansInput && allowedVlansInput.value.trim() !== "" && !validateAllowedVlans(allowedVlansInput.value.trim())) {
+            allowedVlansInput.classList.add("input-error");
+            isValid = false;
+        }
+    });
+
+    if (!isValid) {
+        return; // Stop saving if validation fails
+    }
+
+    // Lock all inputs and selects if validation passes
     interfaceForms.forEach((form) => {
         const inputs = form.querySelectorAll("input, select");
         const removeButton = form.querySelector(".remove-interface-config");
 
-        // Lock inputs and selects
         inputs.forEach((input) => {
-            input.disabled = true;
+            input.disabled = true; // Lock inputs
         });
 
-        // Keep Remove Configuration button enabled
         if (removeButton) {
-            removeButton.disabled = false;
+            removeButton.disabled = false; // Keep Remove button enabled
         }
     });
 
-    isLocked = true; // Update lock state
-
-    // Disable Add Interface Configuration button
-    const addInterfaceButton = document.getElementById("add-interface-config");
-    if (addInterfaceButton) {
-        addInterfaceButton.disabled = true; // Disable the Add button
-    }
-
-    // Hide the Save All button and show the Cancel button
+    // Update button states
     const saveButton = document.getElementById("save-interface-configs");
     const cancelButton = document.getElementById("cancel-interface-configs");
     saveButton.style.display = "none";
     cancelButton.style.display = "inline-block";
+
+    // Disable Add Interface Configuration button
+    const addInterfaceButton = document.getElementById("add-interface-config");
+    if (addInterfaceButton) {
+        addInterfaceButton.disabled = true;
+    }
 });
 
 // Cancel All Configurations
 document.getElementById("cancel-interface-configs").addEventListener("click", function () {
-    const interfaceForms = document.querySelectorAll(".config-form");
+    const interfaceForms = document.querySelectorAll(".interface-config");
 
     // Unlock all inputs and selects
     interfaceForms.forEach((form) => {
         const inputs = form.querySelectorAll("input, select");
         inputs.forEach((input) => {
-            input.disabled = false;
+            input.disabled = false; // Unlock inputs
         });
     });
 
-    isLocked = false; // Update lock state
-
-    // Enable Add Interface Configuration button
-    const addInterfaceButton = document.getElementById("add-interface-config");
-    if (addInterfaceButton) {
-        addInterfaceButton.disabled = false; // Enable the Add button
-    }
-
-    // Show the Save All button and hide the Cancel button
+    // Update button states
     const saveButton = document.getElementById("save-interface-configs");
     const cancelButton = document.getElementById("cancel-interface-configs");
     saveButton.style.display = "inline-block";
     cancelButton.style.display = "none";
+
+    // Enable Add Interface Configuration button
+    const addInterfaceButton = document.getElementById("add-interface-config");
+    if (addInterfaceButton) {
+        addInterfaceButton.disabled = false;
+    }
 });
 
 // Handle NTP Form Submission
@@ -618,25 +695,20 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
 
     // VLAN Configuration
     const vlanRows = document.querySelectorAll('.vlan-row');
-
     vlanRows.forEach(row => {
         const vlanId = row.querySelector('input[name="vlan-id[]"]');
         const vlanName = row.querySelector('input[name="vlan-name[]"]');
         const vlanIp = row.querySelector('input[name="vlan-IP[]"]');
         const subnetMask = row.querySelector('select[name="subnet-mask[]"]');
 
-        // Check if VLAN fields are disabled (indicating they've been saved)
         if (vlanId.disabled && vlanName.disabled && vlanIp.disabled && subnetMask.disabled) {
-            // Add VLAN ID
             if (vlanId && vlanId.value.trim() !== '') {
                 configData += `vlan ${vlanId.value}\n`;
 
-                // Add VLAN Name if provided
                 if (vlanName && vlanName.value.trim() !== '') {
                     configData += ` name ${vlanName.value}\n`;
                 }
 
-                // Add interface and IP Address if IP is provided
                 if (vlanIp && vlanIp.value.trim() !== '') {
                     configData += `interface vlan ${vlanId.value}\n`;
                     configData += ` ip address ${vlanIp.value} ${subnetMask.value}\n exit\n`;
@@ -671,6 +743,30 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
         configData += `vtp domain ${vtpDomain}\n`;
         configData += `vtp password ${vtpPassword}\n`;
     }
+
+    // Interface Port Configuration
+    const interfaceForms = document.querySelectorAll('.interface-config');
+    interfaceForms.forEach(form => {
+        const portSelect = form.querySelector('.interface-port-select');
+        const descriptionInput = form.querySelector('input[name="description"]');
+        const switchMode = form.querySelector('select[name="switch-mode"]');
+        const vlanIdInput = form.querySelector('input[name="vlan-id"]');
+
+        if (portSelect.disabled && descriptionInput.disabled && switchMode.disabled && vlanIdInput.disabled) {
+            const selectedPorts = Array.from(portSelect.selectedOptions).map(option => option.value);
+            selectedPorts.forEach(port => {
+                configData += `interface ${port}\n`;
+                if (descriptionInput.value.trim() !== '') {
+                    configData += ` description ${descriptionInput.value}\n`;
+                }
+                configData += ` switchport mode ${switchMode.value}\n`;
+                if (switchMode.value === 'access' && vlanIdInput.value.trim() !== '') {
+                    configData += ` switchport access vlan ${vlanIdInput.value}\n`;
+                }
+                configData += ' exit\n';
+            });
+        }
+    });
 
     configData += 'end\nwrite memory\n'; // Add closing commands
 
