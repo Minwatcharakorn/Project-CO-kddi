@@ -2,71 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SNMP Data Fetcher</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <title>SSH Async Terminal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>SNMP Data Fetcher</h1>
-        <form id="snmpForm">
-            <label for="ip">IP Address:</label>
-            <input type="text" id="ip" name="ip" placeholder="Enter IP Address" required>
-            
-            <label for="community">Community String:</label>
-            <input type="text" id="community" name="community" placeholder="public" value="public">
-            
-            <button type="submit">Fetch SNMP Data</button>
-        </form>
-        <div id="results" class="hidden">
-            <h2>SNMP Results</h2>
-            <table>
-                <tr>
-                    <th>Parameter</th>
-                    <th>Value</th>
-                </tr>
-                <tr>
-                    <td>Hostname</td>
-                    <td id="hostname">-</td>
-                </tr>
-                <tr>
-                    <td>Model</td>
-                    <td id="model">-</td>
-                </tr>
-                <tr>
-                    <td>Serial Number</td>
-                    <td id="serial">-</td>
-                </tr>
-            </table>
-        </div>
+    <h1>SSH Terminal</h1>
+    <div>
+        <label>Host: <input id="hostname" type="text" value="192.168.100.114"></label>
+        <label>Port: <input id="port" type="number" value="22"></label>
+        <label>Username: <input id="username" type="text" value="admin"></label>
+        <label>Password: <input id="password" type="password"></label>
+        <button onclick="connectSSH()">Connect</button>
+    </div>
+    <div>
+        <textarea id="terminal" rows="20" cols="100" readonly></textarea><br>
+        <input id="command" type="text" placeholder="Enter command">
+        <button onclick="sendCommand()">Send</button>
     </div>
     <script>
-        document.getElementById('snmpForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
+        const socket = io.connect();
+        const terminal = document.getElementById('terminal');
 
-            const ip = document.getElementById('ip').value;
-            const community = document.getElementById('community').value;
+        function connectSSH() {
+            const hostname = document.getElementById('hostname').value;
+            const port = document.getElementById('port').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-            try {
-                const response = await fetch('/api/snmp', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ip, community }),
-                });
+            socket.emit('connect_ssh', {hostname, port, username, password});
+        }
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch SNMP data');
-                }
+        function sendCommand() {
+            const command = document.getElementById('command').value;
+            terminal.value += `> ${command}\n`;
+            socket.emit('send_command', {command});
+        }
 
-                const data = await response.json();
-                document.getElementById('hostname').textContent = data.snmp_data.hostname;
-                document.getElementById('model').textContent = data.snmp_data.model;
-                document.getElementById('serial').textContent = data.snmp_data.serial;
-
-                document.getElementById('results').classList.remove('hidden');
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
+        socket.on('output', (data) => {
+            terminal.value += data.data;
+            terminal.scrollTop = terminal.scrollHeight;  // Auto-scroll
         });
     </script>
 </body>

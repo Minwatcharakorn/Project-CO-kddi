@@ -51,3 +51,6 @@ if __name__ == "__main__":
     except (OSError, asyncssh.Error) as exc:
         print(f"Error: {exc}")
         sys.exit(1)
+
+
+print(50*'--','Select Interface','-'*50)

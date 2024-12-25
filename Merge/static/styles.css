@@ -563,17 +563,7 @@ tbody tr:hover {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Styling for Interface Configuration Form */
-.interface-config-form {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 15px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #ffffff;
-}
+
 
 label {
     font-weight: bold;
