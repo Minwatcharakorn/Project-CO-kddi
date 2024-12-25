@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, session, redirect, url_for, flash
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for, flash , send_file
 from flask_session import Session
 import platform
 import os
@@ -11,6 +11,7 @@ import psycopg2
 import time
 from datetime import datetime, timedelta
 import pytz
+import io
 
 
 app = Flask(__name__)
@@ -45,10 +46,10 @@ def get_db_connection():
         print(f"Database connection error: {e}")
         raise
 
-def get_available_ports():
-    """Get a list of available serial ports."""
-    ports = serial.tools.list_ports.comports()
-    return [port.device for port in ports]
+# def get_available_ports():
+#     """Get a list of available serial ports."""
+#     ports = serial.tools.list_ports.comports()
+#     return [port.device for port in ports]
 
 # ฟังก์ชันตรวจสอบชนิดไฟล์
 def allowed_file(filename):
@@ -273,6 +274,21 @@ def dashboard_page():
 def configuration_page():
     """Serve the Configuration page."""
     return render_template('configuration.html')
+
+@app.route('/logout')
+def logout():
+    """Clear session except switches and redirect to Initial page."""
+    session.clear()  # ล้างข้อมูลทั้งหมดใน session
+    return redirect('/initial')  # เปลี่ยนเส้นทางไปที่หน้า Initial
+
+@app.route('/saveconfig')
+def saveconfig_page():
+    """Serve the Remote Config page with switch data."""
+    switches_from_session = session.get('switches', [])  # Get switches from session
+    print("Switches in session:", switches_from_session)  # Debug ดูข้อมูลใน Session
+
+    return render_template('saveconfig.html', switches=switches_from_session)
+
 
 @app.route('/listtemplate', methods=['GET'])
 def listtemplate_page():
