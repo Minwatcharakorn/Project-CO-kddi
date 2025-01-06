@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const vlanForm = document.getElementById("vlan-multiple-form");
     const addVLANButton = document.getElementById("add-vlan-row");
     const vlanRowsContainer = document.getElementById("vlan-rows");
-    let isVlanConfigSaved = false; // ค่าเริ่มต้นคือยังไม่ได้กด Save
 
     // Regular Expression for IPv4 Address Validation
     const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
@@ -38,108 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const subnetMaskDropdown = generateSubnetMaskDropdown(index + 1);
         row.querySelector("select[name='subnet-mask[]']").append(...subnetMaskDropdown.children);
     });
-
-    // Save VLAN Configuration
-    saveButtonVLAN.addEventListener("click", () => {
-        const vlanRows = document.querySelectorAll(".vlan-row");
-        let allValid = true;
-    
-        vlanRows.forEach((row) => {
-            const vlanID = row.querySelector('input[name="vlan-id[]"]');
-            const vlanName = row.querySelector('input[name="vlan-name[]"]');
-            const vlanIP = row.querySelector('input[name="vlan-IP[]"]');
-            const subnetMask = row.querySelector('select[name="subnet-mask[]"]');
-    
-            // Reset error states
-            vlanID.classList.remove("input-error");
-            vlanName.classList.remove("input-error");
-            vlanIP.classList.remove("input-error");
-    
-            // Validate VLAN ID (required and within range)
-            if (vlanID.value.trim() === '' || isNaN(vlanID.value) || vlanID.value < 1 || vlanID.value > 4094) {
-                vlanID.classList.add("input-error");
-                alert(`Invalid VLAN ID: ${vlanID.value}. VLAN ID is required and must be between 1 and 4094.`);
-                allValid = false;
-                return; // ให้หยุดการประมวลผลเฉพาะ row นี้
-            }
-    
-            // Validate VLAN Name (English letters only, no spaces allowed)
-            if (vlanName.value.trim() !== '') {
-                const vlanNameRegex = /^[a-zA-Z0-9-_]+$/; // Allow English letters, numbers, dashes, and underscores
-                if (!vlanNameRegex.test(vlanName.value)) {
-                    vlanName.classList.add("input-error");
-                    alert(`Invalid VLAN Name: ${vlanName.value}. VLAN Name must contain only English letters, numbers, dashes, or underscores.`);
-                    allValid = false;
-                    return;
-                }
-            }
-    
-            // Optional: Validate IPv4 Address (if provided)
-            if (vlanIP.value.trim() !== '') {
-                const octets = vlanIP.value.split('.');
-                if (
-                    octets.length !== 4 ||
-                    !octets.every(octet => {
-                        const num = parseInt(octet, 10);
-                        return num >= 0 && num <= 255;
-                    })
-                ) {
-                    vlanIP.classList.add("input-error");
-                    alert(`Invalid IPv4 Address: ${vlanIP.value}. Please enter a valid IPv4 address.`);
-                    allValid = false;
-                    return;
-                }
-            }
-        });
-    
-        if (allValid) {
-            // Lock all fields only if all inputs are valid
-            vlanRows.forEach((row) => {
-                const inputs = row.querySelectorAll("input, select");
-                inputs.forEach((input) => {
-                    input.disabled = true;
-                });
-            });
-    
-            saveButtonVLAN.style.display = "none";
-            cancelButtonVLAN.style.display = "inline-block";
-            addVLANButton.disabled = true; // Disable "Add VLAN" button
-        }
-    });
         
-    // Cancel VLAN Configuration
-    cancelButtonVLAN.addEventListener("click", () => {
-        const vlanRows = document.querySelectorAll(".vlan-row");
-    
-        // Unlock all fields
-        vlanRows.forEach((row) => {
-            const inputs = row.querySelectorAll("input, select");
-            inputs.forEach((input) => {
-                input.disabled = false;
-            });
-        });
-    
-        saveButtonVLAN.style.display = "inline-block";
-        cancelButtonVLAN.style.display = "none";
-        addVLANButton.disabled = false; // Enable "Add VLAN" button
-    });
-
-    // Cancel VLAN Configuration
-    cancelButtonVLAN.addEventListener("click", () => {
-        const vlanRows = document.querySelectorAll(".vlan-row");
-
-        // Unlock all fields
-        vlanRows.forEach((row) => {
-            const inputs = row.querySelectorAll("input, select");
-            inputs.forEach((input) => {
-                input.disabled = false;
-            });
-        });
-
-        saveButtonVLAN.style.display = "inline-block";
-        cancelButtonVLAN.style.display = "none";
-        addVLANButton.disabled = false; // Enable "Add VLAN" button
-    });
 
     // Add VLAN Row
     addVLANButton.addEventListener("click", () => {
@@ -198,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
 
 
 let interfaceCounter = 1; // Counter to keep track of interface configurations
@@ -403,6 +302,7 @@ document.addEventListener('click', function (e) {
     }
 });
 
+
 // Function to validate Description
 function validateDescription(description) {
     const descriptionRegex = /^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>_\-\s]*$/; // Allow letters, numbers, special characters, and spaces
@@ -420,277 +320,428 @@ function validateAllowedVlans(allowedVlans) {
     return vlanSyntaxRegex.test(allowedVlans);
 }
 
+const timezones = [
+    { value: "", label: "--- Select Timezone ---" }, // Default empty value
+    { value: "GMT -12", label: "(GMT-12:00) International Date Line West" },
+    { value: "GMT -11", label: "(GMT-11:00) Midway Island, Samoa" },
+    { value: "GMT -10", label: "(GMT-10:00) Hawaii" },
+    { value: "GMT -9", label: "(GMT-09:00) Alaska" },
+    { value: "GMT -8", label: "(GMT-08:00) Pacific Time (US & Canada)" },
+    { value: "GMT -7", label: "(GMT-07:00) Mountain Time (US & Canada)" },
+    { value: "GMT -6", label: "(GMT-06:00) Central Time (US & Canada)" },
+    { value: "GMT -5", label: "(GMT-05:00) Eastern Time (US & Canada)" },
+    { value: "GMT -4", label: "(GMT-04:00) Atlantic Time (Canada)" },
+    { value: "GMT -3", label: "(GMT-03:00) Buenos Aires, Georgetown" },
+    { value: "GMT 0", label: "(GMT+00:00) Greenwich Mean Time : Dublin, London" },
+    { value: "GMT 1", label: "(GMT+01:00) Amsterdam, Berlin, Rome" },
+    { value: "GMT 2", label: "(GMT+02:00) Cairo, Helsinki, Athens" },
+    { value: "GMT 3", label: "(GMT+03:00) Moscow, Riyadh" },
+    { value: "GMT 4", label: "(GMT+04:00) Abu Dhabi, Muscat" },
+    { value: "GMT 5", label: "(GMT+05:00) Islamabad, Karachi" },
+    { value: "GMT 6", label: "(GMT+06:00) Astana, Dhaka" },
+    { value: "BKK 7", label: "(GMT+07:00) Bangkok, Hanoi, Jakarta" },
+    { value: "GMT 8", label: "(GMT+08:00) Beijing, Singapore" },
+    { value: "GMT 9", label: "(GMT+09:00) Tokyo, Seoul" },
+    { value: "GMT 10", label: "(GMT+10:00) Sydney, Brisbane" },
+    { value: "GMT 11", label: "(GMT+11:00) Solomon Is., New Caledonia" },
+    { value: "GMT 12", label: "(GMT+12:00) Auckland, Wellington" }
+];
 
-// Save All Configurations
-document.getElementById("save-interface-configs").addEventListener("click", function () {
-    const interfaceForms = document.querySelectorAll(".interface-config");
+const timezoneSelect = document.getElementById('clock-timezone');
 
-    let isValid = true;
-
-    // Reset error states before validation
-    interfaceForms.forEach((form) => {
-        const inputs = form.querySelectorAll("input, select");
-        inputs.forEach((input) => {
-            input.classList.remove("input-error"); // Remove error class
-        });
-    });
-
-    // Iterate through each form and validate inputs
-    interfaceForms.forEach((form) => {
-        const descriptionInput = form.querySelector("input[name='description']");
-        const vlanIdInput = form.querySelector("input[name='vlan-id']");
-        const allowedVlansInput = form.querySelector("input[name='trunk-allowed-vlan']");
-        const switchMode = form.querySelector("select[name='switch-mode']").value;
-
-        // Validate Description
-        if (descriptionInput && !validateDescription(descriptionInput.value.trim())) {
-            descriptionInput.classList.add("input-error");
-            isValid = false;
-        }
-
-        // Validate VLAN ID
-        if (vlanIdInput && vlanIdInput.value.trim() !== "" && !validateVlanId(Number(vlanIdInput.value.trim()))) {
-            vlanIdInput.classList.add("input-error");
-            isValid = false;
-        }
-
-        // Validate Allowed VLANs (if trunk mode)
-        if (switchMode === "trunk" && allowedVlansInput && allowedVlansInput.value.trim() !== "" && !validateAllowedVlans(allowedVlansInput.value.trim())) {
-            allowedVlansInput.classList.add("input-error");
-            isValid = false;
-        }
-    });
-
-    if (!isValid) {
-        return; // Stop saving if validation fails
-    }
-
-    // Lock all inputs and selects if validation passes
-    interfaceForms.forEach((form) => {
-        const inputs = form.querySelectorAll("input, select");
-        const removeButton = form.querySelector(".remove-interface-config");
-
-        inputs.forEach((input) => {
-            input.disabled = true; // Lock inputs
-        });
-
-        if (removeButton) {
-            removeButton.disabled = false; // Keep Remove button enabled
-        }
-    });
-
-    // Update button states
-    const saveButton = document.getElementById("save-interface-configs");
-    const cancelButton = document.getElementById("cancel-interface-configs");
-    saveButton.style.display = "none";
-    cancelButton.style.display = "inline-block";
-
-    // Disable Add Interface Configuration button
-    const addInterfaceButton = document.getElementById("add-interface-config");
-    if (addInterfaceButton) {
-        addInterfaceButton.disabled = true;
-    }
+timezones.forEach(timezone => {
+    const option = document.createElement('option');
+    option.value = timezone.value;
+    option.textContent = timezone.label;
+    timezoneSelect.appendChild(option);
 });
 
-// Cancel All Configurations
-document.getElementById("cancel-interface-configs").addEventListener("click", function () {
-    const interfaceForms = document.querySelectorAll(".interface-config");
+// Initialize Counter
+let aggregationCounter = 1;
 
-    // Unlock all inputs and selects
-    interfaceForms.forEach((form) => {
-        const inputs = form.querySelectorAll("input, select");
-        inputs.forEach((input) => {
-            input.disabled = false; // Unlock inputs
-        });
-    });
+let aggregationConfigsList = []; // Global list of selected ports
 
-    // Update button states
-    const saveButton = document.getElementById("save-interface-configs");
-    const cancelButton = document.getElementById("cancel-interface-configs");
-    saveButton.style.display = "inline-block";
-    cancelButton.style.display = "none";
+// Add New Aggregation Configuration
+document.getElementById("add-aggregation-config").addEventListener("click", function () {
+    const aggregationConfigs = document.getElementById("aggregation-configs");
+    const aggId = aggregationCounter; // Unique ID for the Aggregation
 
-    // Enable Add Interface Configuration button
-    const addInterfaceButton = document.getElementById("add-interface-config");
-    if (addInterfaceButton) {
-        addInterfaceButton.disabled = false;
-    }
-});
+    const newAggregationConfig = document.createElement("div");
+    newAggregationConfig.className = "aggregation-config";
+    newAggregationConfig.innerHTML = `
+    <form class="config-form">
+        <!-- Aggregation ID -->
+        <label for="aggregation-id-${aggId}" style="font-weight: bold;">Aggregation ID</label>
+        <input type="number" id="aggregation-id-${aggId}" name="aggregation-id[]" placeholder="Enter Aggregation ID" min="1" max="64" required>
+        <div class="error-message" id="error-${aggId}" style="display: none; color: red;">This Aggregation ID is already in use. Please enter a unique ID.</div>
 
-// Handle NTP Form Submission
-document.querySelector("#ntp-config form").addEventListener("submit", function (e) {
-    e.preventDefault();
+        <!-- Select Ports -->
+        <label for="aggregation-ports-${aggId}" style="font-weight: bold;">Select Ports</label>
+        <select id="aggregation-ports-${aggId}" class="aggregation-ports-select" multiple="multiple" style="width: 100%;" required></select>
 
-    const ntpServer = document.getElementById("ntp-server").value;
-    const clockTimezone = document.getElementById("clock-timezone").value;
+        <!-- Link Aggregation Mode -->
+        <label for="aggregation-mode-${aggId}" style="font-weight: bold;">Link Aggregation Mode</label>
+        <select id="aggregation-mode-${aggId}" name="aggregation-mode[]" required>
+            <option value="" selected style="text-align: center;">Select Link Aggregation Mode</option>
+            <optgroup label="LACP">
+                <option value="active">Active</option>
+                <option value="passive">Passive</option>
+            </optgroup>
+            <optgroup label="PAgP">
+                <option value="desirable">Desirable</option>
+                <option value="auto">Auto</option>
+            </optgroup>
+            <optgroup label="Manual">
+                <option value="on">On</option>
+            </optgroup>
+        </select>
 
-    const ntpConfig = {
-        server: ntpServer,
-        timezone: clockTimezone,
-    };
+        <!-- Hidden Configuration Fields -->
+        <div id="aggregation-config-fields-${aggId}" style="display: none;">
+            <!-- Switchport Mode -->
+            <label for="switchport-mode-${aggId}" style="font-weight: bold;">Switchport Mode</label>
+            <select id="switchport-mode-${aggId}" class="switchport-mode">
+                <option value="" selected style="text-align: center;">Select Switchport Mode</option>
+                <option value="access">Access</option>
+                <option value="trunk">Trunk</option>
+            </select>
 
-    console.log("Submitted NTP Configuration:", ntpConfig);
-});
+            <!-- Access VLAN -->
+            <div class="access-vlan-section" id="access-vlan-section-${aggId}" style="display: none;">
+                <label for="access-vlan-${aggId}" style="font-weight: bold;">Access VLAN</label>
+                <div style="display: flex; align-items: center;">
+                    <input 
+                        type="number" 
+                        id="access-vlan-${aggId}" 
+                        name="access-vlan" 
+                        placeholder="Enter VLAN ID" 
+                        min="1" 
+                        max="4094" 
+                        step="1"
+                        style="margin-right: 10px;"
+                    >
+                    <span class="error-message" id="access-vlan-error-${aggId}" style="display: none; color: red;">VLAN ID must be between 1 and 4094.</span>
+                </div>
+            </div>
 
-document.addEventListener("DOMContentLoaded", () => {
-    const saveButton = document.getElementById("save-template");
-    const cancelButton = document.getElementById("cancel-template");
-    const templateName = document.getElementById("template-name");
-    const templateDescription = document.getElementById("template-description");
+            <!-- Allowed VLANs (Trunk Mode) -->
+            <div class="trunk-vlan-section" id="trunk-vlan-section-${aggId}" style="display: none;">
+                <label for="trunk-allowed-vlans-${aggId}" style="font-weight: bold;">Allowed VLANs</label>
+                <input 
+                    type="text" 
+                    id="trunk-allowed-vlans-${aggId}" 
+                    name="trunk-allowed-vlans" 
+                    placeholder="e.g., 20,30,40 or all"
+                    style="margin-right: 10px;"
+                >
+                <span class="error-message" id="trunk-error-${aggId}" style="display: none; color: red;">Allowed VLANs must be valid numbers (1-4094) separated by commas or "all".</span>
+            </div>
+        </div>
 
-    saveButton.addEventListener("click", () => {
-        if (templateName.value.trim() === "" || templateDescription.value.trim() === "") {
-            alert("Please fill out all fields!");
-            return;
+        <!-- Remove Button -->
+        <button type="button" class="remove-aggregation-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
+    </form>
+    `;
+
+    aggregationConfigs.appendChild(newAggregationConfig);
+
+    initializeAggregationDropdown(aggId);
+
+    // Add Validation for Duplicate Aggregation ID
+    const aggregationIdInput = document.getElementById(`aggregation-id-${aggId}`);
+    const configFields = document.getElementById(`aggregation-config-fields-${aggId}`);
+    const errorMessage = document.getElementById(`error-${aggId}`);
+
+    aggregationIdInput.addEventListener("input", function () {
+        // Remove non-numeric and decimal characters
+        this.value = this.value.replace(/[^0-9]/g, "");
+    
+        // Convert value to a number for validation
+        const aggregationIdValue = parseInt(this.value, 10);
+        let isOutOfRange = false;
+        let isDuplicate = false;
+    
+        // Check for out-of-range values (less than 1 or greater than 64)
+        if (aggregationIdValue < 1 || aggregationIdValue > 64) {
+            isOutOfRange = true;
         }
-        templateName.disabled = true;
-        templateDescription.disabled = true;
-        saveButton.style.display = "none";
-        cancelButton.style.display = "inline-block";
+    
+        // Check for duplicate IDs
+        const allAggregationIds = document.querySelectorAll('input[name="aggregation-id[]"]');
+        allAggregationIds.forEach((input) => {
+            if (input !== aggregationIdInput && input.value === this.value) {
+                isDuplicate = true;
+            }
+        });
+    
+        // Handle errors
+        if (isOutOfRange) {
+            aggregationIdInput.style.borderColor = "red"; // Add red border
+            errorMessage.style.display = "block"; // Show error message
+            errorMessage.textContent = "Aggregation ID must be between 1 and 64."; // Custom error message
+            configFields.style.display = "none"; // Hide fields
+        } else if (isDuplicate) {
+            aggregationIdInput.style.borderColor = "red"; // Add red border
+            errorMessage.style.display = "block"; // Show error message
+            errorMessage.textContent = "This Aggregation ID is already in use. Please enter a unique ID."; // Custom error message
+            configFields.style.display = "none"; // Hide fields
+        } else {
+            aggregationIdInput.style.borderColor = ""; // Reset border
+            errorMessage.style.display = "none"; // Hide error message
+            if (aggregationIdInput.value.trim() !== "") {
+                configFields.style.display = "block"; // Show fields if valid
+            } else {
+                configFields.style.display = "none"; // Hide fields if empty
+            }
+        }
     });
 
-    cancelButton.addEventListener("click", () => {
-        templateName.disabled = false;
-        templateDescription.disabled = false;
-        templateName.value = ""; // Optional: clear the input
-        templateDescription.value = ""; // Optional: clear the input
-        cancelButton.style.display = "none";
-        saveButton.style.display = "inline-block";
+    // Add Validation for Access VLAN
+    const accessVlanInput = document.getElementById(`access-vlan-${aggId}`);
+    const accessVlanError = document.createElement("div");
+    accessVlanError.id = `access-vlan-error-${aggId}`;
+    accessVlanError.style.color = "red";
+    accessVlanError.style.display = "none"; // Hide error by default
+    accessVlanError.textContent = "VLAN ID must be between 1 and 4094.";
+    accessVlanInput.parentNode.appendChild(accessVlanError);
+    
+    // Add input event listener for validation
+    accessVlanInput.addEventListener("input", function () {
+        const value = this.value.trim();
+        const numValue = parseInt(value, 10);
+    
+        if (isNaN(numValue) || numValue < 1 || numValue > 4094) {
+            accessVlanInput.style.borderColor = "red"; // Highlight field with red border
+            accessVlanError.style.display = "block"; // Show error message
+        } else {
+            accessVlanInput.style.borderColor = ""; // Reset border color
+            accessVlanError.style.display = "none"; // Hide error message
+        }
     });
+
+    const allowedVlansInput = document.getElementById(`trunk-allowed-vlans-${aggId}`);
+    const allowedVlansError = document.getElementById(`trunk-error-${aggId}`);
+    
+    // Add input event listener for validation
+    allowedVlansInput.addEventListener("input", function () {
+        const value = this.value.trim();
+    
+        // Allow "all" or numbers separated by commas
+        const isValid = /^all$|^(\d{1,4})(,\d{1,4})*$/.test(value);
+    
+        if (isValid) {
+            const numbers = value.split(',').map(vlan => parseInt(vlan, 10));
+            // Validate each number is between 1 and 4094
+            const isInRange = numbers.every(num => num >= 1 && num <= 4094);
+    
+            if (value !== 'all' && !isInRange) {
+                allowedVlansInput.style.borderColor = "red";
+                allowedVlansError.style.display = "inline";
+                allowedVlansError.textContent = "Each VLAN must be between 1 and 4094.";
+            } else {
+                allowedVlansInput.style.borderColor = "";
+                allowedVlansError.style.display = "none";
+            }
+        } else {
+            allowedVlansInput.style.borderColor = "red";
+            allowedVlansError.style.display = "inline";
+            allowedVlansError.textContent = "Allowed VLANs must be valid numbers separated by commas or 'all'.";
+        }
+    });
+
+    // Initialize Switchport Mode Toggle
+    initializeSwitchportModeToggle(aggId);
+
+    newAggregationConfig.querySelector(".remove-aggregation-config").addEventListener("click", function () {
+        // ดึงข้อมูลพอร์ตที่ถูกเลือกในคอนฟิกนี้
+        const selectElement = newAggregationConfig.querySelector(".aggregation-ports-select");
+        const selectedPorts = $(selectElement).val(); // Get selected ports
+    
+        if (selectedPorts) {
+            // ลบพอร์ตเหล่านั้นออกจาก aggregationConfigsList
+            selectedPorts.forEach((port) => {
+                const index = aggregationConfigsList.indexOf(port);
+                if (index > -1) {
+                    aggregationConfigsList.splice(index, 1);
+                }
+            });
+        }
+    
+        // ลบคอนฟิกนี้ออกจาก DOM
+        newAggregationConfig.remove();
+    
+        // รีเฟรชการตั้งค่าพอร์ตใหม่
+        refreshPortAvailability_agg();
+    });
+
+    aggregationCounter++;
 });
 
+// Toggle Switchport Mode (Access/Trunk)
+function initializeSwitchportModeToggle(counter) {
+    const switchMode = document.getElementById(`switchport-mode-${counter}`);
+    const accessSection = document.getElementById(`access-vlan-section-${counter}`);
+    const trunkSection = document.getElementById(`trunk-vlan-section-${counter}`);
 
-document.addEventListener("DOMContentLoaded", () => {
-    const saveButtonHostname = document.getElementById("save-hostname");
-    const cancelButtonHostname = document.getElementById("cancel-hostname");
-    const hostnameInput = document.getElementById("hostname-input");
-
-    saveButtonHostname.addEventListener("click", () => {
-        if (hostnameInput.value.trim() === "") {
-            alert("Please enter a hostname!");
-            return;
+    switchMode.addEventListener("change", function () {
+        if (this.value === "access") {
+            accessSection.style.display = "block";
+            trunkSection.style.display = "none";
+        } else if (this.value === "trunk") {
+            accessSection.style.display = "none";
+            trunkSection.style.display = "block";
+        } else if (this.value === "") {
+            // Reset: Hide both sections when returning to default option
+            accessSection.style.display = "none";
+            trunkSection.style.display = "none";
         }
-        hostnameInput.disabled = true;
-        saveButtonHostname.style.display = "none";
-        cancelButtonHostname.style.display = "inline-block";
     });
 
-    cancelButtonHostname.addEventListener("click", () => {
-        hostnameInput.disabled = false;
-        hostnameInput.value = ""; // Optional: Clear the input if needed
-        cancelButtonHostname.style.display = "none";
-        saveButtonHostname.style.display = "inline-block";
-    });
-});
+    // Reset dropdown functionality to allow re-selecting "Select Switchport Mode"
+    const resetOption = document.createElement("option");
+    resetOption.value = "";
+    resetOption.textContent = "Select Switchport Mode";
+    resetOption.selected = true;
 
-
-document.addEventListener("DOMContentLoaded", () => {
-    const saveButtonVTP = document.getElementById("save-vtp-config");
-    const cancelButtonVTP = document.getElementById("cancel-vtp-config");
-    const vtpForm = document.getElementById("vtp-form");
-
-    // Save VTP Configuration
-    saveButtonVTP.addEventListener("click", () => {
-        const vtpDomain = document.getElementById("vtp-domain");
-        const vtpPassword = document.getElementById("vtp-password");
-
-        // Validate VTP Domain Name and Password
-        if (vtpDomain.value.trim() === "") {
-            alert("VTP Domain Name cannot be empty!");
-            return;
+    // Ensure resetOption is always at the top
+    switchMode.addEventListener("focus", function () {
+        if (!switchMode.querySelector('option[value=""]')) {
+            switchMode.insertAdjacentElement("afterbegin", resetOption);
         }
-
-        if (vtpPassword.value.trim() === "") {
-            alert("VTP Password cannot be empty!");
-            return;
-        }
-
-        // Lock all fields
-        const inputs = vtpForm.querySelectorAll("input, select");
-        inputs.forEach(input => {
-            input.disabled = true;
-        });
-
-        saveButtonVTP.style.display = "none";
-        cancelButtonVTP.style.display = "inline-block";
     });
-
-    // Cancel VTP Configuration
-    cancelButtonVTP.addEventListener("click", () => {
-        const inputs = vtpForm.querySelectorAll("input, select");
-        inputs.forEach(input => {
-            input.disabled = false;
-        });
-
-        saveButtonVTP.style.display = "inline-block";
-        cancelButtonVTP.style.display = "none";
-    });
-});
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    const saveButton = document.getElementById("save-gateway-config");
-    const cancelButton = document.getElementById("cancel-gateway-config");
-    const gatewayForm = document.getElementById("gateway-form");
-
-    // Save Gateway Configuration
-    saveButton.addEventListener("click", () => {
-        const gatewayInput = document.getElementById("default-gateway");
-        const gatewayValue = gatewayInput.value.trim();
-
-        // Regular Expression for IPv4 validation
-        const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}$/;
-
-        if (!ipv4Regex.test(gatewayValue)) {
-            alert("Please enter a valid IPv4 address (e.g., 192.168.1.1).");
-            return;
-        }
-
-        // Lock all fields
-        const inputs = gatewayForm.querySelectorAll("input, select");
-        inputs.forEach(input => {
-            input.disabled = true;
-        });
-
-        saveButton.style.display = "none";
-        cancelButton.style.display = "inline-block";
-    });
-
-    // Cancel Gateway Configuration
-    cancelButton.addEventListener("click", () => {
-        const inputs = gatewayForm.querySelectorAll("input, select");
-        inputs.forEach(input => {
-            input.disabled = false;
-        });
-
-        saveButton.style.display = "inline-block";
-        cancelButton.style.display = "none";
-    });
-});
-
-
-// Open Modal
-function openModalPreview(data) {
-    const modal = document.getElementById('preview-configuration-template');
-    const modalContent = document.getElementById('preview-configuration-content');
-    modalContent.textContent = data; // Populate modal content with the provided data
-    modal.style.display = 'flex'; // Display the modal
 }
 
-// Close Modal
+// Initialize Dropdown for Aggregation Ports
+function initializeAggregationDropdown(counter) {
+    const selectElement = document.getElementById(`aggregation-ports-${counter}`);
+    $(selectElement).select2({
+        placeholder: "Select Ports",
+        allowClear: true,
+    });
+
+    // Generate Port Groups
+    const portGroups = [
+        { name: "Fixed Chassis", range: generatePorts_agg("GigabitEthernet1/0/", 48) },
+        { name: "Modular Chassis", range: generatePorts_agg("GigabitEthernet1/1/", 4) },
+    ];
+
+    // Add Port Groups
+    portGroups.forEach((group) => {
+        const groupElement = document.createElement("optgroup");
+        groupElement.label = group.name;
+
+        group.range.forEach((port) => {
+            const portOption = new Option(port, port, false, false);
+            groupElement.appendChild(portOption);
+        });
+
+        $(selectElement).append(groupElement);
+    });
+
+
+
+    // Handle port selection and unselection
+    $(selectElement).on("select2:select", function (e) {
+        const selectedPort = e.params.data.id;
+        if (!aggregationConfigsList.includes(selectedPort)) {
+            aggregationConfigsList.push(selectedPort);
+        }
+        refreshPortAvailability_agg();
+    });
+
+    $(selectElement).on("select2:unselect", function (e) {
+        const unselectedPort = e.params.data.id;
+        const index = aggregationConfigsList.indexOf(unselectedPort);
+        if (index > -1) {
+            aggregationConfigsList.splice(index, 1);
+        }
+        refreshPortAvailability_agg();
+    });
+
+    // Trigger refresh to update availability on initialization
+    refreshPortAvailability_agg();
+}
+
+// Refresh Port Availability
+function refreshPortAvailability_agg() {
+    document.querySelectorAll(".aggregation-ports-select").forEach((select) => {
+        const selectElement = $(select);
+        const selectedValues = selectElement.val() || [];
+        selectElement.find("option").each(function () {
+            const port = $(this).val();
+            if (port && aggregationConfigsList.includes(port) && !selectedValues.includes(port)) {
+                $(this).attr("disabled", "disabled");
+            } else {
+                $(this).removeAttr("disabled");
+            }
+        });
+        selectElement.trigger("change.select2");
+    });
+}
+
+// Generate Port Ranges Dynamically
+function generatePorts_agg(prefix, count) {
+    return Array.from({ length: count }, (_, i) => `${prefix}${i + 1}`);
+}
+
+// Open Modal ห้ามวาง code ต่ำกว่าตรงนี้
+// Function to open the modal and inject configuration
+function openModalPreview(configData) {
+    const modal = document.getElementById('preview-configuration-template');
+    const content = document.getElementById('preview-configuration-content');
+
+    // Inject configuration data
+    content.textContent = configData;
+
+    // Display the modal
+    modal.style.display = 'flex';
+
+    // Add download functionality
+    document.getElementById('download-config').addEventListener('click', () => {
+        downloadConfiguration(configData);
+    });
+}
+
+// Function to close the modal
 function closeModal() {
     const modal = document.getElementById('preview-configuration-template');
-    modal.style.display = 'none'; // Hide the modal
+    modal.style.display = 'none';
+}
+
+// Function to download the configuration as a .txt file
+function downloadConfiguration(configData) {
+    const blob = new Blob([configData], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'configuration.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 // Generate and Open Modal Content
 document.getElementById('save-config-templates').addEventListener('click', () => {
-    let configData = 'enable\nconfigure terminal\n'; // Start with initial commands
+    let configData = '';
+
+    // Clock Set (EXEC Mode)
+    const clockSetTime = document.getElementById('clock-set-time')?.value.trim();
+    const clockSetDay = document.getElementById('clock-set-day')?.value.trim();
+    const clockSetMonth = document.getElementById('clock-set-month')?.value.trim();
+    const clockSetYear = document.getElementById('clock-set-year')?.value.trim();
+
+    if (clockSetTime && clockSetDay && clockSetMonth && clockSetYear) {
+        configData += `clock set ${clockSetTime} ${clockSetDay} ${clockSetMonth} ${clockSetYear}\n`;
+    }
+
+    // Start Global Configuration
+    configData += 'enable\nconfigure terminal\n';
 
     // Hostname Configuration
     const hostnameInput = document.getElementById('hostname-input');
-    if (hostnameInput && hostnameInput.disabled) {
-        configData += `hostname ${hostnameInput.value}\n`;
+    if (hostnameInput && hostnameInput.value.trim() !== '') {
+        configData += `hostname ${hostnameInput.value.trim()}\n`;
     }
 
     // VLAN Configuration
@@ -701,47 +752,51 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
         const vlanIp = row.querySelector('input[name="vlan-IP[]"]');
         const subnetMask = row.querySelector('select[name="subnet-mask[]"]');
 
-        if (vlanId.disabled && vlanName.disabled && vlanIp.disabled && subnetMask.disabled) {
-            if (vlanId && vlanId.value.trim() !== '') {
-                configData += `vlan ${vlanId.value}\n`;
+        if (vlanId && vlanId.value.trim() !== '') {
+            configData += `vlan ${vlanId.value.trim()}\n`;
 
-                if (vlanName && vlanName.value.trim() !== '') {
-                    configData += ` name ${vlanName.value}\n`;
-                }
+            if (vlanName && vlanName.value.trim() !== '') {
+                configData += ` name ${vlanName.value.trim()}\n`;
+            }
 
-                if (vlanIp && vlanIp.value.trim() !== '') {
-                    configData += `interface vlan ${vlanId.value}\n`;
-                    configData += ` ip address ${vlanIp.value} ${subnetMask.value}\n exit\n`;
-                }
+            if (vlanIp && vlanIp.value.trim() !== '' && subnetMask) {
+                configData += `interface vlan ${vlanId.value.trim()}\n`;
+                configData += ` ip address ${vlanIp.value.trim()} ${subnetMask.value.trim()}\n exit\n`;
             }
         }
     });
 
     // Default Gateway Configuration
     const defaultGateway = document.getElementById('default-gateway');
-    if (defaultGateway && defaultGateway.disabled && defaultGateway.value.trim() !== '') {
-        configData += `ip default-gateway ${defaultGateway.value}\n`;
+    if (defaultGateway && defaultGateway.value.trim() !== '') {
+        configData += `ip default-gateway ${defaultGateway.value.trim()}\n`;
     }
 
     // VTP Configuration
-    const vtpForm = document.getElementById('vtp-form');
-    const vtpInputs = vtpForm.querySelectorAll('input, select');
-    let vtpConfigured = true;
-    vtpInputs.forEach(input => {
-        if (!input.disabled) {
-            vtpConfigured = false;
-        }
-    });
-    if (vtpConfigured) {
-        const vtpMode = document.getElementById('vtp-mode').value;
-        const vtpVersion = document.getElementById('vtp-version').value;
-        const vtpDomain = document.getElementById('vtp-domain').value;
-        const vtpPassword = document.getElementById('vtp-password').value;
+    const vtpMode = document.getElementById('vtp-mode')?.value;
+    const vtpVersion = document.getElementById('vtp-version')?.value;
+    const vtpDomain = document.getElementById('vtp-domain')?.value;
+    const vtpPassword = document.getElementById('vtp-password')?.value;
 
+    if (vtpMode && vtpVersion && vtpDomain) {
         configData += `vtp mode ${vtpMode}\n`;
         configData += `vtp version ${vtpVersion}\n`;
         configData += `vtp domain ${vtpDomain}\n`;
-        configData += `vtp password ${vtpPassword}\n`;
+        if (vtpPassword) {
+            configData += `vtp password ${vtpPassword}\n`;
+        }
+    }
+
+    // NTP Configuration
+    const ntpServerInput = document.getElementById('ntp-server');
+    const clockTimezoneSelect = document.getElementById('clock-timezone');
+
+    if (ntpServerInput && ntpServerInput.value.trim() !== '') {
+        configData += `ntp server ${ntpServerInput.value.trim()}\n`;
+    }
+
+    if (clockTimezoneSelect && clockTimezoneSelect.value.trim() !== '') {
+        configData += `clock timezone ${clockTimezoneSelect.value.trim()}\n`;
     }
 
     // Interface Port Configuration
@@ -751,28 +806,88 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
         const descriptionInput = form.querySelector('input[name="description"]');
         const switchMode = form.querySelector('select[name="switch-mode"]');
         const vlanIdInput = form.querySelector('input[name="vlan-id"]');
+        const allowedVlansInput = form.querySelector('input[name="trunk-allowed-vlan"]');
+        const allowedVlans = allowedVlansInput ? allowedVlansInput.value.trim() : '';
 
-        if (portSelect.disabled && descriptionInput.disabled && switchMode.disabled && vlanIdInput.disabled) {
+        if (portSelect && portSelect.selectedOptions.length > 0) {
             const selectedPorts = Array.from(portSelect.selectedOptions).map(option => option.value);
             selectedPorts.forEach(port => {
                 configData += `interface ${port}\n`;
-                if (descriptionInput.value.trim() !== '') {
-                    configData += ` description ${descriptionInput.value}\n`;
+                if (descriptionInput && descriptionInput.value.trim() !== '') {
+                    configData += ` description ${descriptionInput.value.trim()}\n`;
                 }
-                configData += ` switchport mode ${switchMode.value}\n`;
-                if (switchMode.value === 'access' && vlanIdInput.value.trim() !== '') {
-                    configData += ` switchport access vlan ${vlanIdInput.value}\n`;
+                if (switchMode && switchMode.value.trim() !== '') {
+                    configData += ` switchport mode ${switchMode.value.trim()}\n`;
+                }
+                if (switchMode.value === 'access' && vlanIdInput && vlanIdInput.value.trim() !== '') {
+                    configData += ` switchport access vlan ${vlanIdInput.value.trim()}\n`;
+                }
+                if (switchMode.value === "trunk" && allowedVlans) {
+                    configData += ` switchport trunk allowed vlan ${allowedVlans}\n`;
                 }
                 configData += ' exit\n';
             });
         }
     });
 
-    configData += 'end\nwrite memory\n'; // Add closing commands
+    // Link Aggregation Configuration
+    const aggregationConfigs = document.querySelectorAll('.aggregation-config');
+    aggregationConfigs.forEach(config => {
+        const aggregationId = config.querySelector('input[name="aggregation-id[]"]')?.value.trim();
+        const ports = config.querySelector('.aggregation-ports-select')?.selectedOptions;
+        const aggregationMode = config.querySelector('select[name="aggregation-mode[]"]')?.value.trim();
+        const switchportModeElement = config.querySelector('.switchport-mode');
+        const switchportMode = switchportModeElement ? switchportModeElement.value.trim() : undefined;
+        const accessVlan = config.querySelector('input[name="access-vlan"]')?.value.trim();
+    
+        // Debugging
+        console.log(`Processing Aggregation: ID=${aggregationId}, Ports=${ports?.length}, Mode=${switchportMode}, VLAN=${accessVlan}`);
+    
+        if (aggregationId && ports && ports.length > 0 && aggregationMode) {
+            configData += `interface port-channel ${aggregationId}\n`;
+    
+            if (switchportMode === 'access' && accessVlan) {
+                configData += ` switchport mode access\n`;
+                configData += ` switchport access vlan ${accessVlan}\n`;
+            } else if (switchportMode === 'trunk') {
+                configData += ` switchport mode trunk\n`;
+    
+                // Validate and Add Allowed VLANs
+                const allowedVlans = config.querySelector('input[name="trunk-allowed-vlan"]')?.value.trim();
+                console.log(`Allowed VLANs: ${allowedVlans}`);
+    
+                if (allowedVlans) {
+                    const isValid = /^all$|^(\d{1,4})(,\d{1,4})*$/.test(allowedVlans);
+                    if (isValid) {
+                        const vlanNumbers = allowedVlans.split(',').map(vlan => parseInt(vlan, 10));
+                        const isInRange = vlanNumbers.every(num => num >= 1 && num <= 4094);
+    
+                        if (allowedVlans === 'all' || isInRange) {
+                            configData += ` switchport trunk allowed vlan ${allowedVlans}\n`;
+                        } else {
+                            console.error(`Error: VLANs in "Allowed VLANs" must be between 1 and 4094: ${allowedVlans}`);
+                        }
+                    } else {
+                        console.error(`Error: Invalid Allowed VLANs format: ${allowedVlans}`);
+                    }
+                }
+            }
+            configData += ' exit\n';
+    
+            Array.from(ports).forEach(port => {
+                configData += `interface ${port.value}\n`;
+                configData += ` channel-group ${aggregationId} mode ${aggregationMode}\n`;
+                configData += ' exit\n';
+            });
+        }
+    });
+    
+    configData += 'end\nwrite memory\n';
 
-    // Inject Data into Modal and Show
+    // Inject data into modal and show it
     openModalPreview(configData);
 });
+
 
 // Download Configuration as .txt File
 document.getElementById('download-config').addEventListener('click', () => {

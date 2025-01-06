@@ -8,6 +8,15 @@ body {
     border: 2px solid #ff0000; /* Red border for error */
     background-color: #ffc6c6; /* Light red background */
 }
+
+.error-message {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: none; /* Initially hidden */
+}
+
+
 .config-section {
     padding: 20px;
     border: 1px solid #ccc;
@@ -738,87 +747,61 @@ textarea {
 } */    
 
 
-#cancel-template {
-    background-color: #dc3545; /* Red background */
-    color: white; /* White text */
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+.clock-set-container {
+    display: flex;
+    gap: 10px; /* ระยะห่างระหว่างฟิลด์ */
+    align-items: center; /* จัดให้อยู่กึ่งกลางในแนวนอน */
 }
 
-#cancel-template:hover {
-    background-color: #b02a37; /* Darker red on hover */
+.clock-set-container input[type="number"],
+.clock-set-container select {
+    width: 100px; /* กำหนดความกว้าง */
+    padding: 8px; /* เพิ่มระยะห่างภายใน */
+    border: 1px solid #ccc; /* กรอบสีเทา */
+    border-radius: 5px; /* มุมมน */
+    font-size: 14px; /* ขนาดตัวอักษร */
 }
 
-#cancel-hostname {
-    background-color: #dc3545; /* Red background */
-    color: white; /* White text */
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+.clock-set-container select {
+    width: 120px; /* กำหนดความกว้างพิเศษสำหรับ Select */
 }
 
-#cancel-hostname:hover {
-    background-color: #b02a37; /* Darker red on hover */
+.clock-set-container input[type="number"]:focus,
+.clock-set-container select:focus {
+    border-color: #007bff; /* เปลี่ยนกรอบเป็นสีน้ำเงินเมื่อ Focus */
+    outline: none; /* ลบเส้นรอบนอก */
 }
 
 
-#cancel-vlan-config {
-    background-color: #dc3545; /* Red background */
+.aggregation-config {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+
+
+
+/* จัดตำแหน่งปุ่ม Remove Configuration */
+.remove-config-container {
+    text-align: left; /* จัดชิดซ้าย */
+    display: flex; /* Ensure proper alignment */
+
+}
+
+.remove-config-container .remove-aggregation-config {
+    background-color: #dc3545;
     color: white;
-    border: none;
     padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#cancel-vlan-config:hover {
-    background-color: #b02a37; /* Darker red on hover */
-}
-
-#cancel-vtp-config {
-    background-color: #dc3545; /* Red background */
-    color: white;
     border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    display: block  ;
 }
 
-#cancel-vtp-config:hover {
-    background-color: #b02a37; /* Darker red on hover */
-}
-
-#cancel-gateway-config {
-    background-color: #dc3545; /* Red background */
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#cancel-gateway-config:hover {
-    background-color: #b02a37; /* Darker red on hover */
-}
-
-#cancel-interface-configs {
-    background-color: #dc3545; /* Red background */
-    color: white; /* White text */
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#cancel-interface-configs:hover {
-    background-color: #b02a37; /* Darker red on hover */
+.remove-aggregation-config:hover {
+    background-color: #c82333; /* สีเข้มขึ้นเมื่อ Hover */
 }
