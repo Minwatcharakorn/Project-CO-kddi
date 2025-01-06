@@ -498,54 +498,35 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
 
     // Add Validation for Access VLAN
     const accessVlanInput = document.getElementById(`access-vlan-${aggId}`);
-    const accessVlanError = document.createElement("div");
-    accessVlanError.id = `access-vlan-error-${aggId}`;
-    accessVlanError.style.color = "red";
-    accessVlanError.style.display = "none"; // Hide error by default
-    accessVlanError.textContent = "VLAN ID must be between 1 and 4094.";
-    accessVlanInput.parentNode.appendChild(accessVlanError);
+    const accessVlanError = document.getElementById(`access-vlan-error-${aggId}`); // Element สำหรับ error message
     
-    // Add input event listener for validation
     accessVlanInput.addEventListener("input", function () {
         const value = this.value.trim();
         const numValue = parseInt(value, 10);
     
-        if (isNaN(numValue) || numValue < 1 || numValue > 4094) {
-            accessVlanInput.style.borderColor = "red"; // Highlight field with red border
-            accessVlanError.style.display = "block"; // Show error message
+        if (value && (isNaN(numValue) || numValue < 1 || numValue > 4094)) {
+            accessVlanInput.style.borderColor = "red"; // เพิ่มกรอบสีแดง
+            accessVlanError.style.display = "block"; // แสดงข้อความแจ้งเตือน
         } else {
-            accessVlanInput.style.borderColor = ""; // Reset border color
-            accessVlanError.style.display = "none"; // Hide error message
+            accessVlanInput.style.borderColor = ""; // ลบกรอบสีแดง
+            accessVlanError.style.display = "none"; // ซ่อนข้อความแจ้งเตือน
         }
     });
-
-    const allowedVlansInput = document.getElementById(`trunk-allowed-vlans-${aggId}`);
-    const allowedVlansError = document.getElementById(`trunk-error-${aggId}`);
     
-    // Add input event listener for validation
+    // Allowed VLANs Validation
+    const allowedVlansInput = document.getElementById(`trunk-allowed-vlans-${aggId}`);
+    const allowedVlansError = document.getElementById(`trunk-error-${aggId}`); // Element สำหรับ error message
+    
     allowedVlansInput.addEventListener("input", function () {
         const value = this.value.trim();
+        const vlanSyntaxRegex = /^(all|(\d{1,4})(,\d{1,4})*)$/; // รูปแบบ 'all' หรือ เลขคั่นด้วย ','
     
-        // Allow "all" or numbers separated by commas
-        const isValid = /^all$|^(\d{1,4})(,\d{1,4})*$/.test(value);
-    
-        if (isValid) {
-            const numbers = value.split(',').map(vlan => parseInt(vlan, 10));
-            // Validate each number is between 1 and 4094
-            const isInRange = numbers.every(num => num >= 1 && num <= 4094);
-    
-            if (value !== 'all' && !isInRange) {
-                allowedVlansInput.style.borderColor = "red";
-                allowedVlansError.style.display = "inline";
-                allowedVlansError.textContent = "Each VLAN must be between 1 and 4094.";
-            } else {
-                allowedVlansInput.style.borderColor = "";
-                allowedVlansError.style.display = "none";
-            }
+        if (value && !vlanSyntaxRegex.test(value)) {
+            allowedVlansInput.style.borderColor = "red"; // เพิ่มกรอบสีแดง
+            allowedVlansError.style.display = "block"; // แสดงข้อความแจ้งเตือน
         } else {
-            allowedVlansInput.style.borderColor = "red";
-            allowedVlansError.style.display = "inline";
-            allowedVlansError.textContent = "Allowed VLANs must be valid numbers separated by commas or 'all'.";
+            allowedVlansInput.style.borderColor = ""; // ลบกรอบสีแดง
+            allowedVlansError.style.display = "none"; // ซ่อนข้อความแจ้งเตือน
         }
     });
 
@@ -556,7 +537,7 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
         // ดึงข้อมูลพอร์ตที่ถูกเลือกในคอนฟิกนี้
         const selectElement = newAggregationConfig.querySelector(".aggregation-ports-select");
         const selectedPorts = $(selectElement).val(); // Get selected ports
-    
+
         if (selectedPorts) {
             // ลบพอร์ตเหล่านั้นออกจาก aggregationConfigsList
             selectedPorts.forEach((port) => {
@@ -566,13 +547,13 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
                 }
             });
         }
-    
-        // ลบคอนฟิกนี้ออกจาก DOM
-        newAggregationConfig.remove();
-    
-        // รีเฟรชการตั้งค่าพอร์ตใหม่
-        refreshPortAvailability_agg();
-    });
+
+    // ลบคอนฟิกนี้ออกจาก DOM
+    newAggregationConfig.remove();
+
+    // รีเฟรชการตั้งค่าพอร์ตใหม่
+    refreshPortAvailability_agg();
+});
 
     aggregationCounter++;
 });
