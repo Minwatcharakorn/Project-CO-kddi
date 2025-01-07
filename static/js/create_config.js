@@ -53,6 +53,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div>
                     <label for="vlan-name-${vlanCounter}">VLAN Name</label>
                     <input type="text" id="vlan-name-${vlanCounter}" name="vlan-name[]" placeholder="Enter VLAN Name" required>
+                    <span class="error-message" id="vlan-name-error" style="display: none; color: red;">
+                        VLAN Name can only contain English letters, numbers, and special characters except "?". Spaces are not allowed.
+                    </span>
                 </div>
             </div>
     
@@ -112,7 +115,6 @@ document.getElementById("add-interface-config").addEventListener("click", functi
             <!-- Dropdown for Port Selection -->    
             <label for="interface-port-select-${interfaceCounter}" style="font-weight: bold;">Select Ports</label>
             <select id="interface-port-select-${interfaceCounter}" class="interface-port-select" multiple="multiple" style="width: 100%;"></select>
-            <br><br>
 
             <!-- Description -->
             <div class="Description-IP">
@@ -124,6 +126,7 @@ document.getElementById("add-interface-config").addEventListener("click", functi
             <div class="switch-mode-section">
                 <label for="switch-mode-${interfaceCounter}" style="font-weight: bold;">Switch Mode</label>
                 <select id="switch-mode-${interfaceCounter}" name="switch-mode">
+                    <option value="" selected style="text-align: center;">Select Switchport Mode ( Default )</option>
                     <option value="access">Access</option>
                     <option value="trunk">Trunk</option>
                 </select>
@@ -186,21 +189,28 @@ function initializeDropdown(counter) {
         { name: "TenGigabitEthernet", range: generatePorts("TenGigabitEthernet0/", 8) },
     ];
 
+    // Create optgroup for each group
     portGroups.forEach((group) => {
-        const groupOption = new Option(group.name, "", false, false);
-        $(groupOption).attr("disabled", "disabled");
-        $(selectElement).append(groupOption);
+        const optgroup = document.createElement("optgroup");
+        optgroup.label = group.name; // Set the optgroup label
 
         group.range.forEach((port) => {
-            const isDisabled = selectedPortsGlobal.includes(port);
-            const portOption = new Option(port, port, false, false);
+            const isDisabled = selectedPortsGlobal.includes(port); // Check if the port is already selected globally
+            const portOption = document.createElement("option");
+            portOption.value = port;
+            portOption.textContent = port;
+
             if (isDisabled) {
-                $(portOption).attr("disabled", "disabled");
+                portOption.disabled = true; // Disable the option if it's already selected globally
             }
-            $(selectElement).append(portOption);
+
+            optgroup.appendChild(portOption); // Add the option to the optgroup
         });
+
+        selectElement.appendChild(optgroup); // Add the optgroup to the select element
     });
 
+    // Handle select events
     $(selectElement).on("select2:select", function (e) {
         const selectedPort = e.params.data.id;
         if (!selectedPortsGlobal.includes(selectedPort)) {
@@ -209,6 +219,7 @@ function initializeDropdown(counter) {
         refreshPortAvailability();
     });
 
+    // Handle unselect events
     $(selectElement).on("select2:unselect", function (e) {
         const unselectedPort = e.params.data.id;
         const index = selectedPortsGlobal.indexOf(unselectedPort);
@@ -223,6 +234,7 @@ function initializeDropdown(counter) {
 function generatePorts(prefix, count) {
     return Array.from({ length: count }, (_, i) => `${prefix}${i + 1}`);
 }
+
 
 function refreshPortAvailability() {
     document.querySelectorAll(".interface-port-select").forEach((select) => {
@@ -321,7 +333,7 @@ function validateAllowedVlans(allowedVlans) {
 }
 
 const timezones = [
-    { value: "", label: "--- Select Timezone ---" }, // Default empty value
+    { value: "", label: "Select Timezone ( Default )" }, // Default empty value
     { value: "GMT -12", label: "(GMT-12:00) International Date Line West" },
     { value: "GMT -11", label: "(GMT-11:00) Midway Island, Samoa" },
     { value: "GMT -10", label: "(GMT-10:00) Hawaii" },
@@ -382,7 +394,7 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
         <!-- Link Aggregation Mode -->
         <label for="aggregation-mode-${aggId}" style="font-weight: bold;">Link Aggregation Mode</label>
         <select id="aggregation-mode-${aggId}" name="aggregation-mode[]" required>
-            <option value="" selected style="text-align: center;">Select Link Aggregation Mode</option>
+            <option value="" selected style="text-align: center;">Select Link Aggregation Mode ( Default )</option>
             <optgroup label="LACP">
                 <option value="active">Active</option>
                 <option value="passive">Passive</option>
@@ -401,7 +413,7 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
             <!-- Switchport Mode -->
             <label for="switchport-mode-${aggId}" style="font-weight: bold;">Switchport Mode</label>
             <select id="switchport-mode-${aggId}" class="switchport-mode">
-                <option value="" selected style="text-align: center;">Select Switchport Mode</option>
+                <option value="" selected style="text-align: center;">Select Switchport Mode ( Default )</option>
                 <option value="access">Access</option>
                 <option value="trunk">Trunk</option>
             </select>
@@ -665,6 +677,44 @@ function generatePorts_agg(prefix, count) {
     return Array.from({ length: count }, (_, i) => `${prefix}${i + 1}`);
 }
 
+// Real-time validation
+document.getElementById('hostname-input').addEventListener('input', function () {
+    const hostnameInput = document.getElementById('hostname-input');
+    const hostnameError = document.getElementById('hostname-error');
+
+    // Regular expression to allow only English letters, numbers, and special characters except "?"
+    if (!/^[a-zA-Z0-9!@#$%^&*()_+=\-{}\[\]:;"'<>,./\\|~`]+$/.test(hostnameInput.value)) {
+        hostnameError.textContent = 'Hostname can only contain English letters, numbers, and special characters except "?".';
+        hostnameError.style.display = 'inline'; // Show error message
+        hostnameInput.style.borderColor = 'red'; // Highlight the input field
+        hostnameInput.dataset.valid = 'false'; // Mark as invalid
+    } else if (/\?/.test(hostnameInput.value)) {
+        hostnameError.textContent = 'Hostname cannot contain the "?" character.';
+        hostnameError.style.display = 'inline'; // Show error message
+        hostnameInput.style.borderColor = 'red'; // Highlight the input field
+        hostnameInput.dataset.valid = 'false'; // Mark as invalid
+    } else {
+        hostnameError.style.display = 'none'; // Hide error message
+        hostnameInput.style.borderColor = ''; // Reset input field style
+        hostnameInput.dataset.valid = 'true'; // Mark as valid
+    }
+});
+
+// Pre-submission validation
+document.getElementById('save-config-templates').addEventListener('click', function () {
+    const hostnameInput = document.getElementById('hostname-input');
+    const hostnameError = document.getElementById('hostname-error');
+
+    // Check hostname validity before adding to configData
+    if (hostnameInput.dataset.valid === 'true' && hostnameInput.value.trim() !== '') {
+        configData += `hostname ${hostnameInput.value.trim()}\n`;
+    } else if (hostnameInput.dataset.valid === 'false') {
+        hostnameError.style.display = 'inline'; // Ensure error message is visible
+        hostnameInput.style.borderColor = 'red'; // Highlight the field
+    }
+});
+
+
 // Open Modal ห้ามวาง code ต่ำกว่าตรงนี้
 // Function to open the modal and inject configuration
 function openModalPreview(configData) {
@@ -721,8 +771,14 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
 
     // Hostname Configuration
     const hostnameInput = document.getElementById('hostname-input');
-    if (hostnameInput && hostnameInput.value.trim() !== '') {
+    const hostnameError = document.getElementById('hostname-error');
+
+    // Check hostname validity before adding to configData
+    if (hostnameInput.dataset.valid === 'true' && hostnameInput.value.trim() !== '') {
         configData += `hostname ${hostnameInput.value.trim()}\n`;
+    } else if (hostnameInput.dataset.valid === 'false') {
+        hostnameError.style.display = 'inline'; // Ensure error message is visible
+        hostnameInput.style.borderColor = 'red'; // Highlight the field
     }
 
     // VLAN Configuration
@@ -754,20 +810,25 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
     }
 
     // VTP Configuration
-    const vtpMode = document.getElementById('vtp-mode')?.value;
-    const vtpVersion = document.getElementById('vtp-version')?.value;
-    const vtpDomain = document.getElementById('vtp-domain')?.value;
-    const vtpPassword = document.getElementById('vtp-password')?.value;
-
-    if (vtpMode && vtpVersion && vtpDomain) {
+    const vtpMode = document.getElementById('vtp-mode')?.value.trim();
+    const vtpVersion = document.getElementById('vtp-version')?.value.trim();
+    const vtpDomain = document.getElementById('vtp-domain')?.value.trim();
+    const vtpPassword = document.getElementById('vtp-password')?.value.trim();
+    
+    // Check and Add VTP Configuration
+    if (vtpMode) {
         configData += `vtp mode ${vtpMode}\n`;
-        configData += `vtp version ${vtpVersion}\n`;
-        configData += `vtp domain ${vtpDomain}\n`;
-        if (vtpPassword) {
-            configData += `vtp password ${vtpPassword}\n`;
-        }
     }
-
+    if (vtpVersion) {
+        configData += `vtp version ${vtpVersion}\n`;
+    }
+    if (vtpDomain) {
+        configData += `vtp domain ${vtpDomain}\n`;
+    }
+    if (vtpPassword) {
+        configData += `vtp password ${vtpPassword}\n`;
+    }
+    
     // NTP Configuration
     const ntpServerInput = document.getElementById('ntp-server');
     const clockTimezoneSelect = document.getElementById('clock-timezone');
@@ -817,52 +878,42 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
         const aggregationId = config.querySelector('input[name="aggregation-id[]"]')?.value.trim();
         const ports = config.querySelector('.aggregation-ports-select')?.selectedOptions;
         const aggregationMode = config.querySelector('select[name="aggregation-mode[]"]')?.value.trim();
-        const switchportModeElement = config.querySelector('.switchport-mode');
-        const switchportMode = switchportModeElement ? switchportModeElement.value.trim() : undefined;
+        const switchportMode = config.querySelector('.switchport-mode')?.value.trim(); // Get switchport mode (access/trunk)
         const accessVlan = config.querySelector('input[name="access-vlan"]')?.value.trim();
-    
-        // Debugging
-        console.log(`Processing Aggregation: ID=${aggregationId}, Ports=${ports?.length}, Mode=${switchportMode}, VLAN=${accessVlan}`);
-    
+        const allowedVlans = config.querySelector('input[name="trunk-allowed-vlan"]')?.value.trim();
+
         if (aggregationId && ports && ports.length > 0 && aggregationMode) {
-            configData += `interface port-channel ${aggregationId}\n`;
-    
-            if (switchportMode === 'access' && accessVlan) {
-                configData += ` switchport mode access\n`;
-                configData += ` switchport access vlan ${accessVlan}\n`;
-            } else if (switchportMode === 'trunk') {
-                configData += ` switchport mode trunk\n`;
-    
-                // Validate and Add Allowed VLANs
-                const allowedVlans = config.querySelector('input[name="trunk-allowed-vlan"]')?.value.trim();
-                console.log(`Allowed VLANs: ${allowedVlans}`);
-    
-                if (allowedVlans) {
-                    const isValid = /^all$|^(\d{1,4})(,\d{1,4})*$/.test(allowedVlans);
-                    if (isValid) {
-                        const vlanNumbers = allowedVlans.split(',').map(vlan => parseInt(vlan, 10));
-                        const isInRange = vlanNumbers.every(num => num >= 1 && num <= 4094);
-    
-                        if (allowedVlans === 'all' || isInRange) {
-                            configData += ` switchport trunk allowed vlan ${allowedVlans}\n`;
-                        } else {
-                            console.error(`Error: VLANs in "Allowed VLANs" must be between 1 and 4094: ${allowedVlans}`);
-                        }
-                    } else {
-                        console.error(`Error: Invalid Allowed VLANs format: ${allowedVlans}`);
-                    }
-                }
-            }
-            configData += ' exit\n';
-    
+            // Generate Interface Configuration for Each Port First
             Array.from(ports).forEach(port => {
                 configData += `interface ${port.value}\n`;
                 configData += ` channel-group ${aggregationId} mode ${aggregationMode}\n`;
                 configData += ' exit\n';
             });
+
+            // Then Generate Port-Channel Configuration
+            configData += `interface port-channel ${aggregationId}\n`;
+            
+            // Add switchport mode configuration
+            if (switchportMode === 'access') {
+                configData += ` switchport mode access\n`;
+                if (accessVlan) {
+                    configData += ` switchport access vlan ${accessVlan}\n`;
+                }
+            } else if (switchportMode === 'trunk') {
+                configData += ` switchport mode trunk\n`;
+                if (allowedVlans) {
+                    const vlanRegex = /^all$|^(\d{1,4})(,\d{1,4})*$/;
+                    if (vlanRegex.test(allowedVlans)) {
+                        configData += ` switchport trunk allowed vlan ${allowedVlans}\n`;
+                    } else {
+                        console.error(`Invalid VLAN format: ${allowedVlans}`);
+                    }
+                }
+            }
+            configData += ' exit\n';
         }
     });
-    
+
     configData += 'end\nwrite memory\n';
 
     // Inject data into modal and show it

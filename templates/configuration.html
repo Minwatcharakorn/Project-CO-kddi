@@ -55,6 +55,9 @@
         <div class="form-group">
             <label for="hostname-input"><strong>Hostname</strong></label>
             <input type="text" id="hostname-input" placeholder="Enter Hostname" required>
+            <span class="error-message" id="hostname-error" style="display: none; color: red;">
+                Hostname can only contain English letters, numbers, and special characters except "?". Spaces are not allowed.
+            </span>
         </div>
     </form>
 </div>
@@ -181,6 +184,7 @@
             <form id="vtp-form">
                 <label for="vtp-mode">VTP Mode</label>
                 <select id="vtp-mode" name="vtp-mode">
+                    <option value="" selected style="text-align: center;">Select VTP Mode ( Default )</option>
                     <option value="server">Server</option>
                     <option value="client">Client</option>
                     <option value="transparent">Transparent</option>
@@ -189,6 +193,7 @@
         
                 <label for="vtp-version">VTP Version</label>
                 <select id="vtp-version" name="vtp-version">
+                    <option value="" selected style="text-align: center;">Select VTP Version ( Default )</option>
                     <option value="1">Version 1</option>
                     <option value="2">Version 2</option>
                     <option value="3">Version 3</option>
@@ -200,7 +205,7 @@
                 <br><br>
         
                 <label for="vtp-password">VTP Password</label>
-                <input type="password" id="vtp-password" name="vtp-password" placeholder="Enter VTP Password" required>
+                <input type="text" id="vtp-password" name="vtp-password" placeholder="Enter VTP Password" required>
                 <br><br>
         
             </form>
@@ -242,7 +247,7 @@
 
                                 <input type="number" id="clock-set-day" name="clock-set-day" placeholder="Day" min="1" max="31" required>
                                 <select id="clock-set-month" name="clock-set-month" required>
-                                    <option value="">Month</option>
+                                    <option value="" selected style="text-align: center;">Select Month ( Default )</option>
                                     <option value="Jan">January</option>
                                     <option value="Feb">February</option>
                                     <option value="Mar">March</option>

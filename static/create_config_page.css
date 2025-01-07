@@ -805,3 +805,9 @@ textarea {
 .remove-aggregation-config:hover {
     background-color: #c82333; /* สีเข้มขึ้นเมื่อ Hover */
 }
+
+#clock-timezone option[value=""] {
+    text-align: center;
+}
+
+
