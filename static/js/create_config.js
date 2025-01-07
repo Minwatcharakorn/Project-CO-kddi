@@ -168,6 +168,9 @@ document.getElementById("add-interface-config").addEventListener("click", functi
             <div class="Description-IP">
                 <label for="description-${interfaceCounter}" style="font-weight: bold;">Description</label>
                 <input type="text" id="description-${interfaceCounter}" name="description" placeholder="Enter Description">
+                <div class="alert-box error" id="description-error-${interfaceCounter}" style="display: none;">
+                    <span>ERROR: </span> Description can only contain English letters, numbers, special characters, and spaces, except "?".
+                </div>
             </div>
 
             <!-- Switch Mode -->
@@ -183,7 +186,18 @@ document.getElementById("add-interface-config").addEventListener("click", functi
             <!-- VLAN ID Section -->
             <div class="vlan-id-section" id="vlan-id-section-${interfaceCounter}">
                 <label for="vlan-id-input-${interfaceCounter}" style="font-weight: bold;">VLAN ID</label>
-                <input type="number" id="vlan-id-input-${interfaceCounter}" name="vlan-id" placeholder="Enter VLAN ID" min="1" max="4094">
+            <input 
+                type="number" 
+                id="vlan-id-input-${interfaceCounter}" 
+                name="vlan-id" 
+                placeholder="Enter VLAN ID" 
+                min="1" 
+                max="4094" 
+                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)">
+                <div class="alert-box error" id="vlan-id-error-${interfaceCounter}" style="display: none;">
+                    <span>ERROR:</span> VLAN ID must be a whole number between 1 and 4094.
+                    Negative, decimal, or invalid numbers are not allowed.
+                </div>
             </div>
 
             <!-- Trunk Allowed VLANs Section -->
@@ -213,6 +227,15 @@ document.getElementById("add-interface-config").addEventListener("click", functi
         });
     }
 
+    validateDescriptionInput(
+        `description-${interfaceCounter}`,
+        `description-error-${interfaceCounter}`
+    );
+
+    validateVlanIdInput(
+        `vlan-id-input-${interfaceCounter}`,
+        `vlan-id-error-${interfaceCounter}`
+    );
     interfaceCounter++;
 });
 
@@ -300,19 +323,77 @@ function refreshPortAvailability() {
     });
 }
 
+// Function to validate Description
+function validateDescriptionInput(descriptionInputId, errorBoxId) {
+    const descriptionInput = document.getElementById(descriptionInputId);
+    const errorBox = document.getElementById(errorBoxId);
+
+    if (!descriptionInput || !errorBox) {
+        console.warn(`Missing input or error box for ID: ${descriptionInputId}`);
+        return;
+    }
+
+    descriptionInput.addEventListener("input", function () {
+        const value = this.value;
+        const isValid = /^[a-zA-Z0-9!@#$%^&*(),.:{}|<>_\-\s]*$/.test(value) && !value.includes("?");
+
+        if (!isValid) {
+            this.style.borderColor = "red"; // Highlight the field with a red border
+            errorBox.style.display = "flex"; // Show the error message
+        } else {
+            this.style.borderColor = ""; // Reset border color
+            errorBox.style.display = "none"; // Hide the error message
+        }
+    });
+}
+
+
+// Function to validate VLAN ID
+function validateVlanIdInput(vlanIdInputId, errorBoxId) {
+    const vlanIdInput = document.getElementById(vlanIdInputId);
+    const errorBox = document.getElementById(errorBoxId);
+
+    if (!vlanIdInput || !errorBox) {
+        console.warn(`Missing input or error box for VLAN ID: ${vlanIdInputId}`);
+        return;
+    }
+
+    vlanIdInput.addEventListener("input", function () {
+        const value = this.value.trim();
+
+        // Regex to check for a valid integer between 1 and 4095
+        const isValid = /^\d+$/.test(value) && value >= 1 && value <= 4094;
+
+        if (!isValid) {
+            this.style.borderColor = "red"; // Highlight the field with a red border
+            errorBox.style.display = "block"; // Show the error message
+        } else {
+            this.style.borderColor = ""; // Reset border color
+            errorBox.style.display = "none"; // Hide the error message
+        }
+    });
+}
+
 // Handle Switch Mode Toggle
 function initializeSwitchModeToggle(counter) {
     const switchMode = document.getElementById(`switch-mode-${counter}`);
     const vlanSection = document.getElementById(`vlan-id-section-${counter}`);
     const trunkSection = document.getElementById(`vlan-trunk-section-${counter}`);
 
+    // ซ่อน VLAN ID Input โดยเริ่มต้น
+    vlanSection.style.display = "none";
+
+    // เพิ่ม event listener เมื่อ switch mode เปลี่ยน
     switchMode.addEventListener("change", function () {
         if (this.value === "access") {
-            vlanSection.style.display = "block";
-            trunkSection.style.display = "none";
+            vlanSection.style.display = "block"; // แสดง VLAN ID
+            trunkSection.style.display = "none"; // ซ่อน Trunk Allowed VLANs
+        } else if (this.value === "trunk") {
+            vlanSection.style.display = "none"; // ซ่อน VLAN ID
+            trunkSection.style.display = "block"; // แสดง Trunk Allowed VLANs
         } else {
-            vlanSection.style.display = "none";
-            trunkSection.style.display = "block";
+            vlanSection.style.display = "none"; // ซ่อนทั้งสองเมื่อเลือก Default
+            trunkSection.style.display = "none";
         }
     });
 }
@@ -362,17 +443,6 @@ document.addEventListener('click', function (e) {
     }
 });
 
-
-// Function to validate Description
-function validateDescription(description) {
-    const descriptionRegex = /^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>_\-\s]*$/; // Allow letters, numbers, special characters, and spaces
-    return descriptionRegex.test(description);
-}
-
-// Function to validate VLAN ID
-function validateVlanId(vlanId) {
-    return vlanId >= 1 && vlanId <= 4094; // Ensure VLAN ID is within range
-}
 
 // Function to validate Allowed VLANs (Trunk Mode)
 function validateAllowedVlans(allowedVlans) {
