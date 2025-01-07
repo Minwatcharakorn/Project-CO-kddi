@@ -19,6 +19,9 @@
     
         <!-- Select2 Script -->
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
+
     </head>
 <body>
     <!-- Sidebar -->
@@ -51,13 +54,14 @@
 <!-- Hostname Configuration -->
 <div class="config-section">
     <h3>Hostname Configuration</h3>
-    <form id="hostname-form">
+    <form id="hostname-form" class="config-form">
         <div class="form-group">
             <label for="hostname-input"><strong>Hostname</strong></label>
             <input type="text" id="hostname-input" placeholder="Enter Hostname" required>
-            <span class="error-message" id="hostname-error" style="display: none; color: red;">
-                Hostname can only contain English letters, numbers, and special characters except "?". Spaces are not allowed.
-            </span>
+        </div>
+        <div class="alert-box error" id="hostname-error" style="display: none;">
+            <span>ERROR: </span> Hostname can only contain English letters, numbers, and special characters except "?". 
+            Spaces are not allowed.
         </div>
     </form>
 </div>
@@ -80,21 +84,20 @@
                             <div>
                                 <label for="vlan-name-1">VLAN Name</label>
                                 <input type="text" id="vlan-name-1" name="vlan-name[]" placeholder="Enter VLAN Name" required>
+    
                             </div>
                         </div>
                     
                         <label for="vlan-IP-1">IP Address VLAN</label>
                         <div class="ip-address-container">
-                            <input type="text" id="vlan-IP-1" name="vlan-IP[]" placeholder="Enter IP Address VLAN" required>
+                            <input type="text" id="vlan-IP-1" name="vlan-IP[]" placeholder="___.___.___.___ (e.g., 127.0.0.1)" required>
                             <select id="subnet-mask-1" name="subnet-mask[]" required>
-                                <!-- Subnet mask options generated dynamically by JavaScript -->
+                                <!-- Subnet mask options added dynamically via JS -->
                             </select>
                             <button type="button" class="remove-vlan-row">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </div>
-                    
-
                     </div>
                 </div>
             </form>
@@ -231,7 +234,13 @@
             <form id="ntp-config-form">
                 <div class="form-group">
                     <label for="ntp-server">NTP Server</label>
-                    <input type="text" id="ntp-server" name="ntp-server" placeholder="Enter NTP Server Address (e.g., 203.158.118.2)" required>
+                    <input
+                        type="text"
+                        class="form-input"
+                        id="ntp-server"
+                        name="ntp-server"
+                        placeholder="___.___.___.___ (e.g., 202.44.204.114)"
+                    />
                 </div>
                 <div class="form-group">
                     <label for="clock-timezone">Clock Timezone</label>
@@ -239,41 +248,46 @@
                         <!-- Options เติมโดย JavaScript -->
                     </select>
                 </div>
-                        <!-- Clock Set -->
-                        <div class="form-group">
-                            <label for="clock-set">Clock Set</label>
-                            <div class="clock-set-container">
-                                <input type="time" id="clock-set-time" name="clock-set-time" required>
+                <!-- Clock Set -->
+                <div class="form-group">
+                    <label for="clock-set">Clock Set</label>
+                    <div class="clock-set-container">
+                        <input type="time" id="clock-set-time" name="clock-set-time" required>
 
-                                <input type="number" id="clock-set-day" name="clock-set-day" placeholder="Day" min="1" max="31" required>
-                                <select id="clock-set-month" name="clock-set-month" required>
-                                    <option value="" selected style="text-align: center;">Select Month ( Default )</option>
-                                    <option value="Jan">January</option>
-                                    <option value="Feb">February</option>
-                                    <option value="Mar">March</option>
-                                    <option value="Apr">April</option>
-                                    <option value="May">May</option>
-                                    <option value="Jun">June</option>
-                                    <option value="Jul">July</option>
-                                    <option value="Aug">August</option>
-                                    <option value="Sep">September</option>
-                                    <option value="Oct">October</option>
-                                    <option value="Nov">November</option>
-                                    <option value="Dec">December</option>
-                                </select>
-                                <input type="number" id="clock-set-year" name="clock-set-year" placeholder="Year" min="1993" max="2035" required>
-                            </div>
-                        </div>
+                        <select id="clock-set-day" name="clock-set-day" required>
+                            <!-- Day options will be populated by JavaScript -->
+                        </select>
+                        <select id="clock-set-month" name="clock-set-month" required>
+                            <option value="Jan">January</option>
+                            <option value="Feb">February</option>
+                            <option value="Mar">March</option>
+                            <option value="Apr">April</option>
+                            <option value="May">May</option>
+                            <option value="Jun">June</option>
+                            <option value="Jul">July</option>
+                            <option value="Aug">August</option>
+                            <option value="Sep">September</option>
+                            <option value="Oct">October</option>
+                            <option value="Nov">November</option>
+                            <option value="Dec">December</option>
+                        </select>
+                        <select id="clock-set-year" name="clock-set-year" required>
+                            <!-- Year options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                </div>
             </form>
         </div>
 
-        <div class="config-section" id="gateway-config">
+        <div class="config-section" id="default-gateway-config">
             <h3>Default Gateway Configuration</h3>
-            <form id="gateway-form">
-                <label for="default-gateway"><strong>Default Gateway</strong></label>
-                <input type="text" id="default-gateway" placeholder="Enter Default Gateway" required>
+            <form id="default-gateway-form">
+                <div class="form-group">
+                    <label for="default-gateway">Default Gateway</label>
+                    <input type="text" class="form-input" id="default-gateway" name="default-gateway" placeholder="___.___.___.___ (e.g., 127.0.0.1)" />
+                </div>
             </form>
-        </div> 
+        </div>
 
 
         <div class="save-config-container">
