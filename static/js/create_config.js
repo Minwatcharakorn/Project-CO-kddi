@@ -192,7 +192,7 @@ document.getElementById("add-interface-config").addEventListener("click", functi
                 min="1" 
                 max="4094" 
                 oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)">
-                <div class="alert-box error" id="vlan-id-error-${interfaceCounter}" style="display: none ; width: 60%;">
+                <div class="alert-box error" id="vlan-id-error-${interfaceCounter}" style="display: none ; width: 50%;">
                     <span>ERROR:</span> VLAN ID must be a whole number between 1 and 4094.
                     Negative, decimal, or invalid numbers are not allowed.
                 </div>
@@ -734,6 +734,16 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
         allAggregationIds.forEach((input) => {
             const aggregationIdValue = input.value.trim();
             let isDuplicate = false;
+    
+            // ข้ามการตรวจสอบค่าซ้ำถ้าไม่มีค่า
+            if (aggregationIdValue === "") {
+                input.style.borderColor = ""; // รีเซ็ตสีกรอบ
+                const errorMessage = input.nextElementSibling; // สมมติว่า error message อยู่ถัดจาก input
+                if (errorMessage) {
+                    errorMessage.style.display = "none"; // ซ่อนข้อความแจ้งเตือน
+                }
+                return;
+            }
     
             // ตรวจสอบค่าซ้ำ
             allAggregationIds.forEach((otherInput) => {

@@ -41,7 +41,6 @@ form label {
     max-width: 300px; /* จำกัดความกว้างไม่ให้เกิน 300px */
     padding: 8px;
     border-radius: 4px;
-    border: 1px solid #ccc;
 }
 .config-section form input[type="submit"] {
     background-color: #007bff;
@@ -326,7 +325,6 @@ form label {
 .interface-config {
     margin-bottom: 20px;
     padding: 10px;
-    border: 1px solid #ccc;
     border-radius: 8px;
     background-color: #f9f9f9;
 }
@@ -776,7 +774,6 @@ textarea {
 .aggregation-config {
     margin-bottom: 15px;
     padding: 10px;
-    border: 1px solid #ccc;
     border-radius: 5px;
     background-color: #f9f9f9;
 }

@@ -51,20 +51,20 @@
         </div>
 
 
-<!-- Hostname Configuration -->
-<div class="config-section">
-    <h3>Hostname Configuration</h3>
-    <form id="hostname-form" class="config-form">
-        <div class="form-group">
-            <label for="hostname-input"><strong>Hostname</strong></label>
-            <input type="text" id="hostname-input" placeholder="Enter Hostname" required>
+        <!-- Hostname Configuration -->
+        <div class="config-section">
+            <h3>Hostname Configuration</h3>
+            <form id="hostname-form" class="config-form">
+                <div class="form-group">
+                    <label for="hostname-input"><strong>Hostname</strong></label>
+                    <input type="text" id="hostname-input" placeholder="Enter Hostname" required>
+                </div>
+                <div class="alert-box error" id="hostname-error" style="display: none;">
+                    <span>ERROR: </span> Hostname can only contain English letters, numbers, and special characters except "?". 
+                    Spaces are not allowed.
+                </div>
+            </form>
         </div>
-        <div class="alert-box error" id="hostname-error" style="display: none;">
-            <span>ERROR: </span> Hostname can only contain English letters, numbers, and special characters except "?". 
-            Spaces are not allowed.
-        </div>
-    </form>
-</div>
 
         <!-- Create VLANs -->
         <div class="config-section" id="create-vlan-multiple">
