@@ -1,123 +1,146 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const saveButtonVLAN = document.getElementById("save-vlan-config");
-    const cancelButtonVLAN = document.getElementById("cancel-vlan-config");
-    const vlanForm = document.getElementById("vlan-multiple-form");
-    const addVLANButton = document.getElementById("add-vlan-row");
-    const vlanRowsContainer = document.getElementById("vlan-rows");
+document.getElementById("add-vlan-row").addEventListener("click", function () {
+    const vlansConfigs = document.getElementById("vlans-configs");
+    const vlanCounter = vlansConfigs.querySelectorAll(".vlan-config-form").length + 1;
 
-    // Generate Subnet Mask Options
-    function generateSubnetMaskDropdown(id) {
-        const subnetMaskDropdown = document.createElement("select");
-        subnetMaskDropdown.id = `subnet-mask-${id}`;
-        subnetMaskDropdown.name = "subnet-mask[]";
-        subnetMaskDropdown.required = true;
-
-        for (let i = 1; i <= 32; i++) {
-            const value = (0xFFFFFFFF << (32 - i)) >>> 0;
-            const subnetStr = [
-                (value >>> 24) & 0xFF,
-                (value >>> 16) & 0xFF,
-                (value >>> 8) & 0xFF,
-                value & 0xFF,
-            ].join(".");
-            const option = document.createElement("option");
-            option.value = subnetStr;
-            option.textContent = `${subnetStr} /${i}`;
-            subnetMaskDropdown.appendChild(option);
-        }
-
-        return subnetMaskDropdown;
-    }
-
-    // Apply Input Mask to IP Address Fields
-    function applyIPInputMask() {
-        $('input[name="vlan-IP[]"]').inputmask({
-            alias: "ip",
-            placeholder: "___.___.___.___", // Placeholder for IP address
-            greedy: false // Ensures only the valid mask is displayed
-        });
-    }
-
-    // Populate Subnet Masks for Existing Rows
-    document.querySelectorAll(".vlan-row").forEach((row, index) => {
-        const subnetMaskDropdown = generateSubnetMaskDropdown(index + 1);
-        row.querySelector("select[name='subnet-mask[]']").append(...subnetMaskDropdown.children);
-    });
-
-    // Apply input mask on existing rows
-    applyIPInputMask();
-
-    // Add VLAN Row
-    addVLANButton.addEventListener("click", () => {
-        const vlanCounter = document.querySelectorAll(".vlan-row").length + 1;
-        const newVLANRow = document.createElement("div");
-        newVLANRow.className = "vlan-row form-group";
-        newVLANRow.innerHTML = `
+    const newVLANForm = document.createElement("div");
+    newVLANForm.className = "vlan-config-form";
+    newVLANForm.innerHTML = `
+        <form class="config-form">
             <div class="inline-fields">
                 <div>
                     <label for="vlan-id-${vlanCounter}">VLAN ID</label>
                     <input type="number" id="vlan-id-${vlanCounter}" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
                 </div>
-                <div>
+                <div style="margin-left: -3%;">
                     <label for="vlan-name-${vlanCounter}">VLAN Name</label>
                     <input type="text" id="vlan-name-${vlanCounter}" name="vlan-name[]" placeholder="Enter VLAN Name" required>
                 </div>
             </div>
-    
+
+            <div class="alert-box error" id="vlan-id-error-${vlanCounter}" style="display: none;">
+                <span>ERROR:</span> VLAN ID must be between 1 and 4094. No decimals or negative values allowed.
+            </div>
+            <div class="alert-box error" id="vlan-name-error-${vlanCounter}" style="display: none;">
+                <span>ERROR:</span> VLAN Name for this entry contains invalid characters. 
+            </div>
+
+
             <label for="vlan-IP-${vlanCounter}">IP Address VLAN</label>
             <div class="ip-address-container">
-                <input type="text" id="vlan-IP-${vlanCounter}" name="vlan-IP[]" placeholder="___.___.___.___ (e.g., 127.0.0.1)" required>
-                <select id="subnet-mask-${vlanCounter}" name="subnet-mask[]" required></select>
+                <div class="inline-fields">
+
+                    <input type="text" id="vlan-IP-${vlanCounter}" name="vlan-IP[]" placeholder="___.___.___.___ (e.g., 127.0.0.1)" required>
+                    <select id="subnet-mask-${vlanCounter}" name="subnet-mask[]" required></select>
+                </div>
                 <button type="button" class="remove-vlan-row">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
-        `;
+        </form>
+        <br>
+    `;
 
-        // Generate and append subnet mask options
-        const subnetMaskDropdown = generateSubnetMaskDropdown(vlanCounter);
-        newVLANRow.querySelector("select").append(...subnetMaskDropdown.children);
+    // Generate and append subnet mask options
+    const subnetMaskDropdown = generateSubnetMaskDropdown(vlanCounter);
+    newVLANForm.querySelector("select").append(...subnetMaskDropdown.children);
 
-        vlanRowsContainer.appendChild(newVLANRow);
+    vlansConfigs.appendChild(newVLANForm);
+    validateVlanId(`vlan-id-${vlanCounter}`, `vlan-id-error-${vlanCounter}`);
+    validateVlanNameInput(`vlan-name-${vlanCounter}`, `vlan-name-error-${vlanCounter}`);
 
-        // Apply input mask to the newly added row
-        applyIPInputMask();
+    // Apply input mask to the newly added row
+    applyIPInputMask();
+
+    // Add event listener to remove VLAN
+    newVLANForm.querySelector(".remove-vlan-row").addEventListener("click", function () {
+        newVLANForm.remove();
     });
+});
 
-    // Event Delegation for Removing VLAN Rows
-    vlanRowsContainer.addEventListener("click", (event) => {
-        if (
-            event.target.classList.contains("remove-vlan-row") ||
-            event.target.closest(".remove-vlan-row")
-        ) {
-            const vlanRow = event.target.closest(".vlan-row");
-            if (vlanRow) {
-                vlanRow.remove();
+function validateVlanNameInput(vlanNameInputId, errorBoxId) {
+    const vlanNameInput = document.getElementById(vlanNameInputId);
+    const errorBox = document.getElementById(errorBoxId);
 
-                // Check if all rows are removed
-                if (vlanRowsContainer.querySelectorAll(".vlan-row").length === 0) {
-                    // Reset Save/Cancel Buttons
-                    saveButtonVLAN.style.display = "inline-block";
-                    cancelButtonVLAN.style.display = "none";
+    if (!vlanNameInput || !errorBox) {
+        console.warn(`Missing input or error box for ID: ${vlanNameInputId}`);
+        return;
+    }
 
-                    // Enable Add VLAN button
-                    addVLANButton.disabled = false;
-                }
-            }
+    vlanNameInput.addEventListener("input", function () {
+        const value = this.value.trim();
+
+        const isValid = /^[a-zA-Z0-9!@#$%^&*(),.:{}|<>_-]*$/.test(value) && !value.includes("?");
+
+        if (!isValid) {
+            this.style.borderColor = "red"; 
+            errorBox.style.display = "flex"; 
+        } else {
+            this.style.borderColor = ""; 
+            errorBox.style.display = "none"; 
         }
     });
-});
+}
 
-document.addEventListener("DOMContentLoaded", () => {
-    // Apply Input Mask to Default Gateway Input
-    const defaultGatewayInput = $('#default-gateway');
-    defaultGatewayInput.inputmask({
-        alias: "ip",
-        placeholder: "___.___.___.___ e.g ( 127.0.0.1 )", // Placeholder for IP address
-        greedy: false // Ensures only the valid mask is displayed
+function validateVlanId(vlanIdInputId, errorBoxId) {
+    const vlanIdInput = document.getElementById(vlanIdInputId);
+    const errorBox = document.getElementById(errorBoxId);
+
+    vlanIdInput.addEventListener("input", function () {
+        const value = this.value.trim();
+
+        // อนุญาตให้ฟิลด์ว่างโดยไม่แสดง Error
+        if (value === "") {
+            vlanIdInput.style.borderColor = ""; // รีเซ็ตเส้นขอบ
+            errorBox.style.display = "none"; // ซ่อนข้อความแจ้งเตือน
+            return;
+        }
+
+        // ตรวจสอบเงื่อนไข VLAN ID: เป็นตัวเลขเต็มระหว่าง 1-4094
+        const isValid = /^\d+$/.test(value) && value >= 1 && value <= 4094;
+
+        if (!isValid) {
+            vlanIdInput.style.borderColor = "red"; // เปลี่ยนเส้นขอบเป็นสีแดง
+            errorBox.style.display = "flex"; // แสดงข้อความแจ้งเตือน
+        } else {
+            vlanIdInput.style.borderColor = ""; // รีเซ็ตเส้นขอบ
+            errorBox.style.display = "none"; // ซ่อนข้อความแจ้งเตือน
+        }
     });
+}
 
-});
+
+// Generate Subnet Mask Options
+function generateSubnetMaskDropdown(id) {
+    const subnetMaskDropdown = document.createElement("select");
+    subnetMaskDropdown.id = `subnet-mask-${id}`;
+    subnetMaskDropdown.name = "subnet-mask[]";
+    subnetMaskDropdown.required = true;
+
+    for (let i = 1; i <= 32; i++) {
+        const value = (0xFFFFFFFF << (32 - i)) >>> 0;
+        const subnetStr = [
+            (value >>> 24) & 0xFF,
+            (value >>> 16) & 0xFF,
+            (value >>> 8) & 0xFF,
+            value & 0xFF,
+        ].join(".");
+        const option = document.createElement("option");
+        option.value = subnetStr;
+        option.textContent = `${subnetStr} /${i}`;
+        subnetMaskDropdown.appendChild(option);
+    }
+
+    return subnetMaskDropdown;
+}
+
+// Apply Input Mask to IP Address Fields
+function applyIPInputMask() {
+    $('input[name="vlan-IP[]"]').inputmask({
+        alias: "ip",
+        placeholder: "___.___.___.___", // Placeholder for IP address
+        greedy: false, // Ensures only the valid mask is displayed
+    });
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     // Apply Input Mask to NTP Server Input
@@ -262,9 +285,8 @@ function initializeDropdown(counter) {
     });
 
     const portGroups = [
-        { name: "Fixed Chassis", range: generatePorts("GigabitEthernet0/", 48) },
-        { name: "Modular Chassis", range: generatePorts("GigabitEthernet1/0/", 48) },
-        { name: "TenGigabitEthernet", range: generatePorts("TenGigabitEthernet0/", 8) },
+        { name: "Fixed Chassis", range: generatePorts_agg("GigabitEthernet1/0/", 48) },
+        { name: "Modular Chassis", range: generatePorts_agg("GigabitEthernet1/1/", 4) },
     ];
 
     // Create optgroup for each group
@@ -1081,23 +1103,49 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
     }
 
     // VLAN Configuration
-    const vlanRows = document.querySelectorAll('.vlan-row');
+    const vlanRows = document.querySelectorAll('.vlan-config-form');
     vlanRows.forEach(row => {
         const vlanId = row.querySelector('input[name="vlan-id[]"]');
         const vlanName = row.querySelector('input[name="vlan-name[]"]');
         const vlanIp = row.querySelector('input[name="vlan-IP[]"]');
         const subnetMask = row.querySelector('select[name="subnet-mask[]"]');
-
+        const errorBox = row.querySelector('.alert-box.error');
+    
         if (vlanId && vlanId.value.trim() !== '') {
-            configData += `vlan ${vlanId.value.trim()}\n`;
-
-            if (vlanName && vlanName.value.trim() !== '') {
-                configData += ` name ${vlanName.value.trim()}\n`;
-            }
-
-            if (vlanIp && vlanIp.value.trim() !== '' && subnetMask) {
-                configData += `interface vlan ${vlanId.value.trim()}\n`;
-                configData += ` ip address ${vlanIp.value.trim()} ${subnetMask.value.trim()}\n exit\n`;
+            const value = vlanId.value.trim();
+    
+            // ตรวจสอบ VLAN ID
+            const isValidId = /^\d+$/.test(value) && value >= 1 && value <= 4094;
+    
+            if (!isValidId) {
+                vlanId.style.borderColor = "red"; // แสดง Error ที่ Input
+                errorBox.style.display = "flex"; // แสดงข้อความแจ้งเตือน
+                return; // หยุดการทำงานของฟังก์ชันทันทีสำหรับ VLAN นี้
+            } else {
+                vlanId.style.borderColor = ""; // รีเซ็ต Error ที่ Input
+                errorBox.style.display = "none"; // ซ่อนข้อความแจ้งเตือน
+    
+                // ตรวจสอบ VLAN Name
+                const vlanNameValue = vlanName?.value.trim();
+                const isValidName = /^[a-zA-Z0-9!@#$%^&*(),.:{}|<>_-]*$/.test(vlanNameValue) && !vlanNameValue.includes("?");
+    
+                if (!isValidName) {
+                    vlanName.style.borderColor = "red"; // แสดง Error ที่ Input VLAN Name
+                    alert(`Invalid VLAN Name: "${vlanNameValue}". Please fix the error (no spaces allowed).`);
+                    return; // หยุดการทำงานสำหรับ VLAN นี้
+                } else {
+                    vlanName.style.borderColor = ""; // รีเซ็ต Error ที่ Input
+                }
+    
+                // เพิ่ม VLAN Configuration ใน configData
+                configData += `vlan ${value}\n`;
+                if (vlanName && vlanNameValue) {
+                    configData += ` name ${vlanNameValue}\n`;
+                }
+                if (vlanIp && vlanIp.value.trim() !== '' && subnetMask) {
+                    configData += `interface vlan ${value}\n`;
+                    configData += ` ip address ${vlanIp.value.trim()} ${subnetMask.value.trim()}\n exit\n`;
+                }
             }
         }
     });

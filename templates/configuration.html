@@ -65,43 +65,15 @@
                 </div>
             </form>
         </div>
-
+        
         <!-- Create VLANs -->
         <div class="config-section" id="create-vlan-multiple">
             <h3>Create VLANs</h3>
             <button type="button" id="add-vlan-row" class="styled-button">Add VLAN</button>
             <br><br>
-            <form id="vlan-multiple-form" class="config-form">
-                <div id="vlan-rows">
-                    <!-- Example of VLAN Row -->
-                    <div class="vlan-row form-group">
-                        <div class="inline-fields">
-                            <div>
-                                <label for="vlan-id-1">VLAN ID</label>
-                                <input type="number" id="vlan-id-1" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
-                            </div>
-                    
-                            <div>
-                                <label for="vlan-name-1">VLAN Name</label>
-                                <input type="text" id="vlan-name-1" name="vlan-name[]" placeholder="Enter VLAN Name" required>
-    
-                            </div>
-                        </div>
-                    
-                        <label for="vlan-IP-1">IP Address VLAN</label>
-                        <div class="ip-address-container">
-                            <input type="text" id="vlan-IP-1" name="vlan-IP[]" placeholder="___.___.___.___ (e.g., 127.0.0.1)" required>
-                            <select id="subnet-mask-1" name="subnet-mask[]" required>
-                                <!-- Subnet mask options added dynamically via JS -->
-                            </select>
-                            <button type="button" class="remove-vlan-row">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </form>
-            <br>
+            <div id="vlans-configs">
+                <!-- VLAN configurations will be dynamically added here -->
+            </div>
         </div>
 
         <!-- Global STP Configuration Section -->
