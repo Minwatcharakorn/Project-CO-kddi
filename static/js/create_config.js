@@ -165,12 +165,10 @@ document.getElementById("add-interface-config").addEventListener("click", functi
             <select id="interface-port-select-${interfaceCounter}" class="interface-port-select" multiple="multiple" style="width: 100%;"></select>
 
             <!-- Description -->
-            <div class="Description-IP">
-                <label for="description-${interfaceCounter}" style="font-weight: bold;">Description</label>
-                <input type="text" id="description-${interfaceCounter}" name="description" placeholder="Enter Description">
-                <div class="alert-box error" id="description-error-${interfaceCounter}" style="display: none;">
-                    <span>ERROR: </span> Description can only contain English letters, numbers, special characters, and spaces, except "?".
-                </div>
+            <label for="description-${interfaceCounter}" style="font-weight: bold;">Description</label>
+            <input type="text" id="description-${interfaceCounter}" name="description" placeholder="Enter Description">
+            <div class="alert-box error" id="description-error-${interfaceCounter}" style="display: none;">
+                <span>ERROR: </span> Description can only contain English letters, numbers, special characters, and spaces, except "?".
             </div>
 
             <!-- Switch Mode -->
@@ -185,7 +183,7 @@ document.getElementById("add-interface-config").addEventListener("click", functi
 
             <!-- VLAN ID Section -->
             <div class="vlan-id-section" id="vlan-id-section-${interfaceCounter}">
-                <label for="vlan-id-input-${interfaceCounter}" style="font-weight: bold;">VLAN ID</label>
+                <label for="vlan-id-input-${interfaceCounter}" style="font-weight: bold;">Access VLAN</label>
             <input 
                 type="number" 
                 id="vlan-id-input-${interfaceCounter}" 
@@ -194,7 +192,7 @@ document.getElementById("add-interface-config").addEventListener("click", functi
                 min="1" 
                 max="4094" 
                 oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)">
-                <div class="alert-box error" id="vlan-id-error-${interfaceCounter}" style="display: none;">
+                <div class="alert-box error" id="vlan-id-error-${interfaceCounter}" style="display: none ; width: 60%;">
                     <span>ERROR:</span> VLAN ID must be a whole number between 1 and 4094.
                     Negative, decimal, or invalid numbers are not allowed.
                 </div>
@@ -204,7 +202,11 @@ document.getElementById("add-interface-config").addEventListener("click", functi
             <div class="vlan-trunk-section" id="vlan-trunk-section-${interfaceCounter}" style="display: none;">
                 <label for="trunk-allowed-vlan-${interfaceCounter}" style="font-weight: bold;">Allowed VLANs</label>
                 <input type="text" id="trunk-allowed-vlan-${interfaceCounter}" name="trunk-allowed-vlan" placeholder="e.g., 20,30,40 or all">
-            </div>
+                <div class="alert-box error" id="allowed-vlans-error-${interfaceCounter}" style="display: none; width: 50%; ">
+                    <span>ERROR:</span> Allowed VLANs must be "all" or a comma-separated list of VLAN IDs (e.g., 10,20,30).
+                </div>
+            </div>  
+
 
             <!-- Remove Button -->
             <button type="button" class="remove-interface-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
@@ -236,6 +238,11 @@ document.getElementById("add-interface-config").addEventListener("click", functi
         `vlan-id-input-${interfaceCounter}`,
         `vlan-id-error-${interfaceCounter}`
     );
+    validateAllowedVlansInput(
+        `trunk-allowed-vlan-${interfaceCounter}`, 
+        `allowed-vlans-error-${interfaceCounter}`
+    );
+
     interfaceCounter++;
 });
 
@@ -361,7 +368,14 @@ function validateVlanIdInput(vlanIdInputId, errorBoxId) {
     vlanIdInput.addEventListener("input", function () {
         const value = this.value.trim();
 
-        // Regex to check for a valid integer between 1 and 4095
+        if (value === "") {
+            // Allow empty VLAN ID
+            this.style.borderColor = ""; // Reset border color
+            errorBox.style.display = "none"; // Hide the error message
+            return;
+        }
+
+        // Regex to check for a valid integer between 1 and 4094
         const isValid = /^\d+$/.test(value) && value >= 1 && value <= 4094;
 
         if (!isValid) {
@@ -374,14 +388,44 @@ function validateVlanIdInput(vlanIdInputId, errorBoxId) {
     });
 }
 
+function validateAllowedVlansInput(inputId, errorBoxId) {
+    const inputElement = document.getElementById(inputId);
+    const errorBox = document.getElementById(errorBoxId);
+
+    if (!inputElement || !errorBox) {
+        console.warn(`Missing input or error box for Allowed VLANs: ${inputId}`);
+        return;
+    }
+
+    inputElement.addEventListener("input", function () {
+        const value = this.value.trim();
+
+        if (value === "") {
+            // Allow empty input
+            this.style.borderColor = "";
+            errorBox.style.display = "none";
+            return;
+        }
+
+        const vlanSyntaxRegex = /^(all|(\d{1,4})(,\d{1,4})*)$/;
+        const isValid = vlanSyntaxRegex.test(value);
+
+        if (!isValid) {
+            this.style.borderColor = "red"; // Highlight the field with a red border
+            errorBox.style.display = "block"; // Show the error message
+        } else {
+            this.style.borderColor = ""; // Reset border color
+            errorBox.style.display = "none"; // Hide the error message
+        }
+    });
+}
+
+
 // Handle Switch Mode Toggle
 function initializeSwitchModeToggle(counter) {
     const switchMode = document.getElementById(`switch-mode-${counter}`);
     const vlanSection = document.getElementById(`vlan-id-section-${counter}`);
     const trunkSection = document.getElementById(`vlan-trunk-section-${counter}`);
-
-    // ซ่อน VLAN ID Input โดยเริ่มต้น
-    vlanSection.style.display = "none";
 
     // เพิ่ม event listener เมื่อ switch mode เปลี่ยน
     switchMode.addEventListener("change", function () {
@@ -528,8 +572,7 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
             </optgroup>
         </select>
 
-        <!-- Hidden Configuration Fields -->
-        <div id="aggregation-config-fields-${aggId}" style="display: none;">
+        <div id="aggregation-config-fields-${aggId}">
             <!-- Switchport Mode -->
             <label for="switchport-mode-${aggId}" style="font-weight: bold;">Switchport Mode</label>
             <select id="switchport-mode-${aggId}" class="switchport-mode">
@@ -593,17 +636,17 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
     aggregationIdInput.addEventListener("input", function () {
         // Remove non-numeric and decimal characters
         this.value = this.value.replace(/[^0-9]/g, "");
-    
+        
         // Convert value to a number for validation
         const aggregationIdValue = parseInt(this.value, 10);
         let isOutOfRange = false;
         let isDuplicate = false;
-    
+        
         // Check for out-of-range values (less than 1 or greater than 64)
         if (aggregationIdValue < 1 || aggregationIdValue > 64) {
             isOutOfRange = true;
         }
-    
+        
         // Check for duplicate IDs
         const allAggregationIds = document.querySelectorAll('input[name="aggregation-id[]"]');
         allAggregationIds.forEach((input) => {
@@ -611,18 +654,18 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
                 isDuplicate = true;
             }
         });
-    
+        
         // Handle errors
         if (isOutOfRange) {
             aggregationIdInput.style.borderColor = "red"; // Add red border
             errorMessage.style.display = "flex"; // Show error message
             errorMessage.innerHTML = '<span>ERROR: </span> Aggregation ID must be between 1 and 64.'; // Custom error message
-            configFields.style.display = "none"; // Hide fields
+            configFields.style.display = "block"; // Always show Switchport Mode dropdown
         } else if (isDuplicate) {
             aggregationIdInput.style.borderColor = "red"; // Add red border
             errorMessage.style.display = "flex"; // Show error message
             errorMessage.innerHTML = '<span>ERROR: </span> This Aggregation ID is already in use. Please enter a unique ID.'; // Custom error message
-            configFields.style.display = "none"; // Hide fields
+            configFields.style.display = "block"; // Always show Switchport Mode dropdown
         } else {
             aggregationIdInput.style.borderColor = ""; // Reset border
             errorMessage.style.display = "none"; // Hide error message
@@ -658,15 +701,19 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
     linkAggregationAllowedVlans2.addEventListener("input", function () {
         const value = this.value.trim();
         const vlanSyntaxRegex = /^(all|(\d{1,4})(,\d{1,4})*)$/;
-
-        if (value === "all") {
+    
+        if (value === "") {
+            // หากฟิลด์ว่าง ให้ถือว่าผ่านและไม่มี Error
+            linkAggregationAllowedVlans2.style.borderColor = "";
+            allowedVlansError2.style.display = "none";
+        } else if (value === "all") {
             // หากใส่ "all" ให้ผ่าน
             linkAggregationAllowedVlans2.style.borderColor = "";
             allowedVlansError2.style.display = "none";
         } else if (vlanSyntaxRegex.test(value)) {
             const vlans = value.split(",").map(Number);
             const isValid = vlans.every(vlan => vlan >= 1 && vlan <= 4094);
-
+    
             if (isValid) {
                 linkAggregationAllowedVlans2.style.borderColor = "";
                 allowedVlansError2.style.display = "none";
@@ -742,19 +789,42 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
         // ลบ config ออกจาก DOM
         newAggregationConfig.remove();
     
+        // หากไม่มี Aggregation Configuration เหลือ
+        const remainingConfigs = document.querySelectorAll(".aggregation-config");
+        if (remainingConfigs.length === 0) {
+            aggregationConfigsList = [];
+            aggregationCounter = 1;
+            return;
+        }
+    
+        // รีเฟรช ID และ Initialize ใหม่
+        remainingConfigs.forEach((config, index) => {
+            const switchMode = config.querySelector(".switchport-mode");
+            const accessSection = config.querySelector(".access-vlan-section");
+            const trunkSection = config.querySelector(".trunk-vlan-section");
+    
+            console.log(`Refreshing config #${index + 1}`);
+    
+            // ตั้งค่า ID ใหม่สำหรับ Switch Mode และ Sections
+            if (switchMode) {
+                switchMode.id = `switchport-mode-${index + 1}`;
+            }
+            if (accessSection) {
+                accessSection.id = `access-vlan-section-${index + 1}`;
+            }
+            if (trunkSection) {
+                trunkSection.id = `trunk-vlan-section-${index + 1}`;
+            }
+    
+            // เรียกฟังก์ชัน Initialize ใหม่
+            initializeSwitchportModeToggle(index + 1);
+        });
+    
         // รีเฟรชการตรวจสอบ Aggregation ID
         refreshAggregationIDValidation();
     
         // รีเฟรชการตั้งค่าพอร์ต
         refreshPortAvailability_agg();
-    
-        // เรียกใช้งาน initializeSwitchportModeToggle ใหม่สำหรับ config ที่เหลือ
-        document.querySelectorAll(".aggregation-config").forEach((config, index) => {
-            const switchportModeDropdown = config.querySelector(".switchport-mode");
-            if (switchportModeDropdown) {
-                initializeSwitchportModeToggle(index + 1); // ใช้ index + 1 เพื่อกำหนด counter ใหม่
-            }
-        });
     });
 
     aggregationCounter++;
@@ -765,17 +835,40 @@ function initializeSwitchportModeToggle(counter) {
     const switchMode = document.getElementById(`switchport-mode-${counter}`);
     const accessSection = document.getElementById(`access-vlan-section-${counter}`);
     const trunkSection = document.getElementById(`trunk-vlan-section-${counter}`);
+    const allowedVlansInput = document.getElementById(`trunk-allowed-vlans-${counter}`);
+    const allowedVlansError = document.getElementById(`trunk-error-${counter}`);
 
-    switchMode.addEventListener("change", function () {
+    if (!switchMode || !accessSection || !trunkSection) {
+        console.warn(`Missing elements for counter ${counter}`);
+        return;
+    }
+
+    // Reset sections to be hidden by default
+    accessSection.style.display = "none";
+    trunkSection.style.display = "none";
+
+    // Remove old event listener to prevent duplication
+    const clone = switchMode.cloneNode(true);
+    switchMode.parentNode.replaceChild(clone, switchMode);
+
+    // Add new event listener
+    clone.addEventListener("change", function () {
         if (this.value === "access") {
-            accessSection.style.display = "block";
-            trunkSection.style.display = "none";
+            accessSection.style.display = "block"; // Show Access VLAN
+            trunkSection.style.display = "none"; // Hide Trunk Allowed VLANs
         } else if (this.value === "trunk") {
-            accessSection.style.display = "none";
-            trunkSection.style.display = "block";
-        } else if (this.value === "") {
-            // Reset: Hide both sections when returning to default option
-            accessSection.style.display = "none";
+            accessSection.style.display = "none"; // Hide Access VLAN
+            trunkSection.style.display = "block"; // Show Trunk Allowed VLANs
+
+            // Clear errors and make input optional
+            if (allowedVlansInput) {
+                allowedVlansInput.style.borderColor = ""; // Reset input border
+                if (allowedVlansError) {
+                    allowedVlansError.style.display = "none"; // Hide error message
+                }
+            }
+        } else {
+            accessSection.style.display = "none"; // Hide both sections
             trunkSection.style.display = "none";
         }
     });
@@ -1071,15 +1164,27 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
     // Link Aggregation Configuration
     const aggregationConfigs = document.querySelectorAll('.aggregation-config');
     aggregationConfigs.forEach(config => {
-        const aggregationId = config.querySelector('input[name="aggregation-id[]"]')?.value.trim();
+        const aggregationIdInput = config.querySelector('input[name="aggregation-id[]"]');
+        const aggregationIdError = config.querySelector('.alert-box.error');
         const ports = config.querySelector('.aggregation-ports-select')?.selectedOptions;
         const aggregationMode = config.querySelector('select[name="aggregation-mode[]"]')?.value.trim();
-        
-        if (!aggregationId || parseInt(aggregationId, 10) < 1 || parseInt(aggregationId, 10) > 64) {
-            console.warn(`Invalid Aggregation ID: ${aggregationId}`);
+        const switchportMode = config.querySelector('.switchport-mode')?.value.trim();
+    
+        // Skip this configuration if there's an error in Aggregation ID
+        if (aggregationIdError && aggregationIdError.style.display === 'flex') {
+            console.warn(`Skipping configuration due to Aggregation ID error: ${aggregationIdInput.value}`);
             return;
         }
     
+        // Skip if Aggregation ID is missing or invalid
+        if (!aggregationIdInput || !aggregationIdInput.value.trim() || isNaN(aggregationIdInput.value.trim())) {
+            console.warn(`Invalid or missing Aggregation ID: ${aggregationIdInput ? aggregationIdInput.value : 'undefined'}`);
+            return;
+        }
+    
+        const aggregationId = aggregationIdInput.value.trim();
+    
+        // Skip if no ports or aggregation mode selected
         if (!ports || ports.length === 0 || !aggregationMode) {
             console.warn(`Missing required fields for Aggregation ID: ${aggregationId}`);
             return;
@@ -1095,27 +1200,25 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
         // Port-channel configuration
         configData += `interface port-channel ${aggregationId}\n`;
     
-        const switchportMode = config.querySelector('.switchport-mode')?.value.trim();
-        const accessVlan = config.querySelector('input[name="access-vlan"]')?.value.trim();
-        const linkAggregationAllowedVlans = config.querySelector('input[name="trunk-allowed-vlans"]')?.value.trim(); // ปรับชื่อ selector ตามโครงสร้าง HTML
-        
         if (switchportMode === 'access') {
             configData += ` switchport mode access\n`;
+        
+            const accessVlan = config.querySelector('input[name="access-vlan"]')?.value.trim();
             if (accessVlan && parseInt(accessVlan, 10) >= 1 && parseInt(accessVlan, 10) <= 4094) {
                 configData += ` switchport access vlan ${accessVlan}\n`;
-            } else {
-                console.warn(`Invalid Access VLAN: ${accessVlan}`);
-            }
+            } 
         } else if (switchportMode === 'trunk') {
             configData += ` switchport mode trunk\n`;
-            if (linkAggregationAllowedVlans === "all") {
-                configData += ` switchport trunk allowed vlan all\n`; // เพิ่มการรองรับ "all"
-            } else if (linkAggregationAllowedVlans) {
-                const vlanRegex = /^all$|^(\d{1,4})(,\d{1,4})*$/;
-                if (vlanRegex.test(linkAggregationAllowedVlans)) {
-                    configData += ` switchport trunk allowed vlan ${linkAggregationAllowedVlans}\n`;
+        
+            const allowedVlans = config.querySelector('input[name="trunk-allowed-vlans"]')?.value.trim();
+            if (allowedVlans === "all") {
+                configData += ` switchport trunk allowed vlan all\n`;
+            } else if (allowedVlans) {
+                const vlanRegex = /^(\d{1,4})(,\d{1,4})*$/; // เฉพาะหมายเลข VLAN หรือรายการคั่นด้วย comma
+                if (vlanRegex.test(allowedVlans)) {
+                    configData += ` switchport trunk allowed vlan ${allowedVlans}\n`;
                 } else {
-                    console.warn(`Invalid Allowed VLANs: ${linkAggregationAllowedVlans}`);
+                    console.warn(`Invalid Allowed VLANs: ${allowedVlans}`);
                 }
             }
         }
