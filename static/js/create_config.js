@@ -516,6 +516,129 @@ function validateAllowedVlans(allowedVlans) {
     return vlanSyntaxRegex.test(allowedVlans);
 }
 
+// Function to refresh all Port-Security dropdowns with valid ports
+function updatePortSecurityDropdowns() {
+    const validPorts = [];
+
+    // Collect valid ports from Interface Configuration
+    document.querySelectorAll(".interface-config").forEach((config) => {
+        const switchMode = config.querySelector('[name="switch-mode"]').value;
+        if (switchMode === "access" || switchMode === "trunk") {
+            const selectedPorts = $(config.querySelector(".interface-port-select")).val() || [];
+            validPorts.push(...selectedPorts);
+        }
+    });
+
+    // Update each Port-Security dropdown
+    document.querySelectorAll(".port-security-config .interface-port-select").forEach((dropdown) => {
+        const currentSelected = $(dropdown).val() || [];
+        $(dropdown).empty(); // Clear existing options
+
+        // Add the valid ports as new options
+        validPorts.forEach((port) => {
+            const option = document.createElement("option");
+            option.value = port;
+            option.textContent = port;
+
+            // Restore previously selected ports
+            if (currentSelected.includes(port)) {
+                option.selected = true;
+            }
+
+            dropdown.appendChild(option);
+        });
+
+        $(dropdown).trigger("change.select2"); // Refresh the Select2 dropdown
+    });
+}
+
+// Set up a MutationObserver for detecting DOM changes
+const observer = new MutationObserver((mutationsList) => {
+    for (const mutation of mutationsList) {
+        if (mutation.type === "childList") {
+            updatePortSecurityDropdowns(); // Update dropdowns whenever child nodes are added/removed
+        }
+    }
+});
+
+// Observe changes in the #interface-configs container
+const interfaceConfigsContainer = document.getElementById("interface-configs");
+if (interfaceConfigsContainer) {
+    observer.observe(interfaceConfigsContainer, { childList: true, subtree: true });
+} else {
+    console.error("Interface Configs container not found!");
+}
+
+// Event Listener for changes in Interface Configuration
+if (interfaceConfigsContainer) {
+    interfaceConfigsContainer.addEventListener("change", (event) => {
+        if (event.target.name === "switch-mode" || event.target.classList.contains("interface-port-select")) {
+            updatePortSecurityDropdowns(); // Trigger the dropdown update
+        }
+    });
+}
+
+// Initialize New Port-Security Configuration
+const portSecurityAddButton = document.getElementById("add-port-security-config");
+if (portSecurityAddButton) {
+    portSecurityAddButton.addEventListener("click", function () {
+        const portSecurityConfigs = document.getElementById("port-security-configs");
+        const newConfigId = `port-security-${Date.now()}`;
+        const newConfig = document.createElement("div");
+        newConfig.className = "port-security-config";
+
+        newConfig.innerHTML = `
+            <form class="config-form">
+                <label for="port-security-interface-${newConfigId}">Interface Port</label>
+                <select id="port-security-interface-${newConfigId}" class="interface-port-select" multiple="multiple" required></select>
+
+                <label for="port-security-maximum-${newConfigId}">Maximum MAC Addresses</label>
+                <input type="number" id="port-security-maximum-${newConfigId}" name="maximum" placeholder="Enter Maximum (e.g., 2)" min="1" required>
+
+                <label for="port-security-violation-${newConfigId}">Violation Mode</label>
+                <select id="port-security-violation-${newConfigId}" name="violation-mode" required>
+                    <option value="" selected>Select Violation Mode</option>
+                    <option value="restrict">Restrict</option>
+                    <option value="shutdown">Shutdown</option>
+                    <option value="protect">Protect</option>
+                </select>
+
+                <label>
+                    <input type="checkbox" id="port-security-sticky-${newConfigId}" name="sticky-mac">
+                    Enable Sticky MAC Address
+                </label>
+
+                <button type="button" class="remove-port-security-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
+            </form>
+        `;
+
+        portSecurityConfigs.appendChild(newConfig);
+
+        // Initialize Select2 for the new dropdown
+        $(`#port-security-interface-${newConfigId}`).select2({
+            placeholder: "Select Ports",
+            allowClear: true,
+        });
+
+        // Refresh dropdown with the latest ports
+        updatePortSecurityDropdowns();
+
+        // Remove the configuration
+        newConfig.querySelector(".remove-port-security-config").addEventListener("click", function () {
+            newConfig.remove();
+            updatePortSecurityDropdowns(); // Refresh remaining dropdowns
+        });
+    });
+} else {
+    console.error("Add Port-Security Config button not found!");
+}
+
+// Trigger real-time updates for existing configurations
+document.addEventListener("DOMContentLoaded", () => {
+    updatePortSecurityDropdowns(); // Ensure dropdowns are updated on page load
+});
+
+
 const timezones = [
     { value: "", label: "Select Timezone ( Default )" }, // Default empty value
     { value: "GMT -12", label: "(GMT-12:00) International Date Line West" },
@@ -1284,7 +1407,7 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
         configData += ' exit\n';
     });
 
-    configData += 'end\nwrite memory\n';
+    configData += 'end\ncopy running-config startup-config\n';
 
     // Inject data into modal and show it
     openModalPreview(configData);
