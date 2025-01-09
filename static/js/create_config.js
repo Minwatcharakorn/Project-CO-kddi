@@ -616,7 +616,7 @@ if (portSecurityAddButton) {
             <div class="port-security-form-group">
                 <label for="port-security-violation-${newConfigId}">Violation Mode</label>
                 <select id="port-security-violation-${newConfigId}" name="violation-mode" required>
-                    <option value="" selected>Select Violation Mode</option>
+                    <option value="" style="text-align: center;" selected>Select Violation Mode</option>
                     <option value="restrict">Restrict</option>
                     <option value="shutdown">Shutdown</option>
                     <option value="protect">Protect</option>
@@ -637,14 +637,40 @@ if (portSecurityAddButton) {
         
                 <div class="port-security-form-group">
                     <label for="max-mac-count-${newConfigId}">Maximum MAC Count</label>
-                    <input type="number" id="max-mac-count-${newConfigId}" class="port-security-input" placeholder="Enter Maximum Count" min="1" max="4096" value="1">
+                    <input 
+                        type="number" 
+                        id="max-mac-count-${newConfigId}" 
+                        class="port-security-input" 
+                        placeholder="Enter Maximum Count (e.g., 1 to 4096)" 
+                        min="1" 
+                        max="4096"
+                    >
+                    <div 
+                        class="alert-box error" 
+                        id="max-mac-error-${newConfigId}" 
+                        style="display: none;"
+                    >
+                        <span>ERROR:</span> Maximum MAC Count must be an integer between 1 and 4096.
+                    </div>
                 </div>
         
                 <div class="port-security-form-group">
                     <label for="mac-address-input-${newConfigId}">Add MAC Address</label>
                     <div class="port-security-input-group">
-                        <input type="text" id="mac-address-input-${newConfigId}" class="port-security-input" placeholder="Enter MAC Address (e.g., XX:XX:XX:XX:XX:XX)">
+                        <input 
+                            type="text" 
+                            id="mac-address-input-${newConfigId}" 
+                            class="port-security-input" 
+                            placeholder="Enter MAC Address (e.g., XX:XX:XX:XX:XX:XX)"
+                        >
                         <button id="add-mac-btn-${newConfigId}" class="btn btn-primary" style="margin-top: -1.2%;">+</button>
+                        <div 
+                            class="alert-box error" 
+                            id="mac-address-error-${newConfigId}" 
+                            style="display: none;"
+                        >
+                            <span>ERROR:</span> Invalid MAC address format. Please use the format XX:XX:XX:XX:XX:XX.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -678,37 +704,81 @@ if (portSecurityAddButton) {
             allowClear: true,
         });
 
+        document.getElementById(`toggle-switch-${newConfigId}`).addEventListener("change", function () {
+            console.log("Toggle switched");
+            const status = document.getElementById(`toggle-status-${newConfigId}`);
+            const addMacSection = document.getElementById(`mac-address-input-${newConfigId}`).closest(".port-security-form-group");
+            const macTableSection = document.getElementById(`mac-table-body-${newConfigId}`).closest(".port-security-form-group");
+        
+            if (this.checked) {
+                status.textContent = "Enabled";
+                status.style.color = "#4caf50";
+                addMacSection.style.display = "none"; // ซ่อน Add MAC Address
+                macTableSection.style.display = "none"; // ซ่อน Table
+            } else {
+                status.textContent = "Disabled";
+                status.style.color = "#333";
+                addMacSection.style.display = "block"; // แสดง Add MAC Address
+                macTableSection.style.display = "block"; // แสดง Table
+            }
+        });
+
         // Handle Adding and Removing MAC Addresses
         const addMacBtn = newConfig.querySelector(`#add-mac-btn-${newConfigId}`);
         const macInput = newConfig.querySelector(`#mac-address-input-${newConfigId}`);
         const macTableBody = newConfig.querySelector(`#mac-table-body-${newConfigId}`);
+        const maxMacCountInput = document.getElementById(`max-mac-count-${newConfigId}`);
 
-        // Validate MAC Address
-        function validateMacAddress(mac) {
+        // Validate MAC Address on Input
+        macInput.addEventListener("input", function () {
+            const macAddressInput = this;
+            const errorBox = document.getElementById(`mac-address-error-${newConfigId}`);
+            
+            // Regular expression to validate MAC Address
             const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
-            return macRegex.test(mac);
-        }
-
-        // Handle Sticky MAC Address Toggle
-        document.getElementById(`toggle-switch-${newConfigId}`).addEventListener("change", function () {
-            const status = document.getElementById(`toggle-status-${newConfigId}`);
-            const addMacSection = document.getElementById(`mac-address-input-${newConfigId}`).closest(".port-security-form-group");
-            const macTableSection = document.getElementById(`mac-table-body-${newConfigId}`).closest(".port-security-form-group");
-
-            if (this.checked) {
-                // When enabled, hide the Add MAC Address and MAC Address Table
-                status.textContent = "Enabled";
-                status.style.color = "#4caf50"; // Green for Enabled
-                addMacSection.style.display = "none"; // Hide Add MAC Address
-                macTableSection.style.display = "none"; // Hide MAC Address Table
+        
+            // ถ้าไม่มีการป้อนค่าใด ๆ ให้ซ่อนข้อความแจ้งเตือน
+            if (macAddressInput.value.trim() === "") {
+                macAddressInput.style.borderColor = ""; // รีเซ็ตเส้นขอบ
+                errorBox.style.display = "none"; // ซ่อนข้อความแจ้งเตือน
+                return; // จบการตรวจสอบ
+            }
+        
+            // ถ้าป้อนค่า ให้ตรวจสอบรูปแบบ
+            if (!macRegex.test(macAddressInput.value.trim())) {
+                // If invalid, show error message
+                macAddressInput.style.borderColor = "red";
+                errorBox.style.display = "block";
             } else {
-                // When disabled, show the Add MAC Address and MAC Address Table
-                status.textContent = "Disabled";
-                status.style.color = "#333"; // Default color
-                addMacSection.style.display = "block"; // Show Add MAC Address
-                macTableSection.style.display = "block"; // Show MAC Address Table
+                // If valid, hide error message
+                macAddressInput.style.borderColor = "";
+                errorBox.style.display = "none";
             }
         });
+
+        maxMacCountInput.addEventListener("input", function () {
+            const value = this.value.trim();
+            const errorBox = document.getElementById(`max-mac-error-${newConfigId}`);
+        
+            // ถ้าฟิลด์ว่างเปล่า ให้ซ่อนข้อความแจ้งเตือนและไม่แสดงข้อผิดพลาด
+            if (value === "") {
+                this.style.borderColor = ""; // รีเซ็ตเส้นขอบ
+                errorBox.style.display = "none"; // ซ่อนข้อความแจ้งข้อผิดพลาด
+                return; // จบการตรวจสอบ
+            }
+        
+            // ตรวจสอบว่าค่าเป็นตัวเลขเต็มระหว่าง 1-4096
+            const isValid = /^\d+$/.test(value) && value >= 1 && value <= 4096;
+        
+            if (!isValid) {
+                this.style.borderColor = "red"; // เปลี่ยนเส้นขอบเป็นสีแดง
+                errorBox.style.display = "block"; // แสดงข้อความแจ้งข้อผิดพลาด
+            } else {
+                this.style.borderColor = ""; // รีเซ็ตเส้นขอบ
+                errorBox.style.display = "none"; // ซ่อนข้อความแจ้งข้อผิดพลาด
+            }
+        });
+
 
         // Add MAC Address to the Table
         addMacBtn.addEventListener("click", (event) => {
@@ -728,13 +798,11 @@ if (portSecurityAddButton) {
                 // Add event listener for Remove button
                 row.querySelector(".remove-mac-btn").addEventListener("click", () => {
                     row.remove();
-                    checkEmptyTable();
                 });
 
                 // Clear the input field
                 macInput.value = "";
-                checkEmptyTable();
-            } 
+            }
         });
 
         // Refresh dropdown with the latest ports and handle validation
