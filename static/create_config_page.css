@@ -420,7 +420,7 @@ textarea {
     width: 100%;
     max-width: 300px;
     padding: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid #000000;
     border-radius: 4px;
     box-sizing: border-box;
     font-size: 14px;
@@ -434,6 +434,7 @@ textarea {
     box-sizing: border-box;
     font-size: 14px;
 }
+
 textarea {
     resize: none; /* Prevent resizing */
 }
@@ -478,195 +479,6 @@ textarea {
 
 .custom-dropdown button:hover {
     background-color: #f1f1f1;
-}
-
-[id^="selected-ports-container-"] {
-    margin-top: 5px;
-    margin-bottom: 0; /* ไม่มีระยะห่างด้านล่าง */
-    padding: 10px;
-    border-radius: 5px;
-    background-color: white;
-    text-align: left;
-    height: 450px;
-    overflow-y: hidden;
-    width: 100%;
-}
- 
-[id^="selected-ports-box"] {
-    white-space: normal; /* อนุญาตให้ข้อความห่อ */
-    overflow: hidden; /* ปิดการแสดง scroll */
-    padding: 5px;
-    border: 1px solid #d0d4db;
-    background-color: #f9f9f9;
-    font-size: 14px;
-    color: #333;
-    line-height: 1.5; /* เพิ่มความสูงระหว่างบรรทัด */
-    height: 500px; /* ความสูงของกรอบ */
-    width: 100%; /* ความกว้างของกรอบ */
-    overflow-y: auto;
-}
-
-[id^="selected-ports-container-"] h4 {
-    border-bottom: 1px solid black; /* Underline for header */
-    padding-bottom: 5px;
-    margin-bottom: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-}
-
-[id^="dropdown-container-"] {
-    padding: 10px;
-    background-color: white;
-    text-align: center;
-    width: 100%;
-    margin-top: -10px; /* ไม่มีระยะห่างด้านบน */
-}
-
-[id^="dropdown-button-"] {
-    background: linear-gradient(90deg, #1e90ff, #007bff); /* เพิ่ม gradient */
-    color: #fff; /* เปลี่ยนสีตัวอักษรเป็นสีขาว */
-    border: none; /* ลบเส้นขอบ */
-    padding: 10px 20px; /* เพิ่มพื้นที่ภายในปุ่ม */
-    font-size: 16px; /* เพิ่มขนาดฟอนต์ */
-    cursor: pointer; /* แสดง pointer เมื่อโฮเวอร์ */
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
-    transition: all 0.3s ease; /* เพิ่มเอฟเฟกต์เมื่อเปลี่ยนสถานะ */
-    width: 100%;
-}
-
-[id^="dropdown-button-"]:after {
-    content: '\25BC';
-    float: right;
-    margin-left: 10px;
-}
-
-/* ตกแต่งปุ่มและไอคอนเมื่อ Hover */
-[id^="dropdown-button-"]:hover {
-    background: linear-gradient(90deg, #007bff, #0056b3); /* เปลี่ยนสีเมื่อโฮเวอร์ */
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* เพิ่มความชัดของเงา */
-}
-
-[id^="dropdown-content-"]{
-    display: none; /* ซ่อน dropdown เป็นค่าเริ่มต้น */
-    position: relative;
-    background-color: white;
-    border: 1px solid #d0d4db;
-    z-index: 10;
-    width: 100%;
-    max-height: 300px; /* จำกัดความสูง */
-    overflow-y: auto; /* เปิดการเลื่อนแนวตั้ง */
-    overflow-x: hidden; /* เปิดการเลื่อนแนวตั้ง */
-    padding: 10px;
-    border-radius: 4px;
-}
-
-
-
-[id^="dropdown-content-"] label {
-    display: flex; /* Arrange in a row */
-    align-items: center;
-    gap: 10px; /* Space between checkbox and text */
-    padding: 5px;
-    margin-bottom: 5px; /* Add spacing between lines */
-    font-size: 14px;
-    cursor: pointer;
-    border-radius: 4px;
-}
-
-
-[id^="dropdown-content-"] label:hover {
-    background-color: #f1f1f1; /* เพิ่มสีเมื่อ hover */
-    border-radius: 3px; /* ขอบมน */
-    width: 3.9%;
-}
-
-
-
-[id^="dropdown-content-"] input[type="checkbox"] {
-    width: 16px; /* ความกว้าง */
-    height: 16px; /* ความสูง */
-    margin: 0; /* ลบระยะห่างรอบ */
-    cursor: pointer;
-    margin-right: 8px; /* เพิ่มระยะห่างระหว่าง Checkbox และข้อความ */
-    transform: scale(1.2); /* ขยายขนาดของ Checkbox */
-    cursor: pointer; /* เปลี่ยนเคอร์เซอร์เป็น Pointer */
-}
-
-
-[id^="interface-port-dropdown-"] {
-    width: 50%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #d0d4db;
-    border-radius: 4px;
-    cursor: pointer;
-    background-color: white;
-    color: black;
-}
-[id^="fixed-chassis-section-"] {
-    margin-bottom: 20px;
-}
-
-[id^="fixed-chassis-section-"] {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 10px;
-}
-
-[id^="modular-chassis-section-"] {
-    margin-bottom: 20px;
-
-}
-
-
-
-
-
-
-[id^="fixed-chassis-ports-"] label {
-    display: block;
-    margin-left: 20px;
-    font-weight: bold;
-
-}
-[id^="modular-chassis-ports-"] label {
-    display: block;
-    margin-left: 20px;
-}
-
-[id^="ten-gigabit-ports-"] label {
-    display: block;
-    margin-left: 20px;
-}
-
-
-[id^="dropdown-content-"] input[type="checkbox"] {
-    margin-right: 8px; /* เพิ่มระยะห่างระหว่าง Checkbox และข้อความ */
-    transform: scale(1.2); /* ขยายขนาดของ Checkbox */
-    cursor: pointer; /* เปลี่ยนเคอร์เซอร์เป็น Pointer */
-}
-
-
-[id^="dropdown-content-"] {
-    display: none; /* Ensure visibility during testing */
-    border: 1px solid #ccc;
-    padding: 5px 10px;
-    border-radius: 4px;
-    background-color: #fff;
-    max-height: 300px; /* Add scroll if too long */
-    overflow-y: auto;
-}
-
-
-[id^="dropdown-content-"] h4 {
-    margin: 10px 0;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #ddd;
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
 }
 
 .switch-mode-section select {
@@ -852,3 +664,178 @@ textarea {
     border:1px solid #6cc8d4;
 }
 .notice:hover { background-color: #6cc8d4; }
+
+
+.port-security-config-form {
+    background-color: #fff; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-bottom: 20px; 
+}
+/* Port-Security Form Group */
+.port-security-form-group {
+    margin-bottom: 15px;
+}
+
+.port-security-form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.port-security-form-group input,
+.port-security-form-group select {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.port-security-form-group[style="display: none;"] {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+
+.port-security-input-group {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.port-security-input-group input {
+    flex: 1;
+}
+
+.port-security-input-group button {
+    flex-shrink: 0;
+}
+
+
+/* Table Styles */
+.mac-address-table {
+    width: 100%; /* Full width table */
+    border-collapse: collapse; /* Remove gaps between table borders */
+    margin-top: 15px; /* Add spacing above the table */
+    font-size: 14px; /* Slightly smaller text for compactness */
+    background-color: #fff; /* White background */
+    border: 1px solid #ddd; /* Light border for table */
+    border-radius: 8px; /* Rounded corners for modern look */
+    overflow: hidden; /* Clip overflow for rounded borders */
+}
+
+/* Header Row */
+.mac-address-table th {
+    background-color: #f4f4f4; /* Light gray header background */
+    color: #333; /* Dark text for better readability */
+    font-weight: bold;
+    padding: 10px; /* Add padding to header cells */
+    text-align: center; /* Center-align text */
+    border-bottom: 1px solid #ddd; /* Border below header row */
+}
+
+/* Data Rows */
+.mac-address-table td {
+    padding: 10px; /* Add padding to table cells */
+    text-align: center; /* Center-align text */
+    border-bottom: 1px solid #ddd; /* Border below rows */
+}
+
+/* Highlight Alternate Rows */
+.mac-address-table tr:nth-child(even) {
+    background-color: #f9f9f9; /* Light gray for alternate rows */
+}
+
+/* Hover Effect */
+.mac-address-table tr:hover {
+    background-color: #e9ecef; /* Slightly darker gray on hover */
+}
+
+/* Empty Table Placeholder */
+.mac-address-table .text-center {
+    color: #888; /* Gray text for the placeholder */
+    font-style: italic; /* Italicize placeholder text */
+}
+
+/* Remove Button Styles */
+.remove-mac-btn {
+    background-color: #dc3545; /* Red background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    padding: 5px 10px; /* Compact padding */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 12px; /* Slightly smaller font size */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+/* Remove Button Hover */
+.remove-mac-btn:hover {
+    background-color: #b02a37; /* Darker red on hover */
+}
+
+/* Toggle Container */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Add spacing between label, toggle, and status */
+    margin-bottom: 20px; /* Space below the toggle */
+}
+
+/* Label Styling */
+.sticky-mac-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 0%;
+}
+
+/* Hidden checkbox */
+.toggle-switch {
+    display: none;
+}
+
+/* The toggle switch style */
+.toggle-label {
+    width: 60px;
+    height: 30px;
+    background-color: #ccc;
+    border-radius: 30px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.toggle-label .toggle-circle {
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    transform: translateY(-50%);
+    transition: left 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* When the checkbox is checked */
+.toggle-switch:checked + .toggle-label {
+    background-color: #4caf50;
+}
+
+.toggle-switch:checked + .toggle-label .toggle-circle {
+    left: 33px;
+}
+
+/* Status text */
+.toggle-status {
+    font-size: 16px;
+    color: #333;
+}

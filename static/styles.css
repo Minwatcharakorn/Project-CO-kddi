@@ -605,15 +605,3 @@ span {
 .ip-input label, .Description label {
     margin-right: 10px;
 }
-
-/* Styling for Switch Mode Section */
-.switch-mode-section {
-    padding: 5px;
-    border-radius: 4px;
-    flex-basis: 30%;
-    margin-bottom: 10px;
-    margin-right: 60px;
-}
-
-
-

@@ -516,9 +516,10 @@ function validateAllowedVlans(allowedVlans) {
     return vlanSyntaxRegex.test(allowedVlans);
 }
 
-// Function to refresh all Port-Security dropdowns with valid ports
+// Function to refresh all Port-Security dropdowns with valid, non-duplicate ports
 function updatePortSecurityDropdowns() {
-    const validPorts = [];
+    const usedPorts = new Set(); // To track used ports across all configurations
+    const validPorts = []; // Ports eligible to be used in configurations
 
     // Collect valid ports from Interface Configuration
     document.querySelectorAll(".interface-config").forEach((config) => {
@@ -529,26 +530,43 @@ function updatePortSecurityDropdowns() {
         }
     });
 
+    // Collect all currently selected ports in Port-Security Configuration
+    document.querySelectorAll(".port-security-config .interface-port-select").forEach((dropdown) => {
+        const selectedPorts = $(dropdown).val() || [];
+        selectedPorts.forEach((port) => usedPorts.add(port)); // Add selected ports to used list
+    });
+
     // Update each Port-Security dropdown
     document.querySelectorAll(".port-security-config .interface-port-select").forEach((dropdown) => {
         const currentSelected = $(dropdown).val() || [];
         $(dropdown).empty(); // Clear existing options
 
-        // Add the valid ports as new options
+        // Add the valid ports that aren't already used (except for currently selected ones)
         validPorts.forEach((port) => {
-            const option = document.createElement("option");
-            option.value = port;
-            option.textContent = port;
+            if (!usedPorts.has(port) || currentSelected.includes(port)) {
+                const option = document.createElement("option");
+                option.value = port;
+                option.textContent = port;
 
-            // Restore previously selected ports
-            if (currentSelected.includes(port)) {
-                option.selected = true;
+                // Restore previously selected ports
+                if (currentSelected.includes(port)) {
+                    option.selected = true;
+                }
+
+                dropdown.appendChild(option);
             }
-
-            dropdown.appendChild(option);
         });
 
         $(dropdown).trigger("change.select2"); // Refresh the Select2 dropdown
+    });
+}
+
+// Function to validate and handle duplicate port selection in real-time
+function handlePortSelectionValidation() {
+    document.querySelectorAll(".port-security-config .interface-port-select").forEach((dropdown) => {
+        $(dropdown).on("change", () => {
+            updatePortSecurityDropdowns(); // Refresh dropdowns to prevent duplicates
+        });
     });
 }
 
@@ -557,6 +575,7 @@ const observer = new MutationObserver((mutationsList) => {
     for (const mutation of mutationsList) {
         if (mutation.type === "childList") {
             updatePortSecurityDropdowns(); // Update dropdowns whenever child nodes are added/removed
+            handlePortSelectionValidation(); // Reapply validation for new configurations
         }
     }
 });
@@ -565,8 +584,6 @@ const observer = new MutationObserver((mutationsList) => {
 const interfaceConfigsContainer = document.getElementById("interface-configs");
 if (interfaceConfigsContainer) {
     observer.observe(interfaceConfigsContainer, { childList: true, subtree: true });
-} else {
-    console.error("Interface Configs container not found!");
 }
 
 // Event Listener for changes in Interface Configuration
@@ -588,13 +605,15 @@ if (portSecurityAddButton) {
         newConfig.className = "port-security-config";
 
         newConfig.innerHTML = `
-            <form class="config-form">
+        <form class="port-security-config-form">
+            <!-- Interface Port Section -->
+            <div class="port-security-form-group">
                 <label for="port-security-interface-${newConfigId}">Interface Port</label>
                 <select id="port-security-interface-${newConfigId}" class="interface-port-select" multiple="multiple" required></select>
-
-                <label for="port-security-maximum-${newConfigId}">Maximum MAC Addresses</label>
-                <input type="number" id="port-security-maximum-${newConfigId}" name="maximum" placeholder="Enter Maximum (e.g., 2)" min="1" required>
-
+            </div>
+        
+            <!-- Violation Mode -->
+            <div class="port-security-form-group">
                 <label for="port-security-violation-${newConfigId}">Violation Mode</label>
                 <select id="port-security-violation-${newConfigId}" name="violation-mode" required>
                     <option value="" selected>Select Violation Mode</option>
@@ -602,14 +621,53 @@ if (portSecurityAddButton) {
                     <option value="shutdown">Shutdown</option>
                     <option value="protect">Protect</option>
                 </select>
-
-                <label>
-                    <input type="checkbox" id="port-security-sticky-${newConfigId}" name="sticky-mac">
-                    Enable Sticky MAC Address
-                </label>
-
+            </div>
+        
+            <!-- MAC Address Management Section -->
+            <div class="port-security-mac-management">
+                <!-- Sticky MAC Address Toggle -->
+                <div class="toggle-container">
+                    <label for="toggle-switch-${newConfigId}" class="sticky-mac-label">Sticky MAC Address</label>
+                    <input type="checkbox" id="toggle-switch-${newConfigId}" class="toggle-switch">
+                    <label for="toggle-switch-${newConfigId}" class="toggle-label">
+                        <span class="toggle-circle"></span>
+                    </label>
+                    <span id="toggle-status-${newConfigId}" class="toggle-status">Disabled</span>
+                </div>
+        
+                <div class="port-security-form-group">
+                    <label for="max-mac-count-${newConfigId}">Maximum MAC Count</label>
+                    <input type="number" id="max-mac-count-${newConfigId}" class="port-security-input" placeholder="Enter Maximum Count" min="1" max="4096" value="1">
+                </div>
+        
+                <div class="port-security-form-group">
+                    <label for="mac-address-input-${newConfigId}">Add MAC Address</label>
+                    <div class="port-security-input-group">
+                        <input type="text" id="mac-address-input-${newConfigId}" class="port-security-input" placeholder="Enter MAC Address (e.g., XX:XX:XX:XX:XX:XX)">
+                        <button id="add-mac-btn-${newConfigId}" class="btn btn-primary" style="margin-top: -1.2%;">+</button>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- MAC Address Table -->
+            <div class="port-security-form-group">
+                <table class="mac-address-table">
+                    <thead>
+                        <tr>
+                            <th>MAC Address</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mac-table-body-${newConfigId}">
+                    </tbody>
+                </table>
+            </div>
+        
+            <!-- Remove Configuration Button -->
+            <div class="port-security-form-group">
                 <button type="button" class="remove-port-security-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
-            </form>
+            </div>
+        </form>
         `;
 
         portSecurityConfigs.appendChild(newConfig);
@@ -620,8 +678,68 @@ if (portSecurityAddButton) {
             allowClear: true,
         });
 
-        // Refresh dropdown with the latest ports
+        // Handle Adding and Removing MAC Addresses
+        const addMacBtn = newConfig.querySelector(`#add-mac-btn-${newConfigId}`);
+        const macInput = newConfig.querySelector(`#mac-address-input-${newConfigId}`);
+        const macTableBody = newConfig.querySelector(`#mac-table-body-${newConfigId}`);
+
+        // Validate MAC Address
+        function validateMacAddress(mac) {
+            const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+            return macRegex.test(mac);
+        }
+
+        // Handle Sticky MAC Address Toggle
+        document.getElementById(`toggle-switch-${newConfigId}`).addEventListener("change", function () {
+            const status = document.getElementById(`toggle-status-${newConfigId}`);
+            const addMacSection = document.getElementById(`mac-address-input-${newConfigId}`).closest(".port-security-form-group");
+            const macTableSection = document.getElementById(`mac-table-body-${newConfigId}`).closest(".port-security-form-group");
+
+            if (this.checked) {
+                // When enabled, hide the Add MAC Address and MAC Address Table
+                status.textContent = "Enabled";
+                status.style.color = "#4caf50"; // Green for Enabled
+                addMacSection.style.display = "none"; // Hide Add MAC Address
+                macTableSection.style.display = "none"; // Hide MAC Address Table
+            } else {
+                // When disabled, show the Add MAC Address and MAC Address Table
+                status.textContent = "Disabled";
+                status.style.color = "#333"; // Default color
+                addMacSection.style.display = "block"; // Show Add MAC Address
+                macTableSection.style.display = "block"; // Show MAC Address Table
+            }
+        });
+
+        // Add MAC Address to the Table
+        addMacBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            const macAddress = macInput.value.trim();
+
+            if (validateMacAddress(macAddress)) {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${macAddress}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm remove-mac-btn">Remove</button>
+                    </td>
+                `;
+                macTableBody.appendChild(row);
+
+                // Add event listener for Remove button
+                row.querySelector(".remove-mac-btn").addEventListener("click", () => {
+                    row.remove();
+                    checkEmptyTable();
+                });
+
+                // Clear the input field
+                macInput.value = "";
+                checkEmptyTable();
+            } 
+        });
+
+        // Refresh dropdown with the latest ports and handle validation
         updatePortSecurityDropdowns();
+        handlePortSelectionValidation();
 
         // Remove the configuration
         newConfig.querySelector(".remove-port-security-config").addEventListener("click", function () {
@@ -629,13 +747,67 @@ if (portSecurityAddButton) {
             updatePortSecurityDropdowns(); // Refresh remaining dropdowns
         });
     });
-} else {
-    console.error("Add Port-Security Config button not found!");
+}
+
+
+function handleMacAddressManagement(newConfigId) {
+    const macInput = document.getElementById(`mac-address-input-${newConfigId}`);
+    const addMacBtn = document.getElementById(`add-mac-btn-${newConfigId}`);
+    const macTableBody = document.getElementById(`mac-table-body-${newConfigId}`);
+    const removeAllBtn = document.getElementById(`remove-all-btn-${newConfigId}`);
+
+    // Add MAC Address
+    addMacBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        const macAddress = macInput.value.trim();
+
+        if (validateMacAddress(macAddress)) {
+            addMacToTable(macAddress, macTableBody, removeAllBtn);
+            macInput.value = ""; // Clear the input
+        }
+    });
+
+    // Remove All MAC Addresses
+    removeAllBtn.addEventListener("click", () => {
+        updateRemoveAllButton(macTableBody, removeAllBtn);
+    });
+
+    // Validate MAC Address
+    function validateMacAddress(mac) {
+        const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+        return macRegex.test(mac);
+    }
+
+    // Add MAC to Table
+    function addMacToTable(mac, tableBody, removeAllButton) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${mac}</td>
+            <td><button class="btn btn-danger btn-sm remove-mac-btn">Remove</button></td>
+        `;
+        tableBody.appendChild(row);
+
+        // Attach event listener to remove button
+        row.querySelector(".remove-mac-btn").addEventListener("click", () => {
+            row.remove();
+            updateRemoveAllButton(tableBody, removeAllButton);
+            checkEmptyTable(tableBody);
+        });
+
+        updateRemoveAllButton(tableBody, removeAllButton);
+    }
+
+    // Update "Remove All" button state
+    function updateRemoveAllButton(tableBody, button) {
+        const hasRows = tableBody.querySelectorAll("tr").length > 1;
+        button.disabled = !hasRows;
+    }
 }
 
 // Trigger real-time updates for existing configurations
 document.addEventListener("DOMContentLoaded", () => {
     updatePortSecurityDropdowns(); // Ensure dropdowns are updated on page load
+    handlePortSelectionValidation(); // Apply validation for existing dropdowns
 });
 
 
