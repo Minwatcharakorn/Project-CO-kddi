@@ -613,85 +613,62 @@ if (interfaceConfigsContainer) {
 }
 
 // Initialize New Port-Security Configuration
-const portSecurityAddButton = document.getElementById("add-port-security-config");
-if (portSecurityAddButton) {
-    portSecurityAddButton.addEventListener("click", function () {
-        const portSecurityConfigs = document.getElementById("port-security-configs");
-        const newConfigId = `port-security-${Date.now()}`;
-        const newConfig = document.createElement("div");
-        newConfig.className = "port-security-config";
+document.getElementById("add-port-security-config").addEventListener("click", function () {
+    const portSecurityConfigs = document.getElementById("port-security-configs");
+    const newConfigId = `port-security-${Date.now()}`;
+    const newConfig = document.createElement("div");
+    newConfig.className = "port-security-config";
 
-        newConfig.innerHTML = `
+    newConfig.innerHTML = `
         <form class="port-security-config-form">
             <!-- Interface Port Section -->
             <div class="port-security-form-group">
                 <label for="port-security-interface-${newConfigId}">Interface Port</label>
                 <select id="port-security-interface-${newConfigId}" class="interface-port-select" multiple="multiple" required></select>
             </div>
-        
+
             <!-- Violation Mode -->
             <div class="port-security-form-group">
                 <label for="port-security-violation-${newConfigId}">Violation Mode</label>
                 <select id="port-security-violation-${newConfigId}" name="violation-mode" required>
-                    <option value="" style="text-align: center;" selected>Select Violation Mode</option>
+                    <option value="" selected>Select Violation Mode</option>
                     <option value="restrict">Restrict</option>
                     <option value="shutdown">Shutdown</option>
                     <option value="protect">Protect</option>
                 </select>
             </div>
-        
-            <!-- MAC Address Management Section -->
-            <div class="port-security-mac-management">
-                <!-- Sticky MAC Address Toggle -->
-                <div class="toggle-container">
-                    <label for="toggle-switch-${newConfigId}" class="sticky-mac-label">Sticky MAC Address</label>
-                    <input type="checkbox" id="toggle-switch-${newConfigId}" class="toggle-switch">
-                    <label for="toggle-switch-${newConfigId}" class="toggle-label">
-                        <span class="toggle-circle"></span>
-                    </label>
-                    <span id="toggle-status-${newConfigId}" class="toggle-status">Disabled</span>
-                </div>
-        
-                <div class="port-security-form-group">
-                    <label for="max-mac-count-${newConfigId}">Maximum MAC Count</label>
-                    <input 
-                        type="number" 
-                        id="max-mac-count-${newConfigId}" 
-                        class="port-security-input" 
-                        placeholder="Enter Maximum Count (e.g., 1 to 4096)" 
-                        min="1" 
-                        max="4096"
-                    >
-                    <div 
-                        class="alert-box error" 
-                        id="max-mac-error-${newConfigId}" 
-                        style="display: none;"
-                    >
-                        <span>ERROR:</span> Maximum MAC Count must be an integer between 1 and 4096.
-                    </div>
-                </div>
-        
-                <div class="port-security-form-group">
-                    <label for="mac-address-input-${newConfigId}">Add MAC Address</label>
-                    <div class="port-security-input-group">
-                        <input 
-                            type="text" 
-                            id="mac-address-input-${newConfigId}" 
-                            class="port-security-input" 
-                            placeholder="Enter MAC Address (e.g., XX:XX:XX:XX:XX:XX)"
-                        >
-                        <button id="add-mac-btn-${newConfigId}" class="btn btn-primary" style="margin-top: -1.2%;">+</button>
-                        <div 
-                            class="alert-box error" 
-                            id="mac-address-error-${newConfigId}" 
-                            style="display: none;"
-                        >
-                            <span>ERROR:</span> Invalid MAC address format. Please use the format XX:XX:XX:XX:XX:XX.
-                        </div>
-                    </div>
+
+            <!-- Sticky MAC Address -->
+            <div class="toggle-container">
+                <label for="toggle-switch-${newConfigId}" class="sticky-mac-label">Sticky MAC Address</label>
+                <input type="checkbox" id="toggle-switch-${newConfigId}" class="toggle-switch">
+                <label for="toggle-switch-${newConfigId}" class="toggle-label">
+                    <span class="toggle-circle"></span>
+                </label>
+                <span id="toggle-status-${newConfigId}" class="toggle-status">Disabled</span>
+            </div>
+
+            <!-- Maximum MAC Count -->
+            <div class="port-security-form-group">
+                <label for="max-mac-count-${newConfigId}">Maximum MAC Count</label>
+                <input type="number" id="max-mac-count-${newConfigId}" placeholder="1-4096" min="1" max="4096">
+                <div id="max-mac-error-${newConfigId}" class="alert-box error" style="display: none;">
+                    <span>ERROR:</span> Maximum MAC Count must be between 1 and 4096.
                 </div>
             </div>
-        
+
+            <!-- MAC Address Management -->
+            <div class="port-security-form-group">
+                <label for="mac-address-input-${newConfigId}">Add MAC Address</label>
+                <div class="port-security-input-group">
+                    <input type="text" id="mac-address-input-${newConfigId}" placeholder="XX:XX:XX:XX:XX:XX">
+                    <button id="add-mac-btn-${newConfigId}" class="btn btn-primary">+</button>
+                </div>
+                <div id="mac-address-error-${newConfigId}" class="alert-box error" style="display: none;">
+                    <span>ERROR:</span> Invalid MAC address format.
+                </div>
+            </div>
+
             <!-- MAC Address Table -->
             <div class="port-security-form-group">
                 <table class="mac-address-table">
@@ -702,176 +679,92 @@ if (portSecurityAddButton) {
                         </tr>
                     </thead>
                     <tbody id="mac-table-body-${newConfigId}">
-                        <!-- แถวใหม่จะถูกเพิ่มที่นี่ -->
+                        <!-- Rows will be dynamically added here -->
                     </tbody>
                 </table>
             </div>
-        
+
             <!-- Remove Configuration Button -->
-            <div class="port-security-form-group">
-                <button type="button" class="remove-port-security-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
-            </div>
+            <button type="button" class="remove-port-security-config btn btn-danger">Remove Configuration</button>
         </form>
-        `;
+    `;
 
-        portSecurityConfigs.appendChild(newConfig);
+    portSecurityConfigs.appendChild(newConfig);
 
-        // Initialize Select2 for the new dropdown
-        $(`#port-security-interface-${newConfigId}`).select2({
-            placeholder: "Select Ports",
-            allowClear: true,
-        });
+    // Initialize Select2
+    $(`#port-security-interface-${newConfigId}`).select2({
+        placeholder: "Select Ports",
+        allowClear: true,
+    });
 
-        document.getElementById(`toggle-switch-${newConfigId}`).addEventListener("change", function () {
-            console.log("Toggle switched");
-            const status = document.getElementById(`toggle-status-${newConfigId}`);
-            const addMacSection = document.getElementById(`mac-address-input-${newConfigId}`).closest(".port-security-form-group");
-            const macTableSection = document.getElementById(`mac-table-body-${newConfigId}`).closest(".port-security-form-group");
-        
-            if (this.checked) {
-                status.textContent = "Enabled";
-                status.style.color = "#4caf50";
-                addMacSection.style.display = "none"; // ซ่อน Add MAC Address
-                macTableSection.style.display = "none"; // ซ่อน Table
-            } else {
-                status.textContent = "Disabled";
-                status.style.color = "#333";
-                addMacSection.style.display = "block"; // แสดง Add MAC Address
-                macTableSection.style.display = "block"; // แสดง Table
-            }
-        });
+    // Toggle Sticky MAC Address
+    const toggleSwitch = document.getElementById(`toggle-switch-${newConfigId}`);
+    const toggleStatus = document.getElementById(`toggle-status-${newConfigId}`);
+    toggleSwitch.addEventListener("change", function () {
+        toggleStatus.textContent = this.checked ? "Enabled" : "Disabled";
+        toggleStatus.style.color = this.checked ? "#4caf50" : "#333";
+    });
 
-        // Handle Adding and Removing MAC Addresses
-        const addMacBtn = newConfig.querySelector(`#add-mac-btn-${newConfigId}`);
-        const macInput = newConfig.querySelector(`#mac-address-input-${newConfigId}`);
-        const macTableBody = newConfig.querySelector(`#mac-table-body-${newConfigId}`);
-        const maxMacCountInput = newConfig.querySelector(`#max-mac-count-${newConfigId}`);
-        const macError = newConfig.querySelector(`#mac-address-error-${newConfigId}`); // กล่องข้อความ Error
+    // Validate Maximum MAC Count
+    const maxMacCountInput = document.getElementById(`max-mac-count-${newConfigId}`);
+    const maxMacError = document.getElementById(`max-mac-error-${newConfigId}`);
+    maxMacCountInput.addEventListener("input", function () {
+        const value = parseInt(this.value.trim(), 10);
+        if (isNaN(value) || value < 1 || value > 4096) {
+            maxMacError.style.display = "block";
+            this.style.borderColor = "red";
+        } else {
+            maxMacError.style.display = "none";
+            this.style.borderColor = "";
+        }
+    });
 
-        // Handle MAC Address Validation on Input
-        macInput.addEventListener("input", function () {
-            const macValue = macInput.value.trim();
-        
-            // Regular Expression for MAC Address (e.g., XX:XX:XX:XX:XX:XX)
-            const macPattern = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
-            if (macValue === "") {
-                macError.style.display = "none"; // ซ่อนข้อความ Error
-                macInput.style.borderColor = ""; // รีเซ็ตเส้นขอบ
-                return; // ออกจากฟังก์ชัน
-            }
-        
-            if (macPattern.test(macValue)) {
-                // Valid MAC Address
-                macError.style.display = "none"; // Hide error message
-                macInput.style.borderColor = ""; // Reset border color
-            } else {
-                // Invalid MAC Address
-                macError.style.display = "block"; // Show error message
-                macInput.style.borderColor = "red"; // Highlight input with red border
-            }
-        });
-
-    
-    // Add Event Listener for Add Button
+    // Add MAC Address
+    const addMacBtn = document.getElementById(`add-mac-btn-${newConfigId}`);
+    const macInput = document.getElementById(`mac-address-input-${newConfigId}`);
+    const macError = document.getElementById(`mac-address-error-${newConfigId}`);
+    const macTableBody = document.getElementById(`mac-table-body-${newConfigId}`);
     addMacBtn.addEventListener("click", function (event) {
-        event.preventDefault(); // ป้องกันการรีเฟรชหน้า
-
+        event.preventDefault();
         const macValue = macInput.value.trim();
-
-        // Regular Expression for MAC Address (e.g., XX:XX:XX:XX:XX:XX)
         const macPattern = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
 
-        // ตรวจสอบรูปแบบ MAC Address ก่อน
         if (!macPattern.test(macValue)) {
             macError.style.display = "block";
-            macError.innerHTML = `<span>ERROR:</span> Invalid MAC address format. Please use the format XX:XX:XX:XX:XX:XX.`;
-            macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
-            return; // หยุดการทำงาน
+            macError.textContent = "Invalid MAC address format.";
+            macInput.style.borderColor = "red";
+            return;
         }
 
-        // ตรวจสอบจำนวน MAC Address ใน Table
-        const macTableBody = document.querySelector(`#mac-table-body-${newConfigId}`);
         const currentMacCount = macTableBody.querySelectorAll("tr").length;
-
-        // รับค่า Maximum MAC Count
         const maxMacCount = parseInt(maxMacCountInput.value, 10) || 1;
-
-        // ตรวจสอบเงื่อนไขจำนวน MAC Address
         if (currentMacCount >= maxMacCount) {
             macError.style.display = "block";
-            macError.innerHTML = `<span>ERROR:</span> You can only add up to ${maxMacCount} MAC Address(es).`;
-            macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
-            return; // หยุดการทำงาน
+            macError.textContent = `You can only add up to ${maxMacCount} MAC Address(es).`;
+            macInput.style.borderColor = "red";
+            return;
         }
 
-        // ตรวจสอบว่า MAC Address ซ้ำหรือไม่
-        const existingMacs = Array.from(macTableBody.querySelectorAll("td:first-child")).map(
-            (cell) => cell.textContent.trim()
-        );
-        if (existingMacs.includes(macValue)) {
-            macError.style.display = "block";
-            macError.innerHTML = `<span>ERROR:</span> This MAC address already exists.`;
-            macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
-            return; // หยุดการทำงาน
-        }
-
-        // ถ้าไม่มีข้อผิดพลาดใดๆ
-        macError.style.display = "none"; // ซ่อนข้อความ Error
-        macInput.style.borderColor = ""; // รีเซ็ตเส้นขอบ
-
-        // เพิ่ม MAC Address ลงใน Table
+        macError.style.display = "none";
+        macInput.style.borderColor = "";
         const newRow = document.createElement("tr");
         newRow.innerHTML = `
             <td>${macValue}</td>
-            <td>
-                <button class="remove-mac-btn btn btn-danger">Remove</button>
-            </td>
+            <td><button class="remove-mac-btn btn btn-danger">Remove</button></td>
         `;
         macTableBody.appendChild(newRow);
 
-        // ล้างช่อง Input
-        macInput.value = "";
-
-        // ผูก Event Listener สำหรับปุ่ม Remove
         newRow.querySelector(".remove-mac-btn").addEventListener("click", function () {
-            newRow.remove(); // ลบแถวออก
+            newRow.remove();
         });
+        macInput.value = "";
     });
-        
-        maxMacCountInput.addEventListener("input", function () {
-            const value = this.value.trim();
-            const errorBox = document.getElementById(`max-mac-error-${newConfigId}`);
-        
-            // ถ้าฟิลด์ว่างเปล่า ให้ซ่อนข้อความแจ้งเตือนและไม่แสดงข้อผิดพลาด
-            if (value === "") {
-                this.style.borderColor = ""; // รีเซ็ตเส้นขอบ
-                errorBox.style.display = "none"; // ซ่อนข้อความแจ้งข้อผิดพลาด
-                return; // จบการตรวจสอบ
-            }
-        
-            // ตรวจสอบว่าค่าเป็นตัวเลขเต็มระหว่าง 1-4096
-            const isValid = /^\d+$/.test(value) && value >= 1 && value <= 4096;
-        
-            if (!isValid) {
-                this.style.borderColor = "red"; // เปลี่ยนเส้นขอบเป็นสีแดง
-                errorBox.style.display = "block"; // แสดงข้อความแจ้งข้อผิดพลาด
-            } else {
-                this.style.borderColor = ""; // รีเซ็ตเส้นขอบ
-                errorBox.style.display = "none"; // ซ่อนข้อความแจ้งข้อผิดพลาด
-            }
-        });
 
-        // Refresh dropdown with the latest ports and handle validation
-        updatePortSecurityDropdowns();
-        handlePortSelectionValidation();
-
-        // Remove the configuration
-        newConfig.querySelector(".remove-port-security-config").addEventListener("click", function () {
-            newConfig.remove();
-            updatePortSecurityDropdowns(); // Refresh remaining dropdowns
-        });
+    // Remove Port Security Configuration
+    newConfig.querySelector(".remove-port-security-config").addEventListener("click", function () {
+        newConfig.remove();
     });
-}
+});
 
 // Trigger real-time updates for existing configurations
 document.addEventListener("DOMContentLoaded", () => {
