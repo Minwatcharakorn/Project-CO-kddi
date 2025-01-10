@@ -516,6 +516,18 @@ function validateAllowedVlans(allowedVlans) {
     return vlanSyntaxRegex.test(allowedVlans);
 }
 
+const portModes = {};
+
+// อัปเดตสถานะพอร์ตเมื่อมีการเปลี่ยนโหมดใน Interface Port Configuration
+function updatePortModes(port, mode) {
+    if (mode === "") {
+        delete portModes[port]; // ลบพอร์ตที่ไม่มีโหมด
+    } else {
+        portModes[port] = mode; // บันทึกโหมดของพอร์ต
+    }
+    updatePortSecurityDropdowns();
+}
+
 // Function to refresh all Port-Security dropdowns with valid, non-duplicate ports
 function updatePortSecurityDropdowns() {
     const usedPorts = new Set(); // To track used ports across all configurations
@@ -526,10 +538,13 @@ function updatePortSecurityDropdowns() {
         const switchMode = config.querySelector('[name="switch-mode"]').value; // Access or Trunk
         const portSelect = $(config.querySelector(".interface-port-select")).val() || [];
 
-        portSelect.forEach((port) => {
-            const portDescription = `${port} (${switchMode})`; // Append switch mode to port name
-            validPorts.push({ port, description: portDescription });
-        });
+        // Only add ports with Access or Trunk mode
+        if (["access", "trunk"].includes(switchMode.toLowerCase())) {
+            portSelect.forEach((port) => {
+                const portDescription = `${port} (${switchMode})`; // Append switch mode to port name
+                validPorts.push({ port, description: portDescription });
+            });
+        }
     });
 
     // Collect all currently selected ports in Port-Security Configuration
@@ -1570,31 +1585,33 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
                     const stickyMacEnabled = securityForm.querySelector('input[type="checkbox"]').checked;
                     const violationMode = securityForm.querySelector('select[name="violation-mode"]')?.value.trim();
                     const macTableRows = securityForm.querySelectorAll('.mac-address-table tbody tr');
-    
-                    // Check if the current port matches any selected in the port-security form
+                    console.log("Maximum MAC Count:", maxMacCount); // ตรวจสอบค่าที่ดึงมา
+
+                    // ตรวจสอบว่าพอร์ตตรงกับที่เลือกในฟอร์ม port-security
                     if (securityPortSelect && Array.from(securityPortSelect.selectedOptions).some(opt => opt.value === port)) {
                         configData += ` switchport port-security\n`;
-    
-                        // Add sticky MAC configuration if enabled
+                
+                        // เพิ่ม maximum MAC count หากมีการกำหนดค่า
+                        if (maxMacCount && parseInt(maxMacCount) > 0) {
+                            configData += ` switchport port-security maximum ${maxMacCount}\n`;
+                            console.log("Added Maximum MAC Count to configData");
+
+                        }
+                
+                        // เพิ่ม sticky MAC configuration หากเปิดใช้งาน
                         if (stickyMacEnabled) {
                             configData += ` switchport port-security mac-address sticky\n`;
                         }
-    
-                        // Add maximum MAC count if provided
-                        if (maxMacCount && parseInt(maxMacCount) > 0) {
-                            configData += ` switchport port-security maximum ${maxMacCount}\n`;
-                        }
-    
-                        // Add violation mode if provided
+                
+                        // เพิ่ม violation mode หากมีการกำหนดค่า
                         if (violationMode) {
                             configData += ` switchport port-security violation ${violationMode}\n`;
                         }
-    
-                        // Add MAC addresses from the table
+                
+                        // เพิ่ม MAC address จากตาราง
                         macTableRows.forEach(row => {
                             const macAddress = row.querySelector('td:first-child').textContent.trim();
                             if (macAddress) {
-                                // Format the MAC address to Cisco's format (e.g., 0123.4567.89ab)
                                 const formattedMac = macAddress.replace(/[:-]/g, "").replace(/(.{4})/g, "$1.").slice(0, -1);
                                 configData += ` switchport port-security mac-address ${formattedMac}\n`;
                             }
