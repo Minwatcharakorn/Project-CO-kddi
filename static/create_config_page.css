@@ -840,3 +840,16 @@ textarea {
     color: #333;
 }
 
+.remove-port-security-config {
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.remove-port-security-config:hover {
+    background-color: #b02a37;
+}
