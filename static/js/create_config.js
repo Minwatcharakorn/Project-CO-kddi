@@ -644,6 +644,7 @@ if (portSecurityAddButton) {
                         placeholder="Enter Maximum Count (e.g., 1 to 4096)" 
                         min="1" 
                         max="4096"
+                        value="1"
                     >
                     <div 
                         class="alert-box error" 
@@ -685,6 +686,7 @@ if (portSecurityAddButton) {
                         </tr>
                     </thead>
                     <tbody id="mac-table-body-${newConfigId}">
+                        <!-- แถวใหม่จะถูกเพิ่มที่นี่ -->
                     </tbody>
                 </table>
             </div>
@@ -727,35 +729,99 @@ if (portSecurityAddButton) {
         const addMacBtn = newConfig.querySelector(`#add-mac-btn-${newConfigId}`);
         const macInput = newConfig.querySelector(`#mac-address-input-${newConfigId}`);
         const macTableBody = newConfig.querySelector(`#mac-table-body-${newConfigId}`);
-        const maxMacCountInput = document.getElementById(`max-mac-count-${newConfigId}`);
+        const maxMacCountInput = newConfig.querySelector(`#max-mac-count-${newConfigId}`);
+        const macError = newConfig.querySelector(`#mac-address-error-${newConfigId}`); // กล่องข้อความ Error
 
-        // Validate MAC Address on Input
+        // Handle MAC Address Validation on Input
         macInput.addEventListener("input", function () {
-            const macAddressInput = this;
-            const errorBox = document.getElementById(`mac-address-error-${newConfigId}`);
-            
-            // Regular expression to validate MAC Address
-            const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+            const macValue = macInput.value.trim();
         
-            // ถ้าไม่มีการป้อนค่าใด ๆ ให้ซ่อนข้อความแจ้งเตือน
-            if (macAddressInput.value.trim() === "") {
-                macAddressInput.style.borderColor = ""; // รีเซ็ตเส้นขอบ
-                errorBox.style.display = "none"; // ซ่อนข้อความแจ้งเตือน
-                return; // จบการตรวจสอบ
+            // Regular Expression for MAC Address (e.g., XX:XX:XX:XX:XX:XX)
+            const macPattern = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
+            if (macValue === "") {
+                macError.style.display = "none"; // ซ่อนข้อความ Error
+                macInput.style.borderColor = ""; // รีเซ็ตเส้นขอบ
+                return; // ออกจากฟังก์ชัน
             }
         
-            // ถ้าป้อนค่า ให้ตรวจสอบรูปแบบ
-            if (!macRegex.test(macAddressInput.value.trim())) {
-                // If invalid, show error message
-                macAddressInput.style.borderColor = "red";
-                errorBox.style.display = "block";
+            if (macPattern.test(macValue)) {
+                // Valid MAC Address
+                macError.style.display = "none"; // Hide error message
+                macInput.style.borderColor = ""; // Reset border color
             } else {
-                // If valid, hide error message
-                macAddressInput.style.borderColor = "";
-                errorBox.style.display = "none";
+                // Invalid MAC Address
+                macError.style.display = "block"; // Show error message
+                macInput.style.borderColor = "red"; // Highlight input with red border
             }
         });
 
+    
+        // Add Event Listener for Add Button
+        addMacBtn.addEventListener("click", function (event) {
+            event.preventDefault(); // ป้องกันการรีเฟรชหน้า
+
+            const macValue = macInput.value.trim();
+
+            // Regular Expression for MAC Address (e.g., XX:XX:XX:XX:XX:XX)
+            const macPattern = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
+
+            // ตรวจสอบรูปแบบ MAC Address ก่อน
+            if (!macPattern.test(macValue)) {
+                macError.style.display = "block";
+                macError.innerHTML = `<span>ERROR:</span> Invalid MAC address format. Please use the format XX:XX:XX:XX:XX:XX.`;
+                macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
+                return; // หยุดการทำงาน
+            }
+
+            // ตรวจสอบจำนวน MAC Address ใน Table
+            const macTableBody = document.querySelector(`#mac-table-body-${newConfigId}`);
+            const currentMacCount = macTableBody.querySelectorAll("tr").length;
+
+            // รับค่า Maximum MAC Count
+            const maxMacCount = parseInt(maxMacCountInput.value, 10) || 1;
+
+            // ตรวจสอบเงื่อนไขจำนวน MAC Address
+            if (currentMacCount >= maxMacCount) {
+                macError.style.display = "block";
+                macError.innerHTML = `<span>ERROR:</span> You can only add up to ${maxMacCount} MAC Address(es).`;
+                macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
+                return; // หยุดการทำงาน
+            }
+
+            // ตรวจสอบว่า MAC Address ซ้ำหรือไม่
+            const existingMacs = Array.from(macTableBody.querySelectorAll("td:first-child")).map(
+                (cell) => cell.textContent.trim()
+            );
+            if (existingMacs.includes(macValue)) {
+                macError.style.display = "block";
+                macError.innerHTML = `<span>ERROR:</span> This MAC address already exists.`;
+                macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
+                return; // หยุดการทำงาน
+            }
+
+            // ถ้าไม่มีข้อผิดพลาดใดๆ
+            macError.style.display = "none"; // ซ่อนข้อความ Error
+            macInput.style.borderColor = ""; // รีเซ็ตเส้นขอบ
+
+            // เพิ่ม MAC Address ลงใน Table
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td>${macValue}</td>
+                <td>
+                    <button class="remove-mac-btn btn btn-danger">Remove</button>
+                </td>
+            `;
+            macTableBody.appendChild(newRow);
+
+            // ล้างช่อง Input
+            macInput.value = "";
+
+            // ผูก Event Listener สำหรับปุ่ม Remove
+            newRow.querySelector(".remove-mac-btn").addEventListener("click", function () {
+                newRow.remove(); // ลบแถวออก
+            });
+        });
+        
         maxMacCountInput.addEventListener("input", function () {
             const value = this.value.trim();
             const errorBox = document.getElementById(`max-mac-error-${newConfigId}`);
@@ -779,32 +845,6 @@ if (portSecurityAddButton) {
             }
         });
 
-
-        // Add MAC Address to the Table
-        addMacBtn.addEventListener("click", (event) => {
-            event.preventDefault();
-            const macAddress = macInput.value.trim();
-
-            if (validateMacAddress(macAddress)) {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${macAddress}</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm remove-mac-btn">Remove</button>
-                    </td>
-                `;
-                macTableBody.appendChild(row);
-
-                // Add event listener for Remove button
-                row.querySelector(".remove-mac-btn").addEventListener("click", () => {
-                    row.remove();
-                });
-
-                // Clear the input field
-                macInput.value = "";
-            }
-        });
-
         // Refresh dropdown with the latest ports and handle validation
         updatePortSecurityDropdowns();
         handlePortSelectionValidation();
@@ -815,61 +855,6 @@ if (portSecurityAddButton) {
             updatePortSecurityDropdowns(); // Refresh remaining dropdowns
         });
     });
-}
-
-
-function handleMacAddressManagement(newConfigId) {
-    const macInput = document.getElementById(`mac-address-input-${newConfigId}`);
-    const addMacBtn = document.getElementById(`add-mac-btn-${newConfigId}`);
-    const macTableBody = document.getElementById(`mac-table-body-${newConfigId}`);
-    const removeAllBtn = document.getElementById(`remove-all-btn-${newConfigId}`);
-
-    // Add MAC Address
-    addMacBtn.addEventListener("click", (event) => {
-        event.preventDefault();
-        const macAddress = macInput.value.trim();
-
-        if (validateMacAddress(macAddress)) {
-            addMacToTable(macAddress, macTableBody, removeAllBtn);
-            macInput.value = ""; // Clear the input
-        }
-    });
-
-    // Remove All MAC Addresses
-    removeAllBtn.addEventListener("click", () => {
-        updateRemoveAllButton(macTableBody, removeAllBtn);
-    });
-
-    // Validate MAC Address
-    function validateMacAddress(mac) {
-        const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
-        return macRegex.test(mac);
-    }
-
-    // Add MAC to Table
-    function addMacToTable(mac, tableBody, removeAllButton) {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${mac}</td>
-            <td><button class="btn btn-danger btn-sm remove-mac-btn">Remove</button></td>
-        `;
-        tableBody.appendChild(row);
-
-        // Attach event listener to remove button
-        row.querySelector(".remove-mac-btn").addEventListener("click", () => {
-            row.remove();
-            updateRemoveAllButton(tableBody, removeAllButton);
-            checkEmptyTable(tableBody);
-        });
-
-        updateRemoveAllButton(tableBody, removeAllButton);
-    }
-
-    // Update "Remove All" button state
-    function updateRemoveAllButton(tableBody, button) {
-        const hasRows = tableBody.querySelectorAll("tr").length > 1;
-        button.disabled = !hasRows;
-    }
 }
 
 // Trigger real-time updates for existing configurations
