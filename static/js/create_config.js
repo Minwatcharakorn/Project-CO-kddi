@@ -151,6 +151,16 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Apply Input Mask to Default Gateway Input
+    const defaultGatewayInput = $('#default-gateway');
+    defaultGatewayInput.inputmask({
+        alias: "ip",
+        placeholder: "___.___.___.___ (e.g., 127.0.0.1)", // Placeholder for IP address
+        greedy: false // Ensures only the valid mask is displayed
+    });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
     // Populate Day Dropdown
     const dayDropdown = document.getElementById("clock-set-day");
     for (let day = 1; day <= 31; day++) {

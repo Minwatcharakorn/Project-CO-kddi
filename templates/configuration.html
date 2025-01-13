@@ -156,32 +156,27 @@
         <div class="config-section" id="vtp-config">
             <h3>VTP (VLAN Trunking Protocol) Configuration</h3>
             <form id="vtp-form">
-                <label for="vtp-mode">VTP Mode</label>
-                <select id="vtp-mode" name="vtp-mode">
-                    <option value="" selected style="text-align: center;">Select VTP Mode ( Default )</option>
-                    <option value="server">Server</option>
-                    <option value="client">Client</option>
-                    <option value="transparent">Transparent</option>
-                </select>
-                <br><br>
-        
-                <label for="vtp-version">VTP Version</label>
-                <select id="vtp-version" name="vtp-version">
-                    <option value="" selected style="text-align: center;">Select VTP Version ( Default )</option>
-                    <option value="1">Version 1</option>
-                    <option value="2">Version 2</option>
-                    <option value="3">Version 3</option>
-                </select>
-                <br><br>
-        
-                <label for="vtp-domain">VTP Domain Name</label>
-                <input type="text" id="vtp-domain" name="vtp-domain" placeholder="Enter VTP Domain Name" required>
-                <br><br>
-        
-                <label for="vtp-password">VTP Password</label>
-                <input type="text" id="vtp-password" name="vtp-password" placeholder="Enter VTP Password" required>
-                <br><br>
-        
+                <!-- VTP Mode -->
+                <div class="vtp-form-group">
+                    <label for="vtp-mode">VTP Mode</label>
+                    <select id="vtp-mode" name="vtp-mode">
+                        <option value="" selected style="text-align: center;">Select VTP Mode ( Default )</option>
+                        <option value="server">Server</option>
+                        <option value="client">Client</option>
+                        <option value="transparent">Transparent</option>
+                    </select>
+                    <label for="vtp-version">VTP Version</label>
+                    <select id="vtp-version" name="vtp-version">
+                        <option value="" selected style="text-align: center;">Select VTP Version ( Default )</option>
+                        <option value="1">Version 1</option>
+                        <option value="2">Version 2</option>
+                        <option value="3">Version 3</option>
+                    </select>
+                    <label for="vtp-domain">VTP Domain Name</label>
+                    <input type="text" id="vtp-domain" name="vtp-domain" placeholder="Enter VTP Domain Name" required>
+                    <label for="vtp-password">VTP Password</label>
+                    <input type="text" id="vtp-password" name="vtp-password" placeholder="Enter VTP Password" required>
+                </div>
             </form>
         </div>
 
@@ -212,7 +207,7 @@
         <div class="config-section">
             <h3>NTP Configuration</h3>
             <form id="ntp-config-form">
-                <div class="form-group">
+                <div class="ntp-form-group">
                     <label for="ntp-server">NTP Server</label>
                     <input
                         type="text"
@@ -221,15 +216,11 @@
                         name="ntp-server"
                         placeholder="___.___.___.___ (e.g., 202.44.204.114)"
                     />
-                </div>
-                <div class="form-group">
                     <label for="clock-timezone">Clock Timezone</label>
                     <select id="clock-timezone" name="clock-timezone" required>
-                        <!-- Options เติมโดย JavaScript -->
+                        <!-- Options filled dynamically via JavaScript -->
                     </select>
-                </div>
-                <!-- Clock Set -->
-                <div class="form-group">
+                    <!-- Clock Set -->
                     <label for="clock-set">Clock Set</label>
                     <div class="clock-set-container">
                         <input type="time" id="clock-set-time" name="clock-set-time" required>
@@ -262,9 +253,15 @@
         <div class="config-section" id="default-gateway-config">
             <h3>Default Gateway Configuration</h3>
             <form id="default-gateway-form">
-                <div class="form-group">
+                <div class="default-gateway-form-group">
                     <label for="default-gateway">Default Gateway</label>
-                    <input type="text" class="form-input" id="default-gateway" name="default-gateway" placeholder="___.___.___.___ (e.g., 127.0.0.1)" />
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="default-gateway" 
+                        name="default-gateway" 
+                        placeholder="___.___.___.___ (e.g., 127.0.0.1)" 
+                    />
                 </div>
             </form>
         </div>
