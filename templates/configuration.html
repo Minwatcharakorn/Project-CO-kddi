@@ -38,40 +38,39 @@
         <!-- Template Information -->
         <div class="config-section" id="template-information-config">
             <h3>Template Information</h3>
-            <form class="config-form">
-                <!-- Template Name -->
+            <form class="template-config-form">
+                <!-- Template Name -->  
                 <div class="form-group">
                     <label for="template-name">Template Name</label>
                     <input type="text" id="template-name" name="template-name" placeholder="Enter Template Name" required>
                     <label for="template-description">Description</label>
                     <textarea id="template-description" name="template-description" placeholder="Enter Template Description" rows="3" required></textarea>
-
                 </div>
-
+            </form>
         </div>
 
 
         <!-- Hostname Configuration -->
         <div class="config-section">
             <h3>Hostname Configuration</h3>
-            <form id="hostname-form" class="config-form">
+            <form id="hostname-form" class="hostname-forms-config">
                 <div class="form-group">
-                    <label for="hostname-input"><strong>Hostname</strong></label>
-                    <input type="text" id="hostname-input" placeholder="Enter Hostname" required>
-                </div>
-                <div class="alert-box error" id="hostname-error" style="display: none;">
-                    <span>ERROR: </span> Hostname can only contain English letters, numbers, and special characters except "?". 
-                    Spaces are not allowed.
+                    <label for="hostname-input">Hostname</label>
+                    <input type="text" id="hostname-input" placeholder="Enter Hostname" required >
+                    <div class="alert-box error" id="hostname-error" style="display: none;">
+                        <span>ERROR: </span> Hostname can only contain English letters, numbers, and special characters except "?". 
+                        Spaces are not allowed.
+                    </div>
                 </div>
             </form>
         </div>
         
         <!-- Create VLANs -->
-        <div class="config-section" id="create-vlan-multiple">
+        <div class="config-section vlan-config-section" id="create-vlan-multiple">
             <h3>Create VLANs</h3>
-            <button type="button" id="add-vlan-row" class="styled-button">Add VLAN</button>
+            <button type="button" id="add-vlan-row" class="styled-button vlan-add-button">Add VLAN</button>
             <br><br>
-            <div id="vlans-configs">
+            <div id="vlans-configs" class="vlan-configs-container">
                 <!-- VLAN configurations will be dynamically added here -->
             </div>
         </div>

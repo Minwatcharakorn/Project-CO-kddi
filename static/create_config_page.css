@@ -373,15 +373,6 @@ textarea {
     padding: 15px;
 }
 
-/* Hostname Section */
-.hostname-section {
-    background-color: #f9f9f9;
-    border: 1px solid #d0d4db;
-    border-radius: 8px;
-    margin-top: 20px;
-    padding: 15px;
-}
-
 /* Gateway Section */
 .gateway-section {
     background-color: #f9f9f9;
@@ -482,20 +473,7 @@ textarea {
 }
 
 .switch-mode-section select {
-    margin-left: -5px;
-}
-.switch-mode-section label {
-    margin-left: -8px;
-    margin-top: -20px;
-}
-
-.vlan-id-section {
-    margin-top: -20px;
-}
-
-.vlan-trunk-section {
-    margin-top: -20px;
-
+    width: auto;
 }
 
 .btn {
@@ -1085,3 +1063,182 @@ input:checked + .slider:before {
     box-sizing: border-box;
 }
 
+.template-config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.template-config-form input,
+.template-config-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.template-config-form input:focus,
+.template-config-form textarea:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+
+.hostname-forms-config {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.hostname-forms-config input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.hostname-forms-config input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* VLAN Configuration Form */
+.vlan-config-form {
+    background-color: #fff; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-bottom: 30px;
+}
+
+/* VLAN Form Group */
+.vlan-form-group {
+    margin-bottom: 15px;
+}
+
+.vlan-form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.vlan-form-group input,
+.vlan-form-group select {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.vlan-form-group label {
+margin-top: 20px;
+}
+
+.vlan-form-group[style="display: none;"] {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+/* Inline Fields */
+.vlan-config-form .inline-fields {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+
+/* IP Address Container */
+.ip-address-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Remove VLAN Button */
+.remove-vlan-row {
+    background-color: #dc3545; /* Red background */
+    color: #fff; /* White text */
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.remove-vlan-row:hover {
+    background-color: #b02a37; /* Darker red on hover */
+}
+
+/* Subnet Mask Dropdown */
+.vlan-config-form select {
+    min-width: 150px;
+}
+
+/* Interface Configuration Form */
+.interface-config-form {
+    background-color: #fff; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-bottom: 20px;}
+
+/* Form Group Styling */
+.interface-config-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+    color: #333;
+}
+
+.interface-config-form input,
+.interface-config-form select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.aggregation-config-form {
+    background-color: #fff; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-bottom: 20px; 
+}
+
+.aggregation-config-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+    color: #333;
+}
+
+.aggregation-config-form input,
+.aggregation-config-form select {
+    width: 100%; /* Ensure inputs and selects are full-width */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    font-size: 14px;
+}

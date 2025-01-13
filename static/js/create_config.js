@@ -5,39 +5,36 @@ document.getElementById("add-vlan-row").addEventListener("click", function () {
     const newVLANForm = document.createElement("div");
     newVLANForm.className = "vlan-config-form";
     newVLANForm.innerHTML = `
-        <form class="config-form">
-            <div class="inline-fields">
-                <div>
-                    <label for="vlan-id-${vlanCounter}">VLAN ID</label>
-                    <input type="number" id="vlan-id-${vlanCounter}" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
-                </div>
-                <div style="margin-left: -3%;">
-                    <label for="vlan-name-${vlanCounter}">VLAN Name</label>
-                    <input type="text" id="vlan-name-${vlanCounter}" name="vlan-name[]" placeholder="Enter VLAN Name" required>
-                </div>
-            </div>
+        <div class="vlan-form-group">
+            <label for="vlan-id-${vlanCounter}">VLAN ID</label>
+            <input type="number" id="vlan-id-${vlanCounter}" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
+        </div>
+        
+        <div class="alert-box error" id="vlan-id-error-${vlanCounter}" style="display: none;">
+            <span>ERROR:</span> VLAN ID must be between 1 and 4094. No decimals or negative values allowed.
+        </div>
 
-            <div class="alert-box error" id="vlan-id-error-${vlanCounter}" style="display: none;">
-                <span>ERROR:</span> VLAN ID must be between 1 and 4094. No decimals or negative values allowed.
-            </div>
-            <div class="alert-box error" id="vlan-name-error-${vlanCounter}" style="display: none;">
-                <span>ERROR:</span> VLAN Name for this entry contains invalid characters. 
-            </div>
+        <div class="vlan-form-group">
+            <label for="vlan-name-${vlanCounter}">VLAN Name</label>
+            <input type="text" id="vlan-name-${vlanCounter}" name="vlan-name[]" placeholder="Enter VLAN Name" required>
+        </div>
 
 
+        <div class="alert-box error" id="vlan-name-error-${vlanCounter}" style="display: none;">
+            <span>ERROR:</span> VLAN Name for this entry contains invalid characters. 
+        </div>
+
+        <div class="vlan-form-group">
             <label for="vlan-IP-${vlanCounter}">IP Address VLAN</label>
             <div class="ip-address-container">
-                <div class="inline-fields">
-
-                    <input type="text" id="vlan-IP-${vlanCounter}" name="vlan-IP[]" placeholder="___.___.___.___ (e.g., 127.0.0.1)" required>
-                    <select id="subnet-mask-${vlanCounter}" name="subnet-mask[]" required></select>
-                </div>
-                <button type="button" class="remove-vlan-row">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
+                <input type="text" id="vlan-IP-${vlanCounter}" name="vlan-IP[]" placeholder="127.0.0.1 (e.g., 127.0.0.1)" required>
+                <select id="subnet-mask-${vlanCounter}" name="subnet-mask[]" required></select>
             </div>
-        </form>
-        <br>
+        </div>
+
+        <button type="button" class="remove-vlan-row">
+            <i class="fas fa-trash-alt"></i>
+        </button>
     `;
 
     // Generate and append subnet mask options
@@ -182,57 +179,58 @@ document.getElementById("add-interface-config").addEventListener("click", functi
     const newConfig = document.createElement("div");
     newConfig.className = "interface-config";
     newConfig.innerHTML = `
-        <form class="config-form">
+        <form class="interface-config-form">
+        
             <!-- Dropdown for Port Selection -->    
             <label for="interface-port-select-${interfaceCounter}" style="font-weight: bold;">Select Ports</label>
             <select id="interface-port-select-${interfaceCounter}" class="interface-port-select" multiple="multiple" style="width: 100%;"></select>
 
             <!-- Description -->
-            <label for="description-${interfaceCounter}" style="font-weight: bold;">Description</label>
-            <input type="text" id="description-${interfaceCounter}" name="description" placeholder="Enter Description">
-            <div class="alert-box error" id="description-error-${interfaceCounter}" style="display: none;">
-                <span>ERROR: </span> Description can only contain English letters, numbers, special characters, and spaces, except "?".
-            </div>
-
-            <!-- Switch Mode -->
             <div class="switch-mode-section">
+                <label for="description-${interfaceCounter}" style="font-weight: bold;">Description</label>
+                <input type="text" id="description-${interfaceCounter}" name="description" placeholder="Enter Description">
+            
+                <div class="alert-box error" id="description-error-${interfaceCounter}" style="display: none;">
+                    <span>ERROR: </span> Description can only contain English letters, numbers, special characters, and spaces, except "?".
+                </div>
+        
                 <label for="switch-mode-${interfaceCounter}" style="font-weight: bold;">Switch Mode</label>
                 <select id="switch-mode-${interfaceCounter}" name="switch-mode">
                     <option value="" selected style="text-align: center;">Select Switchport Mode ( Default )</option>
                     <option value="access">Access</option>
                     <option value="trunk">Trunk</option>
                 </select>
-            </div>
-
-            <!-- VLAN ID Section -->
-            <div class="vlan-id-section" id="vlan-id-section-${interfaceCounter}">
-                <label for="vlan-id-input-${interfaceCounter}" style="font-weight: bold;">Access VLAN</label>
-            <input 
-                type="number" 
-                id="vlan-id-input-${interfaceCounter}" 
-                name="vlan-id" 
-                placeholder="Enter VLAN ID" 
-                min="1" 
-                max="4094" 
-                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)">
-                <div class="alert-box error" id="vlan-id-error-${interfaceCounter}" style="display: none ; width: 50%;">
-                    <span>ERROR:</span> VLAN ID must be a whole number between 1 and 4094.
-                    Negative, decimal, or invalid numbers are not allowed.
+                
+                <!-- VLAN ID Section -->
+                <div class="vlan-id-section" id="vlan-id-section-${interfaceCounter}" style="display: none;">
+                    <label for="vlan-id-input-${interfaceCounter}" style="font-weight: bold;">Access VLAN</label>
+                    <input 
+                        type="number" 
+                        id="vlan-id-input-${interfaceCounter}" 
+                        name="vlan-id" 
+                        placeholder="Enter VLAN ID" 
+                        min="1" 
+                        max="4094" 
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)">
+                    <div class="alert-box error" id="vlan-id-error-${interfaceCounter}" style="display: none; width: 50%;">
+                        <span>ERROR:</span> VLAN ID must be a whole number between 1 and 4094.
+                        Negative, decimal, or invalid numbers are not allowed.
+                    </div>
                 </div>
-            </div>
 
-            <!-- Trunk Allowed VLANs Section -->
-            <div class="vlan-trunk-section" id="vlan-trunk-section-${interfaceCounter}" style="display: none;">
-                <label for="trunk-allowed-vlan-${interfaceCounter}" style="font-weight: bold;">Allowed VLANs</label>
-                <input type="text" id="trunk-allowed-vlan-${interfaceCounter}" name="trunk-allowed-vlan" placeholder="e.g., 20,30,40 or all">
-                <div class="alert-box error" id="allowed-vlans-error-${interfaceCounter}" style="display: none; width: 50%; ">
-                    <span>ERROR:</span> Allowed VLANs must be "all" or a comma-separated list of VLAN IDs (e.g., 10,20,30).
-                </div>
-            </div>  
-
-
-            <!-- Remove Button -->
+                <!-- Trunk Allowed VLANs Section -->
+                <div class="vlan-trunk-section" id="vlan-trunk-section-${interfaceCounter}" style="display: none;">
+                    <label for="trunk-allowed-vlan-${interfaceCounter}" style="font-weight: bold;">Allowed VLANs</label>
+                    <input type="text" id="trunk-allowed-vlan-${interfaceCounter}" name="trunk-allowed-vlan" placeholder="e.g., 20,30,40 or all">
+                    <div class="alert-box error" id="allowed-vlans-error-${interfaceCounter}" style="display: none; width: 50%; ">
+                        <span>ERROR:</span> Allowed VLANs must be "all" or a comma-separated list of VLAN IDs (e.g., 10,20,30).
+                    </div>
+                </div>  
+                <br>
+                            <!-- Remove Button -->
             <button type="button" class="remove-interface-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
+            </div>
+
         </form>
     `;
     interfaceConfigs.appendChild(newConfig);
@@ -381,31 +379,34 @@ function validateDescriptionInput(descriptionInputId, errorBoxId) {
 function validateVlanIdInput(vlanIdInputId, errorBoxId) {
     const vlanIdInput = document.getElementById(vlanIdInputId);
     const errorBox = document.getElementById(errorBoxId);
-
-    if (!vlanIdInput || !errorBox) {
-        console.warn(`Missing input or error box for VLAN ID: ${vlanIdInputId}`);
-        return;
-    }
+    const vlanSection = vlanIdInput.closest(".vlan-id-section");
 
     vlanIdInput.addEventListener("input", function () {
-        const value = this.value.trim();
-
-        if (value === "") {
-            // Allow empty VLAN ID
-            this.style.borderColor = ""; // Reset border color
-            errorBox.style.display = "none"; // Hide the error message
+        // Skip validation if the section is hidden
+        if (vlanSection.style.display === "none") {
+            this.style.borderColor = ""; // Reset border
+            errorBox.style.display = "none"; // Hide error
             return;
         }
 
-        // Regex to check for a valid integer between 1 and 4094
+        const value = this.value.trim();
+
+        // Allow empty value without error
+        if (value === "") {
+            this.style.borderColor = ""; // Reset border
+            errorBox.style.display = "none"; // Hide error
+            return;
+        }
+
+        // Check if the value is a valid VLAN ID
         const isValid = /^\d+$/.test(value) && value >= 1 && value <= 4094;
 
         if (!isValid) {
-            this.style.borderColor = "red"; // Highlight the field with a red border
-            errorBox.style.display = "block"; // Show the error message
+            this.style.borderColor = "red";
+            errorBox.style.display = "block";
         } else {
-            this.style.borderColor = ""; // Reset border color
-            errorBox.style.display = "none"; // Hide the error message
+            this.style.borderColor = "";
+            errorBox.style.display = "none";
         }
     });
 }
@@ -448,18 +449,27 @@ function initializeSwitchModeToggle(counter) {
     const switchMode = document.getElementById(`switch-mode-${counter}`);
     const vlanSection = document.getElementById(`vlan-id-section-${counter}`);
     const trunkSection = document.getElementById(`vlan-trunk-section-${counter}`);
+    const vlanInput = document.getElementById(`vlan-id-input-${counter}`);
+    const errorBox = document.getElementById(`vlan-id-error-${counter}`);
 
-    // เพิ่ม event listener เมื่อ switch mode เปลี่ยน
+    // Hide Access VLAN and validation errors initially
+    vlanSection.style.display = "none";
+    trunkSection.style.display = "none";
+    errorBox.style.display = "none";
+
+    // Add event listener for Switch Mode changes
     switchMode.addEventListener("change", function () {
         if (this.value === "access") {
-            vlanSection.style.display = "block"; // แสดง VLAN ID
-            trunkSection.style.display = "none"; // ซ่อน Trunk Allowed VLANs
+            vlanSection.style.display = "block"; // Show VLAN ID for Access mode
+            trunkSection.style.display = "none"; // Hide Trunk Allowed VLANs
         } else if (this.value === "trunk") {
-            vlanSection.style.display = "none"; // ซ่อน VLAN ID
-            trunkSection.style.display = "block"; // แสดง Trunk Allowed VLANs
+            vlanSection.style.display = "none"; // Hide VLAN ID
+            trunkSection.style.display = "block"; // Show Trunk Allowed VLANs
         } else {
-            vlanSection.style.display = "none"; // ซ่อนทั้งสองเมื่อเลือก Default
+            vlanSection.style.display = "none"; // Hide both fields
             trunkSection.style.display = "none";
+            vlanInput.style.borderColor = ""; // Reset border
+            errorBox.style.display = "none"; // Hide error
         }
     });
 }
@@ -771,77 +781,11 @@ if (portSecurityAddButton) {
             }
         });
 
-    
-    // Add Event Listener for Add Button
-    addMacBtn.addEventListener("click", function (event) {
-        event.preventDefault(); // ป้องกันการรีเฟรชหน้า
-
-        const macValue = macInput.value.trim();
-
-        // Regular Expression for MAC Address (e.g., XX:XX:XX:XX:XX:XX)
-        const macPattern = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
-
-        // ตรวจสอบรูปแบบ MAC Address ก่อน
-        if (!macPattern.test(macValue)) {
-            macError.style.display = "block";
-            macError.innerHTML = `<span>ERROR:</span> Invalid MAC address format. Please use the format XX:XX:XX:XX:XX:XX.`;
-            macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
-            return; // หยุดการทำงาน
-        }
-
-        // ตรวจสอบจำนวน MAC Address ใน Table
-        const macTableBody = document.querySelector(`#mac-table-body-${newConfigId}`);
-        const currentMacCount = macTableBody.querySelectorAll("tr").length;
-
-        // รับค่า Maximum MAC Count
-        const maxMacCount = parseInt(maxMacCountInput.value, 10) || 1;
-
-        // ตรวจสอบเงื่อนไขจำนวน MAC Address
-        if (currentMacCount >= maxMacCount) {
-            macError.style.display = "block";
-            macError.innerHTML = `<span>ERROR:</span> You can only add up to ${maxMacCount} MAC Address(es).`;
-            macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
-            return; // หยุดการทำงาน
-        }
-
-        // ตรวจสอบว่า MAC Address ซ้ำหรือไม่
-        const existingMacs = Array.from(macTableBody.querySelectorAll("td:first-child")).map(
-            (cell) => cell.textContent.trim()
-        );
-        if (existingMacs.includes(macValue)) {
-            macError.style.display = "block";
-            macError.innerHTML = `<span>ERROR:</span> This MAC address already exists.`;
-            macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
-            return; // หยุดการทำงาน
-        }
-
-        // ถ้าไม่มีข้อผิดพลาดใดๆ
-        macError.style.display = "none"; // ซ่อนข้อความ Error
-        macInput.style.borderColor = ""; // รีเซ็ตเส้นขอบ
-
-        // เพิ่ม MAC Address ลงใน Table
-        const newRow = document.createElement("tr");
-        newRow.innerHTML = `
-            <td>${macValue}</td>
-            <td>
-                <button class="remove-mac-btn btn btn-danger">Remove</button>
-            </td>
-        `;
-        macTableBody.appendChild(newRow);
-
-        // ล้างช่อง Input
-        macInput.value = "";
-
-        // ผูก Event Listener สำหรับปุ่ม Remove
-        newRow.querySelector(".remove-mac-btn").addEventListener("click", function () {
-            newRow.remove(); // ลบแถวออก
-        });
-    });
-        
+        // Handle Max Mac-Address Validation on Input
         maxMacCountInput.addEventListener("input", function () {
             const value = this.value.trim();
             const errorBox = document.getElementById(`max-mac-error-${newConfigId}`);
-        
+            console.log("VALUE Check error:", value); 
             // ถ้าฟิลด์ว่างเปล่า ให้ซ่อนข้อความแจ้งเตือนและไม่แสดงข้อผิดพลาด
             if (value === "") {
                 this.style.borderColor = ""; // รีเซ็ตเส้นขอบ
@@ -860,6 +804,73 @@ if (portSecurityAddButton) {
                 errorBox.style.display = "none"; // ซ่อนข้อความแจ้งข้อผิดพลาด
             }
         });
+    
+        // Add Event Listener for Add Button
+        addMacBtn.addEventListener("click", function (event) {
+            event.preventDefault(); // ป้องกันการรีเฟรชหน้า
+
+            const macValue = macInput.value.trim();
+
+            // Regular Expression for MAC Address (e.g., XX:XX:XX:XX:XX:XX)
+            const macPattern = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
+
+            // ตรวจสอบรูปแบบ MAC Address ก่อน
+            if (!macPattern.test(macValue)) {
+                macError.style.display = "block";
+                macError.innerHTML = `<span>ERROR:</span> Invalid MAC address format. Please use the format XX:XX:XX:XX:XX:XX.`;
+                macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
+                return; // หยุดการทำงาน
+            }
+
+            // ตรวจสอบจำนวน MAC Address ใน Table
+            const macTableBody = document.querySelector(`#mac-table-body-${newConfigId}`);
+            const currentMacCount = macTableBody.querySelectorAll("tr").length;
+
+            // รับค่า Maximum MAC Count
+            const maxMacCount = parseInt(maxMacCountInput.value, 10) || 1;
+
+            // ตรวจสอบเงื่อนไขจำนวน MAC Address
+            if (currentMacCount >= maxMacCount) {
+                macError.style.display = "block";
+                macError.innerHTML = `<span>ERROR:</span> You can only add up to ${maxMacCount} MAC Address(es).`;
+                macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
+                return; // หยุดการทำงาน
+            }
+
+            // ตรวจสอบว่า MAC Address ซ้ำหรือไม่
+            const existingMacs = Array.from(macTableBody.querySelectorAll("td:first-child")).map(
+                (cell) => cell.textContent.trim()
+            );
+            if (existingMacs.includes(macValue)) {
+                macError.style.display = "block";
+                macError.innerHTML = `<span>ERROR:</span> This MAC address already exists.`;
+                macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
+                return; // หยุดการทำงาน
+            }
+
+            // ถ้าไม่มีข้อผิดพลาดใดๆ
+            macError.style.display = "none"; // ซ่อนข้อความ Error
+            macInput.style.borderColor = ""; // รีเซ็ตเส้นขอบ
+
+            // เพิ่ม MAC Address ลงใน Table
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td>${macValue}</td>
+                <td>
+                    <button class="remove-mac-btn btn btn-danger">Remove</button>
+                </td>
+            `;
+            macTableBody.appendChild(newRow);
+
+            // ล้างช่อง Input
+            macInput.value = "";
+
+            // ผูก Event Listener สำหรับปุ่ม Remove
+            newRow.querySelector(".remove-mac-btn").addEventListener("click", function () {
+                newRow.remove(); // ลบแถวออก
+            });
+        });
+        
 
         // Refresh dropdown with the latest ports and handle validation
         updatePortSecurityDropdowns();
@@ -1032,18 +1043,19 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
     const newAggregationConfig = document.createElement("div");
     newAggregationConfig.className = "aggregation-config";
     newAggregationConfig.innerHTML = `
-    <form class="config-form">
+    <form class="aggregation-config-form">
         <!-- Aggregation ID -->
         <label for="aggregation-id-${aggId}" style="font-weight: bold;">Aggregation ID</label>
         <input type="number" id="aggregation-id-${aggId}" name="aggregation-id[]" placeholder="Enter Aggregation ID" min="1" max="64" required>
         <div class="alert-box error" id="error-${aggId}" style="display: none;">
             <span>ERROR: </span> Aggregation ID must be between 1 and 64.
         </div>
+        <br>
 
         <!-- Select Ports -->
         <label for="aggregation-ports-${aggId}" style="font-weight: bold;">Select Ports</label>
         <select id="aggregation-ports-${aggId}" class="aggregation-ports-select" multiple="multiple" style="width: 100%;" required></select>
-
+        <br><br>
         <!-- Link Aggregation Mode -->
         <label for="aggregation-mode-${aggId}" style="font-weight: bold;">Link Aggregation Mode</label>
         <select id="aggregation-mode-${aggId}" name="aggregation-mode[]" required>
@@ -1064,7 +1076,7 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
         <div id="aggregation-config-fields-${aggId}">
             <!-- Switchport Mode -->
             <label for="switchport-mode-${aggId}" style="font-weight: bold;">Switchport Mode</label>
-            <select id="switchport-mode-${aggId}" class="switchport-mode">
+            <select id="switchport-mode-${aggId}" class="switchport-mode" style="width: 100%;">
                 <option value="" selected style="text-align: center;">Select Switchport Mode ( Default )</option>
                 <option value="access">Access</option>
                 <option value="trunk">Trunk</option>
@@ -1106,10 +1118,9 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
                     </div>
                 </div>
             </div>
-        </div>
-
         <!-- Remove Button -->
         <button type="button" class="remove-aggregation-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
+        </div>
     </form>
     `;
 
@@ -1731,7 +1742,6 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
                     configData += ` switchport access vlan ${vlanIdInput.value.trim()}\n`;
                 }
     
-                // Add port-security configuration
                 const portSecurityForms = document.querySelectorAll('.port-security-config');
                 portSecurityForms.forEach(securityForm => {
                     const securityPortSelect = securityForm.querySelector('.interface-port-select');
@@ -1739,46 +1749,41 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
                     const stickyMacEnabled = securityForm.querySelector('input[type="checkbox"]').checked;
                     const violationMode = securityForm.querySelector('select[name="violation-mode"]')?.value.trim();
                     const macTableRows = securityForm.querySelectorAll('.mac-address-table tbody tr');
-                    console.log("Maximum MAC Count:", maxMacCount); // ตรวจสอบค่าที่ดึงมา
-
-                    const maxMacCountInput = securityForm.querySelector('input[name="max-mac-count"]');
-                    const maxMacCountValue = maxMacCountInput ? maxMacCountInput.value.trim() : null;
-                
-                    if (maxMacCountValue && parseInt(maxMacCountValue, 10) >= 1 && parseInt(maxMacCountValue, 10) <= 4096) {
-                        console.log("Maximum MAC Count:", maxMacCountValue); // ตรวจสอบค่าที่ดึงได้
-                        configData += ` switchport port-security maximum ${maxMacCountValue}\n`;
-                    } else {
-                        console.error("Maximum MAC Count is invalid or not defined");
-                    }
-
-                    // ตรวจสอบว่าพอร์ตตรงกับที่เลือกในฟอร์ม port-security
-                    if (securityPortSelect && Array.from(securityPortSelect.selectedOptions).some(opt => opt.value === port)) {
-                        configData += ` switchport port-security\n`;
-                
-                        // เพิ่ม maximum MAC count หากมีการกำหนดค่า
-                        if (maxMacCount && parseInt(maxMacCount) > 0) {
-                            configData += ` switchport port-security maximum ${maxMacCount}\n`;
-                            console.log("Added Maximum MAC Count to configData");
-
-                        }
-                
-                        // เพิ่ม sticky MAC configuration หากเปิดใช้งาน
-                        if (stickyMacEnabled) {
-                            configData += ` switchport port-security mac-address sticky\n`;
-                        }
-                
-                        // เพิ่ม violation mode หากมีการกำหนดค่า
-                        if (violationMode) {
-                            configData += ` switchport port-security violation ${violationMode}\n`;
-                        }
-                
-                        // เพิ่ม MAC address จากตาราง
-                        macTableRows.forEach(row => {
-                            const macAddress = row.querySelector('td:first-child').textContent.trim();
-                            if (macAddress) {
-                                const formattedMac = macAddress.replace(/[:-]/g, "").replace(/(.{4})/g, "$1.").slice(0, -1);
-                                configData += ` switchport port-security mac-address ${formattedMac}\n`;
+            
+                    if (securityPortSelect && securityPortSelect.selectedOptions.length > 0) {
+                        const selectedPorts = Array.from(securityPortSelect.selectedOptions).map(option => option.value);
+                        selectedPorts.forEach(port => {
+                            configData += `interface ${port}\n switchport port-security\n`;
+            
+                            // Add Maximum MAC Count
+                            if (maxMacCount && parseInt(maxMacCount, 10) >= 1 && parseInt(maxMacCount, 10) <= 4096) {
+                                configData += ` switchport port-security maximum ${maxMacCount}\n`;
                             }
+            
+                            // Handle Sticky MAC Mode
+                            if (stickyMacEnabled) {
+                                configData += ` switchport port-security mac-address sticky\n`;
+            
+                                // Clear all manually added MAC addresses
+                                macTableRows.forEach(row => {
+                                    row.remove(); // Remove the row from the DOM
+                                });
+                            } else {
+                                // Add manually entered MAC addresses
+                                macTableRows.forEach(row => {
+                                    const macAddress = row.querySelector('td:first-child').textContent.trim();
+                                    if (macAddress) {
+                                        const formattedMac = macAddress.replace(/[:-]/g, "").replace(/(.{4})/g, "$1.").slice(0, -1);
+                                        configData += ` switchport port-security mac-address ${formattedMac}\n`;
+                                    }
+                                });
+                            }
+            
+                            // Add Violation Mode
+                            if (violationMode) {
+                                configData += ` switchport port-security violation ${violationMode}\n`;
+                            }
+            
                         });
                     }
                 });
