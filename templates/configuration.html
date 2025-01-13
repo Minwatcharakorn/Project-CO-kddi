@@ -77,7 +77,7 @@
         </div>
 
         <!-- Global STP Configuration Section -->
-        <!-- <div class="config-section" id="stp-global-config">
+        <div class="config-section" id="stp-global-config">
             <h3>Global STP Configuration</h3>
             <form>
                 <label for="stp-mode">STP Mode:</label>
@@ -101,47 +101,8 @@
                 <input type="number" id="stp-priority" name="stp-priority" placeholder="Priority Value (0-61440)" min="0" max="61440" step="4096">
                 <br><br>
 
-                <input type="submit" value="Save Global STP Configuration">
             </form>
         </div>
-
-        <div class="config-section" id="stp-interface-config">
-            <h3>Per-Interface STP Configuration</h3>
-            <form>
-                <label for="interface-port">Interface Port</label>
-                <select id="interface-port" name="interface-port">
-                    <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
-                    <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
-                </select>
-                <br><br>
-
-                <label for="stp-port-cost">STP Port Cost</label>
-                <input type="number" id="stp-port-cost" name="stp-port-cost" placeholder="Cost Value">
-                <br><br>
-
-                <label for="stp-bpduguard">BPDU Guard</label>
-                <select id="stp-bpduguard" name="stp-bpduguard">
-                    <option value="enable">Enable</option>
-                    <option value="disable">Disable</option>
-                </select>
-                <br><br>
-
-                <label for="stp-portfast">Portfast</label>
-                <select id="stp-portfast" name="stp-portfast">
-                    <option value="default">Default</option>
-                    <option value="enable">Enable</option>
-                    <option value="disable">Disable</option>
-                </select>
-                <br><br>
-
-                <label for="stp-vlan-port-priority">Per-VLAN Port Priority:</label>
-                <input type="number" id="stp-vlan-id-port" name="stp-vlan-id-port" placeholder="VLAN ID" min="1" max="4094">
-                <input type="number" id="stp-vlan-port-priority" name="stp-vlan-port-priority" placeholder="Priority Value (0-240)" min="0" max="240" step="16">
-                <br><br>
-
-                <input type="submit" value="Save Interface STP Configuration">
-            </form>
-        </div> -->
 
         <!-- Link Aggregation -->
         <div class="config-section" id="link-aggregation-config">
