@@ -632,6 +632,9 @@ if (interfaceConfigsContainer) {
     });
 }
 
+
+const macInputs = {}; // Object สำหรับเก็บ macInput
+
 // Initialize New Port-Security Configuration
 const portSecurityAddButton = document.getElementById("add-port-security-config");
 if (portSecurityAddButton) {
@@ -790,7 +793,9 @@ if (portSecurityAddButton) {
                 macInput.style.borderColor = "red"; // Highlight input with red border
             }
         });
+        macInputs[newConfigId] = macInput; // เก็บ macInput ไว้ใน Object
 
+    
         // Handle Max Mac-Address Validation on Input
         maxMacCountInput.addEventListener("input", function () {
             const value = this.value.trim();
@@ -893,6 +898,9 @@ if (portSecurityAddButton) {
         });
     });
 }
+
+console.log("Test MAC Iput : ",macInputs); // แสดงรายการ macInput ที่สร้างขึ้นทั้งหมด
+
 
 // Trigger real-time updates for existing configurations
 document.addEventListener("DOMContentLoaded", () => {
