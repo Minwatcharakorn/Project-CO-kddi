@@ -77,30 +77,69 @@
         </div>
 
         <!-- Global STP Configuration Section -->
-        <div class="config-section" id="stp-global-config">
-            <h3>Global STP Configuration</h3>
-            <form>
-                <label for="stp-mode">STP Mode:</label>
-                <select id="stp-mode" name="stp-mode">
-                    <option value="pvst">PVST (Per VLAN Spanning Tree)</option>
-                    <option value="rapid-pvst">Rapid-PVST</option>
-                    <option value="mst">MST (Multiple Spanning Tree)</option>
-                </select>
-                <br><br>
+        <div class="config-section">
+            <h3>Spanning Tree Protocol Configuration</h3>
+            <form class="stp-config-form">
+                <!-- STP Mode Selection -->
+                <div class="stp-input-form-group">
+                    <label for="stp-mode">STP Mode</label>
+                    <select id="stp-mode" name="stp-mode">
+                        <option value="" style="text-align: center;" selected>Select STP Mode ( Default )</option>
+                        <option value="pvst">PVST (Per VLAN Spanning Tree)</option>
+                        <option value="rapid-pvst">Rapid-PVST</option>
+                        <option value="mst">MST (Multiple Spanning Tree)</option>
+                    </select>
+                </div>
 
-                <label for="stp-root-priority">Set VLAN Root:</label>
-                <input type="number" id="stp-vlan-id-root" name="stp-vlan-id-root" placeholder="VLAN ID" min="1" max="4094">
-                <select id="stp-root-priority" name="stp-root-priority">
-                    <option value="primary">Primary</option>
-                    <option value="secondary">Secondary</option>
-                </select>
-                <br><br>
+                <div id="mst-config-container">
+                    <!-- JavaScript dynamically adds MST configurations here -->
+                </div>
 
-                <label for="stp-priority">Set VLAN Priority:</label>
-                <input type="number" id="stp-vlan-id-priority" name="stp-vlan-id-priority" placeholder="VLAN ID" min="1" max="4094">
-                <input type="number" id="stp-priority" name="stp-priority" placeholder="Priority Value (0-61440)" min="0" max="61440" step="4096">
-                <br><br>
-
+        
+                <!-- Toggle Table for STP Features -->
+                <table class="stp-table">
+                    <tr>
+                        <th>Toggle</th>
+                        <th>Feature</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="switch">
+                                <input type="checkbox" id="bpdu-guard-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                        <td>BPDU Guard</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="switch">
+                                <input type="checkbox" id="bpdu-filtering-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                        <td>BPDU Filtering</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="switch">
+                                <input type="checkbox" id="loop-guard-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                        <td>Loop-Guard</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="switch">
+                                <input type="checkbox" id="portfast-default-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                        <td>Portfast ( Default )</td>
+                    </tr>
+                </table>
+                <br>
             </form>
         </div>
 

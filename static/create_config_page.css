@@ -853,3 +853,235 @@ textarea {
 .remove-port-security-config:hover {
     background-color: #b02a37;
 }
+
+/* Table for STP Toggles */
+.stp-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.stp-table th, .stp-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.stp-table th {
+    background-color: #f4f5f7;
+    color: #333;
+}
+
+.stp-table td {
+    background-color: #fff;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 10px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #4caf50;
+}
+
+input:checked + .slider:before {
+    transform: translateX(14px);
+}
+
+.stp-config-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.stp-config-form h3 {
+    color: #4caf50; 
+}
+
+.stp-config-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.stp-config-form input,
+.stp-config-form select {
+    width: 100%;
+    max-width: 500px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.stp-config-form input[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.stp-config-form input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* MST Instance Form Group */
+#mst-config-container {
+    width: 100%; /* กำหนดให้กินพื้นที่เต็ม */
+    margin: 0 auto; /* จัดให้อยู่ตรงกลาง */
+    padding: 20px; /* เพิ่ม padding เพื่อความโปร่ง */
+    margin-top: -25px;
+    background-color: #f9f9f9; /* สีพื้นหลังอ่อน */
+}
+
+/* Container for the list of MST Instances */
+#mst-instance-list {
+    display: flex;
+    flex-direction: column; /* Arrange items vertically */
+    gap: 15px; /* Add spacing between items */
+    margin-top: 15px; /* Add spacing above the instance list */
+}
+
+/* Individual MST Instance Form */
+.mst-instance {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #ffffff;
+    width: 100%; /* ใช้พื้นที่ทั้งหมดใน parent */
+}
+
+/* Form group styling within MST Instance */
+.mst-instance .form-group {
+    margin-bottom: 10px;
+}
+
+.mst-instance label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.mst-instance input,
+.mst-instance select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+/* Add/Remove buttons */
+.add-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 10px;
+}
+
+.add-button:hover {
+    background-color: #0056b3;
+}
+
+.remove-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+    display: block;
+    width: 100%; /* ทำให้ปุ่มกว้างเต็มฟอร์ม */
+    margin-top: -20px; /* เพิ่มช่องว่างด้านบน */
+    margin-bottom: 10px;
+}
+
+.remove-button:hover {
+    background-color: #b02a37;
+}
+
+/* ลบเส้นใต้ที่อยู่ใต้ปุ่ม Remove */
+.mst-instance hr {
+    display: none; /* ซ่อนเส้น hr */
+}
+
+/* หรือถ้าปุ่ม Remove มี border ให้ตั้งค่าดังนี้ */
+.remove-button {
+    border: none; /* ลบ border */
+}
+
+/* ถ้าเส้นมาจาก margin หรือ padding */
+.mst-instance {
+    margin-bottom: 0; /* ปรับระยะห่างด้านล่าง */
+    padding-bottom: 0; /* ลบ padding ด้านล่าง */
+}
+
+.stp-input-form-group {
+    margin-bottom: 15px;
+}
+
+.stp-input-form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.stp-input-form-group input,
+.stp-input-form-group select {
+    width: 100%;
+    max-width: 400px; /* กำหนดขนาดตามความเหมาะสม */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+

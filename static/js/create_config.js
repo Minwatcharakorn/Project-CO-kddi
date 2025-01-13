@@ -879,6 +879,109 @@ document.addEventListener("DOMContentLoaded", () => {
     handlePortSelectionValidation(); // Apply validation for existing dropdowns
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+    const stpModeDropdown = document.getElementById("stp-mode");
+    const mstConfigContainer = document.getElementById("mst-config-container");
+
+    // Add MST configuration area when MST is selected
+    stpModeDropdown.addEventListener("change", function () {
+        const selectedMode = this.value;
+
+        if (selectedMode === "mst") {
+            renderMSTConfiguration();
+        } else {
+            // Clear MST Configuration if not MST mode
+            mstConfigContainer.innerHTML = ""; // Reset content if it's not MST
+        }
+    });
+
+    function renderMSTConfiguration() {
+        // Add MST Configuration Header
+        mstConfigContainer.innerHTML = `
+            <button id="add-mst-instance" class="add-button">Add</button>
+            <div id="mst-instance-list"></div>
+        `;
+
+        const addButton = document.getElementById("add-mst-instance");
+        const instanceList = document.getElementById("mst-instance-list");
+
+        // Add functionality to "Add" button
+        addButton.addEventListener("click", function () {
+            const instanceForm = document.createElement("div");
+            instanceForm.className = "mst-instance";
+
+            instanceForm.innerHTML = `
+                <div class="stp-input-form-group">
+                    <label for="mst-instance">MST Instance</label>
+                    <input type="text" class="mst-instance-input" placeholder="0 - 4094" required>
+                    <div class="alert-box error mst-instance-error" style="display: none;">
+                        <span>ERROR: </span> MST Instance must be a whole number between 0-4094 without leading zeros.
+                    </div>
+                </div>
+                <div class="stp-input-form-group">
+                    <label for="vlans-mapped">Vlans Mapped</label>
+                    <input type="text" class="vlans-mapped-input" placeholder="1-4094 (Ex: 20,30,40)" required>
+                    <div class="alert-box error vlans-mapped-error" style="display: none;">
+                        <span>ERROR: </span> Allowed VLANs must be between (1-4094) or a comma-separated list.
+                    </div>
+                </div>
+                <br>
+                <button type="button" class="remove-button styled-button">Remove</button>
+                <hr>
+            `;
+
+            // Add validation and remove functionality
+            const mstInstanceInput = instanceForm.querySelector('.mst-instance-input');
+            const vlansMappedInput = instanceForm.querySelector('.vlans-mapped-input');
+            const mstInstanceError = instanceForm.querySelector('.mst-instance-error');
+            const vlansMappedError = instanceForm.querySelector('.vlans-mapped-error');
+
+            // Validate MST Instance
+            mstInstanceInput.addEventListener('input', () => {
+                const value = mstInstanceInput.value.trim();
+                if (value === '') {
+                    mstInstanceError.style.display = 'none';
+                    mstInstanceInput.style.borderColor = '';
+                } else if (!/^[1-9]\d*$|^0$/.test(value) || parseInt(value, 10) < 0 || parseInt(value, 10) > 4094) {
+                    mstInstanceError.style.display = 'block';
+                    mstInstanceInput.style.borderColor = 'red';
+                } else {
+                    mstInstanceError.style.display = 'none';
+                    mstInstanceInput.style.borderColor = '';
+                }
+            });
+
+            // Validate Vlans Mapped
+            vlansMappedInput.addEventListener('input', () => {
+                const value = vlansMappedInput.value.trim();
+                if (value === '') {
+                    vlansMappedError.style.display = 'none';
+                    vlansMappedInput.style.borderColor = '';
+                } else if (!/^(\d{1,4})(,\d{1,4})*$/.test(value)) {
+                    vlansMappedError.style.display = 'block';
+                    vlansMappedInput.style.borderColor = 'red';
+                } else {
+                    const vlanIds = value.split(',').map(Number);
+                    const isValid = vlanIds.every(vlan => vlan >= 1 && vlan <= 4094);
+                    if (!isValid) {
+                        vlansMappedError.style.display = 'block';
+                        vlansMappedInput.style.borderColor = 'red';
+                    } else {
+                        vlansMappedError.style.display = 'none';
+                        vlansMappedInput.style.borderColor = '';
+                    }
+                }
+            });
+
+            // Remove button functionality
+            instanceForm.querySelector(".remove-button").addEventListener("click", function () {
+                instanceForm.remove();
+            });
+
+            instanceList.appendChild(instanceForm);
+        });
+    }
+});
 
 const timezones = [
     { value: "", label: "Select Timezone ( Default )" }, // Default empty value
@@ -1400,6 +1503,7 @@ document.getElementById('save-config-templates').addEventListener('click', funct
 });
 
 
+
 // Open Modal ห้ามวาง code ต่ำกว่าตรงนี้
 // Function to open the modal and inject configuration
 function openModalPreview(configData) {
@@ -1518,6 +1622,56 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
     const defaultGateway = document.getElementById('default-gateway');
     if (defaultGateway && defaultGateway.value.trim() !== '') {
         configData += `ip default-gateway ${defaultGateway.value.trim()}\n`;
+    }
+
+
+    // Add Spanning-Tree Configuration
+    const stpMode = document.getElementById('stp-mode')?.value;
+    if (stpMode) {
+        configData += `spanning-tree mode ${stpMode.toLowerCase()}\n`;
+
+        if (stpMode === 'mst') {
+            // Add MST Instance Configurations
+            const mstInstances = document.querySelectorAll('.mst-instance');
+            mstInstances.forEach(instance => {
+                const instanceNumber = instance.querySelector('.mst-instance-input')?.value.trim();
+                const vlanMapped = instance.querySelector('.vlans-mapped-input')?.value.trim();
+
+                // Validation
+                const isInstanceNumberValid = /^\d+$/.test(instanceNumber) && instanceNumber >= 0 && instanceNumber <= 4094;
+                const isVlansMappedValid = /^(all|(\d{1,4})(,\d{1,4})*)$/.test(vlanMapped);
+
+                if (isInstanceNumberValid && isVlansMappedValid) {
+                    configData += `spanning-tree mst configuration\n`;
+                    configData += ` instance ${instanceNumber} vlan ${vlanMapped}\n`;
+                } else {
+                    // Log or handle invalid input
+                    console.warn(`Invalid input: MST Instance (${instanceNumber}), VLANs Mapped (${vlanMapped})`);
+                }
+            });
+        }
+    }
+
+    // Add Spanning-Tree Feature Toggles
+    const bpduGuardToggle = document.getElementById('bpdu-guard-toggle');
+    const bpduFilteringToggle = document.getElementById('bpdu-filtering-toggle');
+    const loopGuardToggle = document.getElementById('loop-guard-toggle');
+    const portfastToggle = document.getElementById('portfast-default-toggle');
+
+    if (bpduGuardToggle && bpduGuardToggle.checked) {
+        configData += 'spanning-tree bpduguard enable\n';
+    }
+
+    if (bpduFilteringToggle && bpduFilteringToggle.checked) {
+        configData += 'spanning-tree bpdufilter enable\n';
+    }
+
+    if (loopGuardToggle && loopGuardToggle.checked) {
+        configData += 'spanning-tree loopguard default\n';
+    }
+
+    if (portfastToggle && portfastToggle.checked) {
+        configData += 'spanning-tree portfast default\n';
     }
 
     // VTP Configuration
