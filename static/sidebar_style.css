@@ -3,7 +3,7 @@
 .sidebar {
     background-color: #000000;
     color: #fff;
-    width: 250px;
+    width: 20%;
     padding-top: 60px;
     position: fixed;
     height: 100%;
@@ -20,7 +20,7 @@
 
 /* Sidebar Item */
 .sidebar-item {
-    display: flex;
+    display: block;
     align-items: center;
     padding: 15px 20px;
     font-size: 1rem;
@@ -31,13 +31,16 @@
     gap: 10px;
 }
 
+
 /* ปรับสไตล์การแสดงผลของลิงก์ใน Sidebar ให้ไม่มีเส้นขอบ */
 .sidebar-item a {
-    display: flex;
     align-items: center;
     gap: 10px;
     text-decoration: none;
     color: inherit;
+    display: flex; /* ทำให้ a ครอบคลุมเต็มพื้นที่ของ .sidebar-item */
+    width: 100%; /* ทำให้กดได้ทั้งความกว้าง */
+    height: 100%; /* กดได้ทั้งความสูง */
 }
 
 
@@ -123,34 +126,56 @@
     }
 }
 .nav-info {
-    display: flex; /* จัดเรียงไอคอนและข้อความในแนวนอน */
-    align-items: center; /* จัดตำแหน่งในแนวตั้งให้ตรงกัน */
-    gap: 15px; /* เพิ่มช่องว่างระหว่างแต่ละส่วน */
+    display: inline-flex; /* Keep items horizontally aligned */
+    justify-content: flex-end; /* Align items to the right */
+    align-items: center; /* Vertically center items */
+    gap: 15px; /* Space between items */
+    color: #ffffff; /* Text color */
+    margin-right: 20px; /* Space from the right edge */
+    margin-left: 5px;
+    margin-bottom: 10px; /* Space from the bottom edge */
 }
 
 .nav-info span {
-    display: flex; /* ใช้ flexbox เพื่อจัดเรียงไอคอนและข้อความ */
-    align-items: center; /* จัดตำแหน่งในแนวตั้งให้ตรงกัน */
-    gap: 5px; /* เพิ่มระยะห่างระหว่างไอคอนและข้อความ */
-    color: #d1d5db; /* สีฟอนต์ */
+    display: flex; /* Align icon and text */
+    align-items: center; /* Center vertically */
+    gap: 5px; /* Space between icon and text */
+    color: white;
 }
 
 .nav-info a {
-    color: #d1d5db; /* สีข้อความ */
-    text-decoration: none; /* ลบเส้นใต้ลิงก์ */
-    display: flex; /* ใช้ flexbox */
-    align-items: center; /* จัดข้อความและไอคอนให้อยู่ในแนวเดียวกัน */
-    gap: 5px; /* ระยะห่างระหว่างไอคอนกับข้อความ */
+    color: #ffffff; /* Text color for links */
+    text-decoration: none; /* Remove underline */
+    display: flex; /* Align icon and text */
+    align-items: center; /* Center vertically */
+    gap: 5px; /* Space between icon and text */
 }
 
 .nav-info a:hover {
-    color: #00BFFF; /* สีเมื่อโฮเวอร์ */
+    color: #00BFFF; /* Change color on hover */
 }
+
+
 
 .nav-info i {
     font-size: 1rem; /* ขนาดของไอคอน */
+    color: #1E90FF;
 }
 
 .top-nav {
     background-color: #000000;
+}
+
+
+.nav-logo {
+    font-size: 1.5rem; /* Increase text size */
+    display: flex; /* Align icon and text */
+    align-items: center; /* Center vertically */
+    gap: 10px; /* Add space between icon and text */
+    margin-top: 10px;
+}
+
+.nav-logo i {
+    font-size: 2rem; /* Increase icon size */
+    color: #1E90FF; /* Ensure consistent color */
 }

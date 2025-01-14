@@ -279,7 +279,7 @@ document.getElementById("add-interface-config").addEventListener("click", functi
 
 // Adjusted Overflow Management
 document.body.style.overflow = "hidden";
-const container = document.querySelector(".content");
+const container = document.querySelector(".w3-container");
 container.style.overflowY = "scroll";
 
 let selectedPortsGlobal = []; // Global list of selected ports

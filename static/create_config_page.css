@@ -1,7 +1,4 @@
-body {
-    font-family: Arial, sans-serif;
-    display: flex;
-}
+
 
 /* Error Styling */
 .input-error {
@@ -23,7 +20,9 @@ body {
     border-radius: 8px;
     margin-bottom: 20px;
     background-color: #f9f9f9;
-    width: 85%; /* Adjust as needed */
+    width: 100%; /* Adjust as needed */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
 }
 
 h2, h3 {

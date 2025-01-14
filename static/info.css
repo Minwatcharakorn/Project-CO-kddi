@@ -1,21 +1,6 @@
-/* General Styling */
-html, body {
-    height: auto;
-    margin: 0;
-    padding: 0;
-}
 
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f4f7;
-    display: flex;
-    height: 100%;
-    overflow: auto;
-}
-
-.device-info-container {
-    margin-left: 270px; /* Space for the sidebar */
-    margin-top: 60px; /* Space for the top nav */
+.device-info-container {    
+    margin-top: 10px; /* Space for the top nav */
     background-color: #f8f9fa;
     padding: 20px;
     border-radius: 8px;

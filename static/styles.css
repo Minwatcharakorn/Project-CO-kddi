@@ -1,150 +1,11 @@
 /* Reset Styles */
 * {
-    margin: 0;
-    padding: 0;
+
     box-sizing: border-box;
     font-family: Arial, sans-serif;
 }
 
-/* Body */
-body {
-    display: flex;
-    height: 100vh;
-    overflow-x: hidden;
-}
 
-/* Top Navigation Bar */
-.top-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 50px;
-    background-color: #000000;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    z-index: 10;
-}
-
-.nav-logo {
-    font-size: 1.2rem;
-}
-
-.nav-icons span {
-    margin-left: 15px;
-    cursor: pointer;
-}
-
-.notification-count {
-    background-color: red;
-    border-radius: 50%;
-    padding: 3px 7px;
-    font-size: 0.8rem;
-    color: #fff;
-    position: relative;
-    top: -8px;
-    left: -8px;
-}
-
-/* Sidebar */
-.sidebar {
-    background-color: #2a3b4b; /* Darker modern color */
-    color: #fff;
-    width: 250px;
-    padding-top: 60px;
-    position: fixed;
-    height: 100%;
-}
-
-
-.sidebar-menu {
-    list-style: none;
-    padding: 20px;
-}
-
-.sidebar-item {
-    padding: 15px;
-    font-size: 1rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-}
-
-.sidebar-item:hover {
-    background-color: #3c4b5c; /* Slightly lighter shade on hover */
-    color: #ffffff; /* White text on hover */
-    cursor: pointer;
-}
-
-.sidebar-item.active {
-    background-color: #3c4b5c; /* Highlighted color for active state */
-    color: #fff;
-    cursor: pointer;
-
-}
-
-@media (max-width: 768px) {
-    .sidebar {
-        width: 200px;
-    }
-}
-
-/* Nested Menu Items (Submenu) */
-.submenu {
-    list-style: none;
-    padding-left: 20px;
-    margin-top: 5px;
-    display: none; /* Hide submenu initially */
-    flex-direction: column;
-    gap: 5px;
-    width: auto; /* Ensure submenu items adjust to text length */
-    min-width: 250px; /* Set a reasonable minimum width */
-
-}
-
-.sidebar-item:hover .submenu {
-    display: flex; /* Show submenu on hover */
-}
-
-.submenu li {
-    padding: 10px 20px; /* Add more padding for better spacing */
-    font-size: 0.9rem;
-    background-color: #1a1c23; /* Match sidebar background */
-    border-radius: 4px;
-    color: #b0b3b8;
-    transition: background-color 0.3s ease;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.submenu li:hover {
-    background-color: #2c2f36;
-    color: #fff;
-}
-
-/* Icon Styling for Consistency */
-.sidebar-item span {
-    width: 20px;
-    height: 20px;
-    display: inline-block;
-    text-align: center;
-}
-
-/* Main Content */
-.content {
-    flex: 1;
-    padding: 80px 20px 20px 270px; /* Space for sidebar and top nav */
-    overflow-y: auto;
-    overflow-x: hidden; /* ซ่อน Scrollbar */
-
-}
 
 .content-header {
     display: flex;
@@ -153,6 +14,7 @@ body {
     padding: 20px;
     background-color: #f4f5f7;
     border-bottom: 1px solid #d0d4db;
+    margin-top: 15px;
 }
 
 .content-header h2 {
@@ -245,163 +107,7 @@ tbody tr:hover {
     background-color: #f4f5f7;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .content {
-        padding: 80px 10px 10px 270px;
-    }
-}
 
-@media (max-width: 576px) {
-    .top-nav, .sidebar, .content {
-        padding: 10px;
-    }
-
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        padding: 10px;
-    }
-
-    .content {
-        padding: 80px 10px;
-    }
-}
-
-/* ปรับสไตล์ของ Submenu */
-.sidebar-item.has-submenu .submenu {
-    list-style: none;
-    padding-left: 20px;
-    margin-top: 5px;
-    display: none;
-    flex-direction: column;
-}
-
-.sidebar-item.has-submenu:hover .submenu {
-    display: flex; /* แสดง submenu เมื่อ hover */
-}
-
-.submenu li {
-    padding: 10px 20px;
-    color: #a0aec0;
-    transition: background-color 0.3s;
-}
-
-.submenu li:hover {
-    background-color: #4a5e72;
-    color: #fff;
-}
-
-.sidebar-item {
-    display: block; /* Ensures the entire block is clickable */
-    text-decoration: none; /* Removes underline from the link */
-    padding: 15px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-    color: #FFFFFF; /* Text color */
-}
-
-
-.sidebar-item li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    list-style: none; /* Remove bullet points */
-}
-
-/* Enhanced Dropdown Submenu Styling */
-.submenu {
-    list-style: none;
-    padding: 10px;
-    margin-top: 5px;
-    display: none; /* Hide initially */
-    background-color: #2e3241; /* Subtle, modern background color */
-    border-radius: 8px; /* Rounded corners for a modern look */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow */
-    position: relative; /* Ensure correct alignment */
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-/* Submenu Fade-In Animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Show Submenu on Hover */
-.sidebar-item.has-submenu:hover .submenu {
-    display: flex;
-    flex-direction: column;
-}
-
-/* Submenu Items */
-.submenu li {
-    padding: 10px 15px;
-    background-color: #2e3241;
-    margin: 5px 0;
-    border-radius: 4px; /* Small rounded corners for submenu items */
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.submenu li:hover {
-    background-color: #3b3f4d; /* Highlight item background */
-    color: #ffffff; /* Highlight item text */
-    cursor: pointer;
-}
-
-/* Submenu Links */
-.submenu li a {
-    text-decoration: none; /* Remove underline */
-    color: #b0b3b8; /* Subtle text color */
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Add space between icon and text */
-}
-
-/* Submenu Link Hover */
-.submenu li a:hover {
-    color: #ffffff;
-}
-
-/* Parent Sidebar Item Hover */
-.sidebar-item.has-submenu:hover {
-    background-color: #414760; /* Subtle highlight for parent */
-    border-radius: 5px;
-}
-
-/* Sidebar Item Icon Adjustment */
-.sidebar-item.has-submenu a span {
-    display: inline-block;
-    width: 20px;
-    text-align: center;
-}
-
-.submenu li a {
-    text-decoration: none;
-    color: #b0b3b8; /* Text color */
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Add space between icon and text */
-}
-
-.submenu li a i {
-    font-size: 1rem; /* Adjust icon size */
-    color: #b0b3b8; /* Match text color */
-    transition: color 0.3s;
-}
-
-.submenu li a:hover i {
-    color: #ffffff; /* Change icon color on hover */
-}
 /* CSS for Deploy and Apply buttons */
 .deploy-button, .apply-button {
     background-color: #28a745; /* Green background for emphasis */
@@ -480,35 +186,7 @@ tbody tr:hover {
 .breadcrumb a:last-of-type::after {
     content: "";
 }
-.top-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background-color: #333;
-    color: white;
-}
 
-.nav-info {
-    font-size: 14px;
-    color: #d1d5db; /* Light gray text for better readability */
-
-}
-
-
-.nav-info i {
-    color: #1E90FF; /* Blue for icons to match the theme */
-    margin-right: 5px;
-}
-
-.sidebar-item a i {
-    color: #1E90FF; /* Set icons to blue */
-    transition: color 0.3s ease; /* Smooth color transition */
-}
-
-.sidebar-item a:hover i {
-    color: #00BFFF; /* Brighter blue on hover for a clean effect */
-}
 .commands-container {
     display: flex;
     align-items: center;
