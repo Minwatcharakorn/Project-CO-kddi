@@ -632,8 +632,7 @@ if (interfaceConfigsContainer) {
     });
 }
 
-
-const macInputs = {}; // Object สำหรับเก็บ macInput
+let maxMacCounts = ""; // เก็บค่าคอนฟิกทั้งหมดในรูปแบบ string
 
 // Initialize New Port-Security Configuration
 const portSecurityAddButton = document.getElementById("add-port-security-config");
@@ -656,7 +655,7 @@ if (portSecurityAddButton) {
             <div class="port-security-form-group">
                 <label for="port-security-violation-${newConfigId}">Violation Mode</label>
                 <select id="port-security-violation-${newConfigId}" name="violation-mode" required>
-                    <option value="" style="text-align: center;" selected>Select Violation Mode</option>
+                    <option value="" style="text-align: center;" selected>Select Violation Mode ( Default )</option>
                     <option value="restrict">Restrict</option>
                     <option value="shutdown">Shutdown</option>
                     <option value="protect">Protect</option>
@@ -677,21 +676,15 @@ if (portSecurityAddButton) {
         
                 <div class="port-security-form-group">
                     <label for="max-mac-count-${newConfigId}">Maximum MAC Count</label>
-                    <input 
-                        type="number" 
+                    <select 
                         id="max-mac-count-${newConfigId}" 
                         class="port-security-input" 
-                        placeholder="Enter Maximum Count (e.g., 1 to 4096)" 
-                        min="1" 
-                        max="4096"
+                        name="max-mac-count" 
+                        required
                     >
-                    <div 
-                        class="alert-box error" 
-                        id="max-mac-error-${newConfigId}" 
-                        style="display: none;"
-                    >
-                        <span>ERROR:</span> Maximum MAC Count must be an integer between 1 and 4096.
-                    </div>
+                        <option value="" style="text-align: center;" selected>Select Maximum Count ( Default )</option>
+                        ${Array.from({ length: 30 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+                    </select>
                 </div>
         
                 <div class="port-security-form-group">
@@ -767,9 +760,8 @@ if (portSecurityAddButton) {
         // Handle Adding and Removing MAC Addresses
         const addMacBtn = newConfig.querySelector(`#add-mac-btn-${newConfigId}`);
         const macInput = newConfig.querySelector(`#mac-address-input-${newConfigId}`);
-        const macTableBody = newConfig.querySelector(`#mac-table-body-${newConfigId}`);
-        const maxMacCountInput = newConfig.querySelector(`#max-mac-count-${newConfigId}`);
         const macError = newConfig.querySelector(`#mac-address-error-${newConfigId}`); // กล่องข้อความ Error
+        const maxMacCountInput = newConfig.querySelector(`#max-mac-count-${newConfigId}`);
 
         // Handle MAC Address Validation on Input
         macInput.addEventListener("input", function () {
@@ -793,81 +785,44 @@ if (portSecurityAddButton) {
                 macInput.style.borderColor = "red"; // Highlight input with red border
             }
         });
-        macInputs[newConfigId] = macInput; // เก็บ macInput ไว้ใน Object
-
-    
-        // Handle Max Mac-Address Validation on Input
-        maxMacCountInput.addEventListener("input", function () {
-            const value = this.value.trim();
-            const errorBox = document.getElementById(`max-mac-error-${newConfigId}`);
-            console.log("VALUE Check error:", value); 
-            // ถ้าฟิลด์ว่างเปล่า ให้ซ่อนข้อความแจ้งเตือนและไม่แสดงข้อผิดพลาด
-            if (value === "") {
-                this.style.borderColor = ""; // รีเซ็ตเส้นขอบ
-                errorBox.style.display = "none"; // ซ่อนข้อความแจ้งข้อผิดพลาด
-                return; // จบการตรวจสอบ
-            }
-        
-            // ตรวจสอบว่าค่าเป็นตัวเลขเต็มระหว่าง 1-4096
-            const isValid = /^\d+$/.test(value) && value >= 1 && value <= 4096;
-        
-            if (!isValid) {
-                this.style.borderColor = "red"; // เปลี่ยนเส้นขอบเป็นสีแดง
-                errorBox.style.display = "block"; // แสดงข้อความแจ้งข้อผิดพลาด
-            } else {
-                this.style.borderColor = ""; // รีเซ็ตเส้นขอบ
-                errorBox.style.display = "none"; // ซ่อนข้อความแจ้งข้อผิดพลาด
-            }
-        });
     
         // Add Event Listener for Add Button
         addMacBtn.addEventListener("click", function (event) {
-            event.preventDefault(); // ป้องกันการรีเฟรชหน้า
-
+            event.preventDefault(); // Prevent page refresh
+        
             const macValue = macInput.value.trim();
-
-            // Regular Expression for MAC Address (e.g., XX:XX:XX:XX:XX:XX)
             const macPattern = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
-
-            // ตรวจสอบรูปแบบ MAC Address ก่อน
+            const maxMacCount = Math.min(Math.max(parseInt(maxMacCountInput.value || "1", 10), 1), 30);
+            const macTableBody = document.querySelector(`#mac-table-body-${newConfigId}`);
+            const currentMacCount = macTableBody.querySelectorAll("tr").length;
+        
             if (!macPattern.test(macValue)) {
                 macError.style.display = "block";
                 macError.innerHTML = `<span>ERROR:</span> Invalid MAC address format. Please use the format XX:XX:XX:XX:XX:XX.`;
-                macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
-                return; // หยุดการทำงาน
+                macInput.style.borderColor = "red";
+                return;
             }
-
-            // ตรวจสอบจำนวน MAC Address ใน Table
-            const macTableBody = document.querySelector(`#mac-table-body-${newConfigId}`);
-            const currentMacCount = macTableBody.querySelectorAll("tr").length;
-
-            // รับค่า Maximum MAC Count
-            const maxMacCount = parseInt(maxMacCountInput.value, 10) || 1;
-
-            // ตรวจสอบเงื่อนไขจำนวน MAC Address
+        
             if (currentMacCount >= maxMacCount) {
                 macError.style.display = "block";
                 macError.innerHTML = `<span>ERROR:</span> You can only add up to ${maxMacCount} MAC Address(es).`;
-                macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
-                return; // หยุดการทำงาน
+                macInput.style.borderColor = "red";
+                return;
             }
-
-            // ตรวจสอบว่า MAC Address ซ้ำหรือไม่
+        
             const existingMacs = Array.from(macTableBody.querySelectorAll("td:first-child")).map(
                 (cell) => cell.textContent.trim()
             );
             if (existingMacs.includes(macValue)) {
                 macError.style.display = "block";
                 macError.innerHTML = `<span>ERROR:</span> This MAC address already exists.`;
-                macInput.style.borderColor = "red"; // ไฮไลต์ Input ด้วยสีแดง
-                return; // หยุดการทำงาน
+                macInput.style.borderColor = "red";
+                return;
             }
-
-            // ถ้าไม่มีข้อผิดพลาดใดๆ
-            macError.style.display = "none"; // ซ่อนข้อความ Error
-            macInput.style.borderColor = ""; // รีเซ็ตเส้นขอบ
-
-            // เพิ่ม MAC Address ลงใน Table
+        
+            macError.style.display = "none";
+            macInput.style.borderColor = "";
+        
             const newRow = document.createElement("tr");
             newRow.innerHTML = `
                 <td>${macValue}</td>
@@ -876,13 +831,10 @@ if (portSecurityAddButton) {
                 </td>
             `;
             macTableBody.appendChild(newRow);
-
-            // ล้างช่อง Input
             macInput.value = "";
-
-            // ผูก Event Listener สำหรับปุ่ม Remove
+        
             newRow.querySelector(".remove-mac-btn").addEventListener("click", function () {
-                newRow.remove(); // ลบแถวออก
+                newRow.remove();
             });
         });
         
@@ -898,8 +850,6 @@ if (portSecurityAddButton) {
         });
     });
 }
-
-console.log("Test MAC Iput : ",macInputs); // แสดงรายการ macInput ที่สร้างขึ้นทั้งหมด
 
 
 // Trigger real-time updates for existing configurations
@@ -1760,49 +1710,41 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
                     configData += ` switchport access vlan ${vlanIdInput.value.trim()}\n`;
                 }
     
+                // Handle Port-Security Forms ที่เกี่ยวข้อง
                 const portSecurityForms = document.querySelectorAll('.port-security-config');
                 portSecurityForms.forEach(securityForm => {
                     const securityPortSelect = securityForm.querySelector('.interface-port-select');
-                    const maxMacCount = securityForm.querySelector('input[name="max-mac-count"]')?.value.trim();
                     const stickyMacEnabled = securityForm.querySelector('input[type="checkbox"]').checked;
                     const violationMode = securityForm.querySelector('select[name="violation-mode"]')?.value.trim();
                     const macTableRows = securityForm.querySelectorAll('.mac-address-table tbody tr');
-            
-                    if (securityPortSelect && securityPortSelect.selectedOptions.length > 0) {
-                        const selectedPorts = Array.from(securityPortSelect.selectedOptions).map(option => option.value);
-                        selectedPorts.forEach(port => {
-                            configData += `interface ${port}\n switchport port-security\n`;
-            
-                            // Add Maximum MAC Count
-                            if (maxMacCount && parseInt(maxMacCount, 10) >= 1 && parseInt(maxMacCount, 10) <= 4096) {
-                                configData += ` switchport port-security maximum ${maxMacCount}\n`;
+                    const maxMacCount = securityForm.querySelector('select[name="max-mac-count"]')?.value.trim(); // Updated to select
+                    
+                    if (securityPortSelect && Array.from(securityPortSelect.selectedOptions).map(option => option.value).includes(port)) {
+                        // เพิ่มคำสั่ง switchport port-security
+                        configData += ` switchport port-security\n`;
+                        // เพิ่มค่า Maximum MAC Count ที่เจาะจงสำหรับพอร์ตนี้
+                        if (maxMacCount && /^\d+$/.test(maxMacCount)) {
+                            configData += ` switchport port-security maximum ${maxMacCount}\n`;
+                        }
+    
+                        // Handle Sticky MAC
+                        if (stickyMacEnabled) {
+                            configData += ` switchport port-security mac-address sticky\n`;
+                        }
+    
+                        // เพิ่ม MAC Address
+                        macTableRows.forEach(row => {
+                            const macAddress = row.querySelector('td:first-child').textContent.trim();
+                            if (macAddress) {
+                                const formattedMac = macAddress.replace(/[:-]/g, "").replace(/(.{4})/g, "$1.").slice(0, -1);
+                                configData += ` switchport port-security mac-address ${formattedMac}\n`;
                             }
-            
-                            // Handle Sticky MAC Mode
-                            if (stickyMacEnabled) {
-                                configData += ` switchport port-security mac-address sticky\n`;
-            
-                                // Clear all manually added MAC addresses
-                                macTableRows.forEach(row => {
-                                    row.remove(); // Remove the row from the DOM
-                                });
-                            } else {
-                                // Add manually entered MAC addresses
-                                macTableRows.forEach(row => {
-                                    const macAddress = row.querySelector('td:first-child').textContent.trim();
-                                    if (macAddress) {
-                                        const formattedMac = macAddress.replace(/[:-]/g, "").replace(/(.{4})/g, "$1.").slice(0, -1);
-                                        configData += ` switchport port-security mac-address ${formattedMac}\n`;
-                                    }
-                                });
-                            }
-            
-                            // Add Violation Mode
-                            if (violationMode) {
-                                configData += ` switchport port-security violation ${violationMode}\n`;
-                            }
-            
                         });
+    
+                        // เพิ่ม Violation Mode
+                        if (violationMode) {
+                            configData += ` switchport port-security violation ${violationMode}\n`;
+                        }
                     }
                 });
     
