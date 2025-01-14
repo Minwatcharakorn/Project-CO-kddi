@@ -932,7 +932,7 @@ ssh_sessions = {}
 
 @app.route('/api/cli', methods=['POST'])
 def cli_terminal():
-    """Maintain a single SSH session and wait for prompt before sending commands."""
+    """Maintain a single SSH session and handle CLI commands."""
     data = request.json
     ip = data.get('ip')
     command = data.get('command')
@@ -943,7 +943,7 @@ def cli_terminal():
         return jsonify({"error": "IP address and command are required"}), 400
 
     try:
-        # Check and create SSH session if not exists
+        # เช็คว่า SSH session มีอยู่หรือไม่ ถ้าไม่มีให้สร้างใหม่
         if ip not in ssh_sessions or not ssh_sessions[ip]['channel'].get_transport().is_active():
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -952,12 +952,12 @@ def cli_terminal():
             channel = ssh.invoke_shell()
             ssh_sessions[ip] = {'ssh': ssh, 'channel': channel}
 
-            # Clear initial prompt
+            # ล้าง prompt เริ่มต้น
             while not channel.recv_ready():
                 pass
-            channel.recv(1024)
+            channel.recv(104857600)
 
-        # Send the command and handle `--More--`
+        # ส่งคำสั่ง CLI
         channel = ssh_sessions[ip]['channel']
         channel.send(f"{command}\n")
         output = ""
@@ -965,16 +965,16 @@ def cli_terminal():
         while True:
             while not channel.recv_ready():
                 pass
-            chunk = channel.recv(1024).decode('utf-8')
+            chunk = channel.recv(104857600).decode('utf-8')
             output += chunk
 
-            # Check for 'More' prompt and send space to continue
+            # ตรวจสอบข้อความ `--More--` แล้วส่ง space bar เพื่อดำเนินการต่อ
             if "--More--" in chunk:
-                channel.send(" ")  # Send space to continue output
+                channel.send(" ")  # ส่ง space bar
             else:
                 break
 
-        # Remove echoed command and clean output
+        # ล้างคำสั่งที่ echo กลับมาใน output
         clean_output = "\n".join(line for line in output.splitlines() if command not in line)
         return jsonify({"output": clean_output.strip()}), 200
 

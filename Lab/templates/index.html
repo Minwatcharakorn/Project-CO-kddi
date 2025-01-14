@@ -2,45 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SSH Async Terminal</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive SSH Terminal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/4.16.0/xterm.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/4.16.0/xterm.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #000; color: #fff; }
+        #terminal { width: 100%; height: 500px; border: 1px solid #333; margin-top: 20px; }
+    </style>
 </head>
 <body>
-    <h1>SSH Terminal</h1>
-    <div>
-        <label>Host: <input id="hostname" type="text" value="192.168.100.114"></label>
-        <label>Port: <input id="port" type="number" value="22"></label>
-        <label>Username: <input id="username" type="text" value="admin"></label>
-        <label>Password: <input id="password" type="password"></label>
-        <button onclick="connectSSH()">Connect</button>
-    </div>
-    <div>
-        <textarea id="terminal" rows="20" cols="100" readonly></textarea><br>
-        <input id="command" type="text" placeholder="Enter command">
-        <button onclick="sendCommand()">Send</button>
-    </div>
+    <h1 style="color: #fff;">Interactive SSH Terminal</h1>
+    <div id="terminal"></div>
+
     <script>
-        const socket = io.connect();
-        const terminal = document.getElementById('terminal');
+        const socket = io();
+        const term = new Terminal({
+            theme: { background: '#000', foreground: '#fff' },
+            cursorBlink: true,
+        });
+        term.open(document.getElementById('terminal'));
 
-        function connectSSH() {
-            const hostname = document.getElementById('hostname').value;
-            const port = document.getElementById('port').value;
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+        term.writeln("Connecting to the SSH device...");
+        socket.emit('connect_to_device');
 
-            socket.emit('connect_ssh', {hostname, port, username, password});
-        }
+        term.onData(data => {
+            if (data === '\t') {
+                // Handle Tab key explicitly
+                socket.emit('send_command', { command: '\t' });
+            } else {
+                // Handle other keys normally
+                socket.emit('send_command', { command: data });
+            }
+        });
 
-        function sendCommand() {
-            const command = document.getElementById('command').value;
-            terminal.value += `> ${command}\n`;
-            socket.emit('send_command', {command});
-        }
+        socket.on('output', data => {
+            term.write(data);
+        });
 
-        socket.on('output', (data) => {
-            terminal.value += data.data;
-            terminal.scrollTop = terminal.scrollHeight;  // Auto-scroll
+        socket.on('connect', () => {
+            term.writeln("\nConnected to the server.");
+        });
+
+        socket.on('disconnect', () => {
+            term.writeln("\nDisconnected from the server.");
         });
     </script>
 </body>
