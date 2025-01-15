@@ -263,6 +263,12 @@
                 document.getElementById("mySidebar").style.display = "none";
                 document.getElementById("openNav").style.display = "inline-block";
             }
+            document.addEventListener("DOMContentLoaded", function () {
+            const container = document.querySelector('.w3-container');
+            if (container) {
+                container.style.overflow = "hidden"; // Disable scrolling
+            }
+        });
         </script>
 </body>
 </html>

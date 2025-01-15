@@ -254,5 +254,56 @@
             }
         });
     </script>
+    <script>
+function updateSidebarForResponsive() {
+    const sidebar = document.querySelector('.w3-sidebar'); // Update selector
+    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+    if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
+        sidebar.style.width = '60px'; // Slimmer sidebar
+        sidebarItems.forEach(item => {
+            const icon = item.querySelector('i'); // Find the icon
+            const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
+
+            if (icon) {
+                item.style.justifyContent = 'center'; // Center icons
+                item.style.gap = '0'; // Remove gap between text and icons
+                textNodes.forEach(node => node.textContent = ''); // Remove text
+            }
+        });
+    } else {
+        sidebar.style.width = '250px'; // Default sidebar width for larger screens
+        sidebarItems.forEach(item => {
+            const originalText = item.getAttribute('data-original-text');
+            if (originalText) {
+                // Restore the original text and gap
+                const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
+                item.innerHTML = `${iconHTML} ${originalText}`;
+                item.style.justifyContent = 'flex-start';
+            }
+        });
+    }
+}
+
+// Store original text for restoration
+document.addEventListener('DOMContentLoaded', () => {
+    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+    sidebarItems.forEach(item => {
+        const textContent = Array.from(item.childNodes)
+            .filter(node => node.nodeType === 3) // Only text nodes
+            .map(node => node.textContent.trim()) // Trim whitespace
+            .join(' '); // Combine text nodes into one string
+
+        if (textContent) {
+            item.setAttribute('data-original-text', textContent); // Store original text
+        }
+    });
+
+    // Apply responsiveness on load and resize
+    updateSidebarForResponsive();
+    window.addEventListener('resize', updateSidebarForResponsive);
+});
+    </script>
 </body>
 </html>

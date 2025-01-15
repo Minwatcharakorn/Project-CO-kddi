@@ -66,6 +66,7 @@ body {
     margin: auto; /* Ensure the container is centered */
     padding: 30px 20px; /* Adjust padding for better spacing */
     text-align: center;
+    margin-right: 50px;
 }
 
 .password-container {
@@ -86,11 +87,10 @@ body {
 
 .username-container input,
 .password-container input {
-    width: 100%; /* Ensure full width */
-    max-width: 350px; /* Limit the maximum width */
-    padding: 12px; /* Consistent padding */
+    width: 100%;
+    padding: 10px 40px 10px 10px; /* Add right padding for the icon */
     border: 1px solid #ccc;
-    border-radius: 10px; /* Rounded corners */
+    border-radius: 10px;
     font-size: 16px;
     box-sizing: border-box; /* Include padding and border in the width */
 }
@@ -102,12 +102,13 @@ body {
 
 .password-container i {
     position: absolute;
-    right: 20px;
     top: 50%;
+    right: 10px; /* Align icon to the right */
     transform: translateY(-50%);
     cursor: pointer;
-    font-size: 1.2em;
+    font-size: 16px; /* Adjust font size for better appearance */
     color: #333;
+    transition: color 0.3s ease; /* Add hover effect */
 }
 
 .username-container {
@@ -120,7 +121,6 @@ body {
 
 .username-container input {
     width: 100%;
-    max-width: 350px;
     padding: 12px;
     border: 1px solid #ccc;
     border-radius: 10px;
@@ -138,7 +138,7 @@ body {
 }
 
 .range-container input {
-    width: 150px;
+    width: calc(50% - 5px); /* Ensure equal width for Start IP and End IP */
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 10px;
@@ -158,7 +158,7 @@ body {
 }
 
 .single-ip-container input {
-    width: 300px;
+    width: calc(50% - 5px); /* Ensure equal width for Start IP and End IP */
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 10px;
@@ -328,6 +328,62 @@ input:focus::placeholder {
 
     .loginssh-container {
         max-width: 300px;
+        margin: auto;
+
+    }
+
+    .dashboard-button-top {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .buttons button {
+        font-size: 14;
+        padding: 8px 16px;
+    }
+
+    /* Adjusted Input Styles */
+    .range-container input, 
+    .single-ip-container input {
+        width: 100%; /* Ensures the inputs take up full width on smaller screens */
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        font-size: 14px; /* Reduced font size for better alignment */
+        transition: border-color 0.3s ease-in-out;
+    }
+
+    .range-container input:focus,
+    .single-ip-container input:focus {
+        outline: none;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 740px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .info-section, .login-section {
+        flex: none;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .info-section h1 {
+        font-size: 20px;
+    }
+
+    .info-section p {
+        font-size: 14px;
+    }
+
+    .loginssh-container {
+        max-width: 300px;
+        margin-left: -20px;
+
     }
 
     .dashboard-button-top {
@@ -401,7 +457,70 @@ input:focus::placeholder {
         font-size: 13px;
         padding: 8px;
     }
+    .password-container input {
+        padding: 8px 36px 8px 8px; /* Adjust padding for smaller screens */
+        font-size: 14px;
+    }
+
+    .password-container i {
+        font-size: 14px;
+    }
 }
+
+/* Responsive Design */
+@media (max-width: 914px    ) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .info-section, .login-section {
+        flex: none;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .info-section h1 {
+        font-size: 20px;
+    }
+
+    .info-section p {
+        font-size: 14px;
+    }
+
+    .loginssh-container {
+        max-width: 300px;
+        margin-left: -1px ;
+
+    }
+
+    .dashboard-button-top {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .buttons button {
+        font-size: 14;
+        padding: 8px 16px;
+    }
+
+    /* Adjusted Input Styles */
+    .range-container input, 
+    .single-ip-container input {
+        width: 100%; /* Ensures the inputs take up full width on smaller screens */
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        font-size: 14px; /* Reduced font size for better alignment */
+        transition: border-color 0.3s ease-in-out;
+    }
+
+    .range-container input:focus,
+    .single-ip-container input:focus {
+        outline: none;
+    }
+}
+
 
 @media (max-width: 480px) {
     .info-section h1 {
@@ -414,6 +533,42 @@ input:focus::placeholder {
 
     .loginssh-container {
         padding: 15px;
+    }
+
+    .buttons button {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    .dashboard-button-top {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    .range-container input, 
+    .single-ip-container input {
+        width: 100%;
+        font-size: 12px;
+        padding: 6px;
+    }
+}
+
+
+@media (max-width: 882px) {
+    .info-section h1 {
+        font-size: 18px;
+    }
+
+    .info-section p {
+        font-size: 12px;
+    }
+
+    .loginssh-container {
+        margin-top: 5px;
+        padding: 15px;
+        margin-right: 35px;
+        font-size: 12px;
+
     }
 
     .buttons button {
