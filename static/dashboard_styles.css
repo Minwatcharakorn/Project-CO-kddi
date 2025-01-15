@@ -1,66 +1,6 @@
 
 
-/* Table Styling */
-.table-container {
-    width: 100%;
-    overflow-x: auto; /* Allow horizontal scrolling for smaller screens */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-}
 
-table {
-    width: 100%;
-    border-collapse: collapse; /* Remove extra spacing */
-    margin-bottom: 20px;
-}
-
-thead {
-    background-color: #f4f5f7; /* Light background for the header */
-}
-
-th, td {
-    text-align: left;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-}
-
-/* Responsive Table for Smaller Devices */
-@media (max-width: 768px) {
-    table {
-        display: block; /* Make the table block-level */
-    }
-    thead {
-        display: none; /* Hide the header row */
-    }
-    tbody tr {
-        display: block; /* Make each row block-level */
-        margin-bottom: 10px;
-        border: 1px solid #ddd; /* Add a border for clarity */
-        border-radius: 8px; /* Rounded corners */
-    }
-    tbody tr td {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px;
-    }
-    tbody tr td:before {
-        content: attr(data-label); /* Add labels using data-label attributes */
-        font-weight: bold;
-        flex-basis: 40%; /* Adjust label width */
-        text-align: left;
-        color: #333;
-    }
-    tbody tr td:last-child {
-        text-align: center; /* Center actions for buttons */
-    }
-}
-
-/* Responsive for Medium Devices (iPads and Larger Phones) */
-@media (max-width: 1024px) {
-    th, td {
-        font-size: 14px; /* Adjust font size */
-        padding: 8px;
-    }
-}
 
 .info-icon {
     text-decoration: none; 
