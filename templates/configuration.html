@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Switch Management Configuration - Dashboard</title>
+        <title>Create Configuration Templates</title>
         
         <!-- Main Styles -->
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
@@ -26,6 +26,7 @@
 
     </head>
     <style>
+        
         .w3-teal {
             background-color: #0c1148 !important; /* เปลี่ยนเป็นสีเขียวเข้ม */
             color: white !important; /* เปลี่ยนสีข้อความ */
@@ -96,6 +97,13 @@
         .w3-sidebar .w3-bar-item.active i {
             color: #ffffff;
         }
+        .w3-container {
+            overflow: hidden; /* Prevent scrolling */
+            overflow-y: hidden;
+            overflow-x: hidden;
+            height: 100%; /* Prevent content from exceeding viewport */
+        }
+
     </style>
 <body>
     <!-- Sidebar -->
@@ -113,12 +121,12 @@
         <div class="w3-teal">
             <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
             <div class="w3-container">
-                <div class="nav-logo">
+                <div class="nav-logo" style="overflow: hidden;">
                     <a href="/dashboard" style="color: white; text-decoration: none;">
                         <i class="fas fa-network-wired" style="color: #1E90FF; margin-right: 10px;"></i> Cisco Automation
                     </a>
                 </div>
-                <div class="nav-info" >
+                <div class="nav-info" style="overflow: hidden;">
                     <span style="margin-right: 20px;" >
                         <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i> 
                         Username: <span id="username">{{ session.get('username', 'N/A') }}</span>
@@ -144,6 +152,7 @@
                 </div>
             </div>
         </div>
+
         <!-- Main Content -->
         <div class="w3-container">
             <div class="content-header">
@@ -390,6 +399,7 @@
                 </button>
             </div>
         </div>
+        <br>
 
         <!-- Modal Preview Template -->
         <div id="preview-configuration-template" class="preview-modal">
@@ -419,6 +429,13 @@
             document.getElementById("mySidebar").style.display = "none";
             document.getElementById("openNav").style.display = "inline-block";
         }
+        
+        document.addEventListener("DOMContentLoaded", function () {
+            const container = document.querySelector('.w3-container');
+            if (container) {
+                container.style.overflow = "hidden"; // Disable scrolling
+            }
+        });
     </script>
 </body>
 </html>

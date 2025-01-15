@@ -1,5 +1,4 @@
 
-
 /* Error Styling */
 .input-error {
     border: 2px solid #ff0000; /* Red border for error */
@@ -22,7 +21,7 @@
     background-color: #f9f9f9;
     width: 100%; /* Adjust as needed */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
+    overflow: hidden;
 }
 
 h2, h3 {
@@ -1317,4 +1316,36 @@ margin-top: 20px;
     border-radius: 4px; /* Rounded corners */
     font-size: 14px; /* Readable font size */
     box-sizing: border-box; /* Include padding and border in width */
+}
+
+.select2-container--default .select2-selection--multiple {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    margin: 2px;
+    padding: 4px 8px;
+    font-size: 13px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: white;
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice:hover {
+    background-color: #c2e0ff; /* A softer blue */
+    color: white; /* Ensure the text is readable */
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow for hover effect */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
 }

@@ -81,6 +81,12 @@
     .w3-sidebar .w3-bar-item.active i {
         color: #ffffff;
     }
+    .w3-container {
+            overflow: hidden; /* Prevent scrolling */
+            overflow-y: hidden;
+            overflow-x: hidden;
+            height: 100%; /* Prevent content from exceeding viewport */
+        }
 </style>
 <body>
     <!-- Sidebar -->
@@ -215,6 +221,12 @@
     <script>
         document.getElementById('next-button').addEventListener('click', function() {
             window.location.href = "template_selection.html";
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const container = document.querySelector('.w3-container');
+            if (container) {
+                container.style.overflow = "hidden"; // Disable scrolling
+            }
         });
     </script>
          <script>

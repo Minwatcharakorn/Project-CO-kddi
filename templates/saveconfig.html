@@ -93,6 +93,12 @@
     .w3-sidebar .w3-bar-item.active i {
         color: #ffffff;
     }
+    .w3-container {
+            overflow: hidden; /* Prevent scrolling */
+            overflow-y: hidden;
+            overflow-x: hidden;
+            height: 100%; /* Prevent content from exceeding viewport */
+        }
 </style>
 <body>
     <!-- Sidebar -->
@@ -106,6 +112,7 @@
         <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
         <a href="/logging" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
     </div>
+    
     <div id="main">
         <div class="w3-teal">
             <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
@@ -141,91 +148,91 @@
                 </div>
             </div>
         </div>
-    <!-- Main Content -->
-    <div class="w3-container">
-        <div class="content-header">
-            <h2><i class="fa-solid fa-laptop-code" style="color: #1E90FF;"></i> Save Configuration</h2>  
-            <div>
-                <button id="apply-button" class="apply-button">Apply</button>
+        <!-- Main Content -->
+        <div class="w3-container">
+            <div class="content-header">
+                <h2><i class="fa-solid fa-laptop-code" style="color: #1E90FF;"></i> Save Configuration</h2>  
+                <div>
+                    <button id="apply-button" class="apply-button">Apply</button>
+                </div>
+            </div>
+
+            <div class="content-body">
+                <label for="command-select"><strong>Select Command</strong></label>
+                <select id="command-select" multiple="multiple" style="width: 600px;">
+                    <option value="show running-config">Show Running Config</option>
+                    <option value="show vlan brief">Show VLAN Brief</option>
+                    <option value="show ip interface brief">Show IP Interface Brief</option>
+                    <option value="show interfaces status">Show Interfaces Status</option>
+                    <option value="show interfaces description">Show Interfaces Description</option>
+                    <option value="show spanning-tree summary">Show Spanning Tree Summary</option>
+                    <option value="show etherchannel summary">Show EtherChannel Summary</option>
+                </select>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="select-all"></th>
+                                <th>Model</th>
+                                <th>Serial No./Token</th>
+                                <th>Hostname</th>
+                                <th>IP</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for switch in switches %}
+                            <tr>
+                                <td><input type="checkbox" class="device-checkbox"></td>
+                                <td>{{ switch.model }}</td>
+                                <td>{{ switch.serial }}</td>
+                                <td>{{ switch.hostname }}</td>
+                                <td>{{ switch.ip }}</td>
+                                <td>{{ switch.status }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <div class="content-body">
-            <label for="command-select"><strong>Select Command</strong></label>
-            <select id="command-select" multiple="multiple" style="width: 600px;">
-                <option value="show running-config">Show Running Config</option>
-                <option value="show vlan brief">Show VLAN Brief</option>
-                <option value="show ip interface brief">Show IP Interface Brief</option>
-                <option value="show interfaces status">Show Interfaces Status</option>
-                <option value="show interfaces description">Show Interfaces Description</option>
-                <option value="show spanning-tree summary">Show Spanning Tree Summary</option>
-                <option value="show etherchannel summary">Show EtherChannel Summary</option>
-            </select>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th><input type="checkbox" id="select-all"></th>
-                            <th>Model</th>
-                            <th>Serial No./Token</th>
-                            <th>Hostname</th>
-                            <th>IP</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for switch in switches %}
-                        <tr>
-                            <td><input type="checkbox" class="device-checkbox"></td>
-                            <td>{{ switch.model }}</td>
-                            <td>{{ switch.serial }}</td>
-                            <td>{{ switch.hostname }}</td>
-                            <td>{{ switch.ip }}</td>
-                            <td>{{ switch.status }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <div id="modalOverlay"></div>
+
+        <!-- Preview Modal -->
+        <div id="previewModal" class="output-modal">
+            <span class="close-btn" onclick="$('#previewModal').fadeOut();">&times;</span>
+            <div class="output-modal-header">
+                Output Preview
+            </div>
+            <div class="output-modal-content">
+                <pre id="outputPreview">Loading...</pre>
+            </div>
+            <div class="output-modal-footer">
+                <button id="downloadOutput">Download</button>
+            </div>
+        </div>
+
+
+        <!-- Error Modal -->
+        <div id="errorModal" class="modal">
+            <div class="error-modal-content">
+                <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+                <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;"></p>
+                <p style="color: #555;"></p>
+                <br>
+                <button id="closeErrorModal" class="error-modal-button">OK</button>
+            </div>
+        </div>
+
+        <!-- Loading Modal -->
+        <div id="loadingModal" class="modal" style="z-index: 1050;">
+            <div class="modal-content">
+                <div class="loading-spinner"></div>
+                <p>Loading</p>
             </div>
         </div>
     </div>
-
-    <div id="modalOverlay"></div>
-
-    <!-- Preview Modal -->
-    <div id="previewModal" class="output-modal">
-        <span class="close-btn" onclick="$('#previewModal').fadeOut();">&times;</span>
-        <div class="output-modal-header">
-            Output Preview
-        </div>
-        <div class="output-modal-content">
-            <pre id="outputPreview">Loading...</pre>
-        </div>
-        <div class="output-modal-footer">
-            <button id="downloadOutput">Download</button>
-        </div>
-    </div>
-
-
-    <!-- Error Modal -->
-    <div id="errorModal" class="modal">
-        <div class="error-modal-content">
-            <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
-            <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;"></p>
-            <p style="color: #555;"></p>
-            <br>
-            <button id="closeErrorModal" class="error-modal-button">OK</button>
-        </div>
-    </div>
-
-    <!-- Loading Modal -->
-    <div id="loadingModal" class="modal" style="z-index: 1050;">
-        <div class="modal-content">
-            <div class="loading-spinner"></div>
-            <p>Loading</p>
-        </div>
-    </div>
-
     <script src="../static/js/saveconfig.js"></script>
     <script>
         function w3_open() {
@@ -240,6 +247,12 @@
             document.getElementById("mySidebar").style.display = "none";
             document.getElementById("openNav").style.display = "inline-block";
         }
+        document.addEventListener("DOMContentLoaded", function () {
+            const container = document.querySelector('.w3-container');
+            if (container) {
+                container.style.overflow = "hidden"; // Disable scrolling
+            }
+        });
     </script>
 </body>
 </html>

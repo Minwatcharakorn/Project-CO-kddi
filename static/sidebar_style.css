@@ -134,6 +134,9 @@
     margin-right: 20px; /* Space from the right edge */
     margin-left: 5px;
     margin-bottom: 10px; /* Space from the bottom edge */
+    overflow: hidden;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 .nav-info span {
@@ -173,6 +176,16 @@
     align-items: center; /* Center vertically */
     gap: 10px; /* Add space between icon and text */
     margin-top: 10px;
+    overflow: hidden;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+
+.nav-info span, .nav-info a {
+    max-width: 100%; /* Restrict maximum width */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis for clipped text */
 }
 
 .nav-logo i {
