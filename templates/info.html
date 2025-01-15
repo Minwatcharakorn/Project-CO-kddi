@@ -85,6 +85,12 @@
     .w3-sidebar .w3-bar-item.active i {
         color: #ffffff;
     }
+    .w3-container {
+            overflow: hidden; /* Prevent scrolling */
+            overflow-y: hidden;
+            overflow-x: hidden;
+            height: 100%; /* Prevent content from exceeding viewport */
+        }
 </style>
 <body>
 
@@ -182,15 +188,12 @@
                     <div class="chart-container">
                         <div class="chart-item">
                             <canvas id="cpuChart"></canvas>
-                            <p id="cpuPercent">--%</p>
                         </div>
                         <div class="chart-item">
                             <canvas id="memoryChart"></canvas>
-                            <p id="memoryPercent">--%</p>
                         </div>
                         <div class="chart-item">
                             <canvas id="temperatureChart"></canvas>
-                            <p id="temperatureValue">--°C</p>
                         </div>
                     </div>
 
@@ -243,6 +246,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
     <script src="../static/js/Info.js"></script>
     <script>
         function switchSelectionChanged() {
@@ -252,8 +257,8 @@
     </script>
         <script>
             function w3_open() {
-                document.getElementById("main").style.marginLeft = "250px"; /* Match sidebar width */
-                document.getElementById("mySidebar").style.width = "250px"; /* Sidebar width */
+                document.getElementById("main").style.marginLeft = "25%";
+                document.getElementById("mySidebar").style.width = "25%";
                 document.getElementById("mySidebar").style.display = "block";
                 document.getElementById("openNav").style.display = 'none';
             }
@@ -269,6 +274,57 @@
                 container.style.overflow = "hidden"; // Disable scrolling
             }
         });
-        </script>
+    </script>
+    <script>
+        function updateSidebarForResponsive() {
+            const sidebar = document.querySelector('.w3-sidebar'); // Update selector
+            const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+            if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
+                sidebar.style.width = '50px'; // Slimmer sidebar
+                sidebarItems.forEach(item => {
+                    const icon = item.querySelector('i'); // Find the icon
+                    const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
+
+                    if (icon) {
+                        item.style.justifyContent = 'center'; // Center icons
+                        item.style.gap = '0'; // Remove gap between text and icons
+                        textNodes.forEach(node => node.textContent = ''); // Remove text
+                    }
+                });
+            } else {
+                sidebar.style.width = '250px'; // Default sidebar width for larger screens
+                sidebarItems.forEach(item => {
+                    const originalText = item.getAttribute('data-original-text');
+                    if (originalText) {
+                        // Restore the original text and gap
+                        const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
+                        item.innerHTML = `${iconHTML} ${originalText}`;
+                        item.style.justifyContent = 'flex-start';
+                    }
+                });
+            }
+        }
+
+        // Store original text for restoration
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+            sidebarItems.forEach(item => {
+                const textContent = Array.from(item.childNodes)
+                    .filter(node => node.nodeType === 3) // Only text nodes
+                    .map(node => node.textContent.trim()) // Trim whitespace
+                    .join(' '); // Combine text nodes into one string
+
+                if (textContent) {
+                    item.setAttribute('data-original-text', textContent); // Store original text
+                }
+            });
+
+            // Apply responsiveness on load and resize
+            updateSidebarForResponsive();
+            window.addEventListener('resize', updateSidebarForResponsive);
+        });
+    </script>
 </body>
 </html>

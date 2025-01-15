@@ -120,8 +120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const memoryUsage = data.memory_usage || 0;
         const temperature = data.temperature || 0;
 
-        // Create individual charts
-        const createChart = (ctx, label, value, color) => {
+        const createChart = (ctx, label, value, color, yAxisLabel = 'Percentage') => {
             new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -136,31 +135,68 @@ document.addEventListener("DOMContentLoaded", async () => {
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: 100,
+                            max: yAxisLabel === 'Celsius' ? 100 : 100, // Adjust max for Celsius
                             title: {
                                 display: true,
-                                text: 'Percentage'
+                                text: yAxisLabel // Use Celsius for Temperature
                             }
                         }
                     },
                     plugins: {
                         legend: { display: false },
-                        tooltip: { enabled: false }
+                        tooltip: { enabled: false },
+                        datalabels: {
+                            display: true,
+                            color: '#000',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            },
+                            formatter: (value) => yAxisLabel === 'Celsius' ? `${value}°C` : `${value}%`,
+                            anchor: 'end',
+                            align: 'end',
+                        }
                     }
-                }
+                },
+                plugins: [
+                    ChartDataLabels,
+                    {
+                        id: 'insideLabel',
+                        beforeDatasetsDraw(chart) {
+                            const ctx = chart.ctx;
+                            chart.data.datasets.forEach((dataset, i) => {
+                                const meta = chart.getDatasetMeta(i);
+                                meta.data.forEach((bar, index) => {
+                                    const value = dataset.data[index];
+                                    ctx.save();
+                                    ctx.font = 'bold 12px Arial';
+                                    ctx.fillStyle = '#fff'; // White text inside the bar
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'middle';
+                                    ctx.fillText(yAxisLabel === 'Celsius' ? `${value}°C` : `${value}%`, bar.x, bar.y + (bar.height / 2));
+                                    ctx.restore();
+                                });
+                            });
+                        }
+                    }
+                ]
             });
         };
 
         createChart(document.getElementById('cpuChart'), 'CPU Usage', cpuUsage, 'rgba(50, 205, 50, 0.7)');
         createChart(document.getElementById('memoryChart'), 'Memory Usage', memoryUsage, 'rgba(54, 162, 235, 0.6)');
-        createChart(document.getElementById('temperatureChart'), 'Temperature', temperature, 'rgba(255, 99, 71, 0.7)');
-
-        document.getElementById('cpuPercent').innerText = `${cpuUsage}%`;
-        document.getElementById('memoryPercent').innerText = `${memoryUsage}%`;
-        document.getElementById('temperatureValue').innerText = `${temperature}°C`;
+        // createChart(document.getElementById('temperatureChart'), 'Temperature', temperature, 'rgba(255, 99, 71, 0.7)');
+        createChart(
+            document.getElementById('temperatureChart'),
+            'Temperature',
+            temperature,
+            'rgba(255, 99, 71, 0.7)',
+            'Celsius' // Set the Y-axis label to Celsius
+        );
 
     } catch (error) {
         console.error("Error loading switch data:", error);
