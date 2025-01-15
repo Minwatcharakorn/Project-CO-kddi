@@ -89,6 +89,46 @@
             overflow-x: hidden;
             height: 100%; /* Prevent content from exceeding viewport */
         }
+    /* Responsive Adjustments for Small Screens */
+    @media (max-width: 768px) {
+    .nav-info span {
+        font-size: 14px; /* Reduce font size */
+    }
+
+    .nav-info i {
+        font-size: 16px; /* Reduce icon size */
+    }
+
+    .nav-logo a {
+        font-size: 16px; /* Adjust logo text size */
+    }
+    .nav-logo i {
+        font-size: 18px; /* Reduce icon size */
+    }
+    #openNav {
+        font-size: 24px; /* Adjust menu button size */
+    }
+}
+
+@media (max-width: 576px) {
+    .nav-info span {
+        font-size: 12px; /* Further reduce font size */
+    }
+
+    .nav-info i {
+        font-size: 12px; /* Further reduce icon size */
+    }
+
+    .nav-logo a {
+        font-size: 16px; /* Smaller logo text */
+    }
+    .nav-logo i {
+        font-size: 16px; /* Further reduce icon size */
+    }
+    #openNav {
+        font-size: 20px; /* Adjust menu button size */
+    }
+}
 </style>
 <body>
     <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
@@ -106,19 +146,19 @@
         <div class="w3-teal">
             <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
             <div class="w3-container">
-                <div class="nav-logo">
-                    <a href="/dashboard" style="color: white; text-decoration: none;">
-                        <i class="fas fa-network-wired" style="color: #1E90FF; margin-right: 10px;"></i> Cisco Automation
-                    </a>
-                </div>
+                    <div class="nav-logo">
+                        <a href="/dashboard" style="color: white; text-decoration: none;">
+                            <i class="fas fa-network-wired" style="color: #1E90FF; margin-right: 10px;"></i> Cisco Automation
+                        </a>
+                    </div>
                 <div class="nav-info" >
                     <span style="margin-right: 20px;" >
                         <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i> 
-                        Username: <span id="username">{{ session.get('username', 'N/A') }}</span>
+                        <span id="username">{{ session.get('username', 'N/A') }}</span>
                     </span>
                     <span>
                         <i class="fas fa-network-wired" style="margin-right: 5px;"></i> 
-                        IP: 
+                         
                         <span id="ip-address">
                             {% if session.get('ip_start') and session.get('ip_end') %}
                                 {{ session.get('ip_start', 'N/A') }} - {{ session.get('ip_end', 'N/A') }}

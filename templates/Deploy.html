@@ -87,9 +87,29 @@
             overflow-x: hidden;
             height: 100%; /* Prevent content from exceeding viewport */
         }
+
+
+        @media (max-width: 576px) {
+    .nav-info span {
+        font-size: 12px; /* Further reduce font size */
+    }
+
+    .nav-info i {
+        font-size: 12px; /* Further reduce icon size */
+    }
+
+    .nav-logo a {
+        font-size: 16px; /* Smaller logo text */
+    }
+    .nav-logo i {
+        font-size: 16px; /* Further reduce icon size */
+    }
+    #openNav {
+        font-size: 20px; /* Adjust menu button size */
+    }
+}
 </style>
 <body>
-    <!-- Sidebar -->
     <!-- Sidebar -->
     <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
         <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
@@ -105,19 +125,19 @@
         <div class="w3-teal">
             <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
             <div class="w3-container">
-                <div class="nav-logo">
-                    <a href="/dashboard" style="color: white; text-decoration: none;">
-                        <i class="fas fa-network-wired" style="color: #1E90FF; margin-right: 10px;"></i> Cisco Automation
-                    </a>
-                </div>
+                    <div class="nav-logo">
+                        <a href="/dashboard" style="color: white; text-decoration: none;">
+                            <i class="fas fa-network-wired" style="color: #1E90FF; margin-right: 10px;"></i> Cisco Automation
+                        </a>
+                    </div>
                 <div class="nav-info" >
                     <span style="margin-right: 20px;" >
                         <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i> 
-                        Username: <span id="username">{{ session.get('username', 'N/A') }}</span>
+                        <span id="username">{{ session.get('username', 'N/A') }}</span>
                     </span>
                     <span>
                         <i class="fas fa-network-wired" style="margin-right: 5px;"></i> 
-                        IP: 
+                         
                         <span id="ip-address">
                             {% if session.get('ip_start') and session.get('ip_end') %}
                                 {{ session.get('ip_start', 'N/A') }} - {{ session.get('ip_end', 'N/A') }}
@@ -230,69 +250,72 @@
         });
     </script>
          <script>
-            function w3_open() {
-                document.getElementById("main").style.marginLeft = "250px"; /* Match sidebar width */
-                document.getElementById("mySidebar").style.width = "250px"; /* Sidebar width */
-                document.getElementById("mySidebar").style.display = "block";
-                document.getElementById("openNav").style.display = 'none';
-            }
-    
-            function w3_close() {
-                document.getElementById("main").style.marginLeft = "0";
-                document.getElementById("mySidebar").style.display = "none";
-                document.getElementById("openNav").style.display = "inline-block";
-            }
-        </script>
-    <script>
-function updateSidebarForResponsive() {
-    const sidebar = document.querySelector('.w3-sidebar'); // Update selector
-    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
-
-    if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
-        sidebar.style.width = '60px'; // Slimmer sidebar
-        sidebarItems.forEach(item => {
-            const icon = item.querySelector('i'); // Find the icon
-            const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
-
-            if (icon) {
-                item.style.justifyContent = 'center'; // Center icons
-                item.style.gap = '0'; // Remove gap between text and icons
-                textNodes.forEach(node => node.textContent = ''); // Remove text
-            }
-        });
-    } else {
-        sidebar.style.width = '250px'; // Default sidebar width for larger screens
-        sidebarItems.forEach(item => {
-            const originalText = item.getAttribute('data-original-text');
-            if (originalText) {
-                // Restore the original text and gap
-                const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
-                item.innerHTML = `${iconHTML} ${originalText}`;
-                item.style.justifyContent = 'flex-start';
-            }
-        });
-    }
-}
-
-// Store original text for restoration
-document.addEventListener('DOMContentLoaded', () => {
-    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
-
-    sidebarItems.forEach(item => {
-        const textContent = Array.from(item.childNodes)
-            .filter(node => node.nodeType === 3) // Only text nodes
-            .map(node => node.textContent.trim()) // Trim whitespace
-            .join(' '); // Combine text nodes into one string
-
-        if (textContent) {
-            item.setAttribute('data-original-text', textContent); // Store original text
+        function w3_open() {
+            document.getElementById("main").style.marginLeft = "25%";
+            document.getElementById("mySidebar").style.width = "25%";
+            document.getElementById("mySidebar").style.display = "block";
+            document.getElementById("openNav").style.display = 'none';
         }
-    });
+        function w3_close() {
+            document.getElementById("main").style.marginLeft = "0%";
+            document.getElementById("mySidebar").style.display = "none";
+            document.getElementById("openNav").style.display = "inline-block";
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const container = document.querySelector('.w3-container');
+            if (container) {
+                container.style.overflow = "hidden"; // Disable scrolling
+            }
+        });
+        function updateSidebarForResponsive() {
+            const sidebar = document.querySelector('.w3-sidebar'); // Update selector
+            const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
 
-    // Apply responsiveness on load and resize
-    updateSidebarForResponsive();
-    window.addEventListener('resize', updateSidebarForResponsive);
-});
+            if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
+                sidebar.style.width = '60px'; // Slimmer sidebar
+                sidebarItems.forEach(item => {
+                    const icon = item.querySelector('i'); // Find the icon
+                    const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
+
+                    if (icon) {
+                        item.style.justifyContent = 'center'; // Center icons
+                        item.style.gap = '0'; // Remove gap between text and icons
+                        textNodes.forEach(node => node.textContent = ''); // Remove text
+                    }
+                });
+            } else {
+                sidebar.style.width = '250px'; // Default sidebar width for larger screens
+                sidebarItems.forEach(item => {
+                    const originalText = item.getAttribute('data-original-text');
+                    if (originalText) {
+                        // Restore the original text and gap
+                        const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
+                        item.innerHTML = `${iconHTML} ${originalText}`;
+                        item.style.justifyContent = 'flex-start';
+                    }
+                });
+            }
+        }
+
+        // Store original text for restoration
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+            sidebarItems.forEach(item => {
+                const textContent = Array.from(item.childNodes)
+                    .filter(node => node.nodeType === 3) // Only text nodes
+                    .map(node => node.textContent.trim()) // Trim whitespace
+                    .join(' '); // Combine text nodes into one string
+
+                if (textContent) {
+                    item.setAttribute('data-original-text', textContent); // Store original text
+                }
+            });
+
+            // Apply responsiveness on load and resize
+            updateSidebarForResponsive();
+            window.addEventListener('resize', updateSidebarForResponsive);
+        });
     </script>
 </body>
 </html>

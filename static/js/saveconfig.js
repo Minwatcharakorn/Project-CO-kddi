@@ -28,16 +28,14 @@ $(document).ready(function () {
 
     // Open Modal with Overlay
     function openModal() {
-        $('#modalOverlay').fadeIn();
-        $('#previewModal').fadeIn();
+        document.getElementById('previewModal').style.display = 'block';
     }
 
-    // Close Modal with Overlay
-    function closeModal() {
-        $('#modalOverlay').fadeOut();
-        $('#previewModal').fadeOut();
-        $('#errorModal').fadeOut();
-    }
+    // Close Modal with Overlay (make this globally accessible)
+    window.closeModal = function () {
+        document.getElementById('previewModal').style.display = 'none';
+        document.getElementById('errorModal').style.display = 'none';
+    };
 
     $('#command-select').select2({ placeholder: "Select Commands", allowClear: true });
 
@@ -65,8 +63,7 @@ $(document).ready(function () {
         }
 
         // Show loading modal and overlay
-        $('#modalOverlay').fadeIn();
-        $('#loadingModal').fadeIn();
+        document.getElementById('loadingModal').style.display = 'block';
 
         // Send the data to backend
         $.ajax({
@@ -76,29 +73,28 @@ $(document).ready(function () {
             data: JSON.stringify({ devices: selectedDevices, commands: selectedCommands }),
             xhrFields: { responseType: 'blob' },
             success: function (response, status, xhr) {
-                $('#loadingModal').fadeOut(); // Hide loading modal
+                document.getElementById('loadingModal').style.display = 'none'; // Hide loading modal
                 const blob = new Blob([response], { type: 'text/plain' });
                 const reader = new FileReader();
 
                 reader.onload = function () {
-                    $('#outputPreview').text(reader.result); // Populate output
+                    document.getElementById('outputPreview').textContent = reader.result; // Populate output
                     openModal(); // Show output modal with overlay
                 };
                 reader.readAsText(blob);
 
                 // Download button handler
-                $('#downloadOutput').off('click').on('click', function () {
+                document.getElementById('downloadOutput').onclick = function () {
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
                     link.download = xhr.getResponseHeader('Content-Disposition')?.split('filename=')[1] || 'output.txt';
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                });
+                };
             },
             error: function (xhr) {
-                $('#loadingModal').fadeOut();
-                $('#modalOverlay').fadeOut();
+                document.getElementById('loadingModal').style.display = 'none';
                 const errorMessage = xhr.responseJSON?.error || "An unexpected error occurred.";
                 showErrorModal("Error Sending Commands", errorMessage);
             }
@@ -106,8 +102,8 @@ $(document).ready(function () {
     });
 
     // Close modal and overlay on outside click
-    $('#modalOverlay, .close-btn').on('click', closeModal);
 
     // Ensure modals are hidden initially
-    $('#modalOverlay, #loadingModal, #previewModal').hide();
+    document.getElementById('loadingModal').style.display = 'none';
+    document.getElementById('previewModal').style.display = 'none';
 });

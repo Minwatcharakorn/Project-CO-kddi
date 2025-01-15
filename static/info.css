@@ -392,6 +392,28 @@
     background-color: #fff;
 }
 
+.back-to-dashboard-button {
+    display: inline-block;
+    margin-top: 20px; /* Add spacing from top */
+    padding: 10px 20px; /* Button padding */
+    background-color: #0c1148; /* Dark blue background */
+    color: white; /* White text */
+    text-decoration: none; /* Remove underline */
+    border-radius: 5px; /* Rounded corners */
+    border: 1px solid #333; /* Add a border */
+    font-weight: bold; /* Bold text */
+    font-size: 14px; /* Adjust font size */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth hover effect */
+    text-align: center; /* Center text */
+}
+
+.back-to-dashboard-button:hover {
+    background-color: #1e90ff; /* Lighter blue on hover */
+    color: white;
+    border-color: #1e90ff; /* Change border color */
+}
+
+
 /* ======== Global Responsive Styles ======== */
 
 /* สำหรับหน้าจอเล็ก (ขนาด <= 768px) */

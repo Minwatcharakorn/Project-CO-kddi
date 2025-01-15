@@ -38,12 +38,16 @@
 
 /* Table Styling */
 .table-container {
+    overflow-x: auto; /* Enable horizontal scrolling if needed */
+    width: 100%; /* Ensure it spans the container width */
     margin-top: 20px;
     background-color: #fff;
-    padding: 20px;
+    padding: 10px;
     border: 1px solid #d0d4db;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    -webkit-overflow-scrolling: touch; /* For smooth scrolling on mobile devices */
+
 }
 
 table {
@@ -58,11 +62,11 @@ thead {
 
 th, td {
     padding: 10px;
-    text-align: center; /* Center horizontally */
+    text-align: center; /* Center text */
     vertical-align: middle; /* Center vertically */
     border-bottom: 1px solid #d0d4db;
+    white-space: nowrap; /* Prevent text wrapping */
 }
-
 
 td:last-child {
     text-align: center; 
@@ -118,6 +122,8 @@ tbody tr:hover {
     font-size: 16px; /* Larger text for readability */
     cursor: pointer; /* Pointer cursor to indicate button functionality */
     transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
+    max-width: 100%; /* ป้องกันไม่ให้เกินขนาด container */
+
 }
 
 .deploy-button:hover, .apply-button:hover {
@@ -282,4 +288,32 @@ span {
 
 .ip-input label, .Description label {
     margin-right: 10px;
+}
+
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    table {
+        font-size: 12px; /* Adjust font size for smaller screens */
+    }
+}
+
+
+/* Responsive: สำหรับหน้าจอขนาดเล็ก */
+@media (max-width: 768px) {
+    .apply-button ,.deploy-button{
+        padding: 8px 15px; /* ลด padding */
+        font-size: 14px; /* ลดขนาดตัวอักษร */
+        width: 100%; /* ขยายให้เต็มความกว้าง container */
+        max-width: 500px; /* จำกัดความกว้างสูงสุด */
+        margin: 0 auto; /* จัดให้อยู่ตรงกลาง */
+    }
+}
+
+/* Responsive: สำหรับหน้าจอที่เล็กมาก (มือถือ) */
+@media (max-width: 480px) {
+    .apply-button ,.deploy-button {
+        padding: 6px 10px; /* ลด padding */
+        font-size: 12px; /* ลดขนาดตัวอักษร */
+    }
 }
