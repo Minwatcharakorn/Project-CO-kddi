@@ -47,3 +47,24 @@
         max-width: 90%; /* ลดขนาดเมื่อหน้าจอเล็กลง */
     }
 }
+.command-select-container {
+    margin-bottom: 20px; /* Add space below the dropdown */
+}
+
+.command-select-container label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+}
+
+.command-select-container select {
+    width: 100%; /* Ensure it spans the container */
+    max-width: 400px; /* Optional: Set max width */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    font-size: 14px;
+}

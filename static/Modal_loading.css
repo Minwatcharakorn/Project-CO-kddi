@@ -194,6 +194,19 @@
     gap: 10px;
 }
 
+.preview-modal-button-apply {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.preview-modal-button-apply:hover {
+    background-color: #218838;
+}
+
 .preview-modal-button-download {
     background-color: #1E90FF;
     color: white;

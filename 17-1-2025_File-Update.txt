@@ -1,0 +1,35 @@
+app-main.py
+configuration.html
+    - create_config_page.css
+    - create_config.js
+
+Modal_loading.css
+style.css
+sidebar_style.css
+
+Dashboard.html
+    - dashboard_styles.css
+
+info.html  
+    - info.js
+    - info.css
+
+saveconfig.html
+    - saveconfig.css
+    - saveconfig.js
+
+lnitial.html   
+    - styles-Initial.css   
+    - script-initial.js
+
+template-list.html
+    - templates_list.css
+    - templates.js
+    - sort.js
+
+Deploy.html
+select_templates.html
+pre_deployment.html
+
+upload_template.html
+    - upload_template.css

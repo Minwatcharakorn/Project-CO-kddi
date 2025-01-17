@@ -1824,6 +1824,94 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
     openModalPreview(configData);
 });
 
+document.getElementById("apply-config").addEventListener("click", function () {
+    // ดึงค่า Configuration จาก Preview
+    const configData = document.getElementById("preview-configuration-content").textContent.trim();
+    const templateName = document.getElementById("template-name").value.trim();
+    const description = document.getElementById("template-description").value.trim();
+
+    // ตรวจสอบว่าข้อมูลครบถ้วน
+    if (!configData || !templateName || !description) {
+        showErrorModal("Please fill in all required fields!");
+        return;
+    }
+
+    // ส่งข้อมูลไปยัง backend
+    fetch("/apply_configuration", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            template_name: templateName,
+            description: description,
+            config_content: configData,
+        }),
+    })
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error("Failed to apply configuration.");
+            }
+        })
+        .then((data) => {
+            window.location.href = "/listtemplate"; // Redirect ไปยังหน้ารายการ templates
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+            showErrorModal("An error occurred while applying the configuration.");
+        });
+});
+
+function centerModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        const windowHeight = window.innerHeight;
+        const windowWidth = window.innerWidth;
+
+        const modalContent = modal.querySelector('.error-modal-content') || modal.querySelector('.success-modal-content');
+        if (modalContent) {
+            const modalHeight = modalContent.offsetHeight;
+            const modalWidth = modalContent.offsetWidth;
+
+            // คำนวณตำแหน่ง
+            const top = Math.max((windowHeight - modalHeight) / 2, 0);
+            const left = Math.max((windowWidth - modalWidth) / 2, 0);
+
+            // ใช้ตำแหน่งที่คำนวณได้
+            modalContent.style.position = 'absolute';
+            modalContent.style.top = `${top}px`;
+            modalContent.style.left = `${left}px`;
+        }
+    }
+}
+
+
+// ฟังก์ชันแสดง Modal Error
+function showErrorModal(message) {
+    const errorModal = document.getElementById("errorModal");
+    const errorMessage = document.getElementById("errorMessage");
+    const closeErrorModal = document.getElementById("closeErrorModal");
+
+    errorMessage.textContent = message;
+    errorModal.style.display = "block";
+
+    // จัดให้อยู่กลางจอ
+    centerModal("errorModal");
+
+    // ปิด Modal เมื่อกดปุ่ม OK
+    closeErrorModal.addEventListener("click", function () {
+        errorModal.style.display = "none";
+    });
+
+    // ปิด Modal เมื่อคลิกนอกเนื้อหา Modal
+    window.addEventListener("click", function (event) {
+        if (event.target === errorModal) {
+            errorModal.style.display = "none";
+        }
+    });
+}
 
 // Download Configuration as .txt File
 document.getElementById('download-config').addEventListener('click', () => {

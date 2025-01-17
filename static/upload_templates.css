@@ -1,17 +1,15 @@
-/* Reset Styles */
-* {
+/* * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: Arial, sans-serif;
 }
 
-/* Body */
 body {
     display: flex;
     height: 100vh;
     overflow-x: hidden;
-}
+} */
 
 /* Template Section (with improved spacing) */
 .template-container {

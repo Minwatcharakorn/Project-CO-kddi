@@ -1,3 +1,26 @@
+function showErrorModal(message) {
+    const modal = document.getElementById("errorModal");
+    const errorMessage = document.getElementById("errorMessage");
+
+    if (modal && errorMessage) {
+        errorMessage.textContent = message;
+        modal.style.display = "flex";
+    }
+}
+
+function closeErrorModal() {
+    const modal = document.getElementById("errorModal");
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const closeModalButton = document.getElementById("closeErrorModal");
+    if (closeModalButton) {
+        closeModalButton.addEventListener("click", closeErrorModal);
+    }
+});
 // ฟังก์ชันเปิด modal สำหรับดูหรือแก้ไข template
 function openModal(templateId, action) {
     console.log("openModal called for templateId:", templateId);  // ตรวจสอบการเรียกใช้ฟังก์ชัน
@@ -40,7 +63,7 @@ function openModal(templateId, action) {
             })
             .catch(error => {
                 console.error("Error fetching template content:", error);
-                alert("Failed to load template content.");
+                showErrorModal("Failed to load template content.");
             });
     } else if (action === "Edit") {
         // เมื่อเป็นการแก้ไขข้อมูล
@@ -56,7 +79,7 @@ function openModal(templateId, action) {
             })
             .catch(error => {
                 console.error("Error fetching template content:", error);
-                alert("Failed to load template content.");
+                showErrorModal("Failed to load template content.");
             });
 
         // การบันทึกข้อมูลเมื่อคลิกปุ่ม Save
@@ -79,12 +102,12 @@ function openModal(templateId, action) {
                 return response.json();
             })
             .then(data => {
-                alert("Template Updated Successfully!");
+                showErrorModal("Template Updated Successfully!");
                 closeModal();  // ปิด modal หลังจากบันทึก
             })
             .catch(error => {
                 console.error("Error updating template:", error);
-                alert("Failed to update template.");
+                showErrorModal("Failed to update template.");
             });
         };
     }
@@ -104,7 +127,7 @@ function deleteTemplate(templateId) {
         })
         .then(response => {
             if (response.ok) {
-                alert("Template deleted successfully!");
+                showErrorModal("Template deleted successfully!");
                 refreshTemplateList();  // รีเฟรชตารางหลังจากลบ
             } else {
                 throw new Error("Failed to delete template.");
@@ -112,7 +135,7 @@ function deleteTemplate(templateId) {
         })
         .catch(error => {
             console.error("Error deleting template:", error);
-            alert("Failed to delete template.");
+            showErrorModal("Failed to delete template.");
         });
     }
 }
@@ -169,7 +192,7 @@ function refreshTemplateList() {
         })
         .catch(error => {
             console.error("Error refreshing template list:", error);
-            alert(`Failed to refresh template list. Error: ${error}`);
+            showErrorModal(`Failed to refresh template list. Error: ${error}`);
         });
 }
 

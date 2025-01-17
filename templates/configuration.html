@@ -395,11 +395,21 @@
 
             <div class="save-config-container">
                 <button id="save-config-templates" class="styled2-button">
-                    <i class="fa-solid fa-file-arrow-down"></i> Preview Config Templates
+                    <i class="fa-solid fa-file-arrow-down"></i> Preview Config Template
                 </button>
             </div>
         </div>
         <br>
+
+        <!-- Error Modal -->
+        <div id="errorModal" class="modal" style="display: none;">
+            <div class="error-modal-content">
+                <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+                <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;">Error Message Here</p>
+                <br>
+                <button id="closeErrorModal" class="error-modal-button">OK</button>
+            </div>
+        </div>
 
         <!-- Modal Preview Template -->
         <div id="preview-configuration-template" class="preview-modal">
@@ -409,6 +419,7 @@
                     <!-- Configuration details will be injected here dynamically -->
                 </div>
                 <div class="preview-modal-footer">
+                    <button id="apply-config" class="preview-modal-button-apply">Apply Configuration</button>
                     <button id="download-config" class="preview-modal-button-download">Download</button>
                     <button onclick="closeModal()" class="preview-modal-button-close"">Close</button>
                 </div>

@@ -8,22 +8,27 @@ function sortTable(columnIndex) {
 
     // Sort rows
     rows.sort((a, b) => {
-        const cellA = a.cells[columnIndex].innerText.trim();
-        const cellB = b.cells[columnIndex].innerText.trim();
+        const cellA = a.cells[columnIndex].innerText.trim().toLowerCase();
+        const cellB = b.cells[columnIndex].innerText.trim().toLowerCase();
 
-        // หากเป็นคอลัมน์ Last Updated ให้แปลงวันที่เพื่อการเปรียบเทียบ
+        // Sort "Last Updated" as dates
         if (columnIndex === 4) {
             const dateA = new Date(cellA);
             const dateB = new Date(cellB);
             return isAscending ? dateA - dateB : dateB - dateA;
         }
 
-        // หากเป็น NO ให้เปรียบเทียบตัวเลข
+        // Sort "NO" as numbers
         if (columnIndex === 0) {
             return isAscending ? Number(cellA) - Number(cellB) : Number(cellB) - Number(cellA);
         }
 
-        return 0;
+        // Sort "Template Name" or "Description" alphabetically
+        if (columnIndex === 1 || columnIndex === 2) {
+            return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+        }
+
+        return 0; // Default case if no specific sorting is required
     });
 
     // Re-render rows

@@ -169,17 +169,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                         beforeDatasetsDraw(chart) {
                             const ctx = chart.ctx;
                             chart.data.datasets.forEach((dataset, i) => {
-                                const meta = chart.getDatasetMeta(i);
-                                meta.data.forEach((bar, index) => {
-                                    const value = dataset.data[index];
-                                    ctx.save();
-                                    ctx.font = 'bold 12px Arial';
-                                    ctx.fillStyle = '#fff'; // White text inside the bar
-                                    ctx.textAlign = 'center';
-                                    ctx.textBaseline = 'middle';
-                                    ctx.fillText(yAxisLabel === 'Celsius' ? `${value}°C` : `${value}%`, bar.x, bar.y + (bar.height / 2));
-                                    ctx.restore();
-                                });
                             });
                         }
                     }

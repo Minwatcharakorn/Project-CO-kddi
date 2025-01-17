@@ -211,9 +211,6 @@
                                         <a href="/info/{{ switch.id }}" title="View Details">
                                             <i class="fas fa-info"></i>
                                         </a>
-                                        <button class="cli-button" onclick="openCLIModal('{{ switch.ip }}')" title="Open CLI">
-                                            <i class="fas fa-terminal"></i>
-                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -223,93 +220,10 @@
                 </div>
             </div>
 
-            <div id="cliModal" class="modal">
-                <div class="modal-content">
-                    <span class="close" onclick="closeModal()">&times;</span>
-                    <h3 id="cliModalHeader"></h3>
-                    <div class="terminal" id="cliOutput"></div>
-                    <input type="text" id="cliCommand" placeholder="Enter CLI Command">
-                    <button onclick="sendCommand()">Send</button>
-                </div>
-            </div>
+
         </div>
     </div>
 
-<!-- ติดปัญหา Modal CLI Termianl -->
-
-    <script>
-let currentIP = "";
-let currentHostname = ""; // เก็บ hostname จริง
-let cliSessionActive = false; // ตรวจสอบสถานะเซสชัน
-
-function openCLIModal(ip) {
-    currentIP = ip;
-
-    // Fetch hostname from backend
-    fetch(`/api/get_hostname?ip=${ip}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.hostname) {
-                currentHostname = data.hostname;
-                document.getElementById('cliModalHeader').textContent = `Switch - ${currentHostname} (${currentIP})`;
-                document.getElementById('cliOutput').textContent = `${currentHostname}> `;
-            }
-        })
-        .catch(err => console.error("Error fetching hostname:", err));
-
-    document.getElementById('cliModal').style.display = 'flex';
-    cliSessionActive = true; // Open session
-}
-
-function sendCommand() {
-    const commandInput = document.getElementById('cliCommand').value.trim();
-    if (!commandInput) return;
-
-    const outputElement = document.getElementById('cliOutput');
-    outputElement.textContent += `\n${currentHostname}> ${commandInput}\n`;
-
-    fetch('/api/cli', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ip: currentIP, command: commandInput })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            outputElement.textContent += `Error: ${data.error}\n`;
-        } else {
-            outputElement.textContent += `${data.output}\n`;
-        }
-        outputElement.scrollTop = outputElement.scrollHeight; // Auto-scroll to the latest output
-    })
-    .catch(err => {
-        outputElement.textContent += `Error: Unable to send command.\n`;
-        console.error('Error:', err);
-    });
-
-    document.getElementById('cliCommand').value = "";
-}
-
-function closeModal() {
-    fetch('/api/cli/terminate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ip: currentIP })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            console.error("Error terminating session:", data.error);
-        } else {
-            console.log("SSH session terminated:", data.message);
-        }
-    })
-    .catch(err => console.error("Error terminating session:", err));
-
-    document.getElementById('cliModal').style.display = 'none';
-}
-
-    </script>
     <script>
         function w3_open() {
             document.getElementById("main").style.marginLeft = "25%";

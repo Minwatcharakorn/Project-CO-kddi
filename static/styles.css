@@ -62,10 +62,11 @@ thead {
 
 th, td {
     padding: 10px;
-    text-align: center; /* Center text */
-    vertical-align: middle; /* Center vertically */
+    text-align: center; /* Center text horizontally */
+    vertical-align: middle; /* Center text vertically */
     border-bottom: 1px solid #d0d4db;
-    white-space: nowrap; /* Prevent text wrapping */
+    word-wrap: break-word; /* Enable word wrapping */
+    white-space: normal; /* Allow text to wrap */
 }
 
 td:last-child {

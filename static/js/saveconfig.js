@@ -19,25 +19,45 @@ $(document).ready(function () {
         // Show the modal
         errorModal.style.display = 'flex';
 
+        // Disable scrolling
+        document.body.classList.add('no-scroll');
+
         // Add event listener to close the modal
         const closeErrorModal = document.getElementById('closeErrorModal');
         closeErrorModal.onclick = () => {
             errorModal.style.display = 'none';
+            document.body.classList.remove('no-scroll'); // Restore scrolling
         };
     }
 
-    // Open Modal with Overlay
-    function openModal() {
-        document.getElementById('previewModal').style.display = 'block';
+    // Open Modal with Animation
+    function openModalWithAnimation() {
+        const modal = document.getElementById('previewModal');
+        modal.style.display = 'flex';
+        modal.style.opacity = '0';
+        document.body.classList.add('no-scroll'); // Disable scrolling
+
+        // Animate modal fade-in
+        setTimeout(() => {
+            modal.style.opacity = '1';
+        }, 100);
     }
 
     // Close Modal with Overlay (make this globally accessible)
     window.closeModal = function () {
-        document.getElementById('previewModal').style.display = 'none';
-        document.getElementById('errorModal').style.display = 'none';
+        const previewModal = document.getElementById('previewModal');
+        const errorModal = document.getElementById('errorModal');
+        previewModal.style.display = 'none';
+        errorModal.style.display = 'none';
+        document.body.classList.remove('no-scroll'); // Enable scrolling
     };
 
-    $('#command-select').select2({ placeholder: "Select Commands", allowClear: true });
+    // Initialize Select2 for the dropdown
+    $('#command-select').select2({
+        placeholder: "Select Commands",
+        allowClear: true,
+        width: 'resolve' // Ensure proper width handling
+    });
 
     // "Select All" functionality for checkboxes
     $('#select-all').on('change', function () {
@@ -62,8 +82,10 @@ $(document).ready(function () {
             return;
         }
 
-        // Show loading modal and overlay
-        document.getElementById('loadingModal').style.display = 'block';
+        // Show loading modal
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.style.display = 'flex';
+        document.body.classList.add('no-scroll'); // Disable scrolling
 
         // Send the data to backend
         $.ajax({
@@ -73,13 +95,14 @@ $(document).ready(function () {
             data: JSON.stringify({ devices: selectedDevices, commands: selectedCommands }),
             xhrFields: { responseType: 'blob' },
             success: function (response, status, xhr) {
-                document.getElementById('loadingModal').style.display = 'none'; // Hide loading modal
+                loadingModal.style.display = 'none'; // Hide loading modal
+                document.body.classList.remove('no-scroll'); // Enable scrolling
                 const blob = new Blob([response], { type: 'text/plain' });
                 const reader = new FileReader();
 
                 reader.onload = function () {
                     document.getElementById('outputPreview').textContent = reader.result; // Populate output
-                    openModal(); // Show output modal with overlay
+                    openModalWithAnimation(); // Show modal with animation
                 };
                 reader.readAsText(blob);
 
@@ -94,16 +117,62 @@ $(document).ready(function () {
                 };
             },
             error: function (xhr) {
-                document.getElementById('loadingModal').style.display = 'none';
+                loadingModal.style.display = 'none';
+                document.body.classList.remove('no-scroll'); // Enable scrolling
                 const errorMessage = xhr.responseJSON?.error || "An unexpected error occurred.";
                 showErrorModal("Error Sending Commands", errorMessage);
             }
         });
     });
 
-    // Close modal and overlay on outside click
-
     // Ensure modals are hidden initially
     document.getElementById('loadingModal').style.display = 'none';
     document.getElementById('previewModal').style.display = 'none';
+
+    // Initialize Custom Dropdown
+    function initializeCustomDropdown() {
+        const dropdown = document.querySelector('#custom-command-select');
+        const selected = dropdown.querySelector('.dropdown-selected');
+        const options = dropdown.querySelector('.dropdown-options');
+        let selectedValues = [];
+
+        // Toggle dropdown visibility
+        selected.addEventListener('click', () => {
+            dropdown.classList.toggle('active');
+        });
+
+        // Handle item selection
+        options.addEventListener('click', (event) => {
+            const item = event.target.closest('.dropdown-item');
+            if (!item) return;
+
+            const value = item.getAttribute('data-value');
+            const text = item.textContent;
+
+            if (selectedValues.includes(value)) {
+                // Deselect
+                selectedValues = selectedValues.filter((v) => v !== value);
+                item.style.backgroundColor = '';
+                item.style.color = '';
+            } else {
+                // Select
+                selectedValues.push(value);
+                item.style.backgroundColor = '#007bff';
+                item.style.color = '#fff';
+            }
+
+            // Update selected text
+            selected.textContent = selectedValues.length > 0 ? selectedValues.join(', ') : 'Select Commands';
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!dropdown.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+    }
+
+    // Initialize the custom dropdown
+    initializeCustomDropdown();
 });

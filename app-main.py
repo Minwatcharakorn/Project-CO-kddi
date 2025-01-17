@@ -30,6 +30,8 @@ serial_connection = None
 
 switches = []  # List to store scanned devices
 
+# -------------------------------------------------------------------------------
+# แก้ 17/1/2025
 # เชื่อมต่อกับฐานข้อมูล
 def get_db_connection():
     try:
@@ -37,7 +39,7 @@ def get_db_connection():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         print("Database connected successfully!")
@@ -45,6 +47,9 @@ def get_db_connection():
     except Exception as e:
         print(f"Database connection error: {e}")
         raise
+
+# -------------------------------------------------------------------------------
+
 
 # def get_available_ports():
 #     """Get a list of available serial ports."""
@@ -55,10 +60,10 @@ def get_db_connection():
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
+# แก้ ---------------------------
 async def get_snmp_info(ip, community='public'):
     """Retrieve SNMP information from the device using asyncio."""
-    oid_hostname = '.1.3.6.1.2.1.1.5.0'  # OID for Hostname
+    oid_hostname = '.1.3.6.1.4.1.9.2.1.3.0'  # OID for Hostname
     oid_model = '.1.3.6.1.2.1.1.1.0'     # OID for Model (sysDescr)
     oid_serial_base = '.1.3.6.1.2.1.47.1.1.1.1.11.1'  # OID base for Serial Number (ENTITY-MIB)
 
@@ -91,6 +96,10 @@ async def get_snmp_info(ip, community='public'):
 
     return info
 
+# --------------------------------
+
+
+# แก้ ----------------------------
 @app.route('/api/switch/<int:switch_id>', methods=['GET'])
 async def get_switch_data(switch_id):
     """API for fetching switch details, port statuses, and VLAN information via SNMP."""
@@ -103,12 +112,12 @@ async def get_switch_data(switch_id):
 
     # OIDs for SNMP queries
     oids = {
-        "hostname": ".1.3.6.1.2.1.1.5.0",  # sysName
+        "hostname": ".1.3.6.1.4.1.9.2.1.3.0",  # sysName
         "uptime": ".1.3.6.1.2.1.1.3.0",  # sysUpTime
         "device_type": ".1.3.6.1.2.1.1.1.0",  # sysDescr
         "cpu_usage": "1.3.6.1.4.1.9.2.1.58.0",  # Example CPU OID
         "memory_usage": "1.3.6.1.4.1.9.2.1.58.0",  # Example Memory OID
-        "temperature": ".1.3.6.1.4.1.9.9.106.1.1.1.0",  # Replace with actual OID for temperature
+        "temperature": ".1.3.6.1.4.1.9.9.13.1.3.1.3.1011",  # Replace with actual OID for temperature
     }
 
     try:
@@ -129,10 +138,13 @@ async def get_switch_data(switch_id):
                 for varBind in varBinds:
                     snmp_results[key] = str(varBind[1])
 
+        # Extract only the hostname (before the first dot) if available
+        full_hostname = snmp_results.get("hostname", "N/A")
+        short_hostname = full_hostname.split('.')[0] if "." in full_hostname else full_hostname
 
         # Construct the response
         switch_data = {
-            "hostname": snmp_results.get("hostname", "N/A"),
+            "hostname": short_hostname,
             "uptime": snmp_results.get("uptime", "N/A"),
             "device_type": snmp_results.get("device_type", "N/A"),
             "cpu_usage": snmp_results.get("cpu_usage", "N/A"),
@@ -143,6 +155,8 @@ async def get_switch_data(switch_id):
 
     except Exception as e:
         return jsonify({"error": f"Failed to retrieve SNMP data: {str(e)}"}), 500
+
+# --------------------------------
 
 def abbreviate_interface_name(name):
     abbreviations = {
@@ -289,7 +303,8 @@ def saveconfig_page():
 
     return render_template('saveconfig.html', switches=switches_from_session)
 
-
+# -------------------------------------------------------------------------------
+# แก้ 17/1/2025
 @app.route('/listtemplate', methods=['GET'])
 def listtemplate_page():
     """Serve the List Template page as HTML."""
@@ -298,7 +313,7 @@ def listtemplate_page():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -325,7 +340,7 @@ def get_templates_json():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -356,7 +371,7 @@ def view_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -393,7 +408,7 @@ def update_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -423,7 +438,7 @@ def delete_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -440,6 +455,7 @@ def delete_template(template_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# -------------------------------------------------------------------------------
 
 @app.route('/uploadtemplate', methods=['GET', 'POST'])
 def upload_template():
@@ -477,7 +493,57 @@ def upload_template():
 
     return render_template('upload_Templates.html')
 
+# -----------------------------------------------------------
 
+#                          แก้ 17/1/2025
+
+# -----------------------------------------------------------
+
+@app.route('/apply_configuration', methods=['POST'])
+def apply_configuration():
+    data = request.get_json()
+    template_name = data.get('template_name')
+    description = data.get('description')
+    config_content = data.get('config_content')
+
+    if not template_name or not description or not config_content:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    try:
+        # สร้างไฟล์ .txt ชั่วคราว
+        file_name = f"{template_name}.txt"
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+        with open(file_path, 'w') as file:
+            file.write(config_content)
+
+        # อ่านไฟล์เพื่อเตรียม insert
+        with open(file_path, 'r') as file:
+            file_content = file.read()
+
+        # Insert ลงฐานข้อมูล
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO templates (template_name, description, type, file_data, last_updated)
+            VALUES (%s, %s, %s, %s, NOW())
+        """, (template_name, description, 'txt', file_content))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        # ลบไฟล์ชั่วคราว
+        os.remove(file_path)
+
+        return jsonify({"message": "Configuration applied successfully!"}), 200
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": "An error occurred while applying the configuration."}), 500
+
+# -----------------------------------------------------------
+
+#                          แก้ 17/1/2025
+
+# -----------------------------------------------------------
 
 @app.route('/deploy')
 def deploy_page():
@@ -922,96 +988,6 @@ def get_license_info(switch_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-# ----------------------------------------------------------------------------------
-# ติดปัญหา CLI Terminal
-# ----------------------------------------------------------------------------------
-
-# Global dictionary to store SSH sessions
-ssh_sessions = {}
-
-@app.route('/api/cli', methods=['POST'])
-def cli_terminal():
-    """Maintain a single SSH session and handle CLI commands."""
-    data = request.json
-    ip = data.get('ip')
-    command = data.get('command')
-    username = session.get('username')
-    password = session.get('password')
-
-    if not ip or not command:
-        return jsonify({"error": "IP address and command are required"}), 400
-
-    try:
-        # เช็คว่า SSH session มีอยู่หรือไม่ ถ้าไม่มีให้สร้างใหม่
-        if ip not in ssh_sessions or not ssh_sessions[ip]['channel'].get_transport().is_active():
-            ssh = paramiko.SSHClient()
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(ip, username=username, password=password, timeout=5)
-
-            channel = ssh.invoke_shell()
-            ssh_sessions[ip] = {'ssh': ssh, 'channel': channel}
-
-            # ล้าง prompt เริ่มต้น
-            while not channel.recv_ready():
-                pass
-            channel.recv(104857600)
-
-        # ส่งคำสั่ง CLI
-        channel = ssh_sessions[ip]['channel']
-        channel.send(f"{command}\n")
-        output = ""
-
-        while True:
-            while not channel.recv_ready():
-                pass
-            chunk = channel.recv(104857600).decode('utf-8')
-            output += chunk
-
-            # ตรวจสอบข้อความ `--More--` แล้วส่ง space bar เพื่อดำเนินการต่อ
-            if "--More--" in chunk:
-                channel.send(" ")  # ส่ง space bar
-            else:
-                break
-
-        # ล้างคำสั่งที่ echo กลับมาใน output
-        clean_output = "\n".join(line for line in output.splitlines() if command not in line)
-        return jsonify({"output": clean_output.strip()}), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-
-@app.route('/api/cli/terminate', methods=['POST'])
-def terminate_ssh_session():
-    data = request.json
-    ip = data.get('ip')
-
-    if ip in ssh_sessions:
-        ssh_sessions[ip]['ssh'].close()
-        del ssh_sessions[ip]
-        return jsonify({"message": f"SSH session for {ip} terminated."}), 200
-
-    return jsonify({"error": "No active session for this IP."}), 404
-
-
-@app.route('/api/get_hostname', methods=['GET'])
-def get_hostname():
-    ip = request.args.get('ip')
-    if not ip:
-        return jsonify({"error": "IP is required"}), 400
-
-    try:
-        # Run the asynchronous SNMP function in a synchronous context
-        snmp_info = asyncio.run(get_snmp_info(ip))
-        hostname = snmp_info.get("hostname", "Unknown")
-        return jsonify({"hostname": hostname}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# ----------------------------------------------------------------------------------
-# ติดปัญหา CLI Terminal 
-# ----------------------------------------------------------------------------------
 
 @app.route('/api/save_send_command_save', methods=['POST'])
 def save_send_command_and_download():

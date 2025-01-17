@@ -1,119 +1,81 @@
-from flask import Flask, Response, render_template_string, request
+from flask import Flask, render_template, request, jsonify
 import paramiko
-import time
-import re
 
 app = Flask(__name__)
+clients = {}
 
-hostname = "192.168.100.114"
-port = 22
-user = "admin"
-passwd = "password123"
+@app.route("/")
+def index():
+    return render_template("index.html")
 
-shell = None
-client = None
-
+@app.route("/connect", methods=["POST"])
 def connect_to_device():
-    """ Establish SSH connection and return the shell object. """
-    global client, shell
+    """Connect to the device via SSH."""
+    data = request.json
+    hostname = data.get("hostname")
+    port = int(data.get("port", 22))
+    username = data.get("username")
+    password = data.get("password")
+
     try:
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(hostname, port=port, username=user, password=passwd)
-        shell = client.invoke_shell()
-        shell.send("terminal length 0\n")
-        time.sleep(1)
-    except Exception as e:
-        print(f"Error: {e}")
-        shell = None
-        client = None
+        client.connect(hostname, port=port, username=username, password=password)
 
-def stream_shell_output():
-    """ Stream real-time output from the shell. """
+        shell = client.invoke_shell()
+        session_id = request.remote_addr
+        clients[session_id] = {"client": client, "shell": shell}
+
+        # Disable pagination
+        send_command(shell, "terminal length 0")
+
+        return jsonify({"message": "Connected to device."}), 200
+    except Exception as e:
+        return jsonify({"message": f"Error: {e}"}), 500
+
+@app.route("/command", methods=["POST"])
+def send_command_to_device():
+    """Send a command to the device and return the output."""
+    data = request.json
+    command = data.get("command")
+    session_id = request.remote_addr
+    session = clients.get(session_id)
+
+    if session:
+        shell = session["shell"]
+        output = send_command(shell, command)
+        return jsonify({"output": output}), 200
+    else:
+        return jsonify({"message": "Session not found. Please reconnect."}), 404
+
+@app.route("/disconnect", methods=["POST"])
+def disconnect():
+    """Clean up SSH session on disconnect."""
+    session_id = request.remote_addr
+    session = clients.pop(session_id, None)
+    if session:
+        session["shell"].close()
+        session["client"].close()
+        return jsonify({"message": "Disconnected."}), 200
+    return jsonify({"message": "Session not found."}), 404
+
+def send_command(shell, command, timeout=10):
+    """Send a command and return the output."""
+    shell.send(command + "\n")
+    buffer = ""
+    shell.settimeout(timeout)
     try:
-        buffer = ""
         while True:
-            if shell and shell.recv_ready():
+            if shell.recv_ready():
                 chunk = shell.recv(104857600).decode("utf-8")
                 buffer += chunk
-                yield chunk.replace("\n", "<br>")
-            time.sleep(0.1)
+
+                # Stop when the prompt is reached
+                if buffer.strip().endswith("#"):
+                    break
     except Exception as e:
-        yield f"Error: {e}"
+        buffer += f"Error: {e}"
+    return buffer
 
-@app.route('/')
-def index():
-    """ Home route to display the real-time terminal interface. """
-    return render_template_string('''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Real-time SSH Terminal</title>
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                let outputDiv = document.getElementById("output");
-                let inputBuffer = "";
-
-                document.addEventListener("keydown", function(event) {
-                    let key = event.key;
-
-                    if (key === "Enter") {
-                        fetch("/send", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ command: inputBuffer })
-                        }).then(() => inputBuffer = "");
-                        outputDiv.innerHTML += `\n> ${inputBuffer}`;
-                    } else if (key === "Backspace") {
-                        inputBuffer = inputBuffer.slice(0, -1);
-                    } else if (key.length === 1) {
-                        inputBuffer += key;
-                    }
-                    document.getElementById("current-input").textContent = inputBuffer;
-                });
-
-                function fetchOutput() {
-                    fetch("/stream")
-                        .then(response => response.text())
-                        .then(data => {
-                            outputDiv.innerHTML += data;
-                            outputDiv.scrollTop = outputDiv.scrollHeight;
-                        });
-                }
-
-                setInterval(fetchOutput, 500);
-            });
-        </script>
-    </head>
-    <body style="background: black; color: white; font-family: monospace;">
-        <div id="output" style="white-space: pre-wrap; height: 90vh; overflow-y: scroll; border: 1px solid white; padding: 10px;"></div>
-        <div id="current-input" style="display: none;"></div>
-    </body>
-    </html>
-    ''')
-
-@app.route('/send', methods=['POST'])
-def send_command():
-    """ Endpoint to send a command to the shell. """
-    global shell
-    command = request.json.get("command", "")
-    if shell:
-        shell.send(command + "\n")
-    return "", 204
-
-@app.route('/stream')
-def stream():
-    """ Route to stream the real-time output. """
-    if not shell:
-        connect_to_device()
-    if not shell:
-        return "Error connecting to device"
-
-    output = ""
-    while shell.recv_ready():
-        output += shell.recv(104857600).decode("utf-8").replace("\n", "<br>")
-    return output
-
-if __name__ == '__main__':
-    connect_to_device()
-    app.run(debug=True, host="0.0.0.0", port=5000)
+if __name__ == "__main__":
+    app.run(debug=True)
