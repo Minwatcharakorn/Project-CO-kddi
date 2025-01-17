@@ -2,7 +2,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Arial', sans-serif;
-    background: #191919;
+    background: #283593;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -39,7 +39,7 @@ body {
 }
 
 .info-section {
-    background: #333;
+    background: #0c1148;
     color: #ffffff;
     text-align: left;
     padding: 40px;
@@ -103,12 +103,12 @@ body {
 .password-container i {
     position: absolute;
     top: 50%;
-    right: 10px; /* Align icon to the right */
+    right: 10px; 
     transform: translateY(-50%);
     cursor: pointer;
-    font-size: 16px; /* Adjust font size for better appearance */
+    font-size: 16px; 
     color: #333;
-    transition: color 0.3s ease; /* Add hover effect */
+    transition: color 0.3s ease; 
 }
 
 .username-container {
@@ -191,7 +191,7 @@ body {
     position: absolute;
     top: 20px; /* Adjust position */
     left: 20px; /* Align to the left */
-    background-color: #555;
+    background-color: #1a237e    ;
     color: white;
     padding: 10px 20px;
     border-radius: 5px;
@@ -204,8 +204,8 @@ body {
     position: absolute;
     top: 20px; /* Ensure same vertical alignment */
     right: 20px; /* Align to the right */
-    background-color: #007bff;
-    color: white;
+    background-color: #ffffff;
+    color: #1a237e;
     padding: 10px 20px;
     border-radius: 5px;
     text-decoration: none;
@@ -219,7 +219,8 @@ body {
 }
 
 .dashboard-button-top:hover {
-    background-color: #555;
+    background-color: #007bff;
+    color: white;
 }
 
 
@@ -227,7 +228,7 @@ body {
     display: inline-block;
     padding: 10px 20px;
     margin: 10px 5px;
-    background-color: #333;
+    background-color: #0c1148;
     color: white;
     text-decoration: none;
     border-radius: 5px;
