@@ -5,42 +5,208 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='Logging.css') }}">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='sidebar_style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>Logging History</title>
 </head>
-<body>
-    {% include 'sidebar.html' %}
-    
-    <div class="content">
-        <div class="content-header">
-            <h2><i class="fas fa-book" style="color: #1E90FF;"></i> Logging History Deployment</h2>
-        </div>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Device Name</th>
-                        <th>IP Address</th>
-                        <th>Deployed Template Name</th>
-                        <th>Description</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="logging-table-body">
-                    <!-- Data will be inserted dynamically here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
+<style>
+    .w3-teal {
+        background-color: #0c1148 !important; /* เปลี่ยนเป็นสีเขียวเข้ม */
+        color: white !important; /* เปลี่ยนสีข้อความ */
+    }
+    .w3-sidebar {
+        background-color: #0c1148; /* Darker, modern background color */
+        color: #ffffff; /* White text color */
+        width: 250px; /* Set sidebar width */
+        padding-top: 20px;
+        position: fixed;
+        height: 100%;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+        border-right: 1px solid #3c4b5c; /* Add a border for better separation */
+    }
 
-    <!-- Modal Structure -->
-    <div id="configModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Template Details</h2>
-            <pre id="configDetails"></pre>
+        /* Style the close button */
+    .w3-sidebar .w3-button {
+        text-align: left;
+        color: #ffffff;
+        background-color: #0c1148; /* Slightly darker for contrast */
+        font-size: 1rem;
+        font-weight: bold;
+        padding: 15px;
+        border: none;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .w3-sidebar .w3-button:hover {
+        background-color: #4c5b6b; /* Slightly lighter on hover */
+        color: #ffffff;
+    }
+
+        /* Sidebar items */
+    .w3-sidebar .w3-bar-item {
+        display: flex;
+        align-items: center;
+        font-size: 1rem;
+        color: #ffffff; /* Lighter text color */
+        padding: 10px 15px;
+        border-radius: 5px; /* Rounded corners */
+        transition: background-color 0.3s ease, color 0.3s ease;
+        text-decoration: none; /* Remove underline */
+    }
+
+    .w3-sidebar .w3-bar-item i {
+        margin-right: 10px;
+        color: #1e90ff; /* Icon color */
+        font-size: 1.2rem; /* Slightly larger icons */
+        transition: color 0.3s ease;
+    }
+
+    .w3-sidebar .w3-bar-item:hover {
+        background-color: #3c4b5c; /* Highlight on hover */
+        color: #ffffff;
+    }
+
+    .w3-sidebar .w3-bar-item:hover i {
+        color: #00bfff; /* Brighter icon color on hover */
+    }
+
+        /* Active link style */
+    .w3-sidebar .w3-bar-item.active {
+        background-color: #1e90ff; /* Highlight active item */
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+    .w3-sidebar .w3-bar-item.active i {
+        color: #ffffff;
+    }
+    .w3-container {
+            overflow: hidden; /* Prevent scrolling */
+            overflow-y: hidden;
+            overflow-x: hidden;
+            height: 100%; /* Prevent content from exceeding viewport */
+        }
+    /* Responsive Adjustments for Small Screens */
+    @media (max-width: 768px) {
+    .nav-info span {
+        font-size: 14px; /* Reduce font size */
+    }
+
+    .nav-info i {
+        font-size: 16px; /* Reduce icon size */
+    }
+
+    .nav-logo a {
+        font-size: 16px; /* Adjust logo text size */
+    }
+    .nav-logo i {
+        font-size: 18px; /* Reduce icon size */
+    }
+    #openNav {
+        font-size: 24px; /* Adjust menu button size */
+    }
+}
+
+@media (max-width: 576px) {
+    .nav-info span {
+        font-size: 12px; /* Further reduce font size */
+    }
+
+    .nav-info i {
+        font-size: 12px; /* Further reduce icon size */
+    }
+
+    .nav-logo a {
+        font-size: 16px; /* Smaller logo text */
+    }
+    .nav-logo i {
+        font-size: 16px; /* Further reduce icon size */
+    }
+    #openNav {
+        font-size: 20px; /* Adjust menu button size */
+    }
+}
+</style>
+<body>
+    <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
+        <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
+        <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="/configuration" class="w3-bar-item w3-button"><i class="fas fa-cogs"></i> Create Template</a>
+        <a href="/listtemplate" class="w3-bar-item w3-button"><i class="fas fa-list"></i> List Templates</a>
+        <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy</a>
+        <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
+        <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
+        <a href="/logging" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
+    </div>
+    
+    <div id="main">
+        <div class="w3-teal">
+            <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
+            <div class="w3-container">
+                    <div class="nav-logo">
+                        <a href="/dashboard" style="color: white; text-decoration: none;">
+                            <i class="fas fa-network-wired" style="color: #1E90FF; margin-right: 10px;"></i> Cisco Automation
+                        </a>
+                    </div>
+                <div class="nav-info" >
+                    <span style="margin-right: 20px;" >
+                        <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i> 
+                        <span id="username">{{ session.get('username', 'N/A') }}</span>
+                    </span>
+                    <span>
+                        <i class="fas fa-network-wired" style="margin-right: 5px;"></i> 
+                         
+                        <span id="ip-address">
+                            {% if session.get('ip_start') and session.get('ip_end') %}
+                                {{ session.get('ip_start', 'N/A') }} - {{ session.get('ip_end', 'N/A') }}
+                            {% elif session.get('ip_start') %}
+                                {{ session.get('ip_start', 'N/A') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+                    </span>
+                    <span>
+                        <a href="/logout" style="text-decoration: none;">
+                            <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="w3-container">
+            <div class="content-header">
+                <h2><i class="fas fa-book" style="color: #1E90FF;"></i> Logging History Deployment</h2>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Device Name</th>
+                            <th>IP Address</th>
+                            <th>Deployed Template Name</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logging-table-body">
+                        <!-- Data will be inserted dynamically here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal Structure -->
+        <div id="configModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Template Details</h2>
+                <pre id="configDetails"></pre>
+            </div>
         </div>
     </div>
 
@@ -95,5 +261,76 @@
             });
         });
     </script>
+
+<script>
+    function w3_open() {
+        document.getElementById("main").style.marginLeft = "25%";
+        document.getElementById("mySidebar").style.width = "25%";
+        document.getElementById("mySidebar").style.display = "block";
+        document.getElementById("openNav").style.display = 'none';
+    }
+    function w3_close() {
+        document.getElementById("main").style.marginLeft = "0%";
+        document.getElementById("mySidebar").style.display = "none";
+        document.getElementById("openNav").style.display = "inline-block";
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+        const container = document.querySelector('.w3-container');
+        if (container) {
+            container.style.overflow = "hidden"; // Disable scrolling
+        }
+    });
+</script>
+<script>
+function updateSidebarForResponsive() {
+const sidebar = document.querySelector('.w3-sidebar'); // Update selector
+const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
+    sidebar.style.width = '60px'; // Slimmer sidebar
+    sidebarItems.forEach(item => {
+        const icon = item.querySelector('i'); // Find the icon
+        const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
+
+        if (icon) {
+            item.style.justifyContent = 'center'; // Center icons
+            item.style.gap = '0'; // Remove gap between text and icons
+            textNodes.forEach(node => node.textContent = ''); // Remove text
+        }
+    });
+} else {
+    sidebar.style.width = '250px'; // Default sidebar width for larger screens
+    sidebarItems.forEach(item => {
+        const originalText = item.getAttribute('data-original-text');
+        if (originalText) {
+            // Restore the original text and gap
+            const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
+            item.innerHTML = `${iconHTML} ${originalText}`;
+            item.style.justifyContent = 'flex-start';
+        }
+    });
+}
+}
+
+// Store original text for restoration
+document.addEventListener('DOMContentLoaded', () => {
+const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+sidebarItems.forEach(item => {
+    const textContent = Array.from(item.childNodes)
+        .filter(node => node.nodeType === 3) // Only text nodes
+        .map(node => node.textContent.trim()) // Trim whitespace
+        .join(' '); // Combine text nodes into one string
+
+    if (textContent) {
+        item.setAttribute('data-original-text', textContent); // Store original text
+    }
+});
+
+// Apply responsiveness on load and resize
+updateSidebarForResponsive();
+window.addEventListener('resize', updateSidebarForResponsive);
+});
+</script>
 </body>
 </html>
