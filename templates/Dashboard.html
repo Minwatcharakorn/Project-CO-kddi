@@ -198,23 +198,8 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for switch in switches %}
-                            <tr>
-                                <td>{{ switch.model }}</td>
-                                <td>{{ switch.serial }}</td>
-                                <td>{{ switch.hostname }}</td>
-                                <td>{{ switch.ip }}</td>
-                                <td>{{ switch.status }}</td>
-                                <td>
-                                    <div class="action-buttons-dashboard">
-                                        <a href="/info/{{ switch.id }}" title="View Details">
-                                            <i class="fas fa-info"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                        <tbody id="switch-table-body">
+                            <!-- อาจมีข้อมูลจาก Jinja2 เป็น initial load -->
                         </tbody>
                     </table>
                 </div>
@@ -294,5 +279,41 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', updateSidebarForResponsive);
 });
     </script>
+
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    fetchSwitchData();
+
+    function fetchSwitchData() {
+        fetch('/api/get_switches')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('switch-table-body');
+                tableBody.innerHTML = ''; // Clear existing data
+
+                data.forEach(device => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${device.model || 'N/A'}</td>
+                        <td>${device.serial || 'N/A'}</td>
+                        <td>${device.hostname || 'N/A'}</td>
+                        <td>${device.ip || 'N/A'}</td>
+                        <td>${device.status || 'N/A'}</td>
+                        <td>
+                            <div class="action-buttons-dashboard">
+                                <a href="/info/${device.id}" title="View Details">
+                                    <i class="fas fa-info"></i>
+                                </a>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching switch data:', error));
+    }
+});
+    </script>
+
 </body>
 </html>
