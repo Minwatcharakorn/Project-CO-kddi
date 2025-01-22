@@ -143,7 +143,7 @@
         <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy</a>
         <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
         <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
-        <a href="/logging" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
+        <a href="/logging_page" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
     </div>
     <div id="main">
         <div class="w3-teal">
@@ -206,11 +206,11 @@
                 <div class="dropdown-container">
                     <label for="switchSelector">Select Switch: </label>
                     <select id="switchSelector" onchange="switchSelectionChanged()">
-                        {% for switch in switches %}
+                        <!-- {% for switch in switches %}
                             <option value="{{ switch['id'] }}" {% if switch['id'] == switch_id %}selected{% endif %}>
                                 {{ switch['hostname'] }} ({{ switch['ip'] }})
                             </option>
-                        {% endfor %}
+                        {% endfor %} -->
                     </select>
                     <a href="/dashboard" class="back-to-dashboard-button">Back to Dashboard</a>
                 </div>
