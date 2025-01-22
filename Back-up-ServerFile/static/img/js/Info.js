@@ -21,10 +21,19 @@ function showErrorModal(message, description = '') {
     // Add event listener to close the modal
     const closeErrorModal = document.getElementById('closeErrorModal');
     closeErrorModal.onclick = () => {
-        const errorModal = document.getElementById('errorModal');
         errorModal.style.display = 'none';
     };
 }
+
+// Variables to track loading state
+let dataLoaded = 0; // Number of APIs that have loaded successfully
+const totalAPIs = 3; // Total number of APIs to load
+
+const checkAllLoaded = () => {
+    if (dataLoaded === totalAPIs) {
+        document.getElementById('loadingModal').style.display = 'none'; // Hide Loading Modal
+    }
+};
 
 // Function to Fetch VLAN Information
 async function fetchVlanInfo() {
@@ -69,6 +78,8 @@ async function fetchVlanInfo() {
         } else {
             document.getElementById("noVlanMessage").style.display = "table-row";
         }
+        dataLoaded++;
+        checkAllLoaded();
     } catch (error) {
         console.error("Error fetching VLAN data:", error);
         showErrorModal(
@@ -80,7 +91,6 @@ async function fetchVlanInfo() {
 
 // Fetch VLAN data when the page is loaded
 document.addEventListener("DOMContentLoaded", fetchVlanInfo);
-
 
 
 // Existing DOMContentLoaded logic
@@ -120,7 +130,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const memoryUsage = data.memory_usage || 0;
         const temperature = data.temperature || 0;
 
-        const createChart = (ctx, label, value, color, yAxisLabel = 'Percentage') => {
+        // Create individual charts
+        const createChart = (ctx, label, value, color) => {
             new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -135,57 +146,34 @@ document.addEventListener("DOMContentLoaded", async () => {
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: yAxisLabel === 'Celsius' ? 100 : 100, // Adjust max for Celsius
+                            max: 100,
                             title: {
                                 display: true,
-                                text: yAxisLabel // Use Celsius for Temperature
+                                text: 'Percentage'
                             }
                         }
                     },
                     plugins: {
                         legend: { display: false },
-                        tooltip: { enabled: false },
-                        datalabels: {
-                            display: true,
-                            color: '#000',
-                            font: {
-                                size: 12,
-                                weight: 'bold'
-                            },
-                            formatter: (value) => yAxisLabel === 'Celsius' ? `${value}°C` : `${value}%`,
-                            anchor: 'end',
-                            align: 'end',
-                        }
+                        tooltip: { enabled: false }
                     }
-                },
-                plugins: [
-                    ChartDataLabels,
-                    {
-                        id: 'insideLabel',
-                        beforeDatasetsDraw(chart) {
-                            const ctx = chart.ctx;
-                            chart.data.datasets.forEach((dataset, i) => {
-                            });
-                        }
-                    }
-                ]
+                }
             });
         };
 
         createChart(document.getElementById('cpuChart'), 'CPU Usage', cpuUsage, 'rgba(50, 205, 50, 0.7)');
         createChart(document.getElementById('memoryChart'), 'Memory Usage', memoryUsage, 'rgba(54, 162, 235, 0.6)');
-        // createChart(document.getElementById('temperatureChart'), 'Temperature', temperature, 'rgba(255, 99, 71, 0.7)');
-        createChart(
-            document.getElementById('temperatureChart'),
-            'Temperature',
-            temperature,
-            'rgba(255, 99, 71, 0.7)',
-            'Celsius' // Set the Y-axis label to Celsius
-        );
+        createChart(document.getElementById('temperatureChart'), 'Temperature', temperature, 'rgba(255, 99, 71, 0.7)');
+
+        document.getElementById('cpuPercent').innerText = `${cpuUsage}%`;
+        document.getElementById('memoryPercent').innerText = `${memoryUsage}%`;
+        document.getElementById('temperatureValue').innerText = `${temperature}°C`;
+
+        dataLoaded++;
+        checkAllLoaded();
 
     } catch (error) {
         console.error("Error loading switch data:", error);
@@ -195,8 +183,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             "Error Loading Data",
             "Unable to fetch switch information. Please check your network or try again later."
         );
-    } finally {
-        loadingModal.style.display = 'none';
     }
 });
 
@@ -230,9 +216,11 @@ async function fetchLicenseInfo() {
         } else {
             licenseContainer.innerHTML = "<p>No license information available.</p>";
         }
+        dataLoaded++;
+        checkAllLoaded();
     } catch (error) {
         console.error("Error fetching license data:", error);
-        showErrorModal("Error Loading License Data", "Unable to fetch license information. Please try again.");
+        showErrorModal("Error Loading License Data", "Unable to fetchlicense information. Please try again.");
     }
 }
 

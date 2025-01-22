@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Device</title>
+    <title>Deployment Log</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="../static/log.css">
+    <link rel="stylesheet" href="../static/templates_list.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='sidebar_style.css') }}">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard_styles.css') }}">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <style>
     .w3-teal {
@@ -139,7 +140,7 @@
         <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy</a>
         <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
         <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
-        <a href="/logging_page" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
+        <a href="/logging" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
     </div>
 
     <div id="main">
@@ -176,123 +177,115 @@
                     </span>
                 </div>
             </div>
-        </div>
+            <div class="w3-container">
+                <div class="content-header">
+                    <div class="breadcrumb">
+                        <h2><a href="{{ url_for('deploy_page') }}">Devices</a></h2> &gt; 
+                        <h2><a href="{{ url_for('select_templates') }}">Select Templates</a></h2> &gt; 
+                        <h2><a href="{{ url_for('pre_deployment') }}">Pre-Deployment</a></h2> &gt; 
+                        <h2><i class="fas fa-clipboard-list" style="color: #1E90FF;"></i> Deployment Log</h2>
+                    </div>
+                </div>
 
-        <div class="w3-container">
-            <div class="content-header">
-                <h2>
-                    <i class="fas fa-home" style="color: #1E90FF;"></i> Dashboard Device
-                </h2>  
-            </div>
-
-            <div class="content-body">
-                <div class="table-container">
+                <div class="content-body">
                     <table>
                         <thead>
                             <tr>
-                                <th>Model</th>
-                                <th>Serial No./Token</th>
                                 <th>Hostname</th>
                                 <th>IP</th>
+                                <th>Template Name</th>
                                 <th>Status</th>
-                                <th>Action</th>
+                                <th>Details</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for switch in switches %}
+                            {% for log in deployment_logs %}
                             <tr>
-                                <td>{{ switch.model }}</td>
-                                <td>{{ switch.serial }}</td>
-                                <td>{{ switch.hostname }}</td>
-                                <td>{{ switch.ip }}</td>
-                                <td>{{ switch.status }}</td>
+                                <td>{{ log.hostname }}</td>
+                                <td>{{ log.ip }}</td>
+                                <td>{{ log.template_name }}</td>
                                 <td>
-                                    <div class="action-buttons-dashboard">
-                                        <a href="/info/{{ switch.id }}" title="View Details">
-                                            <i class="fas fa-info"></i>
-                                        </a>
-                                    </div>
+                                    <span class="{{ 'status-success' if log.status == 'Success' else 'status-failure' }}">
+                                        {{ log.status }}
+                                    </span>
                                 </td>
+                                <td><pre>{{ log.details }}</pre></td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
-
-
         </div>
-    </div>
-
-    <script>
-        function w3_open() {
-            document.getElementById("main").style.marginLeft = "25%";
-            document.getElementById("mySidebar").style.width = "25%";
-            document.getElementById("mySidebar").style.display = "block";
-            document.getElementById("openNav").style.display = 'none';
-        }
-        function w3_close() {
-            document.getElementById("main").style.marginLeft = "0%";
-            document.getElementById("mySidebar").style.display = "none";
-            document.getElementById("openNav").style.display = "inline-block";
-        }
-        document.addEventListener("DOMContentLoaded", function () {
-            const container = document.querySelector('.w3-container');
-            if (container) {
-                container.style.overflow = "hidden"; // Disable scrolling
+        <script>
+            function w3_open() {
+                document.getElementById("main").style.marginLeft = "25%";
+                document.getElementById("mySidebar").style.width = "25%";
+                document.getElementById("mySidebar").style.display = "block";
+                document.getElementById("openNav").style.display = 'none';
             }
-        });
-    </script>
-    <script>
-function updateSidebarForResponsive() {
-    const sidebar = document.querySelector('.w3-sidebar'); // Update selector
-    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
-
-    if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
-        sidebar.style.width = '60px'; // Slimmer sidebar
+            function w3_close() {
+                document.getElementById("main").style.marginLeft = "0%";
+                document.getElementById("mySidebar").style.display = "none";
+                document.getElementById("openNav").style.display = "inline-block";
+            }
+            document.addEventListener("DOMContentLoaded", function () {
+                const container = document.querySelector('.w3-container');
+                if (container) {
+                    container.style.overflow = "hidden"; // Disable scrolling
+                }
+            });
+        </script>
+        <script>
+        function updateSidebarForResponsive() {
+        const sidebar = document.querySelector('.w3-sidebar'); // Update selector
+        const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+        
+        if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
+            sidebar.style.width = '60px'; // Slimmer sidebar
+            sidebarItems.forEach(item => {
+                const icon = item.querySelector('i'); // Find the icon
+                const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
+        
+                if (icon) {
+                    item.style.justifyContent = 'center'; // Center icons
+                    item.style.gap = '0'; // Remove gap between text and icons
+                    textNodes.forEach(node => node.textContent = ''); // Remove text
+                }
+            });
+        } else {
+            sidebar.style.width = '250px'; // Default sidebar width for larger screens
+            sidebarItems.forEach(item => {
+                const originalText = item.getAttribute('data-original-text');
+                if (originalText) {
+                    // Restore the original text and gap
+                    const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
+                    item.innerHTML = `${iconHTML} ${originalText}`;
+                    item.style.justifyContent = 'flex-start';
+                }
+            });
+        }
+        }
+        
+        // Store original text for restoration
+        document.addEventListener('DOMContentLoaded', () => {
+        const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+        
         sidebarItems.forEach(item => {
-            const icon = item.querySelector('i'); // Find the icon
-            const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
-
-            if (icon) {
-                item.style.justifyContent = 'center'; // Center icons
-                item.style.gap = '0'; // Remove gap between text and icons
-                textNodes.forEach(node => node.textContent = ''); // Remove text
+            const textContent = Array.from(item.childNodes)
+                .filter(node => node.nodeType === 3) // Only text nodes
+                .map(node => node.textContent.trim()) // Trim whitespace
+                .join(' '); // Combine text nodes into one string
+        
+            if (textContent) {
+                item.setAttribute('data-original-text', textContent); // Store original text
             }
         });
-    } else {
-        sidebar.style.width = '250px'; // Default sidebar width for larger screens
-        sidebarItems.forEach(item => {
-            const originalText = item.getAttribute('data-original-text');
-            if (originalText) {
-                // Restore the original text and gap
-                const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
-                item.innerHTML = `${iconHTML} ${originalText}`;
-                item.style.justifyContent = 'flex-start';
-            }
+        
+        // Apply responsiveness on load and resize
+        updateSidebarForResponsive();
+        window.addEventListener('resize', updateSidebarForResponsive);
         });
-    }
-}
-
-// Store original text for restoration
-document.addEventListener('DOMContentLoaded', () => {
-    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
-
-    sidebarItems.forEach(item => {
-        const textContent = Array.from(item.childNodes)
-            .filter(node => node.nodeType === 3) // Only text nodes
-            .map(node => node.textContent.trim()) // Trim whitespace
-            .join(' '); // Combine text nodes into one string
-
-        if (textContent) {
-            item.setAttribute('data-original-text', textContent); // Store original text
-        }
-    });
-
-    // Apply responsiveness on load and resize
-    updateSidebarForResponsive();
-    window.addEventListener('resize', updateSidebarForResponsive);
-});
-    </script>
+        </script>
 </body>
 </html>

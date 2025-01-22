@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Device</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Templates List</title>
+    <link rel="stylesheet" href="../static/styles.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='sidebar_style.css') }}">
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard_styles.css') }}">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../static/templates_list.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <style>
     .w3-teal {
@@ -130,6 +129,7 @@
     }
 }
 </style>
+
 <body>
     <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
         <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
@@ -139,9 +139,8 @@
         <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy</a>
         <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
         <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
-        <a href="/logging_page" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
+        <a href="/logging" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
     </div>
-
     <div id="main">
         <div class="w3-teal">
             <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
@@ -177,53 +176,83 @@
                 </div>
             </div>
         </div>
-
         <div class="w3-container">
             <div class="content-header">
                 <h2>
-                    <i class="fas fa-home" style="color: #1E90FF;"></i> Dashboard Device
-                </h2>  
+                    <i class="fas fa-list" style="color: #1E90FF;"></i> List Templates
+                </h2>
+                <button class="upload-button" onclick="location.href='/uploadtemplate'">
+                    <i class="fas fa-upload"></i> Upload Template
+                </button>
             </div>
 
-            <div class="content-body">
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Model</th>
-                                <th>Serial No./Token</th>
-                                <th>Hostname</th>
-                                <th>IP</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for switch in switches %}
-                            <tr>
-                                <td>{{ switch.model }}</td>
-                                <td>{{ switch.serial }}</td>
-                                <td>{{ switch.hostname }}</td>
-                                <td>{{ switch.ip }}</td>
-                                <td>{{ switch.status }}</td>
-                                <td>
-                                    <div class="action-buttons-dashboard">
-                                        <a href="/info/{{ switch.id }}" title="View Details">
-                                            <i class="fas fa-info"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable(0)">NO <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable(1)">Template Name <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable(2)">Description <i class="fas fa-sort"></i></th>
+                            <th>Type</th>
+                            <th onclick="sortTable(4)">Last Updated <i class="fas fa-sort"></i></th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="template-table-body">
+                        {% for template in templates %}
+                        <tr>
+                            <td>{{ template[0] }}</td>
+                            <td>{{ template[1] }}</td>
+                            <td>{{ template[2] }}</td>
+                            <td>{{ template[3] }}</td>
+                            <td>{{ template[4] }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-view" onclick="openModal('{{ template[0] }}', 'Visit')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-edit" onclick="openModal('{{ template[0] }}', 'Edit')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-delete" onclick="deleteTemplate('{{ template[0] }}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-
-
         </div>
     </div>
 
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modal-title">Template Details</h3>
+            <div id="command-output" class="terminal">
+                <pre id="template-details"></pre>
+            </div>
+            <div id="edit-area" style="display: none;">
+                <textarea id="edit-textarea" style="width: 100%; height: 200px;"></textarea>
+                <button class="btn-save" onclick="saveTemplate()">Save</button>
+            </div>
+        </div>
+    </div>
+    <!-- Error Modal -->
+    <div id="errorModal" class="error-modal-templates-list" style="display: none;">
+        <div class="error-modal-content">
+            <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+            <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;">Error Message Here</p>
+            <br>
+            <button id="closeErrorModal" class="error-modal-button">OK</button>
+        </div>
+    </div>
+    <!-- Load the JavaScript at the end -->
+    <script src="../static/js/templates.js"></script>
+    <script src="../static/js/sort.js"></script>
     <script>
         function w3_open() {
             document.getElementById("main").style.marginLeft = "25%";

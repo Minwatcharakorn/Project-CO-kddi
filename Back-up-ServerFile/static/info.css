@@ -1,0 +1,533 @@
+
+.device-info-container {    
+    margin-top: 10px; /* Space for the top nav */
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+    min-height: calc(100vh - 60px); /* Ensure it covers the full height */
+}
+
+.switch-info {
+    background-color: #f8f9fa;
+    border: 1px solid #cfd9e6;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: visible;
+}
+
+.switch-model {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+}
+
+.switch-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: #333;
+}
+.switch-info h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.switch-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.switch-details span {
+    font-size: 14px;
+    color: #555;
+}
+
+.device-status {
+    background-color: #f5f7fa;
+    border: 1px solid #cfd9e6;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    flex: 2; /* Occupy more space for Device Status */
+
+}
+
+.device-status h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.chart-container {
+    display: flex;
+    flex-wrap: wrap; /* ให้กราฟเลื่อนลงเมื่อพื้นที่ไม่พอ */
+    gap: 20px; /* ระยะห่างระหว่างกราฟ */
+    justify-content: center; /* จัดให้อยู่ตรงกลาง */
+    align-items: flex-start; /* จัดให้อยู่แนวบน */
+}
+
+.port-status {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); /* ปรับให้แถวเล็กลงอัตโนมัติ */
+    grid-gap: 10px; /* Add space between grid items */
+    justify-content: center; /* Center the grid within the container */
+    padding: 20px;
+    background-color: #f0f4f7;
+    border-radius: 10px;
+}
+
+.port {
+    display: flex;
+    flex-direction: column; /* จัดให้ข้อความอยู่ด้านล่าง */
+    align-items: center; /* จัดให้อยู่กึ่งกลางแนวนอน */
+    justify-content: center; /* จัดให้อยู่กึ่งกลางแนวตั้ง */
+    width: 60px; /* กำหนดความกว้างให้พอดี */
+    height: 60px; /* กำหนดความสูงให้พอดี */
+    border-radius: 8px; /* มุมโค้งให้ดูสวยงาม */
+    border: 1px solid #a0a0a0;
+    background-color: #d3d3d3; /* สีพื้นหลังเริ่มต้น */
+    position: relative;
+}
+
+
+.port.active {
+    background-color: #32CD32; /* Green for active ports */
+}
+
+.port img {
+    width: 30px;
+    height: 30px;
+    margin-top: 10px;
+}
+
+.port-number {
+    font-size: 9px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 3px; /* Adjust spacing below the image */
+    text-align: center;
+    position: relative;
+    top: -3px; /* Push the number slightly downward */
+    word-wrap: break-word; /* รองรับชื่อยาว */
+
+}
+
+.chart-percentage {
+    position: absolute;
+    bottom: 10px; /* ระยะจากด้านล่าง */
+    /* left: 50%; จัดให้อยู่ตรงกลาง */
+    transform: translateX(-50%); /* ปรับให้อยู่ตรงกลางจริง */
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+}
+.vlan-info {
+    background-color: #f9fafb;
+    border: 1px solid #cfd9e6;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    -webkit-overflow-scrolling: touch; /* เพิ่ม smooth scrolling */
+    overflow-x: auto; /* เปิดการเลื่อนแนวนอน */
+
+}
+
+.vlan-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-family: monospace; /* Match CLI appearance */
+
+}
+
+.vlan-table td {
+    text-align: right; /* Align text to the right */
+    padding: 8px 12px; /* Add padding for better spacing */
+    white-space: pre-wrap; /* Allow text wrapping for long content */
+    word-wrap: break-word; /* Break words if necessary */
+}
+
+
+.vlan-table th, 
+.vlan-table td {
+    text-align: center;
+    padding: 8px 10px; /* เพิ่มระยะห่างระหว่างข้อความ */
+    white-space: nowrap; /* ป้องกันข้อความล้น */
+}
+
+.vlan-table th {
+    background-color: #2d2d2d; /* Darker header background */
+    color: #ffffff; /* White text for the header */
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid #ccc;
+    padding: 8px 12px; /* Add padding for better spacing */
+    white-space: pre-wrap; /* Allow text wrapping for long content */
+    word-wrap: break-word; /* Break words if necessary */
+}
+
+
+.sortable-placeholder {
+    background: #f0f4f7;
+    border: 2px dashed #cfd9e6;
+    height: 100px;
+    margin-bottom: 20px;
+}
+
+.system-info {
+    background-color: #f9fafb; /* สีพื้นหลัง */
+    border: 1px solid #cfd9e6; /* เส้นขอบ */
+    border-radius: 15px; /* มุมโค้ง */
+    padding: 20px; /* ระยะห่างภายใน */
+    margin-top: 20px; /* ระยะห่างด้านบน */
+    font-family: Arial, sans-serif;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* เงาเบาๆ */
+    max-width: 100%; /* ใช้ความกว้างเต็มที่ใน container */
+    overflow-wrap: break-word; /* ให้ข้อความตัดบรรทัดเมื่อยาวเกิน */
+    word-wrap: break-word; /* สำรองสำหรับเบราว์เซอร์เก่า */
+    word-break: break-word; /* ตัดคำในกรณีที่คำยาวเกิน */
+}
+
+.system-info h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+
+.system-info-item {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+
+.system-info-item:last-child {
+    border-bottom: none;
+}
+
+.system-info-label {
+    font-weight: bold;
+    color: #333;
+}
+
+.system-info-value {
+    color: #555;
+    display: block; /* Forces each label-value pair to take up its own line */
+    white-space: pre-wrap; /* ยอมให้ข้อความขึ้นบรรทัดใหม่โดยไม่ถูกตัด */
+
+}
+.chart-container {
+    display: flex;
+    flex-wrap: wrap; /* ให้ chart ซ้อนกันในหน้าจอเล็ก */
+    justify-content: center; /* จัดให้อยู่กลาง */
+    gap: 10px;
+}
+
+.chart-item {
+    width: 100%; /* เต็มความกว้างของหน้าจอเล็ก */
+    max-width: 300px; /* จำกัดขนาดสูงสุด */
+    text-align: center;
+    flex: 1 1 100%; /* ให้ใช้พื้นที่เต็มในหน้าจอเล็ก */
+    margin-bottom: 20px; /* เพิ่มระยะห่างระหว่างกราฟและกราฟถัดไป */
+
+}
+
+.chart-item canvas {
+    width: 100% !important; /* ให้ canvas ปรับขนาดตาม container */
+    height: auto !important;
+}
+
+.chart-item p {
+    position: absolute;
+    font-size: 14px;
+    font-weight: bold;
+    margin-left: 170px;
+    color: #333;
+}
+
+
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    visibility: hidden;
+}
+
+.spinner {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #3498db;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto; /* เพิ่มระยะห่างเพื่อความสวยงาม */
+
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner-overlay p {
+    color: white;
+    margin-top: 10px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.vlan-table td:nth-child(4), 
+.vlan-table th:nth-child(4) {
+    max-width: none; /* Remove the max-width restriction */
+    white-space: pre-wrap; /* Allow wrapping */
+    overflow: hidden; /* ซ่อนข้อความเกิน */
+    text-overflow: ellipsis; /* แสดง ... เมื่อข้อความเกิน */
+    word-wrap: break-word; /* Ensure words wrap */
+
+}
+
+.vlan-table td {
+    background-color: #f9f9f9; /* Subtle row background */
+    color: #333; /* Standard text color */
+    border-bottom: 1px solid #ddd;
+}
+
+
+/* Add alternate row colors for better readability */
+.vlan-table tr:nth-child(even) td {
+    background-color: #f0f0f0;
+}
+
+/* Highlight hover effect for rows */
+.vlan-table tr:hover td {
+    background-color: #d9e5f3;
+}
+
+/* Ports column specific styling */
+.vlan-table td:nth-child(4) {
+    text-align: left; /* Align ports to the left for better readability */
+    white-space: pre-wrap; /* Allow wrapping for long lists of ports */
+    word-wrap: break-word;
+    font-family: monospace; /* Use monospace for a CLI-like look */
+}
+
+.info-container {
+    display: flex;
+    justify-content: space-between; /* Spread the sections horizontally */
+    gap: 20px;
+    flex-direction: row; /* จัดเรียงในแนวนอนเป็นค่าเริ่มต้น */
+    align-items: flex-start; /* ให้เนื้อหาภายในจัดเรียงที่ด้านบน */
+    margin-top: 20px;
+}
+
+.license-info {
+    align-self: flex-end; /* Align to the right */
+    max-width: 100%; /* จำกัดความกว้างของ container */
+    background-color: #f9fafb;
+    border: 1px solid #cfd9e6;
+    font-family: Arial, sans-serif;
+
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+}
+
+.license-info h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #333;
+    word-wrap: break-word; /* ตัดคำเมื่อยาวเกิน */
+
+}
+
+.license-item {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+
+.license-item:last-child {
+    border-bottom: none;
+}
+
+.license-item p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.system-info, .license-info {
+    flex: 1; /* ให้แต่ละกล่องมีขนาดเท่ากัน */
+    min-width: 0; /* ป้องกันการล้น */
+    padding: 10px;
+    border: 1px solid #ddd; /* เพิ่มเส้นขอบ */
+    border-radius: 8px; /* เพิ่มมุมโค้ง */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+    background-color: #fff;
+}
+
+.back-to-dashboard-button {
+    display: inline-block;
+    margin-top: 20px; /* Add spacing from top */
+    padding: 10px 20px; /* Button padding */
+    background-color: #0c1148; /* Dark blue background */
+    color: white; /* White text */
+    text-decoration: none; /* Remove underline */
+    border-radius: 5px; /* Rounded corners */
+    border: 1px solid #333; /* Add a border */
+    font-weight: bold; /* Bold text */
+    font-size: 14px; /* Adjust font size */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth hover effect */
+    text-align: center; /* Center text */
+}
+
+.back-to-dashboard-button:hover {
+    background-color: #1e90ff; /* Lighter blue on hover */
+    color: white;
+    border-color: #1e90ff; /* Change border color */
+}
+
+
+/* ======== Global Responsive Styles ======== */
+
+/* สำหรับหน้าจอเล็ก (ขนาด <= 768px) */
+@media (max-width: 768px) {
+    /* Chart Section */
+    .chart-container {
+        flex-direction: column; /* เรียงกราฟในแนวตั้ง */
+        align-items: center; /* จัดกราฟให้อยู่ตรงกลาง */
+    }
+
+    .chart-item {
+        width: 100%; /* ใช้ความกว้างเต็มใน container */
+        max-width: none; /* ยกเลิกการจำกัดความกว้าง */
+    }
+
+    .chart-item p {
+        font-size: 0.9rem; /* ลดขนาดฟอนต์ */
+        margin-left: -200px; 
+    }
+
+    /* Port Section */
+    .port-status {
+        grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); /* ปรับ layout ให้เหมาะกับหน้าจอเล็ก */
+    }
+
+    .port {
+        width: 40px;
+        height: 40px;
+    }
+
+    /* VLAN Table */
+    .vlan-table {
+        width: 100%; /* ปรับตารางให้เต็มความกว้าง */
+    }
+
+    .vlan-table th,
+    .vlan-table td {
+        font-size: 0.8rem; /* ลดขนาดฟอนต์ */
+        padding: 5px; /* ลด padding */
+    }
+
+    .vlan-info {
+        overflow-x: scroll; /* เปิดการเลื่อนแนวนอน */
+    }
+
+    /* System Info & License Info */
+    .info-container {
+        flex-direction: column; /* เรียงกล่องในแนวตั้ง */
+        align-items: center;
+    }
+
+    .system-info, .license-info {
+        width: 100%; /* ใช้ความกว้างเต็ม */
+        max-width: 650px; /* จำกัดความกว้างสูงสุด */
+        margin-bottom: 20px; /* เพิ่มระยะห่างระหว่างกล่อง */
+    }
+
+    .system-info, .license-info {
+        font-size: 0.9rem; /* ลดขนาดฟอนต์ */
+        flex-direction: column; /* เรียงกล่องในแนวตั้ง */
+        align-items: center;
+        padding: 15px; /* ลด padding */
+    }
+}
+
+/* สำหรับหน้าจอเล็กมาก (ขนาด <= 576px) */
+@media (max-width: 576px) {
+    /* Chart Section */
+    .chart-item {
+        max-width: 200px; /* จำกัดความกว้าง chart */
+    }
+
+    /* Port Section */
+    .port-status {
+        grid-template-columns: repeat(3, 1fr); /* แสดง port เป็น 3 คอลัมน์ */
+    }
+
+    /* VLAN Table */
+    .vlan-table th,
+    .vlan-table td {
+        font-size: 0.7rem; /* ลดฟอนต์ให้เล็กลง */
+    }
+
+    .vlan-info {
+        overflow-x: scroll; /* เปิดการเลื่อนแนวนอน */
+    }
+
+    /* System Info & License Info */
+    .system-info {
+        font-size: 0.8rem; /* ลดขนาดฟอนต์เพิ่มเติม */
+    }
+}
+
+/* สำหรับหน้าจอขนาดกลาง (ขนาด <= 1024px) */
+@media (max-width: 1024px) {
+    .chart-container {
+        flex-direction: column; /* เรียงกราฟในแนวตั้ง */
+        align-items: center;
+    }
+
+    .chart-item {
+        width: 100%; /* ใช้ความกว้างเต็ม */
+        max-width: none; /* ยกเลิกการจำกัดความกว้าง */
+    }
+
+    .chart-item p {
+        font-size: 0.9rem; /* ลดขนาดฟอนต์ */
+        margin-left: 330px; 
+    }
+
+    .system-info, .license-info {
+        font-size: 0.9rem;
+        flex-direction: column; 
+        align-items: center;
+        padding: 15px; 
+    }
+}

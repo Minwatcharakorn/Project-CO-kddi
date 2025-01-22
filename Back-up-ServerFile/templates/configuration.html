@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Create Configuration Templates</title>
+        
+        <!-- Main Styles -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='create_config_page.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='Modal_loading.css') }}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='sidebar_style.css') }}">
+
+        <!-- Select2 Styles -->
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    
+        <!-- jQuery (Required for Select2) -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+        <!-- Select2 Script -->
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
+
+    </head>
+    <style>
+        
+        .w3-teal {
+            background-color: #0c1148 !important; /* เปลี่ยนเป็นสีเขียวเข้ม */
+            color: white !important; /* เปลี่ยนสีข้อความ */
+        }
+        .w3-sidebar {
+            background-color: #0c1148; /* Darker, modern background color */
+            color: #ffffff; /* White text color */
+            width: 250px; /* Set sidebar width */
+            padding-top: 20px;
+            position: fixed;
+            height: 100%;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+            border-right: 1px solid #3c4b5c; /* Add a border for better separation */
+        }
+    
+            /* Style the close button */
+        .w3-sidebar .w3-button {
+            text-align: left;
+            color: #ffffff;
+            background-color: #0c1148; /* Slightly darker for contrast */
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 15px;
+            border: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+    
+        .w3-sidebar .w3-button:hover {
+            background-color: #4c5b6b; /* Slightly lighter on hover */
+            color: #ffffff;
+        }
+    
+            /* Sidebar items */
+        .w3-sidebar .w3-bar-item {
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            color: #ffffff; /* Lighter text color */
+            padding: 10px 15px;
+            border-radius: 5px; /* Rounded corners */
+            transition: background-color 0.3s ease, color 0.3s ease;
+            text-decoration: none; /* Remove underline */
+        }
+    
+        .w3-sidebar .w3-bar-item i {
+            margin-right: 10px;
+            color: #1e90ff; /* Icon color */
+            font-size: 1.2rem; /* Slightly larger icons */
+            transition: color 0.3s ease;
+        }
+    
+        .w3-sidebar .w3-bar-item:hover {
+            background-color: #3c4b5c; /* Highlight on hover */
+            color: #ffffff;
+        }
+    
+        .w3-sidebar .w3-bar-item:hover i {
+            color: #00bfff; /* Brighter icon color on hover */
+        }
+    
+            /* Active link style */
+        .w3-sidebar .w3-bar-item.active {
+            background-color: #1e90ff; /* Highlight active item */
+            color: #ffffff;
+            font-weight: bold;
+        }
+    
+        .w3-sidebar .w3-bar-item.active i {
+            color: #ffffff;
+        }
+        .w3-container {
+            overflow: hidden; /* Prevent scrolling */
+            overflow-y: hidden;
+            overflow-x: hidden;
+            height: 100%; /* Prevent content from exceeding viewport */
+        }
+
+    </style>
+<body>
+    <!-- Sidebar -->
+    <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
+        <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
+        <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="/configuration" class="w3-bar-item w3-button"><i class="fas fa-cogs"></i> Create Template</a>
+        <a href="/listtemplate" class="w3-bar-item w3-button"><i class="fas fa-list"></i> List Templates</a>
+        <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy</a>
+        <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
+        <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
+        <a href="/logging" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
+    </div>
+    <div id="main">
+        <div class="w3-teal">
+            <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
+            <div class="w3-container">
+                <div class="nav-logo" style="overflow: hidden;">
+                    <a href="/dashboard" style="color: white; text-decoration: none;">
+                        <i class="fas fa-network-wired" style="color: #1E90FF; margin-right: 10px;"></i> Cisco Automation
+                    </a>
+                </div>
+                <div class="nav-info" style="overflow: hidden;">
+                    <span style="margin-right: 20px;" >
+                        <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i> 
+                        Username: <span id="username">{{ session.get('username', 'N/A') }}</span>
+                    </span>
+                    <span>
+                        <i class="fas fa-network-wired" style="margin-right: 5px;"></i> 
+                        IP: 
+                        <span id="ip-address">
+                            {% if session.get('ip_start') and session.get('ip_end') %}
+                                {{ session.get('ip_start', 'N/A') }} - {{ session.get('ip_end', 'N/A') }}
+                            {% elif session.get('ip_start') %}
+                                {{ session.get('ip_start', 'N/A') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+                    </span>
+                    <span>
+                        <a href="/logout" style="text-decoration: none;">
+                            <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="w3-container">
+            <div class="content-header">
+                <h2>
+                    <i class="fas fa-cogs" style="color: #1E90FF;"></i> Create Template
+                </h2>  
+            </div>
+
+            <!-- Template Information -->
+            <div class="config-section" id="template-information-config">
+                <h3>Template Information</h3>
+                <form class="template-config-form">
+                    <!-- Template Name -->  
+                    <div class="form-group">
+                        <label for="template-name">Template Name</label>
+                        <input type="text" id="template-name" name="template-name" placeholder="Enter Template Name" required>
+                        <label for="template-description">Description</label>
+                        <textarea id="template-description" name="template-description" placeholder="Enter Template Description" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+
+
+            <!-- Hostname Configuration -->
+            <div class="config-section">
+                <h3>Hostname Configuration</h3>
+                <form id="hostname-form" class="hostname-forms-config">
+                    <div class="form-group">
+                        <label for="hostname-input">Hostname</label>
+                        <input type="text" id="hostname-input" placeholder="Enter Hostname" required >
+                        <div class="alert-box error" id="hostname-error" style="display: none;">
+                            <span>ERROR: </span> Hostname can only contain English letters, numbers, and special characters except "?". 
+                            Spaces are not allowed.
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Create VLANs -->
+            <div class="config-section vlan-config-section" id="create-vlan-multiple">
+                <h3>Create VLANs</h3>
+                <button type="button" id="add-vlan-row" class="styled-button vlan-add-button">Add VLAN</button>
+                <br><br>
+                <div id="vlans-configs" class="vlan-configs-container">
+                    <!-- VLAN configurations will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Global STP Configuration Section -->
+            <div class="config-section">
+                <h3>Spanning Tree Protocol Configuration</h3>
+                <form class="stp-config-form">
+                    <!-- STP Mode Selection -->
+                    <div class="stp-input-form-group">
+                        <label for="stp-mode">STP Mode</label>
+                        <select id="stp-mode" name="stp-mode">
+                            <option value="" style="text-align: center;" selected>Select STP Mode ( Default )</option>
+                            <option value="pvst">PVST (Per VLAN Spanning Tree)</option>
+                            <option value="rapid-pvst">Rapid-PVST</option>
+                            <option value="mst">MST (Multiple Spanning Tree)</option>
+                        </select>
+                    </div>
+
+                    <div id="mst-config-container">
+                        <!-- JavaScript dynamically adds MST configurations here -->
+                    </div>
+
+            
+                    <!-- Toggle Table for STP Features -->
+                    <table class="stp-table">
+                        <tr>
+                            <th>Toggle</th>
+                            <th>Feature</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="switch">
+                                    <input type="checkbox" id="bpdu-guard-toggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+                            <td>BPDU Guard</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="switch">
+                                    <input type="checkbox" id="bpdu-filtering-toggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+                            <td>BPDU Filtering</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="switch">
+                                    <input type="checkbox" id="loop-guard-toggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+                            <td>Loop-Guard</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="switch">
+                                    <input type="checkbox" id="portfast-default-toggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+                            <td>Portfast ( Default )</td>
+                        </tr>
+                    </table>
+                    <br>
+                </form>
+            </div>
+
+            <!-- Link Aggregation -->
+            <div class="config-section" id="link-aggregation-config">
+                <h3>Link Aggregation Configuration</h3>
+                <button type="button" id="add-aggregation-config" class="styled-button">Add Aggregation Configuration</button>
+                <br><br>
+                <div id="aggregation-configs">
+                    <!-- Dynamic Aggregation Configurations will be added here -->
+                </div>
+            </div>
+
+            <!-- VTP Configuration Section -->
+            <div class="config-section" id="vtp-config">
+                <h3>VTP (VLAN Trunking Protocol) Configuration</h3>
+                <form id="vtp-form">
+                    <!-- VTP Mode -->
+                    <div class="vtp-form-group">
+                        <label for="vtp-mode">VTP Mode</label>
+                        <select id="vtp-mode" name="vtp-mode">
+                            <option value="" selected style="text-align: center;">Select VTP Mode ( Default )</option>
+                            <option value="server">Server</option>
+                            <option value="client">Client</option>
+                            <option value="transparent">Transparent</option>
+                        </select>
+                        <label for="vtp-version">VTP Version</label>
+                        <select id="vtp-version" name="vtp-version">
+                            <option value="" selected style="text-align: center;">Select VTP Version ( Default )</option>
+                            <option value="1">Version 1</option>
+                            <option value="2">Version 2</option>
+                            <option value="3">Version 3</option>
+                        </select>
+                        <label for="vtp-domain">VTP Domain Name</label>
+                        <input type="text" id="vtp-domain" name="vtp-domain" placeholder="Enter VTP Domain Name" required>
+                        <label for="vtp-password">VTP Password</label>
+                        <input type="text" id="vtp-password" name="vtp-password" placeholder="Enter VTP Password" required>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Interface Ports -->
+            <div class="config-section" id="interface-ports-config">
+                <h3>Interface Port Configuration</h3>
+
+                <button type="button" id="add-interface-config" class="styled-button">Add Interface Configuration</button>
+                <br><br>
+
+                <div id="interface-configs">
+                    <!-- Dynamic Interface Configurations will be added here -->
+                </div>
+
+            </div>
+
+            <!-- Port-Security -->
+            <div class="config-section" id="port-security-config">
+                <h3>Port-Security Configuration</h3>
+                <button type="button" id="add-port-security-config" class="styled-button">Add Port-Security Configuration</button>
+                <br><br>
+                <div id="port-security-configs">
+                    <!-- Dynamic Port-Security Configurations will be added here -->
+                </div>
+            </div>
+
+            <!-- NTP Configuration Section -->
+            <div class="config-section">
+                <h3>NTP Configuration</h3>
+                <form id="ntp-config-form">
+                    <div class="ntp-form-group">
+                        <label for="ntp-server">NTP Server</label>
+                        <input
+                            type="text"
+                            class="form-input"
+                            id="ntp-server"
+                            name="ntp-server"
+                            placeholder="___.___.___.___ (e.g., 202.44.204.114)"
+                        />
+                        <label for="clock-timezone">Clock Timezone</label>
+                        <select id="clock-timezone" name="clock-timezone" required>
+                            <!-- Options filled dynamically via JavaScript -->
+                        </select>
+                        <!-- Clock Set -->
+                        <label for="clock-set">Clock Set</label>
+                        <div class="clock-set-container">
+                            <input type="time" id="clock-set-time" name="clock-set-time" required>
+
+                            <select id="clock-set-day" name="clock-set-day" required>
+                                <!-- Day options will be populated by JavaScript -->
+                            </select>
+                            <select id="clock-set-month" name="clock-set-month" required>
+                                <option value="Jan">January</option>
+                                <option value="Feb">February</option>
+                                <option value="Mar">March</option>
+                                <option value="Apr">April</option>
+                                <option value="May">May</option>
+                                <option value="Jun">June</option>
+                                <option value="Jul">July</option>
+                                <option value="Aug">August</option>
+                                <option value="Sep">September</option>
+                                <option value="Oct">October</option>
+                                <option value="Nov">November</option>
+                                <option value="Dec">December</option>
+                            </select>
+                            <select id="clock-set-year" name="clock-set-year" required>
+                                <!-- Year options will be populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="config-section" id="default-gateway-config">
+                <h3>Default Gateway Configuration</h3>
+                <form id="default-gateway-form">
+                    <div class="default-gateway-form-group">
+                        <label for="default-gateway">Default Gateway</label>
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            id="default-gateway" 
+                            name="default-gateway" 
+                            placeholder="___.___.___.___ (e.g., 127.0.0.1)" 
+                        />
+                    </div>
+                </form>
+            </div>
+
+
+            <div class="save-config-container">
+                <button id="save-config-templates" class="styled2-button">
+                    <i class="fa-solid fa-file-arrow-down"></i> Preview Config Template
+                </button>
+            </div>
+        </div>
+        <br>
+
+        <!-- Error Modal -->
+        <div id="errorModal" class="modal" style="display: none;">
+            <div class="error-modal-content">
+                <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+                <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;">Error Message Here</p>
+                <br>
+                <button id="closeErrorModal" class="error-modal-button">OK</button>
+            </div>
+        </div>
+
+        <!-- Modal Preview Template -->
+        <div id="preview-configuration-template" class="preview-modal">
+            <div class="preview-modal-content">
+                <h2 class="preview-modal-header">Preview Configuration</h2>
+                <div id="preview-configuration-content" class="preview-modal-content-body cli-style">
+                    <!-- Configuration details will be injected here dynamically -->
+                </div>
+                <div class="preview-modal-footer">
+                    <button id="apply-config" class="preview-modal-button-apply">Apply Configuration</button>
+                    <button id="download-config" class="preview-modal-button-download">Download</button>
+                    <button onclick="closeModal()" class="preview-modal-button-close"">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+     <script src="../static/js/create_config.js"></script>
+     <script>
+        function w3_open() {
+            document.getElementById("main").style.marginLeft = "25%";
+            document.getElementById("mySidebar").style.width = "25%";
+            document.getElementById("mySidebar").style.display = "block";
+            document.getElementById("openNav").style.display = 'none';
+        }
+        function w3_close() {
+            document.getElementById("main").style.marginLeft = "0%";
+            document.getElementById("mySidebar").style.display = "none";
+            document.getElementById("openNav").style.display = "inline-block";
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const container = document.querySelector('.w3-container');
+            if (container) {
+                container.style.overflow = "hidden"; // Disable scrolling
+            }
+        });
+    </script>
+        <script>
+function updateSidebarForResponsive() {
+    const sidebar = document.querySelector('.w3-sidebar'); // Update selector
+    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+    if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
+        sidebar.style.width = '60px'; // Slimmer sidebar
+        sidebarItems.forEach(item => {
+            const icon = item.querySelector('i'); // Find the icon
+            const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
+
+            if (icon) {
+                item.style.justifyContent = 'center'; // Center icons
+                item.style.gap = '0'; // Remove gap between text and icons
+                textNodes.forEach(node => node.textContent = ''); // Remove text
+            }
+        });
+    } else {
+        sidebar.style.width = '250px'; // Default sidebar width for larger screens
+        sidebarItems.forEach(item => {
+            const originalText = item.getAttribute('data-original-text');
+            if (originalText) {
+                // Restore the original text and gap
+                const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
+                item.innerHTML = `${iconHTML} ${originalText}`;
+                item.style.justifyContent = 'flex-start';
+            }
+        });
+    }
+}
+
+// Store original text for restoration
+document.addEventListener('DOMContentLoaded', () => {
+    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+    sidebarItems.forEach(item => {
+        const textContent = Array.from(item.childNodes)
+            .filter(node => node.nodeType === 3) // Only text nodes
+            .map(node => node.textContent.trim()) // Trim whitespace
+            .join(' '); // Combine text nodes into one string
+
+        if (textContent) {
+            item.setAttribute('data-original-text', textContent); // Store original text
+        }
+    });
+
+    // Apply responsiveness on load and resize
+    updateSidebarForResponsive();
+    window.addEventListener('resize', updateSidebarForResponsive);
+});
+    </script>
+</body>
+</html>

@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Device</title>
+    <title>Pre-Deployment</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='sidebar_style.css') }}">
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard_styles.css') }}">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Modal_loading.css') }}">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -131,6 +130,7 @@
 }
 </style>
 <body>
+    <!-- Sidebar -->
     <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
         <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
         <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard</a>
@@ -139,9 +139,9 @@
         <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy</a>
         <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
         <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
-        <a href="/logging_page" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
+        <a href="/logging" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
     </div>
-
+    <!-- Main Content -->
     <div id="main">
         <div class="w3-teal">
             <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
@@ -177,53 +177,45 @@
                 </div>
             </div>
         </div>
-
         <div class="w3-container">
             <div class="content-header">
-                <h2>
-                    <i class="fas fa-home" style="color: #1E90FF;"></i> Dashboard Device
-                </h2>  
+                <div class="breadcrumb">
+                    <h2><a href="{{ url_for('deploy_page') }}">Devices</a></h2> &gt;
+                    <h2><a href="{{ url_for('select_templates') }}">Select Templates</a></h2> &gt;
+                    <h2><i class="fas fa-cogs" style="color: #1E90FF;"></i> Pre-Deployment</h2>
+                </div>
+                <button id="deploy-button" class="deploy-button">Deploy</button>
             </div>
 
             <div class="content-body">
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Model</th>
-                                <th>Serial No./Token</th>
-                                <th>Hostname</th>
-                                <th>IP</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for switch in switches %}
-                            <tr>
-                                <td>{{ switch.model }}</td>
-                                <td>{{ switch.serial }}</td>
-                                <td>{{ switch.hostname }}</td>
-                                <td>{{ switch.ip }}</td>
-                                <td>{{ switch.status }}</td>
-                                <td>
-                                    <div class="action-buttons-dashboard">
-                                        <a href="/info/{{ switch.id }}" title="View Details">
-                                            <i class="fas fa-info"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <div class="deployment-summary">
+                    <!-- Combined Info Section -->
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Hostname</th>
+                                    <th>IP Address</th>
+                                    <th>Template Name</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for device in devices %}
+                                <tr>
+                                    <td>{{ device.hostname }}</td>
+                                    <td>{{ device.ip }}</td>
+                                    <td>{{ template.name }}</td>
+                                    <td>{{ template.description }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-
-
         </div>
     </div>
-
     <script>
         function w3_open() {
             document.getElementById("main").style.marginLeft = "25%";
@@ -244,55 +236,110 @@
         });
     </script>
     <script>
-function updateSidebarForResponsive() {
-    const sidebar = document.querySelector('.w3-sidebar'); // Update selector
-    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
-
-    if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
-        sidebar.style.width = '60px'; // Slimmer sidebar
-        sidebarItems.forEach(item => {
-            const icon = item.querySelector('i'); // Find the icon
-            const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
-
-            if (icon) {
-                item.style.justifyContent = 'center'; // Center icons
-                item.style.gap = '0'; // Remove gap between text and icons
-                textNodes.forEach(node => node.textContent = ''); // Remove text
+        function updateSidebarForResponsive() {
+            const sidebar = document.querySelector('.w3-sidebar'); // Update selector
+            const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+        
+            if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
+                sidebar.style.width = '60px'; // Slimmer sidebar
+                sidebarItems.forEach(item => {
+                    const icon = item.querySelector('i'); // Find the icon
+                    const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
+        
+                    if (icon) {
+                        item.style.justifyContent = 'center'; // Center icons
+                        item.style.gap = '0'; // Remove gap between text and icons
+                        textNodes.forEach(node => node.textContent = ''); // Remove text
+                    }
+                });
+            } else {
+                sidebar.style.width = '250px'; // Default sidebar width for larger screens
+                sidebarItems.forEach(item => {
+                    const originalText = item.getAttribute('data-original-text');
+                    if (originalText) {
+                        // Restore the original text and gap
+                        const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
+                        item.innerHTML = `${iconHTML} ${originalText}`;
+                        item.style.justifyContent = 'flex-start';
+                    }
+                });
             }
-        });
-    } else {
-        sidebar.style.width = '250px'; // Default sidebar width for larger screens
-        sidebarItems.forEach(item => {
-            const originalText = item.getAttribute('data-original-text');
-            if (originalText) {
-                // Restore the original text and gap
-                const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
-                item.innerHTML = `${iconHTML} ${originalText}`;
-                item.style.justifyContent = 'flex-start';
-            }
-        });
-    }
-}
-
-// Store original text for restoration
-document.addEventListener('DOMContentLoaded', () => {
-    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
-
-    sidebarItems.forEach(item => {
-        const textContent = Array.from(item.childNodes)
-            .filter(node => node.nodeType === 3) // Only text nodes
-            .map(node => node.textContent.trim()) // Trim whitespace
-            .join(' '); // Combine text nodes into one string
-
-        if (textContent) {
-            item.setAttribute('data-original-text', textContent); // Store original text
         }
-    });
+        
+        // Store original text for restoration
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+        
+            sidebarItems.forEach(item => {
+                const textContent = Array.from(item.childNodes)
+                    .filter(node => node.nodeType === 3) // Only text nodes
+                    .map(node => node.textContent.trim()) // Trim whitespace
+                    .join(' '); // Combine text nodes into one string
+        
+                if (textContent) {
+                    item.setAttribute('data-original-text', textContent); // Store original text
+                }
+            });
+        
+            // Apply responsiveness on load and resize
+            updateSidebarForResponsive();
+            window.addEventListener('resize', updateSidebarForResponsive);
+        });
+            </script>
+    <script>
+        function showErrorModal(message) {
+            const modal = document.getElementById("errorModal");
+            const errorMessage = document.getElementById("errorMessage");
 
-    // Apply responsiveness on load and resize
-    updateSidebarForResponsive();
-    window.addEventListener('resize', updateSidebarForResponsive);
-});
+            if (modal && errorMessage) {
+                errorMessage.textContent = message;
+                modal.style.display = "flex";
+            }
+        }
+
+        function closeErrorModal() {
+            const modal = document.getElementById("errorModal");
+            if (modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const closeModalButton = document.getElementById("closeErrorModal");
+            if (closeModalButton) {
+                closeModalButton.addEventListener("click", closeErrorModal);
+            }
+        });
+        // Handle Deploy button
+        document.getElementById('deploy-button').addEventListener('click', async function () {
+            try {
+                const response = await fetch('/api/deploy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log("Deployment Logs:", result.logs);
+
+                    // Redirect ไปยังหน้า Deployment Log
+                    window.location.href = '/deployment_log';
+                } else {
+                    const errorResult = await response.json();
+                    throw new Error(errorResult.error || "Deployment failed.");
+                }
+            } catch (err) {
+                console.error(`Error: ${err.message}`);
+                showErrorModal(`Deployment failed: ${err.message}`);
+            }
+        });
+    </script>
+
+    <script>
+        // Redirect to deploy_log.html for direct navigation (alternative behavior)
+        document.getElementById('deploy-button').addEventListener('click', function () {
+            window.location.href = "deploy_log.html";
+        });
     </script>
 </body>
 </html>

@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deploy Devices</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='info.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='Modal_loading.css') }}">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='sidebar_style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Modal_loading.css') }}">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <title>Device Information</title>
 </head>
 <style>
     .w3-teal {
@@ -91,28 +88,9 @@
             overflow-x: hidden;
             height: 100%; /* Prevent content from exceeding viewport */
         }
-    /* Responsive Adjustments for Small Screens */
-    @media (max-width: 768px) {
-    .nav-info span {
-        font-size: 14px; /* Reduce font size */
-    }
 
-    .nav-info i {
-        font-size: 16px; /* Reduce icon size */
-    }
 
-    .nav-logo a {
-        font-size: 16px; /* Adjust logo text size */
-    }
-    .nav-logo i {
-        font-size: 18px; /* Reduce icon size */
-    }
-    #openNav {
-        font-size: 24px; /* Adjust menu button size */
-    }
-}
-
-@media (max-width: 576px) {
+        @media (max-width: 576px) {
     .nav-info span {
         font-size: 12px; /* Further reduce font size */
     }
@@ -133,7 +111,6 @@
 }
 </style>
 <body>
-
     <!-- Sidebar -->
     <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
         <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
@@ -180,149 +157,148 @@
                 </div>
             </div>
         </div>
-        <!-- Loading Modal -->
-        <div id="loadingModal" class="modal">
-            <div class="modal-content">
-                <div class="loading-spinner"></div>
-                <p>Loading</p>
+
+    <!-- Main Content -->
+    <div class="w3-container">
+        <div class="content-header">
+            <div class="breadcrumb">
+                <h2>
+                    <i class="fas fa-tools" style="color: #1E90FF;"></i> Devices
+                </h2>
             </div>
+            <button id="apply-button" class="apply-button">Next</button>
         </div>
 
-        <!-- Error Modal -->
-        <div id="errorModal" class="modal">
-            <div class="error-modal-content">
-                <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
-                <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;"></p>
-                <p style="color: #555;"></p>
-                <br>
-                <button id="closeErrorModal" class="error-modal-button">OK</button>
-            </div>
-        </div>
-
-            <!-- Main Container -->
-        <div class="w3-container">
-            <div class="device-info-container">
-                <!-- Dropdown Container -->
-                <div class="dropdown-container">
-                    <label for="switchSelector">Select Switch: </label>
-                    <select id="switchSelector" onchange="switchSelectionChanged()">
+        <div class="content-body">
+            <div class="table-container">
+                <!-- Table with data -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select-all"></th>
+                            <th>Model</th>
+                            <th>Serial No./Token</th>
+                            <th>Hostname</th>
+                            <th>IP</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="device-table-body">
                         {% for switch in switches %}
-                            <option value="{{ switch['id'] }}" {% if switch['id'] == switch_id %}selected{% endif %}>
-                                {{ switch['hostname'] }} ({{ switch['ip'] }})
-                            </option>
+                        <tr>
+                            <td><input type="checkbox" class="device-checkbox" data-ip="{{ switch.ip }}"></td>
+                            <td>{{ switch.model }}</td>
+                            <td>{{ switch.serial }}</td>
+                            <td>{{ switch.hostname }}</td>
+                            <td>{{ switch.ip }}</td>
+                            <td>{{ switch.status }}</td>
+                        </tr>
                         {% endfor %}
-                    </select>
-                    <a href="/dashboard" class="back-to-dashboard-button">Back to Dashboard</a>
-                </div>
-
-
-                <div class="switch-info">
-                    <h3 id="hostnameTop">Switch</h3>
-                    <h4>Port Status</h4>
-                    
-                    <div class="port-status"></div>
-
-                </div>
-
-                <!-- Device Status -->
-                <div class="device-status">
-                    <h3>Device Status</h3>
-                    <div class="chart-container">
-                        <div class="chart-item">
-                            <canvas id="cpuChart"></canvas>
-                        </div>
-                        <div class="chart-item">
-                            <canvas id="memoryChart"></canvas>
-                        </div>
-                        <div class="chart-item">
-                            <canvas id="temperatureChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Info and License Container -->
-                    <div class="info-container">
-                        <!-- System Info -->
-                        <div class="system-info">
-                            <h3>System Information</h3>
-                            <div class="system-info-item">
-                                <p><strong>Hostname:</strong> <span id="hostnameBottom">Loading...</span></p>
-                            </div>
-                            <div class="system-info-item">
-                                <p><strong>Device Uptime:</strong> <span id="uptime">Loading...</span></p>
-                            </div>
-                            <div class="system-info-item">
-                                <p><strong>Model:</strong> <span id="devicetypeBottom">Loading...</span></p>
-                            </div>
-                        </div>
-
-                        <!-- License Information -->
-                        <div class="license-info">
-                            <h3>License Information</h3>
-                            <div id="licenseContainer">
-                                <!-- Dynamic content from JavaScript -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                        <!-- VLAN Information Container -->
-                <div class="vlan-info">
-                    <!-- <h3>VLAN Information</h3> -->
-                    <table id="vlanTable" class="vlan-table">
-                        <thead>
-                            <tr>
-                                <th>VLAN ID</th>
-                                <th>VLAN Name</th>
-                                <th>Status</th>
-                                <th>Ports</th>
-                            </tr>
-                        </thead>
-                        <tbody id="vlanTableBody">
-                            <tr id="noVlanMessage" style="display: none;">
-                                <td colspan="4" style="text-align: center;">No VLAN data available</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-
-    <script src="../static/js/Info.js"></script>
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal" style="display: none;">
+        <div class="error-modal-content">
+            <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+            <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;">Error Message Here</p>
+            <br>
+            <button id="closeErrorModal" class="error-modal-button">OK</button>
+        </div>
+    </div>
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        fetchRealtimeSwitchData(); // Load initial data
-    });
-    </script>
-    <script>
-        function switchSelectionChanged() {
-            const selectedSwitchId = document.getElementById('switchSelector').value;
-            window.location.href = `/info/${selectedSwitchId}`;
+        function showErrorModal(message) {
+            const modal = document.getElementById("errorModal");
+            const errorMessage = document.getElementById("errorMessage");
+
+            if (modal && errorMessage) {
+                errorMessage.textContent = message;
+                modal.style.display = "flex";
+            }
         }
+
+        function closeErrorModal() {
+            const modal = document.getElementById("errorModal");
+            if (modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const closeModalButton = document.getElementById("closeErrorModal");
+            if (closeModalButton) {
+                closeModalButton.addEventListener("click", closeErrorModal);
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectAllCheckbox = document.getElementById('select-all');
+            const checkboxes = document.querySelectorAll('.device-checkbox');
+
+            selectAllCheckbox.addEventListener('change', function() {
+                checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+            });
+
+            document.getElementById('apply-button').addEventListener('click', async function() {
+                const selectedDevices = [];
+                document.querySelectorAll('.device-checkbox:checked').forEach(checkbox => {
+                    selectedDevices.push(checkbox.getAttribute('data-ip'));
+                });
+
+                if (selectedDevices.length > 0) {
+                    try {
+                        const response = await fetch('/api/select_devices', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ devices: selectedDevices })
+                        });
+
+                        const result = await response.json();
+                        if (response.ok) {
+                            window.location.href = '/select_templates'; // Redirect ไปหน้า Templates
+                        } else {
+                            throw new Error(result.error);
+                        }
+                    } catch (err) {
+                        console.error(`Error: ${err.message}`);
+                        showErrorModal(`Error: ${err.message}`);
+                    }
+                } else {
+                    showErrorModal('Please select at least one device to apply.');
+                }
+            });
+        });
     </script>
-        <script>
-            function w3_open() {
-                document.getElementById("main").style.marginLeft = "25%";
-                document.getElementById("mySidebar").style.width = "25%";
-                document.getElementById("mySidebar").style.display = "block";
-                document.getElementById("openNav").style.display = 'none';
-            }
-    
-            function w3_close() {
-                document.getElementById("main").style.marginLeft = "0";
-                document.getElementById("mySidebar").style.display = "none";
-                document.getElementById("openNav").style.display = "inline-block";
-            }
-            document.addEventListener("DOMContentLoaded", function () {
+    <script>
+        document.getElementById('next-button').addEventListener('click', function() {
+            window.location.href = "template_selection.html";
+        });
+        document.addEventListener("DOMContentLoaded", function () {
             const container = document.querySelector('.w3-container');
             if (container) {
                 container.style.overflow = "hidden"; // Disable scrolling
             }
         });
     </script>
-    <script>
+         <script>
+        function w3_open() {
+            document.getElementById("main").style.marginLeft = "25%";
+            document.getElementById("mySidebar").style.width = "25%";
+            document.getElementById("mySidebar").style.display = "block";
+            document.getElementById("openNav").style.display = 'none';
+        }
+        function w3_close() {
+            document.getElementById("main").style.marginLeft = "0%";
+            document.getElementById("mySidebar").style.display = "none";
+            document.getElementById("openNav").style.display = "inline-block";
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const container = document.querySelector('.w3-container');
+            if (container) {
+                container.style.overflow = "hidden"; // Disable scrolling
+            }
+        });
         function updateSidebarForResponsive() {
             const sidebar = document.querySelector('.w3-sidebar'); // Update selector
             const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');

@@ -1,0 +1,240 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #222;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background: #333;
+    border-radius: 15px;
+    width: 50%;
+    max-width: 900px; /* ลดความกว้าง */
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.console-settings {
+    padding: 20px;
+    background: #444;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Adds space between sections */
+}
+
+.console-settings h3 {
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.serial-settings {
+    display: flex; /* จัดวางแบบแถว */
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.serial-settings label {
+    font-size: 14px;
+    width: 30%;
+    text-align: left;
+}
+
+.serial-settings select, .serial-settings button {
+    width: 65%;
+}
+
+textarea {
+    width: 100%;
+    height: 200px; /* ลดความสูง */
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    background: #555;
+    color: #fff;
+}
+
+button, .back-button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background: #28a745;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+button:hover, .back-button:hover {
+    background: #218838;
+}
+
+input, select {
+    margin: 5px 0;
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+    border: none;
+    background: #555;
+    color: #fff;
+}
+
+.protocol-settings {
+    background: #444;
+    padding: 20px;
+    border-radius: 10px;
+    color: #fff;
+}
+
+.protocol-settings h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.protocol-settings label {
+    font-size: 14px;
+    margin-left: 5px;
+}
+
+.protocol-settings input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+
+.protocol-settings input, .protocol-settings select {
+    margin: 10px 0;
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+    border: none;
+    background: #555;
+    color: #fff;
+}
+
+button#upload-file {
+    width: fit-content; /* Automatically adjusts width to fit the content */
+    padding: 5px 10px; /* Smaller padding for a compact look */
+    margin: 10px 0; /* Add vertical spacing */
+    display: inline-block; /* Prevent full-width stretching */
+    background: #007bff; /* Blue background */
+    color: white; /* White text */
+    border-radius: 5px; /* Rounded corners for style */
+    text-align: center; /* Center the text inside */
+}
+
+button#upload-file:hover {
+    background: #0056b3; /* Slightly darker on hover */
+}
+
+.back-button {
+    background: #dc3545; /* A red color */
+    color: white;
+    text-decoration: none; /* Remove underline */
+    width: 30%; /* Increased width */
+    padding: 15px; /* Increased padding for a larger button */
+    text-align: center;
+    border-radius: 10px; /* Rounded corners */
+    font-size: 18px; /* Larger font size */
+    display: block; /* Ensure it acts as a block for centering */
+    margin: 20px auto; /* Center the button horizontally */
+}
+button#upload-file, .back-button {
+    width: 150px; /* Set a fixed width */
+    padding: 10px; /* Adjust padding for consistent appearance */
+    text-align: center; /* Center-align text */
+    border-radius: 5px; /* Keep rounded corners */
+}   
+.back-button:hover {
+    background: #a71d2a; /* A darker red for hover */
+}
+.serial-settings-row {
+    display: flex;
+    justify-content: flex-start; /* Align items to the start */
+    gap: 15px; /* Reduce space between the dropdowns */
+}
+
+.serial-settings-row div {
+    flex: 0; /* Remove any unnecessary stretching */
+}
+
+.serial-settings-row label {
+    font-size: 14px;
+    margin-right: 5px; /* Add slight space between label and dropdown */
+}
+
+.serial-settings-row select {
+    width: auto; /* Allow dropdown to fit its content */
+    flex: none; /* Prevent it from stretching */
+}
+
+button#deploy-button {
+    width: fit-content; /* Adjust to fit the content */
+    padding: 10px 20px; /* Adjust padding for a balanced look */
+    margin: 10px auto; /* Center the button horizontally */
+    display: block; /* Ensure it doesn’t stretch */
+    background: #28a745; /* Green background */
+    color: white; /* White text */
+    border-radius: 5px; /* Rounded corners for style */
+    text-align: center; /* Center-align text */
+    font-size: 16px; /* Adjust font size */
+}
+
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 50%;
+    max-width: 700px;
+    text-align: left;
+    color: #000;
+    position: relative;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+}
+
+.modal-content pre {
+    background: #f4f4f4;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+    max-height: 300px;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}

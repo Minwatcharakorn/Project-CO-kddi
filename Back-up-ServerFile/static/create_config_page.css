@@ -1,0 +1,1351 @@
+
+/* Error Styling */
+.input-error {
+    border: 2px solid #ff0000; /* Red border for error */
+    background-color: #ffc6c6; /* Light red background */
+}
+
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none; /* Initially hidden */
+}
+
+
+.config-section {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+    width: 100%; /* Adjust as needed */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+h2, h3 {
+    color: #333;
+}
+form label {
+    display: block;
+    margin-bottom: 5px;
+}
+/* Input and Form Styling */
+.config-section form input,
+.config-section form select {
+    margin-bottom: 10px;
+    width: 100%; /* ยังคงให้ input ยืดเต็มพื้นที่ */
+    max-width: 300px; /* จำกัดความกว้างไม่ให้เกิน 300px */
+    padding: 8px;
+    border-radius: 4px;
+}
+.config-section form input[type="submit"] {
+    background-color: #007bff;
+    width: auto; /* ปรับให้ปุ่มมีความกว้างเท่ากับเนื้อหาข้อความ */
+
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.config-section form input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Add spacing above the section headers */
+.config-section h3 {
+    margin-top: 10px; /* Adjust the value as needed */
+    margin-bottom: 15px; /* Consistent spacing below */
+}
+.save-config-button {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.download-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(90deg, #1a73e8, #0066cc);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+}
+
+.download-btn .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.download-btn .icon i {
+    font-size: 1.2rem;
+}
+
+.download-btn:hover {
+    background: linear-gradient(90deg, #0056b3, #004080);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.download-btn:active {
+    background: linear-gradient(90deg, #004080, #003366);
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.download-btn-outline {
+    background: transparent;
+    color: #ffffff;
+    border: 2px solid #1a73e8;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.download-btn-outline:hover {
+    background: rgba(26, 115, 232, 0.1);
+    color: #1a73e8;
+    transform: translateY(-2px);
+}
+
+.download-btn-outline:active {
+    background: rgba(26, 115, 232, 0.2);
+    transform: translateY(0);
+}
+
+
+.vlan-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.remove-vlan-row {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -0.5%;
+}
+.vlan-row label {
+    flex-basis: 100%; /* Ensure label spans full width */
+}
+
+.vlan-row input,
+.vlan-row select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    max-width: 300px;
+    width: 100%; /* Ensure full width */
+}
+
+.vlan-row .ip-address-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex: 1; /* Take up remaining space */
+}
+
+.vlan-row .ip-address-container input {
+    flex: 2; /* Make the input field larger than the dropdown */
+}
+
+.vlan-row .ip-address-container select {
+    flex: 1; /* Make the dropdown smaller */
+    padding: 5px;
+}
+
+#add-vlan-row {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+#add-vlan-row:hover {
+    background-color: #0056b3;
+}
+.remove-vlan-row:hover {
+    background-color: #b02a37;
+}
+
+.remove-vlan-row i {
+    font-size: 16px; /* ขนาดของไอคอน */
+}
+
+.vlan-row input[type="number"],
+.vlan-row input[type="text"] {
+    width: 100%; /* ให้ input ยืดเต็ม container ของมัน */
+    max-width: 300px; /* จำกัดความกว้างไม่ให้เกิน 300px */
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.remove-vlan-row {
+    width: 80px; /* กำหนดขนาดปุ่ม Remove */
+}
+
+
+.inline-fields {
+    display: flex;
+    gap: 5px; /* Reduced spacing between fields */
+    align-items: center;
+}
+
+.inline-fields > div {
+    flex: 0 1 auto; /* Prevent excessive stretching */
+    margin-right: -36.3%;
+}
+
+.inline-fields input,
+.inline-fields select {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: auto; /* Adjusts to content size */
+    max-width: 200px; /* Optional: limit width */
+    box-sizing: border-box;
+}
+
+.inline-fields label {
+    display: block;
+    margin-bottom: 3px; /* Minimal spacing for labels */
+    font-size: 14px;
+    color: #333;
+}
+
+
+.styled-button {
+    background-color: #007bff; /* สีน้ำเงิน */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-align: center;
+}
+
+.styled-button:hover {
+    background-color: #0056b3; /* สีน้ำเงินเข้มเมื่อ hover */
+}
+
+.styled-button:active {
+    background-color: #004080; /* สีน้ำเงินเข้มที่สุดเมื่อคลิก */
+}
+
+.save-config-container {
+    display: flex;
+    justify-content: center; /* จัดปุ่มไว้ตรงกลาง */
+    margin-top: 20px; /* ระยะห่างด้านบน */
+}
+
+.styled2-button {
+    display: inline-flex;
+    align-items: center; /* จัดไอคอนและข้อความให้อยู่ในแนวเดียวกัน */
+    background-color: #1E90FF; /* สีพื้นหลัง */
+    color: white; /* สีข้อความ */
+    border: none; /* ไม่มีขอบ */
+    padding: 10px 20px; /* ระยะห่างภายใน */
+    border-radius: 5px; /* มุมโค้งมน */
+    font-size: 16px; /* ขนาดตัวอักษร */
+    cursor: pointer; /* เปลี่ยนเคอร์เซอร์เมื่อชี้ */
+    transition: background-color 0.3s ease; /* การเปลี่ยนสี */
+}
+.styled2-button i {
+    margin-right: 10px; /* ระยะห่างระหว่างไอคอนกับข้อความ */
+    font-size: 18px; /* ขนาดไอคอน */
+}
+.styled2-button:hover {
+    background-color: #0056b3; /* สีน้ำเงินเข้มเมื่อ hover */
+}
+
+.styled2-button:active {
+    background-color: #004080; /* สีน้ำเงินเข้มที่สุดเมื่อคลิก */
+}
+
+
+#add-interface-config {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#add-interface-config:hover {
+    background-color: #0056b3;
+}
+
+.remove-interface-config {
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.remove-interface-config:hover {
+    background-color: #b02a37;
+}
+
+.interface-config {
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.interface-config label {
+    font-weight: bold;
+}
+
+.interface-config hr {
+    margin-top: 20px;
+    border: none;
+    border-top: 1px solid #ccc;
+}
+
+.config-form label {
+    display: inline-flex; /* Ensure it aligns horizontally */
+    align-items: center;
+    gap: 10px; 
+    margin-top: 10px; 
+    margin-right: 1100px; 
+    white-space: nowrap; /* ป้องกันข้อความตกบรรทัด */
+
+}
+
+
+
+#template-name, #template-description {
+    max-width: 400px; /* Optional: Restrict width */
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+textarea {
+    resize: none; /* Prevent resizing */
+}
+
+/* Template Section */
+.template-section {
+    background-color: #f9f9f9;
+    border: 1px solid #d0d4db;
+    border-radius: 8px;
+    margin-top: 20px;
+    padding: 15px;
+}
+
+/* Gateway Section */
+.gateway-section {
+    background-color: #f9f9f9;
+    border: 1px solid #d0d4db;
+    border-radius: 8px;
+    margin-top: 20px;
+    padding: 15px;
+}
+
+
+/* Styling for Interface Configuration Form */
+.config-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+/* General Form Group Styling for Consistency */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.form-group textarea {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    border: 1px solid #000000;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+.form-group input {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+textarea {
+    resize: none; /* Prevent resizing */
+}
+
+
+#ntp-config {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #d0d4db;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+#ntp-config h3 {
+    margin-bottom: 15px;
+}
+
+
+
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+    margin-top: 10px;
+    width: 50%;
+    text-align: center; /* Center align the dropdown button */
+}
+
+.custom-dropdown button {
+    width: 100%; /* ให้ปุ่มมีขนาดพอดีกับ container */
+    background-color: white;
+    border: 1px solid #d0d4db;
+    padding: 8px 10px;
+    font-size: 14px; /* ขนาดฟอนต์ */
+    cursor: pointer;
+    border-radius: 4px;
+    text-align: left;
+}
+
+.custom-dropdown button:after {
+    content: '\25BC'; /* ลูกศรลง */
+    float: right;
+}
+
+.custom-dropdown button:hover {
+    background-color: #f1f1f1;
+}
+
+.switch-mode-section select {
+    width: auto;
+}
+
+.btn {
+    font-size: 14px;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+/* Save Button */
+.btn-primary {
+    background-color: #007bff; /* สีฟ้าหลัก */
+    color: #fff; /* ตัวอักษรสีขาว */
+    border: none;
+    padding: 8px 15px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3; /* สีเข้มขึ้นเมื่อ hover */
+    transform: scale(1); /* ขยายเล็กน้อย */
+}
+
+/* Cancel Button */
+.btn-secondary {
+    background-color: #6c757d; /* สีเทา */
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    transform: scale(1);
+}
+
+#hostname-input {
+    width: auto;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 20px; /* เพิ่มช่องว่างระหว่าง Input และปุ่ม */
+    transition: border-color 0.3s ease;
+}
+
+/* #hostname-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    outline: none;
+} */    
+
+
+.clock-set-container {
+    display: flex;
+    gap: 10px; /* ระยะห่างระหว่างฟิลด์ */
+    align-items: center; /* จัดให้อยู่กึ่งกลางในแนวนอน */
+    flex-wrap: nowrap; /* Prevent wrapping so all elements stay in the same row */
+
+}
+
+.clock-set-container input[type="number"],
+.clock-set-container select {
+    width: 100px; /* กำหนดความกว้าง */
+    padding: 8px; /* เพิ่มระยะห่างภายใน */
+    border: 1px solid #ccc; /* กรอบสีเทา */
+    border-radius: 5px; /* มุมมน */
+    font-size: 14px; /* ขนาดตัวอักษร */
+}
+
+.clock-set-container select {
+    width: 120px; /* กำหนดความกว้างพิเศษสำหรับ Select */
+}
+
+.clock-set-container input[type="number"]:focus,
+.clock-set-container select:focus {
+    border-color: #007bff; /* เปลี่ยนกรอบเป็นสีน้ำเงินเมื่อ Focus */
+    outline: none; /* ลบเส้นรอบนอก */
+}
+
+
+.aggregation-config {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+
+
+
+/* จัดตำแหน่งปุ่ม Remove Configuration */
+.remove-config-container {
+    text-align: left; /* จัดชิดซ้าย */
+    display: flex; /* Ensure proper alignment */
+
+}
+
+.remove-config-container {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block  ;
+}
+.remove-aggregation-config {
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.remove-aggregation-config:hover {
+    background-color: #c82333; /* สีเข้มขึ้นเมื่อ Hover */
+}
+
+#clock-timezone option[value=""] {
+    text-align: center;
+}
+
+.alert-box {
+    color:#555;
+    font-family:Tahoma, Geneva, Arial, sans-serif;
+    font-size:11px;
+    padding:10px 36px;
+    color:#fff;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+}
+.alert-box span {
+    font-weight:bold;
+    text-transform:uppercase;
+    letter-spacing: 1px;
+}
+.error {
+    background:#e47c68 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAC3UlEQVR4Xm2RX0iTXQDGn1c3N2uzbUwvwrpww9jcRW5qlvLdqNCHeKUGaxd+qFdeBUEiSYYYKJ9/SnCwm9puhjGD11ARTOFTIckMW15JGJVDy/xE9y7d9r7ndHZgMsQfPBfnvM/z8PIcnOW/7u6/t/4d9EcGh/27T0f9u89G/ZGhYf+XoSH/cnd3I84gIIMJt7vBeckQUtbWNFAIQCkoE0AAQYCmvFz+GI22zBqNQa/XyzOqdNhbU9Ngk+XQ8aSoobKM80js7KiKq6oCe5ubYATByAKj02ptKCUkRBYXNSeKgi9GIyjAleabyYRj9k1eWlJdTyQCj4uL7yJFk91+e9JecrJeUEDf5efT5UeP6PHREZ2rr6dhdk5pvq6OSvv7dHVkhK6y8wbTnM2WbHU47uC+zeZfY6YPZjN939hICSGUwUvesJL52loeTvOpre20uMdiEbPI4RFYBAoYi4vYCwTASpBz8SJuBYO4MT6OXIOB3/0/MQFlairl58qOxaCiiszDAsBX//rgAWRm1jc38w2gViMmSTiensb2vXsAIenn4yUqWZZBBAECtwvcsPr8OUoqK6HR6bhZjscRZneXFQUC86ZJUEB1QgHCw+AlEasVRQMDSL1GIhrl709Y8GpfHz53duLqxsZpSZwSZEmaHBCA68higbmnByeUIsrC6pUVqObnIUkx/E4mkf/wIQ4dDvDNUp7sbGRtm0yv17XaJAGQd3AAQyIBKSrBEA7jR1cXfvb24tLKW8TYYHmsxMg8CoDNCxfIlsEg8u2qTCZ3q14fKJIktdpshpENuOfzpQfjv2xub4c0M4N4JILvOh0JxGIdcbvdxws8Hg9+LSy4Pbm5gSuHh2qcD1/+h15PXsbjHerqat/LUAgCMvirsND9j1YbuJYqoZQPmMk2C79IJjtcHo/vSX8/zqXO6WoauFEp+ktLxSmXS5wtKxNfOZ2ir6JC9Ny82eIdG0MmfwCjX3/U2vu6zQAAAABJRU5ErkJggg==) no-repeat 10px 50%;
+    border:1px solid #d46c57;
+}
+.error:hover {  background-color: #d46c57; }
+.success {
+    background:#4cbe83 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAmJJREFUeNqkk0toE0Ech3+T3aRJX7RpPNgSgzQljYXiC1FbUcFrL9WTqAe96NGce+hF8KA5eVHsSaQni1CR4kHEFwoVxNrW0iJtA9lqk1TJbnZ2d3bGnbWPDT124Fvm9f32v+wMEUJgL02VD/IkASjEQw5IJwiGvd6AR3JzX8HjAwQmIEQRrjdyBcTV0v+AQBuKqpFcpiuTTiWS8eaG5qisz7D0I8vrK4MLxcWLlmPlvanJugq25NaGltFzfWezKpQYsxl0W99aa0x3dDcm25Mdb+fejVZNf94PCW1u6GwIRXJnegeyds2K6boOSmkdz3oeg5lO7GT6RDZCwjnp7AQwMdyzvztNdRozDAOmadZxt3vE3zZ1eNwLYbFUPJmWTjDgdKIpEa9Wq7Asy0dWsfZ7DTejV9BWbkKhUMC1l7cwOzcLTnlcOsGAAwqUqOu6+Hx+ClpZw8qvFaRIF061H4eqqhhbfooXpVdwQg6oTaPSCQaAuQw3Dl7GzMwMpg6N42iiHw/77/ny69J7PCiOATH4MJX5zk6AI1ZLxjod+XYHiqIgHA7jUe99hNUwFms/cXt5BLyZe/8CPjaxqHSCFXxcW9cqSlzB4I8h/61bXFq8DrRhW5bQaq0inWDAxJ/V8lIIxCRdBMe+X/DlvulBYF+9zLlrWpq5JJ2dAC6KrsHy5U/avGDcJCmCvq+enML2d0u4w0x9ujLPa25eOvUnkYtJpln4+1zLRbJN6UimMa6oalQuuRuM2gu1ij1vLHFH5NGqeKeQ7DrKfggvsS/0zcawx+7LpJAJtCjFoEL2ep3/CTAAj+gy+4Yc2yMAAAAASUVORK5CYII=) no-repeat 10px 50%;
+    border:1px solid #36ad6f;
+}
+.success:hover { background-color: #36ad6f; }
+.warning {
+    background:#feb742 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABqklEQVR4XqWTvWsUURTFf+/tx7DmA5sUmyB+EGQDCkFRxCFosYWCFgELm2ApCBYW/gOCFpYSrUMsBIv4BwTSCSqaWgsTEDRV2EVBZWffvXIYwhZOEdgLhzmcc+7h3WKCuzPOhI+P80rDzE7WwmAHIHnzVIxxl4qJVaKbkYrBxvyVZQRxaYcq0EmehvePzp5YnD67hCAuzd0PUWB2JNQazzo377D7+auAuDR51QWjZWxYvD2e34DsJw+fbwviSJOnTHWBO5aGt6fa84szF67CzguCIYgjTZ4yuP9fYGqO2avO8j348hSKff4OkiAuDXnKKDsqGD1989jSLWJvA/58g+YUv34Xgrg0eSij7MEpsXx66k62O932wjT030NjAuotXj/YE8SlyUMZZbWj3ejmEFubp69fg711yCYha0GWcXftjCAuTZ4yKKsd7dbNfHXuUk6jeAPNCSBCAJpGb78PiGel7gCmLHMXc76/21oNn57kfm5lFg0W0KBPDag7GoYBEuCUE0uy/fIH4cOjy27J0SlI56DEiSVFFi4dEUUIMRBrQZTzjDFj/87/ACmm3+QFX8sKAAAAAElFTkSuQmCC) no-repeat 10px 50%;
+    border:1px solid #eda93b;
+}
+.warning:hover { background-color: #eda93b; }
+.notice {
+    background:#77d3e0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAwFBMVEX///8AVq0CYcADbNEDaMoDa88Das0EcdkFfe0CZMPv9fu/1esFe+kBXbkEdd8Uf+QEb9VRkdAGf/AFeecRacAEc9wBW7QBX7zs6dwFeudRjswGgvUFd+MCZscDbtTl4tIBWbFEo/rh3s7A2/QAVasCZcYEcNcBYL3n5NUFfOsWhe5UqPVCkNvj4NDd2swyhNMGgPIBXLbq59nB4Pw1m/lToOgCY8RBi9Lv9/8FduHm49QxfMfo5dcQYrNTnuVBhMhJU/nRAAAAAXRSTlMAQObYZgAAAMpJREFUeF4lzdVyRTEIQFGI57i7XXet+///VZN2vy0YBrA9HPZeF34v4L/XWXtVdRdIenT+/NheE2W8puxiJ7O2TZSq7jLiTMfm3u53YVXhIHriu3BIEuXVdYBI2Yr4Dex3npd22893KnpdFl9Qp2n3FgTbEZkm/oSQGuVSjiOagwJ9CPNcrodhPCEpb9MygycZDZTz0xyNsYhhkXMhGJuf0XhJXIBj1K/02YTGDQA4F042G7SRDwfs5EVo828qn3+sbW6cEZI1rsUvrDkTPAFMyQwAAAAASUVORK5CYII=) no-repeat 10px 50%;
+    border:1px solid #6cc8d4;
+}
+.notice:hover { background-color: #6cc8d4; }
+
+
+.port-security-config-form {
+    background-color: #fff; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-bottom: 20px; 
+}
+/* Port-Security Form Group */
+.port-security-form-group {
+    margin-bottom: 15px;
+}
+
+.port-security-form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.port-security-form-group input,
+.port-security-form-group select {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.port-security-form-group[style="display: none;"] {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+
+.port-security-input-group {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.port-security-input-group input {
+    flex: 1;
+}
+
+.port-security-input-group button {
+    flex-shrink: 0;
+}
+
+
+/* Table Styles */
+.mac-address-table {
+    width: 100%; /* Full width table */
+    border-collapse: collapse; /* Remove gaps between table borders */
+    margin-top: 15px; /* Add spacing above the table */
+    font-size: 14px; /* Slightly smaller text for compactness */
+    background-color: #fff; /* White background */
+    border: 1px solid #ddd; /* Light border for table */
+    border-radius: 8px; /* Rounded corners for modern look */
+    overflow: hidden; /* Clip overflow for rounded borders */
+}
+
+/* Header Row */
+.mac-address-table th {
+    background-color: #f4f4f4; /* Light gray header background */
+    color: #333; /* Dark text for better readability */
+    font-weight: bold;
+    padding: 10px; /* Add padding to header cells */
+    text-align: center; /* Center-align text */
+    border-bottom: 1px solid #ddd; /* Border below header row */
+}
+
+/* Data Rows */
+.mac-address-table td {
+    padding: 10px; /* Add padding to table cells */
+    text-align: center; /* Center-align text */
+    border-bottom: 1px solid #ddd; /* Border below rows */
+}
+
+/* Highlight Alternate Rows */
+.mac-address-table tr:nth-child(even) {
+    background-color: #f9f9f9; /* Light gray for alternate rows */
+}
+
+/* Hover Effect */
+.mac-address-table tr:hover {
+    background-color: #e9ecef; /* Slightly darker gray on hover */
+}
+
+/* Empty Table Placeholder */
+.mac-address-table .text-center {
+    color: #888; /* Gray text for the placeholder */
+    font-style: italic; /* Italicize placeholder text */
+}
+
+/* Remove Button Styles */
+.remove-mac-btn {
+    background-color: #dc3545; /* Red background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    padding: 5px 10px; /* Compact padding */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 12px; /* Slightly smaller font size */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+/* Remove Button Hover */
+.remove-mac-btn:hover {
+    background-color: #b02a37; /* Darker red on hover */
+}
+
+/* Toggle Container */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Add spacing between label, toggle, and status */
+    margin-bottom: 20px; /* Space below the toggle */
+}
+
+/* Label Styling */
+.sticky-mac-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 0%;
+}
+
+/* Hidden checkbox */
+.toggle-switch {
+    display: none;
+}
+
+/* The toggle switch style */
+.toggle-label {
+    width: 60px;
+    height: 30px;
+    background-color: #ccc;
+    border-radius: 30px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.toggle-label .toggle-circle {
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    transform: translateY(-50%);
+    transition: left 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* When the checkbox is checked */
+.toggle-switch:checked + .toggle-label {
+    background-color: #4caf50;
+}
+
+.toggle-switch:checked + .toggle-label .toggle-circle {
+    left: 33px;
+}
+
+/* Status text */
+.toggle-status {
+    font-size: 16px;
+    color: #333;
+}
+
+.remove-port-security-config {
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.remove-port-security-config:hover {
+    background-color: #b02a37;
+}
+
+/* Table for STP Toggles */
+.stp-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.stp-table th, .stp-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.stp-table th {
+    background-color: #f4f5f7;
+    color: #333;
+}
+
+.stp-table td {
+    background-color: #fff;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 10px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #4caf50;
+}
+
+input:checked + .slider:before {
+    transform: translateX(14px);
+}
+
+.stp-config-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.stp-config-form h3 {
+    color: #4caf50; 
+}
+
+.stp-config-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.stp-config-form input,
+.stp-config-form select {
+    width: 100%;
+    max-width: 500px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.stp-config-form input[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.stp-config-form input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* MST Instance Form Group */
+#mst-config-container {
+    width: 100%; /* กำหนดให้กินพื้นที่เต็ม */
+    margin: 0 auto; /* จัดให้อยู่ตรงกลาง */
+    padding: 20px; /* เพิ่ม padding เพื่อความโปร่ง */
+    margin-top: -25px;
+}
+
+/* Container for the list of MST Instances */
+#mst-instance-list {
+    display: flex;
+    flex-direction: column; /* Arrange items vertically */
+    gap: 15px; /* Add spacing between items */
+    margin-top: 15px; /* Add spacing above the instance list */
+}
+
+/* Individual MST Instance Form */
+.mst-instance {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #ffffff;
+    width: 100%; /* ใช้พื้นที่ทั้งหมดใน parent */
+}
+
+/* Form group styling within MST Instance */
+.mst-instance .form-group {
+    margin-bottom: 10px;
+}
+
+.mst-instance label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.mst-instance input,
+.mst-instance select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+/* Add/Remove buttons */
+.add-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 10px;
+    margin-top: -15px;
+}
+
+.add-button:hover {
+    background-color: #0056b3;
+}
+
+.remove-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+    display: block;
+    width: 100%; /* ทำให้ปุ่มกว้างเต็มฟอร์ม */
+    margin-top: -20px; /* เพิ่มช่องว่างด้านบน */
+    margin-bottom: 10px;
+}
+
+.remove-button:hover {
+    background-color: #b02a37;
+}
+
+/* ลบเส้นใต้ที่อยู่ใต้ปุ่ม Remove */
+.mst-instance hr {
+    display: none; /* ซ่อนเส้น hr */
+}
+
+/* หรือถ้าปุ่ม Remove มี border ให้ตั้งค่าดังนี้ */
+.remove-button {
+    border: none; /* ลบ border */
+}
+
+/* ถ้าเส้นมาจาก margin หรือ padding */
+.mst-instance {
+    margin-bottom: 0; /* ปรับระยะห่างด้านล่าง */
+    padding-bottom: 0; /* ลบ padding ด้านล่าง */
+}
+
+.stp-input-form-group {
+    margin-bottom: 15px;
+}
+
+.stp-input-form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.stp-input-form-group input,
+.stp-input-form-group select {
+    width: 100%;
+    max-width: 400px; /* กำหนดขนาดตามความเหมาะสม */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.template-config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.template-config-form input,
+.template-config-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.template-config-form input:focus,
+.template-config-form textarea:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+
+.hostname-forms-config {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.hostname-forms-config input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.hostname-forms-config input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* VLAN Configuration Form */
+.vlan-config-form {
+    background-color: #fff; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-bottom: 30px;
+}
+
+/* VLAN Form Group */
+.vlan-form-group {
+    margin-bottom: 15px;
+}
+
+.vlan-form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.vlan-form-group input,
+.vlan-form-group select {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.vlan-form-group label {
+margin-top: 20px;
+}
+
+.vlan-form-group[style="display: none;"] {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+/* Inline Fields */
+.vlan-config-form .inline-fields {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+
+/* IP Address Container */
+.ip-address-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Remove VLAN Button */
+.remove-vlan-row {
+    background-color: #dc3545; /* Red background */
+    color: #fff; /* White text */
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.remove-vlan-row:hover {
+    background-color: #b02a37; /* Darker red on hover */
+}
+
+/* Subnet Mask Dropdown */
+.vlan-config-form select {
+    min-width: 150px;
+}
+
+/* Interface Configuration Form */
+.interface-config-form {
+    background-color: #fff; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-bottom: 20px;}
+
+/* Form Group Styling */
+.interface-config-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+    color: #333;
+}
+
+.interface-config-form input,
+.interface-config-form select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.aggregation-config-form {
+    background-color: #fff; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-bottom: 20px; 
+}
+
+.aggregation-config-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+    color: #333;
+}
+
+.aggregation-config-form input,
+.aggregation-config-form select {
+    width: 100%; /* Ensure inputs and selects are full-width */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.ntp-form-group {
+    background-color: #fff; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-bottom: 20px; 
+}
+
+.ntp-form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+    color: #333;
+}
+
+.ntp-form-group input,
+.ntp-form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.default-gateway-form-group {
+    background-color: #fff; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-bottom: 20px;
+}
+
+.default-gateway-form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block; /* Place label on its own line */
+    color: #333;
+}
+
+.default-gateway-form-group input {
+    width: 100%; /* Make the input field stretch to full width */
+    padding: 8px; /* Add padding for usability */
+    border: 1px solid #ccc; /* Add a border */
+    border-radius: 4px; /* Round the corners */
+    font-size: 14px; /* Adjust font size */
+    box-sizing: border-box; /* Include padding and border in width calculation */
+}
+
+/* VTP Form Group */
+.vtp-form-group {
+    background-color: #fff; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-bottom: 20px;
+}
+
+.vtp-form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block; /* Place the label on its own line */
+    color: #333; /* Dark text color */
+}
+
+.vtp-form-group input,
+.vtp-form-group select {
+    width: 100%; /* Full width for inputs and dropdowns */
+    padding: 10px; /* Add padding for better usability */
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 14px; /* Readable font size */
+    box-sizing: border-box; /* Include padding and border in width */
+}
+
+.select2-container--default .select2-selection--multiple {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    margin: 2px;
+    padding: 4px 8px;
+    font-size: 13px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: white;
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice:hover {
+    background-color: #c2e0ff; /* A softer blue */
+    color: white; /* Ensure the text is readable */
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow for hover effect */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+}

@@ -1,0 +1,591 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background: #283593;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    width: 90%;
+    max-width: 1200px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+.login-section, .info-section {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-section {
+    background: #ffffff;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers items horizontally */
+    justify-content: center; /* Centers items vertically */
+    height: 100%; /* Make sure it takes the full height of the parent */
+}
+
+.info-section {
+    background: #0c1148;
+    color: #ffffff;
+    text-align: left;
+    padding: 40px;
+}
+
+.info-section i {
+    color: #1E90FF;
+}
+
+.info-section h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.info-section p {
+    font-size: 16px;
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+.loginssh-container {
+    width: 100%;
+    max-width: 400px;
+    margin: auto; /* Ensure the container is centered */
+    padding: 30px 20px; /* Adjust padding for better spacing */
+    text-align: center;
+    margin-right: 50px;
+}
+
+.password-container {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+#subnet-mask {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+
+.username-container input,
+.password-container input {
+    width: 100%;
+    padding: 10px 40px 10px 10px; /* Add right padding for the icon */
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    box-sizing: border-box; /* Include padding and border in the width */
+}
+
+#subnet-mask {
+    width: 35%;
+    appearance: none;
+}
+
+.password-container i {
+    position: absolute;
+    top: 50%;
+    right: 10px; 
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 16px; 
+    color: #333;
+    transition: color 0.3s ease; 
+}
+
+.username-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.username-container input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s ease-in-out;
+
+}
+
+.range-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.range-container input {
+    width: calc(50% - 5px); /* Ensure equal width for Start IP and End IP */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: border-color 0.3s ease-in-out;
+}
+
+.range-container input:focus {
+    outline: none;
+}
+
+.single-ip-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.single-ip-container input {
+    width: calc(50% - 5px); /* Ensure equal width for Start IP and End IP */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: border-color 0.3s ease-in-out;
+}
+
+.single-ip-container input:focus {
+    outline: none;
+}
+
+.buttons a {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 10px 5px;
+    background-color: #333;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.buttons a:hover {
+    background-color: #007bff;
+}
+
+.back-button-top {
+    position: absolute;
+    top: 20px; /* Adjust position */
+    left: 20px; /* Align to the left */
+    background-color: #1a237e    ;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.dashboard-button-top {
+    position: absolute;
+    top: 20px; /* Ensure same vertical alignment */
+    right: 20px; /* Align to the right */
+    background-color: #ffffff;
+    color: #1a237e;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+
+.back-button-top:hover {
+    background-color: #007bff;
+}
+
+.dashboard-button-top:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+
+.buttons button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 10px 5px;
+    background-color: #0c1148;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.buttons button:hover {
+    background-color: #007bff;
+}
+
+input::placeholder {
+    color: #aaa;
+    font-style: italic;
+    font-size: 14px;
+}
+
+input:focus::placeholder {
+    color: transparent;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+.modal-content {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 70%;
+    max-width: 250px;
+    min-height: 170px;
+}
+
+.loading-spinner {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+.modal-content button {
+    background-color: #dc3545; /* Add a nice blue background */
+    color: white; /* White text for contrast */
+    border: none; /* Remove default borders */
+    padding: 10px 20px; /* Add padding for a better look */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 16px; /* Consistent font size */
+    cursor: pointer; /* Pointer cursor to indicate it's clickable */
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.modal-content button:hover {
+    background-color: #b02a37; /* Darker blue on hover */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .info-section, .login-section {
+        flex: none;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .info-section h1 {
+        font-size: 20px;
+    }
+
+    .info-section p {
+        font-size: 14px;
+    }
+
+    .loginssh-container {
+        max-width: 300px;
+        margin: auto;
+
+    }
+
+    .dashboard-button-top {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .buttons button {
+        font-size: 14;
+        padding: 8px 16px;
+    }
+
+    /* Adjusted Input Styles */
+    .range-container input, 
+    .single-ip-container input {
+        width: 100%; /* Ensures the inputs take up full width on smaller screens */
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        font-size: 14px; /* Reduced font size for better alignment */
+        transition: border-color 0.3s ease-in-out;
+    }
+
+    .range-container input:focus,
+    .single-ip-container input:focus {
+        outline: none;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 740px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .info-section, .login-section {
+        flex: none;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .info-section h1 {
+        font-size: 20px;
+    }
+
+    .info-section p {
+        font-size: 14px;
+    }
+
+    .loginssh-container {
+        max-width: 300px;
+        margin-left: -20px;
+
+    }
+
+    .dashboard-button-top {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .buttons button {
+        font-size: 14;
+        padding: 8px 16px;
+    }
+
+    /* Adjusted Input Styles */
+    .range-container input, 
+    .single-ip-container input {
+        width: 100%; /* Ensures the inputs take up full width on smaller screens */
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        font-size: 14px; /* Reduced font size for better alignment */
+        transition: border-color 0.3s ease-in-out;
+    }
+
+    .range-container input:focus,
+    .single-ip-container input:focus {
+        outline: none;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .info-section, .login-section {
+        flex: none;
+        width: 100%;
+        padding: 20px;
+    }
+    .back-button-top, .dashboard-button-top {
+        font-size: 12px;
+        padding: 8px 16px; /* Adjust for smaller screens */
+    }
+    .info-section h1 {
+        font-size: 20px;
+    }
+
+    .info-section p {
+        font-size: 14px;
+    }
+
+    .loginssh-container {
+        max-width: 300px;
+    }
+
+    .dashboard-button-top {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .buttons button {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .range-container input, 
+    .single-ip-container input {
+        width: 100%;
+        font-size: 13px;
+        padding: 8px;
+    }
+    .password-container input {
+        padding: 8px 36px 8px 8px; /* Adjust padding for smaller screens */
+        font-size: 14px;
+    }
+
+    .password-container i {
+        font-size: 14px;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 914px    ) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .info-section, .login-section {
+        flex: none;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .info-section h1 {
+        font-size: 20px;
+    }
+
+    .info-section p {
+        font-size: 14px;
+    }
+
+    .loginssh-container {
+        max-width: 300px;
+        margin-left: -1px ;
+
+    }
+
+    .dashboard-button-top {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .buttons button {
+        font-size: 14;
+        padding: 8px 16px;
+    }
+
+    /* Adjusted Input Styles */
+    .range-container input, 
+    .single-ip-container input {
+        width: 100%; /* Ensures the inputs take up full width on smaller screens */
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        font-size: 14px; /* Reduced font size for better alignment */
+        transition: border-color 0.3s ease-in-out;
+    }
+
+    .range-container input:focus,
+    .single-ip-container input:focus {
+        outline: none;
+    }
+}
+
+
+@media (max-width: 480px) {
+    .info-section h1 {
+        font-size: 18px;
+    }
+
+    .info-section p {
+        font-size: 12px;
+    }
+
+    .loginssh-container {
+        padding: 15px;
+    }
+
+    .buttons button {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    .dashboard-button-top {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    .range-container input, 
+    .single-ip-container input {
+        width: 100%;
+        font-size: 12px;
+        padding: 6px;
+    }
+}
+
+
+@media (max-width: 882px) {
+    .info-section h1 {
+        font-size: 18px;
+    }
+
+    .info-section p {
+        font-size: 12px;
+    }
+
+    .loginssh-container {
+        margin-top: 5px;
+        padding: 15px;
+        margin-right: 35px;
+        font-size: 12px;
+
+    }
+
+    .buttons button {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    .dashboard-button-top {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    .range-container input, 
+    .single-ip-container input {
+        width: 100%;
+        font-size: 12px;
+        padding: 6px;
+    }
+}

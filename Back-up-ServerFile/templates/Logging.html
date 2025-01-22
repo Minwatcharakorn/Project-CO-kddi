@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Device</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='sidebar_style.css') }}">
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard_styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Logging.css') }}">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='sidebar_style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Logging History</title>
 </head>
 <style>
     .w3-teal {
@@ -139,9 +138,9 @@
         <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy</a>
         <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
         <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
-        <a href="/logging_page" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
+        <a href="/logging" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
     </div>
-
+    
     <div id="main">
         <div class="w3-teal">
             <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
@@ -177,122 +176,161 @@
                 </div>
             </div>
         </div>
-
-        <div class="w3-container">
+        <div class="content">
             <div class="content-header">
-                <h2>
-                    <i class="fas fa-home" style="color: #1E90FF;"></i> Dashboard Device
-                </h2>  
+                <h2><i class="fas fa-book" style="color: #1E90FF;"></i> Logging History Deployment</h2>
             </div>
-
-            <div class="content-body">
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Model</th>
-                                <th>Serial No./Token</th>
-                                <th>Hostname</th>
-                                <th>IP</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for switch in switches %}
-                            <tr>
-                                <td>{{ switch.model }}</td>
-                                <td>{{ switch.serial }}</td>
-                                <td>{{ switch.hostname }}</td>
-                                <td>{{ switch.ip }}</td>
-                                <td>{{ switch.status }}</td>
-                                <td>
-                                    <div class="action-buttons-dashboard">
-                                        <a href="/info/{{ switch.id }}" title="View Details">
-                                            <i class="fas fa-info"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Device Name</th>
+                            <th>IP Address</th>
+                            <th>Deployed Template Name</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logging-table-body">
+                        <!-- Data will be inserted dynamically here -->
+                    </tbody>
+                </table>
             </div>
+        </div>
 
-
+        <!-- Modal Structure -->
+        <div id="configModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Template Details</h2>
+                <pre id="configDetails"></pre>
+            </div>
         </div>
     </div>
-
+    
     <script>
-        function w3_open() {
-            document.getElementById("main").style.marginLeft = "25%";
-            document.getElementById("mySidebar").style.width = "25%";
-            document.getElementById("mySidebar").style.display = "block";
-            document.getElementById("openNav").style.display = 'none';
-        }
-        function w3_close() {
-            document.getElementById("main").style.marginLeft = "0%";
-            document.getElementById("mySidebar").style.display = "none";
-            document.getElementById("openNav").style.display = "inline-block";
-        }
         document.addEventListener("DOMContentLoaded", function () {
-            const container = document.querySelector('.w3-container');
-            if (container) {
-                container.style.overflow = "hidden"; // Disable scrolling
-            }
+            // Fetch logging data from the server
+            fetch("/api/logging")
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById("logging-table-body");
+                    tableBody.innerHTML = ""; // Clear existing data
+
+                    data.logs.forEach(log => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${new Date(log.timestamp).toLocaleString()}</td>
+                            <td>${log.hostname}</td>
+                            <td>${log.ip}</td>
+                            <td>${log.template_name}</td>
+                            <td>${log.description || "No description"}</td>
+                            <td>${log.status}</td>
+                            <td>
+                                <a href="#" class="info-icon" data-details="${log.details}">
+                                    <span><i class="fas fa-eye"></i></span>
+                                </a>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+
+                    // Add event listeners for modal view
+                    document.querySelectorAll(".info-icon").forEach(icon => {
+                        icon.addEventListener("click", function (event) {
+                            event.preventDefault();
+                            const details = this.getAttribute("data-details");
+                            document.getElementById("configDetails").textContent = details;
+                            document.getElementById("configModal").style.display = "block";
+                        });
+                    });
+                })
+                .catch(err => console.error("Error fetching logs:", err));
+
+            // Close modal
+            document.querySelector(".modal .close").addEventListener("click", function () {
+                document.getElementById("configModal").style.display = "none";
+            });
+
+            window.addEventListener("click", function (event) {
+                if (event.target === document.getElementById("configModal")) {
+                    document.getElementById("configModal").style.display = "none";
+                }
+            });
         });
     </script>
-    <script>
-function updateSidebarForResponsive() {
-    const sidebar = document.querySelector('.w3-sidebar'); // Update selector
-    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
 
-    if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
-        sidebar.style.width = '60px'; // Slimmer sidebar
-        sidebarItems.forEach(item => {
-            const icon = item.querySelector('i'); // Find the icon
-            const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
-
-            if (icon) {
-                item.style.justifyContent = 'center'; // Center icons
-                item.style.gap = '0'; // Remove gap between text and icons
-                textNodes.forEach(node => node.textContent = ''); // Remove text
-            }
-        });
-    } else {
-        sidebar.style.width = '250px'; // Default sidebar width for larger screens
-        sidebarItems.forEach(item => {
-            const originalText = item.getAttribute('data-original-text');
-            if (originalText) {
-                // Restore the original text and gap
-                const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
-                item.innerHTML = `${iconHTML} ${originalText}`;
-                item.style.justifyContent = 'flex-start';
-            }
-        });
+<script>
+    function w3_open() {
+        document.getElementById("main").style.marginLeft = "25%";
+        document.getElementById("mySidebar").style.width = "25%";
+        document.getElementById("mySidebar").style.display = "block";
+        document.getElementById("openNav").style.display = 'none';
     }
+    function w3_close() {
+        document.getElementById("main").style.marginLeft = "0%";
+        document.getElementById("mySidebar").style.display = "none";
+        document.getElementById("openNav").style.display = "inline-block";
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+        const container = document.querySelector('.w3-container');
+        if (container) {
+            container.style.overflow = "hidden"; // Disable scrolling
+        }
+    });
+</script>
+<script>
+function updateSidebarForResponsive() {
+const sidebar = document.querySelector('.w3-sidebar'); // Update selector
+const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
+    sidebar.style.width = '60px'; // Slimmer sidebar
+    sidebarItems.forEach(item => {
+        const icon = item.querySelector('i'); // Find the icon
+        const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
+
+        if (icon) {
+            item.style.justifyContent = 'center'; // Center icons
+            item.style.gap = '0'; // Remove gap between text and icons
+            textNodes.forEach(node => node.textContent = ''); // Remove text
+        }
+    });
+} else {
+    sidebar.style.width = '250px'; // Default sidebar width for larger screens
+    sidebarItems.forEach(item => {
+        const originalText = item.getAttribute('data-original-text');
+        if (originalText) {
+            // Restore the original text and gap
+            const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
+            item.innerHTML = `${iconHTML} ${originalText}`;
+            item.style.justifyContent = 'flex-start';
+        }
+    });
+}
 }
 
 // Store original text for restoration
 document.addEventListener('DOMContentLoaded', () => {
-    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
 
-    sidebarItems.forEach(item => {
-        const textContent = Array.from(item.childNodes)
-            .filter(node => node.nodeType === 3) // Only text nodes
-            .map(node => node.textContent.trim()) // Trim whitespace
-            .join(' '); // Combine text nodes into one string
+sidebarItems.forEach(item => {
+    const textContent = Array.from(item.childNodes)
+        .filter(node => node.nodeType === 3) // Only text nodes
+        .map(node => node.textContent.trim()) // Trim whitespace
+        .join(' '); // Combine text nodes into one string
 
-        if (textContent) {
-            item.setAttribute('data-original-text', textContent); // Store original text
-        }
-    });
-
-    // Apply responsiveness on load and resize
-    updateSidebarForResponsive();
-    window.addEventListener('resize', updateSidebarForResponsive);
+    if (textContent) {
+        item.setAttribute('data-original-text', textContent); // Store original text
+    }
 });
-    </script>
+
+// Apply responsiveness on load and resize
+updateSidebarForResponsive();
+window.addEventListener('resize', updateSidebarForResponsive);
+});
+</script>
 </body>
 </html>

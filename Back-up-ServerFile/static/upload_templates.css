@@ -1,0 +1,124 @@
+/* * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    height: 100vh;
+    overflow-x: hidden;
+} */
+
+/* Template Section (with improved spacing) */
+.template-container {
+    background-color: #fff;
+    padding: 30px; /* Increased padding for more spacing inside */
+    border: 1px solid #d0d4db;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px; /* Increased gap between items for more space */
+    margin-top: 20px; /* Adds space between the template container and the header above */
+}
+
+.upload-button {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 15px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.upload-button:hover {
+    background-color: #444;
+}
+
+.command-box {
+    width: 100%;
+    padding: 20px; /* Increased padding for a more spacious look */
+    border: 2px solid #000;
+    border-radius: 5px;
+    font-family: monospace;
+    background-color: #f4f4f4;
+    white-space: pre-wrap;
+    overflow: auto;
+    color: #000;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .content {
+        padding: 80px 10px 10px 270px;
+    }
+}
+
+@media (max-width: 576px) {
+    .top-nav, .sidebar, .content {
+        padding: 10px;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 10px;
+    }
+
+    .content {
+        padding: 80px 10px;
+    }
+}
+
+
+.breadcrumb {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    padding: 10px 0;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    color: #6c757d; /* Light gray */
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    color: #007bff; /* Link blue */
+    transition: color 0.3s ease;
+}
+
+.breadcrumb a:hover {
+    color: #0056b3; /* Darker blue on hover */
+}
+
+.breadcrumb span {
+    color: #6c757d; /* Gray for current location */
+}
+
+/* Upload Button Styling */
+.upload-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s;
+}
+
+.upload-button i {
+    font-size: 1.2rem;
+}
+
+.upload-button:hover {
+    background-color: #0056b3;
+}

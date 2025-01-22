@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Device</title>
+    <title>Select Templates</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='sidebar_style.css') }}">
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard_styles.css') }}">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Modal_loading.css') }}">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -131,6 +130,7 @@
 }
 </style>
 <body>
+    <!-- Sidebar -->
     <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
         <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
         <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard</a>
@@ -139,9 +139,9 @@
         <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy</a>
         <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
         <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
-        <a href="/logging_page" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
+        <a href="/logging" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
     </div>
-
+    <!-- Main Content -->
     <div id="main">
         <div class="w3-teal">
             <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
@@ -177,53 +177,53 @@
                 </div>
             </div>
         </div>
-
         <div class="w3-container">
             <div class="content-header">
-                <h2>
-                    <i class="fas fa-home" style="color: #1E90FF;"></i> Dashboard Device
-                </h2>  
+                <div class="breadcrumb">
+                    <h2><a href="{{ url_for('deploy_page') }}">Devices</a></h2> &gt;
+                    <h2>
+                        <i class="fas fa-file-alt" style="color: #1E90FF;"></i> Select Template
+                    </h2>
+                </div>
+                <button id="apply-template-button" class="apply-button">Next</button>
             </div>
 
             <div class="content-body">
                 <div class="table-container">
+                    <!-- Template Table -->
                     <table>
                         <thead>
                             <tr>
-                                <th>Model</th>
-                                <th>Serial No./Token</th>
-                                <th>Hostname</th>
-                                <th>IP</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                                <th><input type="radio" name="select-template" id="select-template-radio"></th>
+                                <th>Template Name</th>
+                                <th>Description</th>
+                                <th>Last Updated</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for switch in switches %}
+                            {% for template in templates %}
                             <tr>
-                                <td>{{ switch.model }}</td>
-                                <td>{{ switch.serial }}</td>
-                                <td>{{ switch.hostname }}</td>
-                                <td>{{ switch.ip }}</td>
-                                <td>{{ switch.status }}</td>
-                                <td>
-                                    <div class="action-buttons-dashboard">
-                                        <a href="/info/{{ switch.id }}" title="View Details">
-                                            <i class="fas fa-info"></i>
-                                        </a>
-                                    </div>
-                                </td>
+                                <td><input type="radio" name="template_id" value="{{ template.id }}"></td>
+                                <td>{{ template.name }}</td>
+                                <td>{{ template.description }}</td>
+                                <td>{{ template.last_updated }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
-
-
         </div>
     </div>
-
+        <!-- Error Modal -->
+        <div id="errorModal" class="modal" style="display: none;">
+            <div class="error-modal-content">
+                <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+                <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;">Error Message Here</p>
+                <br>
+                <button id="closeErrorModal" class="error-modal-button">OK</button>
+            </div>
+        </div>
     <script>
         function w3_open() {
             document.getElementById("main").style.marginLeft = "25%";
@@ -243,56 +243,111 @@
             }
         });
     </script>
+        <script>
+            function updateSidebarForResponsive() {
+                const sidebar = document.querySelector('.w3-sidebar'); // Update selector
+                const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+            
+                if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
+                    sidebar.style.width = '60px'; // Slimmer sidebar
+                    sidebarItems.forEach(item => {
+                        const icon = item.querySelector('i'); // Find the icon
+                        const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
+            
+                        if (icon) {
+                            item.style.justifyContent = 'center'; // Center icons
+                            item.style.gap = '0'; // Remove gap between text and icons
+                            textNodes.forEach(node => node.textContent = ''); // Remove text
+                        }
+                    });
+                } else {
+                    sidebar.style.width = '250px'; // Default sidebar width for larger screens
+                    sidebarItems.forEach(item => {
+                        const originalText = item.getAttribute('data-original-text');
+                        if (originalText) {
+                            // Restore the original text and gap
+                            const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
+                            item.innerHTML = `${iconHTML} ${originalText}`;
+                            item.style.justifyContent = 'flex-start';
+                        }
+                    });
+                }
+            }
+            
+            // Store original text for restoration
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+            
+                sidebarItems.forEach(item => {
+                    const textContent = Array.from(item.childNodes)
+                        .filter(node => node.nodeType === 3) // Only text nodes
+                        .map(node => node.textContent.trim()) // Trim whitespace
+                        .join(' '); // Combine text nodes into one string
+            
+                    if (textContent) {
+                        item.setAttribute('data-original-text', textContent); // Store original text
+                    }
+                });
+            
+                // Apply responsiveness on load and resize
+                updateSidebarForResponsive();
+                window.addEventListener('resize', updateSidebarForResponsive);
+            });
+                </script>
     <script>
-function updateSidebarForResponsive() {
-    const sidebar = document.querySelector('.w3-sidebar'); // Update selector
-    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+        function showErrorModal(message) {
+            const modal = document.getElementById("errorModal");
+            const errorMessage = document.getElementById("errorMessage");
 
-    if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
-        sidebar.style.width = '60px'; // Slimmer sidebar
-        sidebarItems.forEach(item => {
-            const icon = item.querySelector('i'); // Find the icon
-            const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
-
-            if (icon) {
-                item.style.justifyContent = 'center'; // Center icons
-                item.style.gap = '0'; // Remove gap between text and icons
-                textNodes.forEach(node => node.textContent = ''); // Remove text
+            if (modal && errorMessage) {
+                errorMessage.textContent = message;
+                modal.style.display = "flex";
             }
-        });
-    } else {
-        sidebar.style.width = '250px'; // Default sidebar width for larger screens
-        sidebarItems.forEach(item => {
-            const originalText = item.getAttribute('data-original-text');
-            if (originalText) {
-                // Restore the original text and gap
-                const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
-                item.innerHTML = `${iconHTML} ${originalText}`;
-                item.style.justifyContent = 'flex-start';
-            }
-        });
-    }
-}
-
-// Store original text for restoration
-document.addEventListener('DOMContentLoaded', () => {
-    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
-
-    sidebarItems.forEach(item => {
-        const textContent = Array.from(item.childNodes)
-            .filter(node => node.nodeType === 3) // Only text nodes
-            .map(node => node.textContent.trim()) // Trim whitespace
-            .join(' '); // Combine text nodes into one string
-
-        if (textContent) {
-            item.setAttribute('data-original-text', textContent); // Store original text
         }
-    });
 
-    // Apply responsiveness on load and resize
-    updateSidebarForResponsive();
-    window.addEventListener('resize', updateSidebarForResponsive);
-});
+        function closeErrorModal() {
+            const modal = document.getElementById("errorModal");
+            if (modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const closeModalButton = document.getElementById("closeErrorModal");
+            if (closeModalButton) {
+                closeModalButton.addEventListener("click", closeErrorModal);
+            }
+        });
+        document.getElementById('apply-template-button').addEventListener('click', async function () {
+            const selectedTemplate = document.querySelector('input[name="template_id"]:checked');
+            
+            if (selectedTemplate) {
+                try {
+                    const response = await fetch('/api/select_template', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ template_id: selectedTemplate.value })
+                    });
+
+                    const result = await response.json();
+                    if (response.ok) {
+                        window.location.href = '/pre_deployment'; // Redirect ไปหน้า Pre-Deployment
+                    } else {
+                        throw new Error(result.error);
+                    }
+                } catch (err) {
+                    console.error(`Error: ${err.message}`);
+                    showErrorModal(`Error: ${err.message}`);
+                }
+            } else {
+                showErrorModal('Please select a template.');
+            }
+        });
+    </script>
+    <script>
+        document.getElementById('next-button').addEventListener('click', function() {
+            window.location.href = "pre_deployment.html";
+        });
     </script>
 </body>
 </html>

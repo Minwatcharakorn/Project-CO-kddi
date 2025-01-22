@@ -928,9 +928,23 @@ def get_vlan_info(switch_id):
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/get_switches', methods=['GET'])
-def get_switches():
-    """API to get the list of switches for the Deploy page."""
-    return jsonify(switches), 200
+async def get_switches():
+    # เรียก get_snmp_info เพื่อดึงข้อมูลล่าสุด
+    updated_switches = []
+    for switch in switches:
+        snmp_info = await get_snmp_info(switch['ip'])
+        updated_switches.append({
+            "id": switch['id'],
+            "model": snmp_info.get("model", "Unknown"),
+            "serial": snmp_info.get("serial", "Unknown"),
+            "hostname": snmp_info.get("hostname", "Unknown"),
+            "ip": switch['ip'],
+            "status": switch['status']
+        })
+    session['switches'] = updated_switches
+
+    return jsonify(updated_switches), 200
+
 
 
 @app.route('/api/license/<int:switch_id>', methods=['GET'])

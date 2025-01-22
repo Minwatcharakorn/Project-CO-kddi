@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Firmware Deploy</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/update_firmware.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <script>
+        // โหลดไฟล์ HTML ของ Sidebar เข้าไปใน #sidebar-container
+        fetch('sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById("sidebar-container").innerHTML = data);
+    </script>
+
+    <div class="content">
+        <div class="content-header">
+            <div class="breadcrumb">
+                <h2><a href="Update_firmware.html"> Update Firmware</a></h2> &gt;
+                <h2><a href="Update_firmware-Pre-deploy.html"> Pre-Deployment</a></h2> &gt;
+                <h2><span>Deploy Result</span></h2>
+            </div>
+        </div>
+        <h2>Firmware Deployment Progress</h2>
+        <div id="progress-section">
+            <!-- Deployment progress for switches will be dynamically added here -->
+        </div>
+    <!-- Buttons Container -->
+    <div class="buttons-container">
+        <button class="applys-button" onclick="startFirmwareDeployment()">Start Deployment</button>
+
+    </div>
+    </div>
+    <script src="../static/js/firmware_deploy.js"></script>
+
+</body>
+</html>

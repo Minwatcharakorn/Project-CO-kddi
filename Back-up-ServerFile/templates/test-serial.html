@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Serial API Test</title>
+</head>
+<body>
+    <h1>Test Web Serial API</h1>
+    <button id="connect">Connect to Serial Port</button>
+    <button id="send">Send Data</button>
+    <pre id="output"></pre>
+
+    <script>
+        let port;
+        let reader;
+        let writableStream;
+
+        document.getElementById('connect').addEventListener('click', async () => {
+            try {
+                port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 9600 });
+
+                const decoder = new TextDecoderStream();
+                port.readable.pipeTo(decoder.writable);
+                reader = decoder.readable.getReader();
+
+                const encoder = new TextEncoderStream();
+                writableStream = encoder.writable;
+                encoder.readable.pipeTo(port.writable);
+
+                document.getElementById('output').textContent += "Connected to serial port\n";
+            } catch (err) {
+                console.error(err);
+                document.getElementById('output').textContent += `Error: ${err.message}\n`;
+            }
+        });
+
+        document.getElementById('send').addEventListener('click', async () => {
+            if (!writableStream) {
+                document.getElementById('output').textContent += "Please connect to a serial port first.\n";
+                return;
+            }
+
+            const writer = writableStream.getWriter();
+            try {
+                const data = "Hello, Serial Port!\n";
+                await writer.write(data);
+                document.getElementById('output').textContent += `Sent: ${data}`;
+            } catch (err) {
+                console.error(err);
+                document.getElementById('output').textContent += `Error: ${err.message}\n`;
+            } finally {
+                writer.releaseLock();
+            }
+        });
+    </script>
+</body>
+</html>

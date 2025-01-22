@@ -1,0 +1,320 @@
+/* Reset Styles */
+* {
+
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #f4f5f7;
+    border-bottom: 1px solid #d0d4db;
+    margin-top: 15px;
+}
+
+.content-header h2 {
+    color: #333;
+}
+
+.header-actions button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 0.9rem;
+}
+
+.header-actions button:hover {
+    background-color: #0056b3;
+}
+
+/* Table Styling */
+.table-container {
+    overflow-x: auto; /* Enable horizontal scrolling if needed */
+    width: 100%; /* Ensure it spans the container width */
+    margin-top: 20px;
+    background-color: #fff;
+    padding: 10px;
+    border: 1px solid #d0d4db;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    -webkit-overflow-scrolling: touch; /* For smooth scrolling on mobile devices */
+
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+thead {
+    background-color: #e9ecef;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center; /* Center text horizontally */
+    vertical-align: middle; /* Center text vertically */
+    border-bottom: 1px solid #d0d4db;
+    word-wrap: break-word; /* Enable word wrapping */
+    white-space: normal; /* Allow text to wrap */
+}
+
+td:last-child {
+    text-align: center; 
+    vertical-align: middle; 
+}
+
+.info-icon {
+    text-decoration: none; 
+}
+
+.info-icon span {
+    display: flex; 
+    align-items: center; 
+    justify-content: center; /* Center horizontally */
+    width: 30px; /* Icon size */
+    height: 30px;
+    background-color: #007bff; /* Blue background */
+    color: white; /* White icon color */
+    border-radius: 50%; /* Make it circular */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Add smooth transition */
+    margin: auto; /* Ensure it is centered in the cell */
+    text-decoration: none; /* Ensure underline is removed for spans too */
+
+}
+
+.info-icon:hover {
+    text-decoration: none; /* Keep underline removed on hover */
+}
+
+.info-icon span:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.1); /* Slightly enlarge on hover */
+    cursor: pointer;
+}
+
+
+th {
+    color: #333;
+}
+
+tbody tr:hover {
+    background-color: #f4f5f7;
+}
+
+
+/* CSS for Deploy and Apply buttons */
+.deploy-button, .apply-button {
+    background-color: #28a745; /* Green background for emphasis */
+    color: white; /* White text color */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px 20px; /* Padding for better appearance */
+    font-size: 16px; /* Larger text for readability */
+    cursor: pointer; /* Pointer cursor to indicate button functionality */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
+    max-width: 100%; /* ป้องกันไม่ให้เกินขนาด container */
+
+}
+
+.deploy-button:hover, .apply-button:hover {
+    background-color: #218838; /* Darker green on hover */
+    transform: scale(1.05); /* Slight scale-up on hover */
+}
+
+.deploy-button:active, .apply-button:active {
+    background-color: #1e7e34; /* Even darker green when clicked */
+    transform: scale(0.98); /* Slight scale-down on click */
+}
+
+/* Additional styling for button container */
+.content-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px; /* Space below header */
+}
+
+/* Style for the button's focus state to improve accessibility */
+.deploy-button:focus {
+    outline: 2px solid #0056b3; /* Blue outline to indicate focus */
+    outline-offset: 2px;
+}
+.breadcrumb {
+    font-size: 16px;
+    margin-bottom: 1px;
+    padding: 10px 0;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    color: #007BFF; /* สีฟ้าเหมือนลิงก์ */
+    transition: color 0.3s ease;
+}
+
+.breadcrumb a:hover {
+    color: #0056b3; /* สีเข้มขึ้นเมื่อ hover */
+}
+
+.breadcrumb span {
+    color: #6c757d; /* สีเทาอ่อน */
+}
+
+.breadcrumb::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+.breadcrumb a,
+.breadcrumb span {
+    white-space: nowrap; /* ไม่ให้เกิดการตัดคำ */
+}
+
+.breadcrumb a::after {
+    content: ">";
+    margin: 0 5px;
+    color: #6c757d; /* สีเทาอ่อน */
+}
+
+.breadcrumb a:last-of-type::after {
+    content: "";
+}
+
+.commands-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.commands-container pre {
+    margin-right: 10px;
+}
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+.terminal {
+    background-color: #333;
+    color: #00ff00;
+    padding: 10px;
+    border-radius: 5px;
+}
+/* General Styling for Config Section */
+.config-section {
+    width: 60%;
+    margin: auto;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* Styling for Interface Configuration Form */
+.interface-config-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+label {
+    font-weight: bold;
+}
+
+select, input[type="text"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+span {
+    font-weight: bold;
+    color: #555;
+}
+
+.Description input[type="text"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex-basis: 30%;
+    margin-bottom: 10px;
+    margin-right: 60px;
+}
+/* Styling for IP Address and Description Fields */
+.ip-input, .Description {
+    flex-basis: 100%;
+}
+
+.ip-input label, .Description label {
+    margin-right: 10px;
+}
+
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    table {
+        font-size: 12px; /* Adjust font size for smaller screens */
+    }
+}
+
+
+/* Responsive: สำหรับหน้าจอขนาดเล็ก */
+@media (max-width: 768px) {
+    .apply-button ,.deploy-button{
+        padding: 8px 15px; /* ลด padding */
+        font-size: 14px; /* ลดขนาดตัวอักษร */
+        width: 100%; /* ขยายให้เต็มความกว้าง container */
+        max-width: 500px; /* จำกัดความกว้างสูงสุด */
+        margin: 0 auto; /* จัดให้อยู่ตรงกลาง */
+    }
+}
+
+/* Responsive: สำหรับหน้าจอที่เล็กมาก (มือถือ) */
+@media (max-width: 480px) {
+    .apply-button ,.deploy-button {
+        padding: 6px 10px; /* ลด padding */
+        font-size: 12px; /* ลดขนาดตัวอักษร */
+    }
+}
