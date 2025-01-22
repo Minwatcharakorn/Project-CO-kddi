@@ -1,25 +1,42 @@
-from flask import Flask, request, jsonify, render_template, session, redirect, url_for, flash , send_file
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for, flash, send_file
 from flask_session import Session
+import serial
+import serial.tools.list_ports
 import platform
 import os
 from pysnmp.hlapi.v3arch.asyncio import *
 import asyncio
 import paramiko
+from ipaddress import ip_address
 from datetime import datetime, timedelta
+from ipaddress import ip_address, AddressValueError
 import re
 import psycopg2
 import time
 from datetime import datetime, timedelta
 import pytz
 import io
+import logging
 
 
 app = Flask(__name__)
+
+# Global variable for SSH session
+active_ssh_sessions = {}
+
+# ตั้งค่าโฟลเดอร์ที่เก็บไฟล์ firmware บน TFTP
+UPLOAD_FOLDER_FIRMWARE = '/var/lib/tftpboot'
+os.makedirs(UPLOAD_FOLDER_FIRMWARE, exist_ok=True)
+
 app.secret_key = 'your_secret_key'
 app.config['SECRET_KEY'] = 'yoursecretkey'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+app.config['MAX_CONTENT_LENGTH'] = 3 * 1024 * 1024 * 1024  # จำกัดขนาดไฟล์เป็น 3GB
 Session(app)
+
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 UPLOAD_FOLDER = 'uploaded_templates'
 ALLOWED_EXTENSIONS = {'txt'}
@@ -30,8 +47,6 @@ serial_connection = None
 
 switches = []  # List to store scanned devices
 
-# -------------------------------------------------------------------------------
-# แก้ 17/1/2025
 # เชื่อมต่อกับฐานข้อมูล
 def get_db_connection():
     try:
@@ -39,7 +54,7 @@ def get_db_connection():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="192.168.99.13",
+            host="127.0.0.1",
             port="5432"
         )
         print("Database connected successfully!")
@@ -48,22 +63,22 @@ def get_db_connection():
         print(f"Database connection error: {e}")
         raise
 
-# -------------------------------------------------------------------------------
-
-
-# def get_available_ports():
-#     """Get a list of available serial ports."""
-#     ports = serial.tools.list_ports.comports()
-#     return [port.device for port in ports]
+def get_available_ports():
+    """Get a list of available serial ports."""
+    ports = serial.tools.list_ports.comports()
+    return [port.device for port in ports]
 
 # ฟังก์ชันตรวจสอบชนิดไฟล์
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# แก้ ---------------------------
+def allowed_firmware_file(filename):
+    """ตรวจสอบว่าไฟล์มีส่วนขยายที่อนุญาตหรือไม่"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_FIRMWARE_EXTENSIONS
+
 async def get_snmp_info(ip, community='public'):
     """Retrieve SNMP information from the device using asyncio."""
-    oid_hostname = '.1.3.6.1.4.1.9.2.1.3.0'  # OID for Hostname
+    oid_hostname = '.1.3.6.1.2.1.1.5.0'  # OID for Hostname
     oid_model = '.1.3.6.1.2.1.1.1.0'     # OID for Model (sysDescr)
     oid_serial_base = '.1.3.6.1.2.1.47.1.1.1.1.11.1'  # OID base for Serial Number (ENTITY-MIB)
 
@@ -96,10 +111,6 @@ async def get_snmp_info(ip, community='public'):
 
     return info
 
-# --------------------------------
-
-
-# แก้ ----------------------------
 @app.route('/api/switch/<int:switch_id>', methods=['GET'])
 async def get_switch_data(switch_id):
     """API for fetching switch details, port statuses, and VLAN information via SNMP."""
@@ -137,10 +148,10 @@ async def get_switch_data(switch_id):
             else:
                 for varBind in varBinds:
                     snmp_results[key] = str(varBind[1])
-
         # Extract only the hostname (before the first dot) if available
         full_hostname = snmp_results.get("hostname", "N/A")
         short_hostname = full_hostname.split('.')[0] if "." in full_hostname else full_hostname
+
 
         # Construct the response
         switch_data = {
@@ -155,8 +166,6 @@ async def get_switch_data(switch_id):
 
     except Exception as e:
         return jsonify({"error": f"Failed to retrieve SNMP data: {str(e)}"}), 500
-
-# --------------------------------
 
 def abbreviate_interface_name(name):
     abbreviations = {
@@ -265,6 +274,120 @@ async def update_switches(ip_range_start, ip_range_end):
             "status": "Detected"
         })
 
+##################################################
+# ฟังก์ชันช่วยอ่าน output จาก Shell (Paramiko)
+##################################################
+def read_output(shell, timeout=5):
+    """
+    อ่าน output จาก channel (shell) ภายในเวลา timeout วินาที
+    ในขณะเดียวกันก็ sleep(.1) เป็นระยะ เพื่อไม่ให้ loop แน่นเกินไป
+    """
+    output = ""
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        while shell.recv_ready():
+            output += shell.recv(2048).decode('utf-8', errors='ignore')
+        time.sleep(0.1)
+    return output
+
+
+##################################################
+# ฟังก์ชันที่ใช้ SSH/Paramiko เพื่อสั่งอัปเดต firmware
+##################################################
+def update_switch_firmware(ip, username, password, tftp_server_ip, filename):
+    """
+    1) SSH ไปยัง Switch (ip)
+    2) copy tftp://{tftp_server_ip}/{filename} bootflash:
+    3) ตั้ง boot system flash: <filename>
+    4) write memory
+    5) reload
+    """
+    try:
+        logging.info(f"Connecting to {ip}")
+
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        # ต่อ SSH
+        ssh.connect(ip, username=username, password=password, look_for_keys=False)
+
+        shell = ssh.invoke_shell()
+        shell.send("terminal length 0\n")
+        time.sleep(1)
+
+        # 1) Copy firmware (.bin) จาก TFTP มายัง bootflash:
+        shell.send(f"copy tftp://{tftp_server_ip}/{filename} bootflash:\n")
+        time.sleep(2)
+        output = read_output(shell)
+        logging.info(output)
+
+        # 2) Handle prompts ระหว่าง copy
+        while True:
+            # ถ้าเจอ destination filename?
+            if "Destination filename" in output:
+                # Enter เพื่อเลือกชื่อเดิม
+                shell.send("\n")
+            elif "over write?" in output.lower():
+                # ถ้ามีถาม overwrite ไหม
+                shell.send("yes\n")
+            elif "confirm" in output.lower():
+                # บาง prompt เป็น confirm
+                shell.send("yes\n")
+            elif "#" in output:
+                # เจอ prompt "#" แสดงว่า copy เสร็จ
+                break
+
+            time.sleep(1)
+            output = read_output(shell)
+            logging.info(output)
+
+        # 3) ตั้งค่า boot system
+        shell.send("configure terminal\n")
+        time.sleep(1)
+        output = read_output(shell)
+        logging.info(output)
+
+        # ลบค่าบูตเดิม
+        shell.send("no boot system\n")
+        time.sleep(1)
+
+        # ตั้งบูตใหม่
+        shell.send(f"boot system flash:{filename}\n")
+        time.sleep(1)
+
+        # ออกจาก config
+        shell.send("exit\n")
+        time.sleep(1)
+        output = read_output(shell)
+        logging.info(output)
+
+        # 4) Save Config
+        shell.send("write memory\n")
+        time.sleep(2)
+        output = read_output(shell)
+        logging.info(output)
+
+        # 5) Reload Device
+        shell.send("reload\n")
+        time.sleep(1)
+        output = read_output(shell)
+        logging.info(output)
+
+        # ตอบ confirm reload
+        if "confirm" in output.lower() or "reload proceed" in output.lower():
+            shell.send("yes\n")
+            time.sleep(2)
+            output = read_output(shell)
+            logging.info(output)
+
+        shell.close()
+        ssh.close()
+
+        return "Firmware updated and device reloaded successfully."
+
+    except Exception as e:
+        logging.error(f"Error updating firmware on {ip}: {e}")
+        return f"Error: {str(e)}"
+
 
 @app.route('/')
 def index():
@@ -281,7 +404,8 @@ def initial_page():
 @app.route('/dashboard')
 def dashboard_page():
     """Serve the Dashboard page."""
-    switches = session.get('switches', [])
+    session['switches'] = switches  # Store switches in session
+    session.permanent = True  # Ensure session persists
     return render_template('Dashboard.html', switches=switches)
 
 @app.route('/configuration')
@@ -295,6 +419,106 @@ def logout():
     session.clear()  # ล้างข้อมูลทั้งหมดใน session
     return redirect('/initial')  # เปลี่ยนเส้นทางไปที่หน้า Initial
 
+@app.route('/update_firmware')
+def update_firmware_page():
+    """
+    แสดงหน้าเว็บหลัก พร้อมรายการไฟล์ใน /var/lib/tftpboot
+    """
+    files = os.listdir(UPLOAD_FOLDER_FIRMWARE)
+    return render_template('update_firmware.html', files=files)
+
+@app.route('/automate_update', methods=['POST'])
+def automate_update():
+    """
+    รับข้อมูลจาก form: tftp_server_ip, filename, devices, username, password
+    แล้วสั่ง update_switch_firmware() ให้ทีละ device
+    """
+    tftp_server_ip = request.form.get('tftp_server_ip')
+    filename = request.form.get('filename')
+    devices = request.form.get('devices', '').split(',')
+    username = request.form.get('username')
+    password = request.form.get('password')
+
+    # 1) ตรวจสอบไฟล์บน TFTP server
+    firmware_path = os.path.join(UPLOAD_FOLDER_FIRMWARE, filename)
+    if not os.path.exists(firmware_path):
+        return jsonify({'error': f'File {filename} does not exist on TFTP server.'}), 400
+
+    logs = {}
+    for device_ip in devices:
+        device_ip = device_ip.strip()
+        device_logs = []
+        try:
+            device_logs.append(f"Connecting to {device_ip}...")
+
+            # 2) เรียกฟังก์ชัน Paramiko จริง
+            result = update_switch_firmware(
+                ip=device_ip,
+                username=username,
+                password=password,
+                tftp_server_ip=tftp_server_ip,
+                filename=filename
+            )
+            # 3) result = "Firmware updated and device reloaded successfully." หรือ "Error: ..."
+            device_logs.append(result)
+
+        except Exception as e:
+            device_logs.append(f"Error (outer): {str(e)}")
+
+        logs[device_ip] = device_logs
+
+    # 4) ส่ง JSON กลับไป
+    # Frontend (JS) จะอ่านแล้วแปลงเป็นข้อความ IP: สถานะ
+    return jsonify({'results': logs})
+
+@app.route('/delete_firmware', methods=['POST'])
+def delete_firmware():
+    """
+    ลบไฟล์บน TFTP
+    """
+    filename = request.form.get('filename')
+    if not filename:
+        return jsonify({'error': 'No file specified'}), 400
+
+    filepath = os.path.join(UPLOAD_FOLDER_FIRMWARE, filename)
+    if os.path.exists(filepath):
+        os.remove(filepath)
+        return jsonify({'message': f'Firmware {filename} deleted successfully.'})
+    else:
+        return jsonify({'error': f'File {filename} does not exist.'}), 404
+
+
+@app.route('/api/files', methods=['GET'])
+def get_files():
+    files = os.listdir(UPLOAD_FOLDER_FIRMWARE)
+    # ถ้าอยากกรองนามสกุล .bin หรืออื่น ๆ ก็ทำได้
+    return jsonify({"files": files})
+
+
+@app.route('/upload_firmware', methods=['POST'])
+def upload_firmware():
+    """
+    อัปโหลดไฟล์ firmware เข้า /var/lib/tftpboot
+    """
+    if 'firmware_file' not in request.files:
+        return jsonify({'error': 'No firmware_file in request'}), 400
+
+    file_obj = request.files['firmware_file']
+    filename = file_obj.filename
+
+    if not filename:
+        return jsonify({'error': 'Empty filename'}), 400
+
+    # --- ตรวจสอบนามสกุล .bin ---
+    # ถ้าต้องการเข้มงวดว่าต้องเป็น .bin เท่านั้น
+    if not filename.lower().endswith('.bin'):
+        return jsonify({'error': 'Only .bin files are allowed!'}), 400
+
+    save_path = os.path.join(UPLOAD_FOLDER_FIRMWARE, filename)
+    file_obj.save(save_path)
+    return jsonify({'message': f'File {filename} uploaded successfully.'})
+
+##############################################################
 @app.route('/saveconfig')
 def saveconfig_page():
     """Serve the Remote Config page with switch data."""
@@ -303,8 +527,6 @@ def saveconfig_page():
 
     return render_template('saveconfig.html', switches=switches_from_session)
 
-# -------------------------------------------------------------------------------
-# แก้ 17/1/2025
 @app.route('/listtemplate', methods=['GET'])
 def listtemplate_page():
     """Serve the List Template page as HTML."""
@@ -313,7 +535,7 @@ def listtemplate_page():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="192.168.99.13",
+            host="127.0.0.1",
             port="5432"
         )
         cursor = conn.cursor()
@@ -340,7 +562,7 @@ def get_templates_json():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="192.168.99.13",
+            host="127.0.0.1",
             port="5432"
         )
         cursor = conn.cursor()
@@ -371,7 +593,7 @@ def view_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="192.168.99.13",
+            host="127.0.0.1",
             port="5432"
         )
         cursor = conn.cursor()
@@ -408,7 +630,7 @@ def update_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="192.168.99.13",
+            host="127.0.0.1",
             port="5432"
         )
         cursor = conn.cursor()
@@ -438,7 +660,7 @@ def delete_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="192.168.99.13",
+            host="127.0.0.1",
             port="5432"
         )
         cursor = conn.cursor()
@@ -455,7 +677,6 @@ def delete_template(template_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# -------------------------------------------------------------------------------
 
 @app.route('/uploadtemplate', methods=['GET', 'POST'])
 def upload_template():
@@ -492,12 +713,6 @@ def upload_template():
             return jsonify({"error": str(e)}), 500
 
     return render_template('upload_Templates.html')
-
-# -----------------------------------------------------------
-
-#                          แก้ 17/1/2025
-
-# -----------------------------------------------------------
 
 @app.route('/apply_configuration', methods=['POST'])
 def apply_configuration():
@@ -538,12 +753,7 @@ def apply_configuration():
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"error": "An error occurred while applying the configuration."}), 500
-
-# -----------------------------------------------------------
-
-#                          แก้ 17/1/2025
-
-# -----------------------------------------------------------
+    
 
 @app.route('/deploy')
 def deploy_page():
@@ -923,6 +1133,7 @@ def get_vlan_info(switch_id):
         # Add the last VLAN
         if current_vlan:
             vlan_data.append(current_vlan)
+
         return jsonify({"vlan_data": vlan_data}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -999,6 +1210,95 @@ def get_license_info(switch_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+# ----------------------------------------------------------------------------------
+# ติดปัญหา CLI Terminal
+# ----------------------------------------------------------------------------------
+
+# Global dictionary to store SSH sessions
+ssh_sessions = {}
+
+@app.route('/api/cli', methods=['POST'])
+def cli_terminal():
+    """Maintain a single SSH session and wait for prompt before sending commands."""
+    data = request.json
+    ip = data.get('ip')
+    command = data.get('command')
+    username = session.get('username')
+    password = session.get('password')
+
+    if not ip or not command:
+        return jsonify({"error": "IP address and command are required"}), 400
+
+    try:
+        # Check and create SSH session if not exists
+        if ip not in ssh_sessions or not ssh_sessions[ip]['channel'].get_transport().is_active():
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username=username, password=password, timeout=5)
+
+            channel = ssh.invoke_shell()
+            ssh_sessions[ip] = {'ssh': ssh, 'channel': channel}
+
+            # Clear initial prompt
+            while not channel.recv_ready():
+                pass
+            channel.recv(1024)
+
+        # Send the command and handle `--More--`
+        channel = ssh_sessions[ip]['channel']
+        channel.send(f"{command}\n")
+        output = ""
+
+        while True:
+            while not channel.recv_ready():
+                pass
+            chunk = channel.recv(1024).decode('utf-8')
+            output += chunk
+
+            # Check for 'More' prompt and send space to continue
+            if "--More--" in chunk:
+                channel.send(" ")  # Send space to continue output
+            else:
+                break
+
+        # Remove echoed command and clean output
+        clean_output = "\n".join(line for line in output.splitlines() if command not in line)
+        return jsonify({"output": clean_output.strip()}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/cli/terminate', methods=['POST'])
+def terminate_ssh_session():
+    data = request.json
+    ip = data.get('ip')
+
+    if ip in ssh_sessions:
+        ssh_sessions[ip]['ssh'].close()
+        del ssh_sessions[ip]
+        return jsonify({"message": f"SSH session for {ip} terminated."}), 200
+
+    return jsonify({"error": "No active session for this IP."}), 404
+
+
+@app.route('/api/get_hostname', methods=['GET'])
+def get_hostname():
+    ip = request.args.get('ip')
+    if not ip:
+        return jsonify({"error": "IP is required"}), 400
+
+    try:
+        # Run the asynchronous SNMP function in a synchronous context
+        snmp_info = asyncio.run(get_snmp_info(ip))
+        hostname = snmp_info.get("hostname", "Unknown")
+        return jsonify({"hostname": hostname}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ----------------------------------------------------------------------------------
+# ติดปัญหา CLI Terminal 
+# ----------------------------------------------------------------------------------
 
 @app.route('/api/save_send_command_save', methods=['POST'])
 def save_send_command_and_download():
@@ -1080,6 +1380,35 @@ def save_send_command_and_download():
         download_name=filename,  
         mimetype='text/plain'  
     )
+
+@app.route('/api/ports', methods=['GET'])
+def list_ports():
+    """API to list available serial ports."""
+    try:
+        ports = get_available_ports()
+        return jsonify(ports), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
+@app.route('/api/connect', methods=['POST'])
+def connect_serial():
+    """API to connect to a serial port."""
+    global serial_connection
+    data = request.json
+    port = data.get('port')
+    baudrate = data.get('baudrate', 9600)
+
+    if not port:
+        return jsonify({"error": "Serial port is required"}), 400
+
+    try:
+        serial_connection = serial.Serial(port, baudrate, timeout=1)
+        return jsonify({"message": f"Connected to {port} at {baudrate} baud."}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/send', methods=['POST'])
 def send_commands():
@@ -1255,7 +1584,6 @@ def save_and_download_config():
         download_name=filename,
         mimetype='text/plain'
     )
-
 
 if __name__ == "__main__":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy()) # ถ้าอยู่บน WebServer Ubuntu แล้วไม่ต้องใช้งานตัวนี้
