@@ -1,32 +1,31 @@
-// Function to Show Error Modal
+/**************************************************************
+ * 1) Show Error Modal
+ **************************************************************/
 function showErrorModal(message, description = '') {
     const errorModal = document.getElementById('errorModal');
     const errorMessage = document.getElementById('errorMessage');
-    const errorDescription = document.querySelector('#errorModal p:nth-of-type(2)'); // Select the second <p> tag
+    const errorDescription = document.querySelector('#errorModal p:nth-of-type(2)'); 
 
-    // Set the main error message
     errorMessage.textContent = message;
 
-    // Set the secondary description or hide it if not provided
     if (description) {
         errorDescription.textContent = description;
-        errorDescription.style.display = 'block'; // Ensure it's visible
+        errorDescription.style.display = 'block';
     } else {
-        errorDescription.style.display = 'none'; // Hide if no description
+        errorDescription.style.display = 'none';
     }
 
-    // Show the modal
     errorModal.style.display = 'flex';
 
-    // Add event listener to close the modal
     const closeErrorModal = document.getElementById('closeErrorModal');
     closeErrorModal.onclick = () => {
-        const errorModal = document.getElementById('errorModal');
         errorModal.style.display = 'none';
     };
 }
 
-// Function to Fetch VLAN Information
+/**************************************************************
+ * 2) Fetch VLAN
+ **************************************************************/
 async function fetchVlanInfo() {
     const switchId = window.location.pathname.split("/").pop();
     try {
@@ -38,27 +37,30 @@ async function fetchVlanInfo() {
         const data = await response.json();
         const vlanTableBody = document.getElementById("vlanTableBody");
         vlanTableBody.innerHTML = ""; // Clear existing rows
+        console.log("Fetched VLAN Data:", data.vlan_data); // Debug ข้อมูล
+
+        // Reset "noVlanMessage" row
+        const noVlanMessage = document.getElementById("noVlanMessage");
+        if (noVlanMessage) {
+            noVlanMessage.style.display = "none";
+        }
 
         if (data.vlan_data && data.vlan_data.length > 0) {
             data.vlan_data.forEach(vlan => {
                 const row = document.createElement("tr");
 
-                // VLAN ID
                 const idCell = document.createElement("td");
                 idCell.textContent = vlan.id;
                 row.appendChild(idCell);
 
-                // VLAN Name
                 const nameCell = document.createElement("td");
                 nameCell.textContent = vlan.name;
                 row.appendChild(nameCell);
 
-                // Status
                 const statusCell = document.createElement("td");
                 statusCell.textContent = vlan.status;
                 row.appendChild(statusCell);
 
-                // Ports
                 const portsCell = document.createElement("td");
                 portsCell.classList.add("ports");
                 portsCell.textContent = vlan.ports;
@@ -67,7 +69,8 @@ async function fetchVlanInfo() {
                 vlanTableBody.appendChild(row);
             });
         } else {
-            document.getElementById("noVlanMessage").style.display = "table-row";
+            // ถ้าไม่มี VLAN ให้โชว์แถว "No VLAN data available"
+            noVlanMessage.style.display = "table-row";
         }
     } catch (error) {
         console.error("Error fetching VLAN data:", error);
@@ -78,18 +81,16 @@ async function fetchVlanInfo() {
     }
 }
 
-// Fetch VLAN data when the page is loaded
-document.addEventListener("DOMContentLoaded", fetchVlanInfo);
+/**************************************************************
+ * 3) Global Charts (CPU, Memory, Temperature)
+ **************************************************************/
+let cpuChart, memoryChart, temperatureChart;
 
-
-
-// Existing DOMContentLoaded logic
-document.addEventListener("DOMContentLoaded", async () => {
-    const loadingModal = document.getElementById('loadingModal');
-    loadingModal.style.display = 'flex';
-
+/**************************************************************
+ * 4) Fetch Switch Data (CPU/Memory/Temperature) and Draw Charts
+ **************************************************************/
+async function fetchSwitchData() {
     const switchId = window.location.pathname.split("/").pop();
-
     try {
         const response = await fetch(`/api/switch/${switchId}`);
         if (!response.ok) {
@@ -110,8 +111,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Update text data
         document.getElementById('hostnameTop').innerText = data.hostname || 'N/A';
         document.getElementById('hostnameBottom').innerText = data.hostname || 'N/A';
-        document.getElementById('uptime').innerText = data.uptime 
-            ? formatUptime(Math.floor(data.uptime / 100)) 
+        document.getElementById('uptime').innerText = data.uptime
+            ? formatUptime(Math.floor(data.uptime / 100))
             : 'N/A';
         document.getElementById('devicetypeBottom').innerText = data.device_type || 'N/A';
 
@@ -120,8 +121,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         const memoryUsage = data.memory_usage || 0;
         const temperature = data.temperature || 0;
 
+        // Chart generator
         const createChart = (ctx, label, value, color, yAxisLabel = 'Percentage') => {
-            new Chart(ctx, {
+            return new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: [label],
@@ -139,10 +141,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: yAxisLabel === 'Celsius' ? 100 : 100, // Adjust max for Celsius
+                            max: (yAxisLabel === 'Celsius') ? 100 : 100,
                             title: {
                                 display: true,
-                                text: yAxisLabel // Use Celsius for Temperature
+                                text: yAxisLabel
                             }
                         }
                     },
@@ -152,55 +154,55 @@ document.addEventListener("DOMContentLoaded", async () => {
                         datalabels: {
                             display: true,
                             color: '#000',
-                            font: {
-                                size: 12,
-                                weight: 'bold'
-                            },
-                            formatter: (value) => yAxisLabel === 'Celsius' ? `${value}°C` : `${value}%`,
+                            font: { size: 12, weight: 'bold' },
+                            formatter: (val) => (yAxisLabel === 'Celsius') ? `${val}°C` : `${val}%`,
                             anchor: 'end',
                             align: 'end',
                         }
                     }
                 },
-                plugins: [
-                    ChartDataLabels,
-                    {
-                        id: 'insideLabel',
-                        beforeDatasetsDraw(chart) {
-                            const ctx = chart.ctx;
-                            chart.data.datasets.forEach((dataset, i) => {
-                            });
-                        }
-                    }
-                ]
+                plugins: [ChartDataLabels]
             });
         };
 
-        createChart(document.getElementById('cpuChart'), 'CPU Usage', cpuUsage, 'rgba(50, 205, 50, 0.7)');
-        createChart(document.getElementById('memoryChart'), 'Memory Usage', memoryUsage, 'rgba(54, 162, 235, 0.6)');
-        // createChart(document.getElementById('temperatureChart'), 'Temperature', temperature, 'rgba(255, 99, 71, 0.7)');
-        createChart(
+        // Destroy old charts before re-creating
+        if (cpuChart) cpuChart.destroy();
+        if (memoryChart) memoryChart.destroy();
+        if (temperatureChart) temperatureChart.destroy();
+
+        // Create new charts
+        cpuChart = createChart(
+            document.getElementById('cpuChart'),
+            'CPU Usage',
+            cpuUsage,
+            'rgba(50, 205, 50, 0.7)'
+        );
+        memoryChart = createChart(
+            document.getElementById('memoryChart'),
+            'Memory Usage',
+            memoryUsage,
+            'rgba(54, 162, 235, 0.6)'
+        );
+        temperatureChart = createChart(
             document.getElementById('temperatureChart'),
             'Temperature',
             temperature,
             'rgba(255, 99, 71, 0.7)',
-            'Celsius' // Set the Y-axis label to Celsius
+            'Celsius'
         );
 
     } catch (error) {
         console.error("Error loading switch data:", error);
-
-        // Show Error Modal when error occurs
         showErrorModal(
             "Error Loading Data",
             "Unable to fetch switch information. Please check your network or try again later."
         );
-    } finally {
-        loadingModal.style.display = 'none';
     }
-});
+}
 
-
+/**************************************************************
+ * 5) Fetch License Info
+ **************************************************************/
 async function fetchLicenseInfo() {
     const switchId = window.location.pathname.split("/").pop();
     try {
@@ -211,7 +213,7 @@ async function fetchLicenseInfo() {
 
         const data = await response.json();
         const licenseContainer = document.getElementById("licenseContainer");
-        licenseContainer.innerHTML = ""; // Clear existing content
+        licenseContainer.innerHTML = ""; 
 
         if (data.licenses && data.licenses.length > 0) {
             data.licenses.forEach(license => {
@@ -236,9 +238,9 @@ async function fetchLicenseInfo() {
     }
 }
 
-// Call fetchLicenseInfo when the page loads
-document.addEventListener("DOMContentLoaded", fetchLicenseInfo);
-
+/**************************************************************
+ * 6) Fetch Interface Info
+ **************************************************************/
 async function fetchInterfaceInfo() {
     const switchId = window.location.pathname.split("/").pop();
     try {
@@ -249,21 +251,21 @@ async function fetchInterfaceInfo() {
 
         const data = await response.json();
         const portStatusContainer = document.querySelector(".port-status");
-        portStatusContainer.innerHTML = ""; // Clear existing content
+        portStatusContainer.innerHTML = ""; 
 
-        data.interfaces.forEach((iface, index) => {
+        data.interfaces.forEach((iface) => {
             const portDiv = document.createElement("div");
             portDiv.classList.add("port");
             if (iface.status === "Up") {
                 portDiv.classList.add("active");
             }
 
-            // Add image for port status
             const portImg = document.createElement("img");
-            portImg.src = iface.status === "Up" ? "/static/img/Port_UP.png" : "/static/img/Port_DOWN.png";
+            portImg.src = iface.status === "Up"
+                ? "/static/img/Port_UP.png"
+                : "/static/img/Port_DOWN.png";
             portImg.alt = iface.status;
 
-            // Add abbreviated port name below the image
             const portLabel = document.createElement("span");
             portLabel.classList.add("port-number");
             portLabel.innerText = iface.name;
@@ -278,5 +280,48 @@ async function fetchInterfaceInfo() {
     }
 }
 
-// Call fetchInterfaceInfo when the page loads
-document.addEventListener("DOMContentLoaded", fetchInterfaceInfo);
+/**************************************************************
+ * 7) Refresh All Data (Showing Modal Only On First Load)
+ **************************************************************/
+let isInitialLoad = true;
+
+async function refreshAllInfo() {
+    const loadingModal = document.getElementById('loadingModal');
+
+    // ถ้าเป็นการโหลดครั้งแรก => โชว์ Modal
+    if (isInitialLoad) {
+        loadingModal.style.display = 'flex';
+    }
+
+    try {
+        // เรียกฟังก์ชันดึงข้อมูลทั้งหมด
+        await fetchSwitchData();
+        await fetchLicenseInfo();
+        await fetchVlanInfo();
+        await fetchInterfaceInfo();
+
+    } catch (err) {
+        console.error("Error refreshing info:", err);
+        showErrorModal(
+            "Error Loading Data",
+            "Unable to fetch some info. Check your connection or try again."
+        );
+    } finally {
+        // ปิด Modal แค่ครั้งแรก
+        if (isInitialLoad) {
+            isInitialLoad = false;
+            loadingModal.style.display = 'none';
+        }
+    }
+}
+
+/**************************************************************
+ * 8) DOMContentLoaded -> Load All Data + Auto Refresh (No Modal)
+ **************************************************************/
+document.addEventListener("DOMContentLoaded", () => {
+    // เรียกครั้งแรก => แสดง Loading Modal
+    refreshAllInfo();
+
+    // รอบต่อไป -> ไม่โชว์ Modal
+    setInterval(refreshAllInfo, 10000);
+});

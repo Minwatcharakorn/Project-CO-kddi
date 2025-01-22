@@ -883,8 +883,6 @@ def get_vlan_info(switch_id):
     username = session.get('username')
     password = session.get('password')
 
-    print(ip)
-
     if not username or not password:
         return jsonify({"error": "Authentication details missing"}), 400
 
@@ -925,7 +923,6 @@ def get_vlan_info(switch_id):
         # Add the last VLAN
         if current_vlan:
             vlan_data.append(current_vlan)
-
         return jsonify({"vlan_data": vlan_data}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

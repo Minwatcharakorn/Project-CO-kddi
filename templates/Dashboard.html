@@ -198,23 +198,8 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for switch in switches %}
-                            <tr>
-                                <td>{{ switch.model }}</td>
-                                <td>{{ switch.serial }}</td>
-                                <td>{{ switch.hostname }}</td>
-                                <td>{{ switch.ip }}</td>
-                                <td>{{ switch.status }}</td>
-                                <td>
-                                    <div class="action-buttons-dashboard">
-                                        <a href="/info/{{ switch.id }}" title="View Details">
-                                            <i class="fas fa-info"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                        <tbody id="device-table-body">
+                            <!-- อาจมีข้อมูลจาก Jinja2 เป็น initial load -->
                         </tbody>
                     </table>
                 </div>
@@ -294,5 +279,100 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', updateSidebarForResponsive);
 });
     </script>
+
+    <!-- SCRIPT: สแกน IP + รีเฟรชตารางทุก 5 วินาที -->
+    <script>
+        /**
+         * ฟังก์ชันดึงข้อมูลล่าสุดจาก /api/get_switches
+         * แล้วนำมาอัปเดตตาราง (#device-table-body)
+         */
+        function refreshTableData() {
+            fetch('/api/get_switches')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Cannot get switches: " + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const tableBody = document.getElementById('device-table-body');
+                    tableBody.innerHTML = ''; // ล้างแถวเดิมทั้งหมด
+
+                    // สร้าง row ใหม่ตาม data ที่ได้
+                    data.forEach(sw => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${sw.model || ''}</td>
+                            <td>${sw.serial || ''}</td>
+                            <td>${sw.hostname || ''}</td>
+                            <td>${sw.ip || ''}</td>
+                            <td>${sw.status || ''}</td>
+                            <td>
+                                <div class="action-buttons-dashboard">
+                                    <a href="/info/${sw.id}" title="View Details">
+                                        <i class="fas fa-info"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                })
+                .catch(err => console.error("Error in refreshTableData:", err));
+        }
+
+        /**
+         * ฟังก์ชันเรียก /api/scan เพื่อสแกน SNMP ใหม่
+         * (ใช้ ip_start, ip_end จาก session หรือหน้าเว็บ)
+         * เสร็จแล้วค่อยเรียก refreshTableData
+         */
+        function scanAndRefresh() {
+            // ดึงช่วง IP ปัจจุบันจาก #ip-address
+            const ipRange = document.getElementById('ip-address').innerText.trim();
+            let ipStart = '';
+            let ipEnd = '';
+
+            if (ipRange.includes('-')) {
+                const parts = ipRange.split('-');
+                ipStart = parts[0].trim();
+                ipEnd = parts[1].trim();
+            } else {
+                ipStart = ipRange;
+                ipEnd = ipRange;
+            }
+
+            if (!ipStart) {
+                alert("Invalid IP range");
+                return;
+            }
+
+            // เรียก /api/scan แบบ POST เพื่อ update_switches(...)
+            fetch('/api/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip_start: ipStart, ip_end: ipEnd })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Scan request failed: " + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Scan completed:", data);
+                // หลัง scan สำเร็จ -> เรียก refreshTableData
+                refreshTableData();
+            })
+            .catch(err => console.error("Error in scanAndRefresh:", err));
+        }
+
+        // เมื่อโหลดหน้าเสร็จ -> ตั้ง interval ให้เรียก scanAndRefresh() ทุก 5 วินาที
+        document.addEventListener('DOMContentLoaded', () => {
+            scanAndRefresh();
+
+            setInterval(scanAndRefresh, 5000);
+        });
+    </script>
+
 </body>
 </html>

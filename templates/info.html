@@ -292,11 +292,6 @@
 
     <script src="../static/js/Info.js"></script>
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        fetchRealtimeSwitchData(); // Load initial data
-    });
-    </script>
-    <script>
         function switchSelectionChanged() {
             const selectedSwitchId = document.getElementById('switchSelector').value;
             window.location.href = `/info/${selectedSwitchId}`;
