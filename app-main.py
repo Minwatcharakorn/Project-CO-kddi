@@ -78,7 +78,7 @@ def allowed_firmware_file(filename):
 
 async def get_snmp_info(ip, community='public'):
     """Retrieve SNMP information from the device using asyncio."""
-    oid_hostname = '.1.3.6.1.2.1.1.5.0'  # OID for Hostname
+    oid_hostname = '.1.3.6.1.4.1.9.2.1.3.0'  # OID for Hostname
     oid_model = '.1.3.6.1.2.1.1.1.0'     # OID for Model (sysDescr)
     oid_serial_base = '.1.3.6.1.2.1.47.1.1.1.1.11.1'  # OID base for Serial Number (ENTITY-MIB)
 
@@ -416,6 +416,7 @@ def configuration_page():
 @app.route('/logout')
 def logout():
     """Clear session except switches and redirect to Initial page."""
+    switches.clear()  # ล้างข้อมูลในตัวแปร switches
     session.clear()  # ล้างข้อมูลทั้งหมดใน session
     return redirect('/initial')  # เปลี่ยนเส้นทางไปที่หน้า Initial
 
