@@ -216,6 +216,13 @@
             </div>
         </div>
     </div>
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="modal">
+        <div class="modal-content">
+            <div class="loading-spinner"></div>
+            <p>Loading</p>
+        </div>
+    </div>
     <script>
         function w3_open() {
             document.getElementById("main").style.marginLeft = "25%";
@@ -304,42 +311,64 @@
             }
         }
 
+        function showLoadingModal() {
+            const modal = document.getElementById("loadingModal");
+            if (modal) {
+                modal.style.display = "flex";
+            }
+        }
+
+        function hideLoadingModal() {
+            const modal = document.getElementById("loadingModal");
+            if (modal) {
+                modal.style.display = "none";
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", function () {
             const closeModalButton = document.getElementById("closeErrorModal");
             if (closeModalButton) {
                 closeModalButton.addEventListener("click", closeErrorModal);
             }
-        });
-        // Handle Deploy button
-        document.getElementById('deploy-button').addEventListener('click', async function () {
-            try {
-                const response = await fetch('/api/deploy', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
 
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log("Deployment Logs:", result.logs);
+            // Handle Deploy button
+            document.getElementById('deploy-button').addEventListener('click', async function () {
+                try {
+                    // Show loading modal
+                    showLoadingModal();
 
-                    // Redirect ไปยังหน้า Deployment Log
-                    window.location.href = '/deployment_log';
-                } else {
-                    const errorResult = await response.json();
-                    throw new Error(errorResult.error || "Deployment failed.");
+                    // Make API call
+                    const response = await fetch('/api/deploy', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log("Deployment Logs:", result.logs);
+
+                        // Hide loading modal and redirect
+                        hideLoadingModal();
+                        window.location.href = '/deployment_log';
+                    } else {
+                        const errorResult = await response.json();
+                        throw new Error(errorResult.error || "Deployment failed.");
+                    }
+                } catch (err) {
+                    // Hide loading modal and show error
+                    hideLoadingModal();
+                    console.error(`Error: ${err.message}`);
+                    showErrorModal(`Deployment failed: ${err.message}`);
                 }
-            } catch (err) {
-                console.error(`Error: ${err.message}`);
-                showErrorModal(`Deployment failed: ${err.message}`);
-            }
+            });
         });
     </script>
 
-    <script>
+    <!-- <script>
         // Redirect to deploy_log.html for direct navigation (alternative behavior)
         document.getElementById('deploy-button').addEventListener('click', function () {
-            window.location.href = "deploy_log.html";
+            window.location.href = "deployment_log.html";
         });
-    </script>
+    </script> -->
 </body>
 </html>

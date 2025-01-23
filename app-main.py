@@ -14,7 +14,7 @@ import re
 import psycopg2
 import time
 from datetime import datetime, timedelta
-import pytz
+from pytz import timezone, utc
 import io
 import logging
 
@@ -54,7 +54,7 @@ def get_db_connection():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         print("Database connected successfully!")
@@ -536,7 +536,7 @@ def listtemplate_page():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -563,7 +563,7 @@ def get_templates_json():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -594,30 +594,33 @@ def view_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
 
+        # Query to fetch both template name and file data
         cursor.execute("""
-        SELECT file_data FROM templates WHERE id = %s;
+        SELECT template_name, file_data FROM templates WHERE id = %s;
         """, (template_id,))
         result = cursor.fetchone()
 
-        if result and result[0]:
-            # แปลงข้อมูลจาก BYTEA เป็นข้อความ
-            file_content = result[0].tobytes().decode('utf-8', errors='ignore')
-            return jsonify({"content": file_content})  # ส่งข้อมูลเป็น JSON
+        if result:
+            template_name, file_data = result
+            content = file_data.tobytes().decode('utf-8', errors='ignore') if file_data else "No content found"
+            return jsonify({"template_name": template_name, "content": content})
         else:
-            return jsonify({"content": "No content found for this template"}), 404
+            return jsonify({"error": "Template not found"}), 404
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
     finally:
         if 'cursor' in locals():
             cursor.close()
         if 'conn' in locals():
             conn.close()
+
 
 
 @app.route('/updatetemplate/<int:template_id>', methods=['POST'])
@@ -631,7 +634,7 @@ def update_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -661,7 +664,7 @@ def delete_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -892,9 +895,10 @@ def save_deployment_log(device, template_name, status, details, description):
 
 
 def convert_to_bangkok_time(utc_time):
-    bangkok_offset = timedelta(hours=7)  # UTC+7
-    bangkok_time = utc_time + bangkok_offset
-    return bangkok_time.strftime('%Y-%m-%d %H:%M:%S')
+    """Convert UTC time to Bangkok time."""
+    utc_dt = utc.localize(utc_time)  # ระบุว่า utc_time อยู่ใน UTC
+    bangkok_dt = utc_dt.astimezone(timezone('Asia/Bangkok'))  # แปลงเป็นเวลา Bangkok
+    return bangkok_dt.strftime('%Y-%m-%d %H:%M:%S')
 
 @app.route('/api/logging', methods=['GET'])
 def get_logging():

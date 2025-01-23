@@ -190,7 +190,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th onclick="sortTable(0)">NO <i class="fas fa-sort"></i></th>
+                            <!-- <th onclick="sortTable(0)">NO <i class="fas fa-sort"></i></th> -->
                             <th onclick="sortTable(1)">Template Name <i class="fas fa-sort"></i></th>
                             <th onclick="sortTable(2)">Description <i class="fas fa-sort"></i></th>
                             <th>Type</th>
@@ -201,7 +201,7 @@
                     <tbody id="template-table-body">
                         {% for template in templates %}
                         <tr>
-                            <td>{{ template[0] }}</td>
+                            <td style="display: none;">{{ template[0] }}</td>
                             <td>{{ template[1] }}</td>
                             <td>{{ template[2] }}</td>
                             <td>{{ template[3] }}</td>
@@ -250,6 +250,15 @@
             <button id="closeErrorModal" class="error-modal-button">OK</button>
         </div>
     </div>
+
+    <div id="successModal" class="success-modal">
+        <div class="success-modal-content">
+            <i class="fas fa-check-circle success-icon"></i>
+            <p id="successMessage">Success!</p>
+            <button class="success-button" onclick="closeSuccessModal()">OK</button>
+        </div>
+    </div>
+
     <!-- Load the JavaScript at the end -->
     <script src="../static/js/templates.js"></script>
     <script src="../static/js/sort.js"></script>

@@ -6,7 +6,7 @@ try:
         dbname="logdb",  # ชื่อฐานข้อมูล
         user="logdb",    # ชื่อผู้ใช้
         password="kddiadmin",  # รหัสผ่าน
-        host="127.0.0.1",  # ที่อยู่ IP ของเซิร์ฟเวอร์ PostgreSQL
+        host="192.168.99.13",  # ที่อยู่ IP ของเซิร์ฟเวอร์ PostgreSQL
         port="5432"        # พอร์ตที่ใช้สำหรับเชื่อมต่อ (พอร์ตเริ่มต้นของ PostgreSQL)
     )
     

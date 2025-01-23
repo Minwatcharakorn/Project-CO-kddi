@@ -15,15 +15,34 @@ function closeErrorModal() {
     }
 }
 
+function showSuccessModal(message) {
+    const modal = document.getElementById("successModal");
+    const successMessage = document.getElementById("successMessage");
+
+    if (modal && successMessage) {
+        successMessage.textContent = message;
+        modal.style.display = "flex";
+    }
+}
+
+function closeSuccessModal() {
+    const modal = document.getElementById("successModal");
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
+
+
 document.addEventListener("DOMContentLoaded", function () {
     const closeModalButton = document.getElementById("closeErrorModal");
     if (closeModalButton) {
         closeModalButton.addEventListener("click", closeErrorModal);
     }
 });
+
 // ฟังก์ชันเปิด modal สำหรับดูหรือแก้ไข template
 function openModal(templateId, action) {
-    console.log("openModal called for templateId:", templateId);  // ตรวจสอบการเรียกใช้ฟังก์ชัน
+    console.log("openModal called for templateId:", templateId);
 
     const modal = document.getElementById("modal");
     const modalTitle = document.getElementById("modal-title");
@@ -34,84 +53,67 @@ function openModal(templateId, action) {
     // ตรวจสอบว่าองค์ประกอบมีอยู่จริงใน DOM หรือไม่
     if (!modal || !modalTitle || !commandOutput || !editArea) {
         console.error("One or more elements not found!");
-        return;  // ออกจากฟังก์ชันหากไม่พบองค์ประกอบ
+        return;
     }
 
-    modalTitle.textContent = `${templateId} Details`;
+    // ดึงข้อมูลจาก API `/viewtemplate/${templateId}`
+    fetch(`/viewtemplate/${templateId}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.template_name) {
+            modalTitle.textContent = `${data.template_name} Details`; // Use the actual template name
+        } else {
+            modalTitle.textContent = `Template Details`; // Fallback if no name exists
+        }
 
-    // แสดง modal
-    modal.style.display = "flex";
+        if (action === "Visit") {
+            commandOutput.style.display = "block";
+            editArea.style.display = "none";
+            saveButton.style.display = "none";
 
-    if (action === "Visit") {
-        // เมื่อเป็นการดูข้อมูล
-        commandOutput.style.display = "block";  // แสดง command output
-        editArea.style.display = "none";  // ซ่อน edit area
-        saveButton.style.display = "none";  // ซ่อนปุ่ม Save
+            document.getElementById("template-details").textContent = data.content || "No content available.";
+        } else if (action === "Edit") {
+            commandOutput.style.display = "none";
+            editArea.style.display = "block";
+            saveButton.style.display = "block";
 
-        // ดึงข้อมูลจากเซิร์ฟเวอร์เมื่อเป็นการดู
-        fetch(`/viewtemplate/${templateId}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log("Fetched data:", data);  // ตรวจสอบข้อมูลที่ได้จากเซิร์ฟเวอร์
-                if (data.content) {
-                    commandOutput.style.display = "block";  // แสดงพื้นที่สำหรับแสดงข้อมูล
-                    document.getElementById("template-details").textContent = data.content;  // แสดงข้อมูลในเทมเพลต
-                } else {
-                    console.error("Content not found!");
-                    document.getElementById("template-details").textContent = "No content available.";
-                }
-            })
-            .catch(error => {
-                console.error("Error fetching template content:", error);
-                showErrorModal("Failed to load template content.");
-            });
-    } else if (action === "Edit") {
-        // เมื่อเป็นการแก้ไขข้อมูล
-        commandOutput.style.display = "none";  // ซ่อน command output
-        editArea.style.display = "block";  // แสดง edit area
-        saveButton.style.display = "block";  // แสดงปุ่ม Save
+            document.getElementById("edit-textarea").value = data.content || "";
 
-        // ดึงข้อมูลจากเซิร์ฟเวอร์เมื่อเป็นการแก้ไข
-        fetch(`/viewtemplate/${templateId}`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("edit-textarea").value = data.content;  // เติมเนื้อหาใน textarea
-            })
-            .catch(error => {
-                console.error("Error fetching template content:", error);
-                showErrorModal("Failed to load template content.");
-            });
+            saveButton.onclick = function () {
+                const updatedContent = document.getElementById("edit-textarea").value;
 
-        // การบันทึกข้อมูลเมื่อคลิกปุ่ม Save
-        saveButton.onclick = function () {
-            const updatedContent = document.getElementById("edit-textarea").value;
-            console.log("Updated Content:", updatedContent); // คุณสามารถแทนที่ด้วย logic การบันทึกที่แท้จริง
+                fetch(`/updatetemplate/${templateId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ content: updatedContent }),
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Failed to update template.");
+                        }
+                        return response.json();
+                    })
+                    .then(() => {
+                        showSuccessModal("Template Updated Successfully!");
+                        closeModal();
+                    })
+                    .catch(error => {
+                        console.error("Error updating template:", error);
+                        showErrorModal("Failed to update template.");
+                    });
+            };
+        }
 
-            // ส่งข้อมูลไปบันทึกในฐานข้อมูล
-            fetch(`/updatetemplate/${templateId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ content: updatedContent })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Failed to update template.");
-                }
-                return response.json();
-            })
-            .then(data => {
-                showErrorModal("Template Updated Successfully!");
-                closeModal();  // ปิด modal หลังจากบันทึก
-            })
-            .catch(error => {
-                console.error("Error updating template:", error);
-                showErrorModal("Failed to update template.");
-            });
-        };
-    }
+        modal.style.display = "flex";
+    })
+    .catch(error => {
+        console.error("Error fetching template details:", error);
+        showErrorModal("Failed to load template details.");
+    });
 }
+
 
 
 function deleteTemplate(templateId) {
