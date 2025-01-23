@@ -14,7 +14,6 @@ import re
 import psycopg2
 import time
 from datetime import datetime, timedelta
-from pytz import timezone, utc
 import io
 import logging
 
@@ -388,18 +387,15 @@ def update_switch_firmware(ip, username, password, tftp_server_ip, filename):
         logging.error(f"Error updating firmware on {ip}: {e}")
         return f"Error: {str(e)}"
 
-
 @app.route('/')
 def index():
-    """Serve the Serial Console page."""
-    return render_template('serial-console.html')
-
-
-@app.route('/initial')
-def initial_page():
     """Serve the SSH Login page."""
     return render_template('Initial.html')
 
+@app.route('/serialconsole')
+def serialconsole_page():
+    """Serve the Serial Console page."""
+    return render_template('serial-console.html')
 
 @app.route('/dashboard')
 def dashboard_page():
@@ -418,7 +414,7 @@ def logout():
     """Clear session except switches and redirect to Initial page."""
     switches.clear()  # ล้างข้อมูลในตัวแปร switches
     session.clear()  # ล้างข้อมูลทั้งหมดใน session
-    return redirect('/initial')  # เปลี่ยนเส้นทางไปที่หน้า Initial
+    return redirect('/')  # เปลี่ยนเส้นทางไปที่หน้า Initial
 
 @app.route('/update_firmware')
 def update_firmware_page():
@@ -893,13 +889,6 @@ def save_deployment_log(device, template_name, status, details, description):
         if 'conn' in locals():
             conn.close()
 
-
-def convert_to_bangkok_time(utc_time):
-    """Convert UTC time to Bangkok time."""
-    utc_dt = utc.localize(utc_time)  # ระบุว่า utc_time อยู่ใน UTC
-    bangkok_dt = utc_dt.astimezone(timezone('Asia/Bangkok'))  # แปลงเป็นเวลา Bangkok
-    return bangkok_dt.strftime('%Y-%m-%d %H:%M:%S')
-
 @app.route('/api/logging', methods=['GET'])
 def get_logging():
     """API สำหรับดึงข้อมูล log การ deploy."""
@@ -915,13 +904,6 @@ def get_logging():
 
         log_list = []
         for log in logs:
-            # ตรวจสอบ timestamp และแปลงเวลา
-            timestamp_utc = log[6]
-            if timestamp_utc:
-                timestamp_bangkok = convert_to_bangkok_time(timestamp_utc)
-            else:
-                timestamp_bangkok = "N/A"
-
             log_list.append({
                 "hostname": log[0],
                 "ip": log[1],
@@ -929,7 +911,7 @@ def get_logging():
                 "status": log[3],
                 "details": log[4],
                 "description": log[5] or "No description",  # จัดการกรณี description ว่าง
-                "timestamp": timestamp_bangkok
+                "timestamp": log[6].strftime('%Y-%m-%d %H:%M:%S') if log[6] else "N/A"
             })
 
         return jsonify({"logs": log_list}), 200

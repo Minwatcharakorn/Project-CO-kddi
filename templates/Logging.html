@@ -176,7 +176,7 @@
                 </div>
             </div>
         </div>
-        <div class="content">
+        <div class="w3-container">
             <div class="content-header">
                 <h2><i class="fas fa-book" style="color: #1E90FF;"></i> Logging History Deployment</h2>
             </div>
@@ -201,11 +201,13 @@
         </div>
 
         <!-- Modal Structure -->
-        <div id="configModal" class="modal">
-            <div class="modal-content">
+        <div id="configModal" class="configModal" style="display: none;">
+            <div class="configModal-content">
                 <span class="close">&times;</span>
-                <h2>Template Details</h2>
-                <pre id="configDetails"></pre>
+                <div class="configModal-header">Logging Details</div>
+                <div class="configModal-body">
+                    <pre id="configDetails" class="configModal-cli"></pre>
+                </div>
             </div>
         </div>
     </div>
@@ -243,24 +245,25 @@
                             event.preventDefault();
                             const details = this.getAttribute("data-details");
                             document.getElementById("configDetails").textContent = details;
-                            document.getElementById("configModal").style.display = "block";
+                            document.querySelector(".configModal").style.display = "flex"; // Show the modal
                         });
                     });
                 })
                 .catch(err => console.error("Error fetching logs:", err));
 
             // Close modal
-            document.querySelector(".modal .close").addEventListener("click", function () {
-                document.getElementById("configModal").style.display = "none";
+            document.querySelector(".configModal .close").addEventListener("click", function () {
+                document.querySelector(".configModal").style.display = "none"; // Hide the modal
             });
 
             window.addEventListener("click", function (event) {
-                if (event.target === document.getElementById("configModal")) {
-                    document.getElementById("configModal").style.display = "none";
+                if (event.target === document.querySelector(".configModal")) {
+                    document.querySelector(".configModal").style.display = "none"; // Hide when clicking outside
                 }
             });
         });
     </script>
+    
 
 <script>
     function w3_open() {
