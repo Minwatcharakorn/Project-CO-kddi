@@ -1,5 +1,0 @@
-enable
-configure terminal
-hostname KDDI_Test-sw
-end
-copy running-config startup-config
