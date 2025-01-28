@@ -230,17 +230,8 @@
                                 <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for switch in switches %}
-                            <tr>
-                                <td><input type="checkbox" class="device-checkbox"></td>
-                                <td>{{ switch.model }}</td>
-                                <td>{{ switch.serial }}</td>
-                                <td>{{ switch.hostname }}</td>
-                                <td>{{ switch.ip }}</td>
-                                <td>{{ switch.status }}</td>
-                            </tr>
-                            {% endfor %}
+                        <tbody id="switch-table-body">
+                            <!-- Dynamically populated rows will appear here -->
                         </tbody>
                     </table>
                 </div>
@@ -283,6 +274,42 @@
         </div>
     </div>
     <script src="../static/js/saveconfig.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchSwitchData();
+        
+            function fetchSwitchData() {
+                fetch('/api/get_switches')
+                    .then(response => response.json())
+                    .then(data => {
+                        const tableBody = document.getElementById('switch-table-body');
+                        tableBody.innerHTML = ''; // Clear existing data
+        
+                        data.forEach(device => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td><input type="checkbox" class="device-checkbox"></td>
+                                <td>${device.model || 'N/A'}</td>
+                                <td>${device.serial || 'N/A'}</td>
+                                <td>${device.hostname || 'N/A'}</td>
+                                <td>${device.ip || 'N/A'}</td>
+                                <td>${device.status || 'N/A'}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching switch data:', error));
+            }
+        
+            // Select all checkboxes functionality
+            document.getElementById('select-all').addEventListener('change', function () {
+                const checkboxes = document.querySelectorAll('.device-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+        });
+        </script>
     <script>
         function w3_open() {
             document.getElementById("main").style.marginLeft = "25%";

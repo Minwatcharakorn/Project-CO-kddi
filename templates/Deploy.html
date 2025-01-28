@@ -188,16 +188,7 @@
                         </tr>
                     </thead>
                     <tbody id="device-table-body">
-                        {% for switch in switches %}
-                        <tr>
-                            <td><input type="checkbox" class="device-checkbox" data-ip="{{ switch.ip }}"></td>
-                            <td>{{ switch.model }}</td>
-                            <td>{{ switch.serial }}</td>
-                            <td>{{ switch.hostname }}</td>
-                            <td>{{ switch.ip }}</td>
-                            <td>{{ switch.status }}</td>
-                        </tr>
-                        {% endfor %}
+                        <!-- Rows will be dynamically added here -->
                     </tbody>
                 </table>
             </div>
@@ -213,54 +204,59 @@
         </div>
     </div>
     <script>
-        function showErrorModal(message) {
-            const modal = document.getElementById("errorModal");
-            const errorMessage = document.getElementById("errorMessage");
-
-            if (modal && errorMessage) {
-                errorMessage.textContent = message;
-                modal.style.display = "flex";
-            }
-        }
-
-        function closeErrorModal() {
-            const modal = document.getElementById("errorModal");
-            if (modal) {
-                modal.style.display = "none";
-            }
-        }
-
         document.addEventListener("DOMContentLoaded", function () {
-            const closeModalButton = document.getElementById("closeErrorModal");
-            if (closeModalButton) {
-                closeModalButton.addEventListener("click", closeErrorModal);
+            fetchSwitchData();
+        
+            function fetchSwitchData() {
+                fetch('/api/get_switches') // API endpoint for fetching switch data
+                    .then(response => response.json())
+                    .then(data => {
+                        const tableBody = document.getElementById('device-table-body');
+                        tableBody.innerHTML = ''; // Clear existing data
+        
+                        data.forEach(device => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td><input type="checkbox" class="device-checkbox" data-ip="${device.ip}"></td>
+                                <td>${device.model || 'N/A'}</td>
+                                <td>${device.serial || 'N/A'}</td>
+                                <td>${device.hostname || 'N/A'}</td>
+                                <td>${device.ip || 'N/A'}</td>
+                                <td>${device.status || 'N/A'}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching switch data:', error));
             }
-        });
-        document.addEventListener('DOMContentLoaded', function() {
+        
+            // Select all checkboxes functionality
             const selectAllCheckbox = document.getElementById('select-all');
-            const checkboxes = document.querySelectorAll('.device-checkbox');
-
-            selectAllCheckbox.addEventListener('change', function() {
-                checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+            selectAllCheckbox.addEventListener('change', function () {
+                const checkboxes = document.querySelectorAll('.device-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
             });
-
-            document.getElementById('apply-button').addEventListener('click', async function() {
+        
+            // Apply button functionality
+            document.getElementById('apply-button').addEventListener('click', async function () {
                 const selectedDevices = [];
                 document.querySelectorAll('.device-checkbox:checked').forEach(checkbox => {
                     selectedDevices.push(checkbox.getAttribute('data-ip'));
                 });
-
+        
                 if (selectedDevices.length > 0) {
                     try {
                         const response = await fetch('/api/select_devices', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ devices: selectedDevices })
+                            body: JSON.stringify({ devices: selectedDevices }),
                         });
-
+        
                         const result = await response.json();
                         if (response.ok) {
-                            window.location.href = '/select_templates'; // Redirect ไปหน้า Templates
+                            window.location.href = '/select_templates'; // Redirect to next step
                         } else {
                             throw new Error(result.error);
                         }
@@ -269,11 +265,31 @@
                         showErrorModal(`Error: ${err.message}`);
                     }
                 } else {
-                    showErrorModal('Please select at least one device to apply.');
+                    showErrorModal('Please select at least one device.');
                 }
             });
+        
+            // Error Modal Handling
+            function showErrorModal(message) {
+                const modal = document.getElementById("errorModal");
+                const errorMessage = document.getElementById("errorMessage");
+        
+                if (modal && errorMessage) {
+                    errorMessage.textContent = message;
+                    modal.style.display = "flex";
+                }
+            }
+        
+            function closeErrorModal() {
+                const modal = document.getElementById("errorModal");
+                if (modal) {
+                    modal.style.display = "none";
+                }
+            }
+        
+            document.getElementById("closeErrorModal").addEventListener("click", closeErrorModal);
         });
-    </script>
+        </script>
     <script>
         document.getElementById('next-button').addEventListener('click', function() {
             window.location.href = "template_selection.html";
