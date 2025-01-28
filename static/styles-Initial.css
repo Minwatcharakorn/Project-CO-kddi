@@ -1,81 +1,101 @@
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
-    background: #283593;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.header-buttons {
-    display: flex;
-    flex-direction: row; /* เรียงในแนวนอน */
-    justify-content: space-between; /* จัดปุ่มให้อยู่ซ้ายและขวา */
-    align-items: center;
-    padding: 10px;
-    gap: 10px; /* เพิ่มระยะห่างระหว่างปุ่ม */
-}
 
 .container {
     position: relative;
     display: flex;
-    flex-wrap: wrap;
-    width: 90%;
-    max-width: 1200px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-}
-.login-section, .info-section {
-    flex: 1;
-    padding: 40px;
-    display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;    
+    width: 100%;
+    max-width: 500px;
+    height: 100%;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 1px 15px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    margin: auto;
+    margin-top: 30px; 
+    margin-bottom: 20px;
+
+}
+
+.mode-selection {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* เพิ่มช่องว่างระหว่างตัวเลือก */
+    margin: 20px 0; /* เพิ่มระยะห่างด้านบนและล่าง */
+    font-size: 16px; /* ขนาดข้อความ */
+    margin-top: -5px;
+}
+
+.mode-selection label {
+    display: flex;
+    align-items: center;
+    cursor: pointer; /* เปลี่ยนเคอร์เซอร์เป็นรูปมือ */
+    gap: 8px; /* เพิ่มระยะห่างระหว่างวงกลมและข้อความ */
+}
+
+.mode-selection input[type="radio"] {
+    display: none; /* ซ่อน radio ดั้งเดิม */
+}
+
+.mode-selection input[type="radio"] + span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #1e90ff; /* เส้นขอบ */
+    border-radius: 50%; /* ทำให้เป็นวงกลม */
+    background-color: white; /* สีพื้นหลัง */
+    transition: all 0.3s ease; /* เพิ่มเอฟเฟกต์เปลี่ยนสี */
+}
+
+.mode-selection input[type="radio"]:checked + span {
+    background-color: #1e90ff; /* เปลี่ยนสีเมื่อเลือก */
+    box-shadow: 0 0 4px rgba(30, 144, 255, 0.6); /* เพิ่มเงา */
+}
+
+.mode-selection input[type="radio"]:checked + span::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background-color: white; /* สีของจุด */
+    border-radius: 50%; /* จุดเป็นวงกลม */
+    display: block;
 }
 
 .login-section {
     background: #ffffff;
     text-align: center;
     display: flex;
+    padding: 40px;
     flex-direction: column;
     align-items: center; /* Centers items horizontally */
     justify-content: center; /* Centers items vertically */
     height: 100%; /* Make sure it takes the full height of the parent */
 }
 
-.info-section {
-    background: #0c1148;
-    color: #ffffff;
-    text-align: left;
-    padding: 40px;
-}
-
-.info-section i {
-    color: #1E90FF;
-}
-
-.info-section h1 {
-    font-size: 36px;
-    margin-bottom: 20px;
-}
-
-.info-section p {
-    font-size: 16px;
-    margin: 10px 0;
-    line-height: 1.6;
-}
-
 .loginssh-container {
     width: 100%;
-    max-width: 400px;
+    max-width: 500px;
     margin: auto; /* Ensure the container is centered */
     padding: 30px 20px; /* Adjust padding for better spacing */
     text-align: center;
-    margin-right: 50px;
+    background-color: #ffffff;
+    /* margin-right: 50px; */
+}
+
+.loginssh-container h2 {
+    font-size: 28px; /* ขนาดตัวอักษร */
+    font-weight: bold; /* ตัวหนา */
+    color: #0c1148; /* สีตัวอักษร */
+    text-align: center; /* จัดให้อยู่ตรงกลาง */
+    margin-bottom: 20px; /* ระยะห่างด้านล่าง */
+    text-transform: uppercase; /* เปลี่ยนเป็นตัวพิมพ์ใหญ่ทั้งหมด */
+    letter-spacing: 2px; /* เพิ่มช่องว่างระหว่างตัวอักษร */
+    border-bottom: 2px solid #1e90ff; /* เส้นใต้ */
+    display: inline-block; /* ปรับขนาดตามเนื้อหา */
+    padding-bottom: 10px; /* เพิ่มระยะห่างระหว่างข้อความกับเส้น */
 }
 
 .password-container {
@@ -85,17 +105,22 @@ body {
     justify-content: center;
 }
 
-#subnet-mask {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 16px;
+.icon-container {
+    display: flex; /* ใช้ Flexbox เพื่อจัดไอคอน */
+    align-items: center; /* จัดให้อยู่กึ่งกลางในแนวตั้ง */
+    justify-content: center; /* จัดให้อยู่กึ่งกลางในแนวนอน */
+    width: 60px; /* กำหนดความกว้างของ container */
+    height: 40px; /* กำหนดความสูงของ container */
+    background-color: #0c1148; /* สีพื้นหลังของไอคอน */
+    border-radius: 5px; /* มุมมน */
 }
 
-
-.username-container input,
-.password-container input {
+.icon-container i {
+    font-size: 18px; /* ขนาดไอคอน */
+    color: #ffffff; /* สีไอคอน */
+}
+    
+.username-container input {
     width: 100%;
     padding: 10px 40px 10px 10px; /* Add right padding for the icon */
     border: 1px solid #ccc;
@@ -104,20 +129,27 @@ body {
     box-sizing: border-box; /* Include padding and border in the width */
 }
 
-#subnet-mask {
-    width: 35%;
-    appearance: none;
+.password-container input {
+    padding-left: 35px; /* เพิ่มช่องว่างสำหรับไอคอนทางซ้าย */
+    padding-right: 35px; /* เพิ่มช่องว่างสำหรับไอคอนทางขวา */
+    width: 100%;
+    padding: 10px 40px 10px 10px; /* Add right padding for the icon */
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    box-sizing: border-box; /* Include padding and border in the width */
 }
 
-.password-container i {
+
+.password-container i#togglePassword {
     position: absolute;
-    top: 50%;
-    right: 10px; 
-    transform: translateY(-50%);
+    right: 10px; /* ชิดขอบขวา */
+    top: 50%; /* อยู่กึ่งกลาง */
+    transform: translateY(-50%); /* เลื่อนขึ้นเพื่อจัดแนวกลาง */
     cursor: pointer;
-    font-size: 16px; 
+    font-size: 16px;
     color: #333;
-    transition: color 0.3s ease; 
+    transition: color 0.3s ease;
 }
 
 .username-container {
@@ -155,9 +187,7 @@ body {
     transition: border-color 0.3s ease-in-out;
 }
 
-.range-container input:focus {
-    outline: none;
-}
+
 
 .single-ip-container {
     display: flex;
@@ -167,16 +197,13 @@ body {
 }
 
 .single-ip-container input {
-    width: calc(50% - 5px); /* Ensure equal width for Start IP and End IP */
-    padding: 10px;
+    width: 100%; /* Ensure equal width for Start IP and End IP */
+    padding: 10px 40px 10px 10px; /* Add right padding for the icon */
     border: 1px solid #ccc;
+    margin-left: 10px;
     border-radius: 10px;
     font-size: 14px;
     transition: border-color 0.3s ease-in-out;
-}
-
-.single-ip-container input:focus {
-    outline: none;
 }
 
 .buttons a {
@@ -194,59 +221,6 @@ body {
 
 .buttons a:hover {
     background-color: #007bff;
-}
-
-.back-button-top {
-    position: static;
-    top: 20px; /* Adjust position */
-    left: 20px; /* Align to the left */
-    background-color: #1a237e    ;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-}
-
-.dashboard-button-top {
-    position: static;
-    top: 20px; /* Ensure same vertical alignment */
-    right: 20px; /* Align to the right */
-    background-color: #1a237e;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-}
-
-.updatefirmware-button-top {
-    position: static;
-    top: 20px; /* Ensure same vertical alignment */
-    right: 180px; /* Align to the right */
-    background-color: #1a237e;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-}
-
-.updatefirmware-button-top:hover {
-    background-color: #007bff;
-    color: white;
-}
-
-.back-button-top:hover {
-    background-color: #007bff;
-}
-
-.dashboard-button-top:hover {
-    background-color: #007bff;
-    color: white;
 }
 
 
@@ -339,18 +313,10 @@ input:focus::placeholder {
         align-items: center;
     }
 
-    .info-section, .login-section {
+    .login-section {
         flex: none;
         width: 100%;
         padding: 20px;
-    }
-
-    .info-section h1 {
-        font-size: 20px;
-    }
-
-    .info-section p {
-        font-size: 14px;
     }
 
     .loginssh-container {
@@ -383,10 +349,6 @@ input:focus::placeholder {
         transition: border-color 0.3s ease-in-out;
     }
 
-    .range-container input:focus,
-    .single-ip-container input:focus {
-        outline: none;
-    }
 }
 
 /* Responsive Design */
@@ -396,23 +358,15 @@ input:focus::placeholder {
         align-items: center;
     }
 
-    .info-section, .login-section {
+   .login-section {
         flex: none;
         width: 100%;
         padding: 20px;
     }
 
-    .info-section h1 {
-        font-size: 20px;
-    }
-
-    .info-section p {
-        font-size: 14px;
-    }
 
     .loginssh-container {
         max-width: 300px;
-        margin-left: -20px;
 
     }
 
@@ -440,10 +394,6 @@ input:focus::placeholder {
         transition: border-color 0.3s ease-in-out;
     }
 
-    .range-container input:focus,
-    .single-ip-container input:focus {
-        outline: none;
-    }
 }
 
 /* Responsive Design */
@@ -453,21 +403,10 @@ input:focus::placeholder {
         align-items: center;
     }
 
-    .info-section, .login-section {
+   .login-section {
         flex: none;
         width: 100%;
         padding: 20px;
-    }
-    .back-button-top, .dashboard-button-top {
-        font-size: 12px;
-        padding: 8px 16px; /* Adjust for smaller screens */
-    }
-    .info-section h1 {
-        font-size: 20px;
-    }
-
-    .info-section p {
-        font-size: 14px;
     }
 
     .loginssh-container {
@@ -510,33 +449,16 @@ input:focus::placeholder {
         align-items: center;
     }
 
-    .info-section, .login-section {
+    .login-section {
         flex: none;
         width: 100%;
         padding: 20px;
     }
 
-    .info-section h1 {
-        font-size: 20px;
-    }
-
-    .info-section p {
-        font-size: 14px;
-    }
 
     .loginssh-container {
         max-width: 300px;
-        margin-left: -1px ;
 
-    }
-
-    .dashboard-button-top {
-        font-size: 14px;
-        padding: 8px 16px;
-    }
-    .updatefirmware-button-top {
-        font-size: 14px;
-        padding: 8px 16px;
     }
 
     .buttons button {
@@ -555,21 +477,10 @@ input:focus::placeholder {
         transition: border-color 0.3s ease-in-out;
     }
 
-    .range-container input:focus,
-    .single-ip-container input:focus {
-        outline: none;
-    }
 }
 
 
 @media (max-width: 480px) {
-    .info-section h1 {
-        font-size: 18px;
-    }
-
-    .info-section p {
-        font-size: 12px;
-    }
 
     .loginssh-container {
         padding: 15px;
@@ -580,14 +491,6 @@ input:focus::placeholder {
         padding: 6px 12px;
     }
 
-    .dashboard-button-top {
-        font-size: 12px;
-        padding: 6px 12px;
-    }
-    .updatefirmware-button-top {
-        font-size: 12px;
-        padding: 6px 12px; 
-    }
     .range-container input, 
     .single-ip-container input {
         width: 100%;
@@ -598,18 +501,9 @@ input:focus::placeholder {
 
 
 @media (max-width: 882px) {
-    .info-section h1 {
-        font-size: 18px;
-    }
-
-    .info-section p {
-        font-size: 12px;
-    }
-
     .loginssh-container {
         margin-top: 5px;
         padding: 15px;
-        margin-right: 35px;
         font-size: 12px;
 
     }
@@ -619,14 +513,6 @@ input:focus::placeholder {
         padding: 6px 12px;
     }
 
-    .dashboard-button-top {
-        font-size: 12px;
-        padding: 6px 12px;
-    }
-    .updatefirmware-button-top {
-        font-size: 12px;
-        padding: 6px 12px; 
-    }
     .range-container input, 
     .single-ip-container input {
         width: 100%;
@@ -636,16 +522,3 @@ input:focus::placeholder {
 }
 
 
-/* ปรับตำแหน่งปุ่มสำหรับหน้าจอมือถือ */
-@media (max-width: 768px) {
-    .header-buttons {
-        flex-direction: column; /* เรียงปุ่มในแนวตั้ง */
-        align-items: center; /* จัดตำแหน่งให้อยู่กลาง */
-        gap: 15px; /* เพิ่มระยะห่างระหว่างปุ่ม */
-    }
-
-    .header-buttons a {
-        width: 100%; /* ปรับปุ่มให้ขยายเต็มพื้นที่ */
-        text-align: center; /* จัดข้อความให้อยู่ตรงกลาง */
-    }
-}

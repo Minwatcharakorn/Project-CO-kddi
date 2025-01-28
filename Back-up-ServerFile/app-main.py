@@ -14,7 +14,6 @@ import re
 import psycopg2
 import time
 from datetime import datetime, timedelta
-import pytz
 import io
 import logging
 
@@ -54,7 +53,7 @@ def get_db_connection():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         print("Database connected successfully!")
@@ -78,7 +77,7 @@ def allowed_firmware_file(filename):
 
 async def get_snmp_info(ip, community='public'):
     """Retrieve SNMP information from the device using asyncio."""
-    oid_hostname = '.1.3.6.1.2.1.1.5.0'  # OID for Hostname
+    oid_hostname = '.1.3.6.1.4.1.9.2.1.3.0'  # OID for Hostname
     oid_model = '.1.3.6.1.2.1.1.1.0'     # OID for Model (sysDescr)
     oid_serial_base = '.1.3.6.1.2.1.47.1.1.1.1.11.1'  # OID base for Serial Number (ENTITY-MIB)
 
@@ -388,18 +387,15 @@ def update_switch_firmware(ip, username, password, tftp_server_ip, filename):
         logging.error(f"Error updating firmware on {ip}: {e}")
         return f"Error: {str(e)}"
 
-
 @app.route('/')
 def index():
-    """Serve the Serial Console page."""
-    return render_template('serial-console.html')
-
-
-@app.route('/initial')
-def initial_page():
     """Serve the SSH Login page."""
     return render_template('Initial.html')
 
+@app.route('/serialconsole')
+def serialconsole_page():
+    """Serve the Serial Console page."""
+    return render_template('serial-console.html')
 
 @app.route('/dashboard')
 def dashboard_page():
@@ -416,8 +412,9 @@ def configuration_page():
 @app.route('/logout')
 def logout():
     """Clear session except switches and redirect to Initial page."""
+    switches.clear()  # ล้างข้อมูลในตัวแปร switches
     session.clear()  # ล้างข้อมูลทั้งหมดใน session
-    return redirect('/initial')  # เปลี่ยนเส้นทางไปที่หน้า Initial
+    return redirect('/')  # เปลี่ยนเส้นทางไปที่หน้า Initial
 
 @app.route('/update_firmware')
 def update_firmware_page():
@@ -535,7 +532,7 @@ def listtemplate_page():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -562,7 +559,7 @@ def get_templates_json():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -593,30 +590,33 @@ def view_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
 
+        # Query to fetch both template name and file data
         cursor.execute("""
-        SELECT file_data FROM templates WHERE id = %s;
+        SELECT template_name, file_data FROM templates WHERE id = %s;
         """, (template_id,))
         result = cursor.fetchone()
 
-        if result and result[0]:
-            # แปลงข้อมูลจาก BYTEA เป็นข้อความ
-            file_content = result[0].tobytes().decode('utf-8', errors='ignore')
-            return jsonify({"content": file_content})  # ส่งข้อมูลเป็น JSON
+        if result:
+            template_name, file_data = result
+            content = file_data.tobytes().decode('utf-8', errors='ignore') if file_data else "No content found"
+            return jsonify({"template_name": template_name, "content": content})
         else:
-            return jsonify({"content": "No content found for this template"}), 404
+            return jsonify({"error": "Template not found"}), 404
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
     finally:
         if 'cursor' in locals():
             cursor.close()
         if 'conn' in locals():
             conn.close()
+
 
 
 @app.route('/updatetemplate/<int:template_id>', methods=['POST'])
@@ -630,7 +630,7 @@ def update_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -660,7 +660,7 @@ def delete_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -889,12 +889,6 @@ def save_deployment_log(device, template_name, status, details, description):
         if 'conn' in locals():
             conn.close()
 
-
-def convert_to_bangkok_time(utc_time):
-    bangkok_offset = timedelta(hours=7)  # UTC+7
-    bangkok_time = utc_time + bangkok_offset
-    return bangkok_time.strftime('%Y-%m-%d %H:%M:%S')
-
 @app.route('/api/logging', methods=['GET'])
 def get_logging():
     """API สำหรับดึงข้อมูล log การ deploy."""
@@ -910,13 +904,6 @@ def get_logging():
 
         log_list = []
         for log in logs:
-            # ตรวจสอบ timestamp และแปลงเวลา
-            timestamp_utc = log[6]
-            if timestamp_utc:
-                timestamp_bangkok = convert_to_bangkok_time(timestamp_utc)
-            else:
-                timestamp_bangkok = "N/A"
-
             log_list.append({
                 "hostname": log[0],
                 "ip": log[1],
@@ -924,7 +911,7 @@ def get_logging():
                 "status": log[3],
                 "details": log[4],
                 "description": log[5] or "No description",  # จัดการกรณี description ว่าง
-                "timestamp": timestamp_bangkok
+                "timestamp": log[6].strftime('%Y-%m-%d %H:%M:%S') if log[6] else "N/A"
             })
 
         return jsonify({"logs": log_list}), 200
@@ -1139,9 +1126,23 @@ def get_vlan_info(switch_id):
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/get_switches', methods=['GET'])
-def get_switches():
-    """API to get the list of switches for the Deploy page."""
-    return jsonify(switches), 200
+async def get_switches():
+    # เรียก get_snmp_info เพื่อดึงข้อมูลล่าสุด
+    updated_switches = []
+    for switch in switches:
+        snmp_info = await get_snmp_info(switch['ip'])
+        updated_switches.append({
+            "id": switch['id'],
+            "model": snmp_info.get("model", "Unknown"),
+            "serial": snmp_info.get("serial", "Unknown"),
+            "hostname": snmp_info.get("hostname", "Unknown"),
+            "ip": switch['ip'],
+            "status": switch['status']
+        })
+    session['switches'] = updated_switches
+
+    return jsonify(updated_switches), 200
+
 
 
 @app.route('/api/license/<int:switch_id>', methods=['GET'])

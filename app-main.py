@@ -76,15 +76,22 @@ def allowed_firmware_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_FIRMWARE_EXTENSIONS
 
 async def get_snmp_info(ip, community='public'):
-    """Retrieve SNMP information from the device using asyncio."""
-    oid_hostname = '.1.3.6.1.4.1.9.2.1.3.0'  # OID for Hostname
-    oid_model = '.1.3.6.1.2.1.1.1.0'     # OID for Model (sysDescr)
-    oid_serial_base = '.1.3.6.1.2.1.47.1.1.1.1.11.1'  # OID base for Serial Number (ENTITY-MIB)
+    """
+    ดึง hostname, serial ผ่าน SNMP
+    และดึง model ผ่าน SSH command "show inventory"
+    ส่งกลับเป็น dict = {"hostname": ..., "model": ..., "serial": ...}
+    """
 
-    info = {"hostname": "N/A", "model": "N/A", "serial": "N/A"}
+    # --- เริ่มจากดึง hostname, serial จาก SNMP ---
+    snmp_info = {"hostname": "N/A", "serial": "N/A"}
+    snmp_oids = [
+        (".1.3.6.1.4.1.9.2.1.3.0", "hostname"),  # oid_hostname
+        (".1.3.6.1.2.1.47.1.1.1.1.11.1", "serial")  # oid_serial_base
+    ]
 
-    try:
-        for oid, key in [(oid_hostname, "hostname"), (oid_model, "model"), (oid_serial_base, "serial")]:
+    for oid, key in snmp_oids:
+        try:
+            # เรียก get_cmd แบบ async
             result = await get_cmd(
                 SnmpEngine(),
                 CommunityData(community),
@@ -96,23 +103,63 @@ async def get_snmp_info(ip, community='public'):
             errorIndication, errorStatus, errorIndex, varBinds = result
 
             if errorIndication:
-                print(f"Error Indication for {oid}: {errorIndication}")
-                continue
-            if errorStatus:
-                print(f"Error Status for {oid}: {errorStatus.prettyPrint()} at {errorIndex}")
-                continue
+                print(f"[SNMP] Error Indication for {oid}: {errorIndication}")
+            elif errorStatus:
+                print(f"[SNMP] Error Status: {errorStatus.prettyPrint()} at {errorIndex}")
+            else:
+                for varBind in varBinds:
+                    snmp_info[key] = str(varBind[1])  # บันทึกค่าลง dict
+        except Exception as e:
+            print(f"[SNMP] Exception on {ip} for OID {oid}: {e}")
 
-            for varBind in varBinds:
-                info[key] = str(varBind[1])
-                print(f"Received {key}: {varBind}")
-    except Exception as e:
-        print(f"SNMP error for {ip}: {e}")
+    # --- ดึง model ผ่าน SSH ด้วย Paramiko ---
+    ssh_info = {"model": "N/A"}
+    username = session.get('username')  # หรือรับเป็นพารามิเตอร์ก็ได้
+    password = session.get('password')
 
-    return info
+    # เนื่องจาก Paramiko เป็น synchronous เราจึงใช้ run_in_executor
+    loop = asyncio.get_running_loop()
+
+    def ssh_show_inventory():
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username=username, password=password, timeout=5)
+
+            stdin, stdout, stderr = ssh.exec_command("show inventory")
+            output = stdout.read().decode('utf-8', errors='ignore')
+
+            # หา PID: ... (model) ด้วย regex
+            # ตัวอย่างบรรทัด: 
+            # NAME: "c93xxL Stack", DESCR: "c93xxL Stack"
+            # PID: C9300L-24P-4G     , VID: V01  , SN: FOC2544Y7X9
+            match_pid = re.search(r"PID:\s*([^,\s]+)", output)
+            if match_pid:
+                ssh_info["model"] = match_pid.group(1)
+
+            ssh.close()
+        except Exception as e:
+            print(f"[SSH] Error retrieving model from {ip}: {e}")
+
+        return ssh_info
+
+    # รันคำสั่ง SSH ใน thread pool เพื่อไม่บล็อก event loop
+    ssh_result = await loop.run_in_executor(None, ssh_show_inventory)
+
+    # รวมค่า SNMP + SSH ลงใน dict เดียวกัน
+    merged_info = {
+        "hostname": snmp_info["hostname"],
+        "model": ssh_result["model"],
+        "serial": snmp_info["serial"]
+    }
+
+    return merged_info
 
 @app.route('/api/switch/<int:switch_id>', methods=['GET'])
 async def get_switch_data(switch_id):
-    """API for fetching switch details, port statuses, and VLAN information via SNMP."""
+    """API for fetching switch details (hostname, uptime, CPU, memory, temp via SNMP)
+       and model (PID) via show inventory (SSH).
+    """
     switch = next((s for s in switches if s['id'] == switch_id), None)
     if not switch:
         return jsonify({"error": "Switch not found"}), 404
@@ -120,18 +167,17 @@ async def get_switch_data(switch_id):
     ip = switch['ip']
     snmp_results = {}
 
-    # OIDs for SNMP queries
+    # OIDs for SNMP queries (ยกเว้น device_type จะเลี่ยงใช้ sysDescr)
     oids = {
-        "hostname": ".1.3.6.1.4.1.9.2.1.3.0",  # sysName
-        "uptime": ".1.3.6.1.2.1.1.3.0",  # sysUpTime
-        "device_type": ".1.3.6.1.2.1.1.1.0",  # sysDescr
-        "cpu_usage": "1.3.6.1.4.1.9.2.1.58.0",  # Example CPU OID
+        "hostname": ".1.3.6.1.4.1.9.2.1.3.0",   # sysName
+        "uptime": ".1.3.6.1.2.1.1.3.0",        # sysUpTime
+        "cpu_usage": "1.3.6.1.4.1.9.2.1.58.0", # Example CPU OID
         "memory_usage": "1.3.6.1.4.1.9.2.1.58.0",  # Example Memory OID
-        "temperature": ".1.3.6.1.4.1.9.9.13.1.3.1.3.1011",  # Replace with actual OID for temperature
+        "temperature": ".1.3.6.1.4.1.9.9.13.1.3.1.3.1011",  # Example temperature OID
     }
 
+    # 1) เรียก SNMP เก็บผลใน snmp_results
     try:
-        # Retrieve general SNMP data
         for key, oid in oids.items():
             result = await get_cmd(
                 SnmpEngine(),
@@ -147,24 +193,58 @@ async def get_switch_data(switch_id):
             else:
                 for varBind in varBinds:
                     snmp_results[key] = str(varBind[1])
-        # Extract only the hostname (before the first dot) if available
-        full_hostname = snmp_results.get("hostname", "N/A")
-        short_hostname = full_hostname.split('.')[0] if "." in full_hostname else full_hostname
-
-
-        # Construct the response
-        switch_data = {
-            "hostname": short_hostname,
-            "uptime": snmp_results.get("uptime", "N/A"),
-            "device_type": snmp_results.get("device_type", "N/A"),
-            "cpu_usage": snmp_results.get("cpu_usage", "N/A"),
-            "memory_usage": snmp_results.get("memory_usage", "N/A"),
-            "temperature": snmp_results.get("temperature", "N/A"),
-        }
-        return jsonify(switch_data)
-
     except Exception as e:
-        return jsonify({"error": f"Failed to retrieve SNMP data: {str(e)}"}), 500
+        return jsonify({"error": f"SNMP failure: {str(e)}"}), 500
+
+    # 2) แก้ไข hostname ให้สั้นลง (ก่อนจุด)
+    full_hostname = snmp_results.get("hostname", "N/A")
+    short_hostname = full_hostname.split('.')[0] if "." in full_hostname else full_hostname
+
+    # 3) ใช้ SSH เพื่อดึง model (PID) จาก "show inventory"
+    username = session.get('username')
+    password = session.get('password')
+    if not (username and password):
+        return jsonify({"error": "No credentials in session"}), 400
+
+    loop = asyncio.get_running_loop()
+
+    def ssh_show_inventory():
+        cli_model = "N/A"
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username=username, password=password, timeout=5)
+
+            stdin, stdout, stderr = ssh.exec_command("show inventory")
+            output = stdout.read().decode('utf-8', errors='ignore')
+
+            # Regex หา PID: <ค่า>
+            match_pid = re.search(r"PID:\s*([^,\s]+)", output)
+            if match_pid:
+                cli_model = match_pid.group(1)
+
+            ssh.close()
+        except Exception as exc:
+            print(f"SSH error to {ip}: {exc}")
+        return cli_model
+
+    try:
+        # เรียกใช้งาน SSH ผ่าน executor (ไม่บล็อก asyncio)
+        device_type = await loop.run_in_executor(None, ssh_show_inventory)
+    except Exception as e:
+        device_type = "N/A"
+
+    # 4) สร้างข้อมูล JSON ตอบกลับ
+    switch_data = {
+        "hostname": short_hostname,
+        "uptime": snmp_results.get("uptime", "N/A"),
+        "device_type": device_type,  # ใช้ PID จาก SSH
+        "cpu_usage": snmp_results.get("cpu_usage", "N/A"),
+        "memory_usage": snmp_results.get("memory_usage", "N/A"),
+        "temperature": snmp_results.get("temperature", "N/A"),
+    }
+
+    return jsonify(switch_data), 200
 
 def abbreviate_interface_name(name):
     abbreviations = {
@@ -544,7 +624,18 @@ def listtemplate_page():
         """)
         templates = cursor.fetchall()
 
-        return render_template('templates-list.html', templates=templates)
+        # Use regex to remove fractional seconds
+        formatted_templates = []
+        for template in templates:
+            last_updated = template[4]
+            if isinstance(last_updated, datetime):
+                # Convert datetime to string and apply regex
+                last_updated_str = str(last_updated)
+                last_updated_clean = re.sub(r'\.\d+$', '', last_updated_str)
+                formatted_templates.append((*template[:4], last_updated_clean))
+
+        print(formatted_templates)  # Debugging
+        return render_template('templates-list.html', templates=formatted_templates)
     except Exception as e:
         return f"Error: {e}"
     finally:
@@ -966,18 +1057,23 @@ def select_templates():
         """)
         templates = cursor.fetchall()
 
-        # แปลงข้อมูลให้เป็น list ของ dictionary
-        template_list = [
-            {"id": row[0], "name": row[1], "description": row[2], "last_updated": row[3]}
-            for row in templates
-        ]
+        # แปลงข้อมูลและจัดการเวลาของ last_updated
+        template_list = []
+        for row in templates:
+            last_updated = row[3]
+            if isinstance(last_updated, datetime):
+                last_updated = re.sub(r'\.\d+$', '', str(last_updated))  # ลบ fractional seconds
+            template_list.append({
+                "id": row[0],
+                "name": row[1],
+                "description": row[2],
+                "last_updated": last_updated
+            })
 
         return render_template('select_templates.html', templates=template_list)
 
     except Exception as e:
-        print(f"Database error: {e}")
-        flash("Unable to fetch templates from the database.")
-        return redirect('/deploy')
+        return f"Error: {e}"
 
     finally:
         cursor.close()
@@ -988,11 +1084,13 @@ def select_templates():
 def api_select_template():
     data = request.json
     selected_template = data.get('template_id')
+    print(data)
 
     if not selected_template:
         return jsonify({"error": "No template selected."}), 400
 
     session['selected_template'] = selected_template
+    print(session['selected_template']  )
     return jsonify({"message": "Template selected successfully!"}), 200
 
 
@@ -1555,18 +1653,22 @@ async def api_scan():
 def save_and_download_config():
     data = request.json  # รับข้อมูล JSON จาก JavaScript
     config_data = data.get('configData', '')  # ดึง configData จากคำขอ
-
+    template_name = data.get('templateName', '').strip()  # ดึง templateName จาก JSON
+    print(template_name)
     # ตรวจสอบว่ามีข้อมูลใน configData หรือไม่
     if not config_data:
         return jsonify({"error": "No configuration data provided"}), 400
 
-    # สร้างชื่อไฟล์พร้อมวันที่
-    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    filename = f'configuration_{timestamp}.txt'
+    # ตั้งชื่อไฟล์
+    if template_name:
+        filename = f"{template_name}.txt"
+    else:
+        timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        filename = f'configuration_{timestamp}.txt'
 
     # ส่งไฟล์กลับไปให้ JavaScript
     return send_file(
-        io.BytesIO(config_data.encode('utf-8')),
+        io.BytesIO(config_data.encode('utf-8')),  # เขียนข้อมูล config ลงในไฟล์แบบ BytesIO
         as_attachment=True,
         download_name=filename,
         mimetype='text/plain'

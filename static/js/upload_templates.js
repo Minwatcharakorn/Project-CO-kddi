@@ -2,9 +2,37 @@ document.addEventListener("DOMContentLoaded", function () {
     const uploadForm = document.getElementById("upload-form");
     const fileInput = document.getElementById("file");
     const fileContentPre = document.getElementById("file-content");
-    const uploadStatus = document.getElementById("upload-status");
 
-    // อ่านไฟล์และแสดงเนื้อหาเมื่อเลือกไฟล์
+    const successModal = document.getElementById("successModal");
+    const successMessage = document.getElementById("successMessage");
+    const errorModal = document.getElementById("errorModal");
+    const errorMessage = document.getElementById("errorMessage");
+    const closeSuccessButton = document.querySelector(".success-button");
+
+    // Function to show the success modal and redirect
+    function showSuccessModal(message) {
+        successMessage.textContent = message;
+        successModal.style.display = "flex";
+    }
+
+    // Function to show the error modal
+    function showErrorModal(message) {
+        errorMessage.textContent = message;
+        errorModal.style.display = "flex";
+    }
+
+    // Function to close the success modal and redirect to /listtemplate
+    closeSuccessButton.addEventListener("click", function () {
+        successModal.style.display = "none";
+        window.location.href = "/listtemplate"; // Redirect to List Templates page
+    });
+
+    // Function to close the error modal
+    document.getElementById("closeErrorModal").addEventListener("click", function () {
+        errorModal.style.display = "none";
+    });
+
+    // Read file and display content when a file is selected
     fileInput.addEventListener("change", function (event) {
         const file = event.target.files[0];
         if (file && file.type === "text/plain") {
@@ -14,17 +42,16 @@ document.addEventListener("DOMContentLoaded", function () {
             };
             reader.readAsText(file);
         } else {
-            alert("Please select a valid .txt file.");
+            showErrorModal("Please select a valid .txt file.");
             fileContentPre.textContent = "Uploaded file content will appear here...";
         }
     });
 
-    // จัดการการอัปโหลดฟอร์ม
+    // Handle form submission
     uploadForm.addEventListener("submit", function (event) {
         event.preventDefault();
 
         const formData = new FormData(uploadForm);
-        uploadStatus.innerHTML = "Uploading template...";
 
         fetch("/uploadtemplate", {
             method: "POST",
@@ -38,16 +65,16 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then((data) => {
                 if (data.error) {
-                    uploadStatus.innerHTML = `<span class="error">Error: ${data.error}</span>`;
+                    showErrorModal(`Error: ${data.error}`);
                 } else {
-                    uploadStatus.innerHTML = `<span class="success">${data.message}</span>`;
+                    showSuccessModal(data.message);
                     fileContentPre.textContent = "Uploaded file content will appear here...";
                     uploadForm.reset();
                 }
             })
             .catch((error) => {
                 console.error("Error:", error);
-                uploadStatus.innerHTML = `<span class="error">Unexpected error occurred. Please try again later.</span>`;
+                showErrorModal("Unexpected error occurred. Please try again later.");
             });
     });
 });

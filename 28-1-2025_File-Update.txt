@@ -1,9 +1,11 @@
 app-main.py
+Initial.html
+    - script-initial.js
+    - styles-Initial.css
 configuration.html
     - create_config_page.css
     - create_config.js
 
-Modal_loading.css
 style.css
 sidebar_style.css
 
@@ -16,7 +18,6 @@ info.html
 
 saveconfig.html
     - saveconfig.css
-    - saveconfig.js
 
 lnitial.html   
     - styles-Initial.css   
@@ -26,6 +27,10 @@ template-list.html
     - templates_list.css
     - templates.js
     - sort.js
+select_templates.html
+    - select_templates.css
+
+Logging.html
 
 Deploy.html
 select_templates.html

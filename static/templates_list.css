@@ -258,7 +258,7 @@ textarea:focus {
     padding: 20px;
     background-color: #f4f5f7;
     border-bottom: 1px solid #d0d4db;
-    margin-top: 60px; /* เพิ่มระยะห่างด้านบน */
+    margin-top: 20px; /* เพิ่มระยะห่างด้านบน */
 
 }
 
@@ -333,8 +333,8 @@ td {
 
 
 .upload-button {
-    background-color: #007bff; /* Green color for the button */
-    color: white;
+    background-color: white; /* Green color for the button */
+    color: #007bff;
     border: none;
     border-radius: 4px;
     padding: 10px 20px;
@@ -344,7 +344,9 @@ td {
 }
 
 .upload-button:hover {
-    background-color: #0056b3; /* Darker green on hover */
+    background-color: #0c1148; /* Darker green on hover */
+    color: white;
+
 }
 
 /* Responsive adjustments */

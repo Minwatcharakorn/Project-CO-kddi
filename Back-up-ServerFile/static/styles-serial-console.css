@@ -238,3 +238,91 @@ button#deploy-button {
     font-size: 20px;
     cursor: pointer;
 }
+
+
+.success-modal {
+    display: none; /* Initially hidden */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.success-modal-content {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 50%; /* เพิ่มความกว้างของ modal-content */
+    max-width: 350px;
+    min-height: 170px;
+}
+
+.success-modal .success-icon {
+    color: #28a745; /* Green color */
+    font-size: 50px;
+    margin-bottom: 20px;
+}
+
+.success-modal .success-button {
+    background-color: #28a745; /* Green button */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.success-modal .success-button:hover {
+    background-color: #218838;
+}
+
+.error-modal-serial {
+    display: none; /* Ensure the modal is hidden initially */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+.error-modal-content{
+        background-color: #fff;
+        padding: 40px; /* เพิ่ม padding ให้ใหญ่ขึ้น */
+        border-radius: 15px; /* เพิ่มมุมโค้งให้ดูดี */
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        width: 50%; /* เพิ่มความกว้างของ modal-content */
+        max-width: 350px; /* เพิ่มขนาดสูงสุดเพื่อไม่ให้ใหญ่เกินไป */
+        min-height: 170px; /* เพิ่มความสูงขั้นต่ำ */
+    }
+    .error-modal-button {
+        background-color: #dc3545; /* Red background */
+        color: white; /* White text */
+        border: none; /* Remove border */
+        padding: 10px 20px; /* Add padding for better sizing */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Pointer cursor on hover */
+        font-size: 16px; /* Adjust font size */
+        transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+}
+
+.error-modal-button:hover {
+background-color: #c82333; /* Darker red on hover */
+transform: scale(1.05); /* Slight zoom effect */
+}
+
+.error-modal-button:active {
+background-color: #a71d2a; /* Even darker red when clicked */
+transform: scale(0.95); /* Slight scale-down on click */
+}

@@ -27,29 +27,27 @@ no shutdown
 end
 write memory`;
 
-    // Pre-fill the textarea with the predefined commands on page load
     if (commandArea) {
         commandArea.value = predefinedCommands;
     }
 
-    // Handle the Select Port button click
+    // Event listener to connect to serial port
     serialPortSelect.addEventListener('click', async () => {
         try {
             port = await navigator.serial.requestPort();
             await port.open({ baudRate: parseInt(speedSelect.value) });
             alert(`Connected to port: ${port.getInfo().usbVendorId || 'Unknown Vendor'}, ${port.getInfo().usbProductId || 'Unknown Product'}`);
         } catch (err) {
-            console.error('Error connecting to port:', err);
-            alert('Failed to connect to port: ' + err.message);
+            showErrorModal(`Failed to connect to port: ${err.message}`);
         }
     });
 
-    // Upload File button functionality
+    // Event listener for uploading a file
     uploadFileButton.addEventListener('click', () => {
         fileInput.click();
     });
 
-    // Load file content into the command area
+    // Event listener for file input
     fileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -61,17 +59,17 @@ write memory`;
         }
     });
 
-    // Deploy commands
+    // Event listener for deploying commands
     deployButton.addEventListener('click', async () => {
         if (!port) {
-            alert('Please select a serial port first.');
+            showErrorModal('Please select a serial port first.');
             return;
         }
 
         try {
             const commands = commandArea.value.split('\n').map(cmd => cmd.trim()).filter(cmd => cmd);
             if (commands.length === 0) {
-                alert('No commands to send.');
+                showErrorModal('No commands to send.');
                 return;
             }
 
@@ -85,17 +83,36 @@ write memory`;
             writer.releaseLock();
             showModal('Commands sent successfully:\n' + commands.join('\n'));
         } catch (err) {
-            console.error('Error sending commands:', err);
-            alert('Failed to send commands: ' + err.message);
+            showErrorModal(`Failed to send commands: ${err.message}`);
         } finally {
             if (port) {
                 await port.close();
-                alert('Port closed.');
             }
         }
     });
 
-    // Function to show modal
+    // Function to close the success modal
+    function closeSuccessModal() {
+        document.getElementById('successModal').style.display = 'none';
+    }
+
+    // Function to show an error modal
+    function showErrorModal(message) {
+        const modal = document.getElementById('errorModal');
+        const errorMessage = document.getElementById('errorMessage');
+        errorMessage.textContent = message;
+        modal.style.display = 'flex';
+    }
+
+    // Function to close the error modal
+    function closeErrorModal() {
+        document.getElementById('errorModal').style.display = 'none';
+    }
+
+    // เพิ่ม Event Listener สำหรับปุ่มปิดโมดัล
+    document.getElementById('closeErrorModal').addEventListener('click', closeErrorModal);
+
+    // Function to show a command output modal
     function showModal(output) {
         const modalContent = `
             <div class="modal">
@@ -105,12 +122,23 @@ write memory`;
                     <pre>${output}</pre>
                 </div>
             </div>`;
+        
+        // Add the modal to the document
         document.body.insertAdjacentHTML('beforeend', modalContent);
 
         const modal = document.querySelector('.modal');
         const closeButton = modal.querySelector('.close-button');
+
+        // Add click event listener to close the modal
         closeButton.addEventListener('click', () => {
             modal.remove();
+        });
+
+        // Optional: Close the modal when clicking outside of the modal content
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.remove();
+            }
         });
     }
 });

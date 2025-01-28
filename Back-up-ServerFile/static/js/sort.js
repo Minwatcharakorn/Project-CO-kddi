@@ -17,14 +17,13 @@ function sortTable(columnIndex) {
             const dateB = new Date(cellB);
             return isAscending ? dateA - dateB : dateB - dateA;
         }
-
-        // Sort "NO" as numbers
-        if (columnIndex === 0) {
-            return isAscending ? Number(cellA) - Number(cellB) : Number(cellB) - Number(cellA);
+        // Sort "Template Name" alphabetically
+        if (columnIndex === 1) {
+            return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
         }
 
-        // Sort "Template Name" or "Description" alphabetically
-        if (columnIndex === 1 || columnIndex === 2) {
+        // Sort "Description" alphabetically
+        if (columnIndex === 2) {
             return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
         }
 

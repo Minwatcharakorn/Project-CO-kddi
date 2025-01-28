@@ -131,6 +131,32 @@
     }
 }
 </style>
+<style>
+    /* ทำให้ตารางเลื่อนแนวนอนได้ */
+    .table-container {
+        overflow-x: auto; /* เปิดการเลื่อนแนวนอน */
+        max-width: 100%; /* จำกัดความกว้างไม่ให้เกินหน้าจอ */
+    }
+
+    table {
+        width: 100%; /* ตารางขยายเต็มพื้นที่ */
+        border-collapse: collapse; /* ปรับเส้นขอบตาราง */
+    }
+
+    th, td {
+        text-align: center; /* ตั้งค่าให้อยู่กลาง ยกเว้น Details */
+        padding: 8px; /* เพิ่ม Padding */
+        border: 1px solid #ddd; /* เส้นขอบ */
+    }
+
+    /* คอลัมน์ Details ให้ตัวอักษรชิดซ้าย */
+    td:last-child pre {
+        text-align: left;
+        margin: 0;
+        padding: 0;
+        white-space: pre-wrap; /* ตัดบรรทัดถ้ายาวเกิน */
+    }
+</style>
 <body>
     <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
         <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
@@ -189,32 +215,34 @@
                 </div>
 
                 <div class="content-body">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Hostname</th>
-                                <th>IP</th>
-                                <th>Template Name</th>
-                                <th>Status</th>
-                                <th>Details</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for log in deployment_logs %}
-                            <tr>
-                                <td>{{ log.hostname }}</td>
-                                <td>{{ log.ip }}</td>
-                                <td>{{ log.template_name }}</td>
-                                <td>
-                                    <span class="{{ 'status-success' if log.status == 'Success' else 'status-failure' }}">
-                                        {{ log.status }}
-                                    </span>
-                                </td>
-                                <td><pre>{{ log.details }}</pre></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Hostname</th>
+                                    <th>IP</th>
+                                    <th>Template Name</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in deployment_logs %}
+                                <tr>
+                                    <td>{{ log.hostname }}</td>
+                                    <td>{{ log.ip }}</td>
+                                    <td>{{ log.template_name }}</td>
+                                    <td>
+                                        <span class="{{ 'status-success' if log.status == 'Success' else 'status-failure' }}">
+                                            {{ log.status }}
+                                        </span>
+                                    </td>
+                                    <td><pre>{{ log.details }}</pre></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

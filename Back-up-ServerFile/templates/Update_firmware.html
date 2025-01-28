@@ -50,12 +50,15 @@
 
         /* Spinner Overlay */
         #loading-overlay {
-            display: none;
+            display: none; /* ซ่อนเป็นค่าเริ่มต้น */
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            height: 100%;
             background: rgba(0,0,0,0.3);
             z-index: 9999;
+            flex-direction: column; /* จัดเรียงแนวตั้ง */
             justify-content: center;
             align-items: center;
         }
@@ -66,6 +69,12 @@
             width: 70px;
             height: 70px;
             animation: spin 1s linear infinite;
+        }
+        #loading-percentage {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            color: #fff; /* สีขาวเพื่อให้เห็นบนพื้นหลังมืด */
+            font-weight: bold;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -101,279 +110,124 @@
         #close-modal:hover {
             background: #c82333;
         }
-    </style>
-<style>
-    .w3-teal {
-        background-color: #0c1148 !important; /* เปลี่ยนเป็นสีเขียวเข้ม */
-        color: white !important; /* เปลี่ยนสีข้อความ */
-    }
-    .w3-sidebar {
-        background-color: #0c1148; /* Darker, modern background color */
-        color: #ffffff; /* White text color */
-        width: 250px; /* Set sidebar width */
-        padding-top: 20px;
-        position: fixed;
-        height: 100%;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-        border-right: 1px solid #3c4b5c; /* Add a border for better separation */
-    }
 
-        /* Style the close button */
-    .w3-sidebar .w3-button {
-        text-align: left;
-        color: #ffffff;
-        background-color: #0c1148; /* Slightly darker for contrast */
-        font-size: 1rem;
-        font-weight: bold;
-        padding: 15px;
-        border: none;
-        transition: background-color 0.3s ease, color 0.3s ease;
-    }
+        .w3-teal {
+            background-color: #0c1148 !important; /* เปลี่ยนเป็นสีเขียวเข้ม */
+            color: white !important; /* เปลี่ยนสีข้อความ */
+        }
+        .w3-sidebar {
+            background-color: #0c1148; /* Darker, modern background color */
+            color: #ffffff; /* White text color */
+            width: 250px; /* Set sidebar width */
+            padding-top: 20px;
+            position: fixed;
+            height: 100%;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+            border-right: 1px solid #3c4b5c; /* Add a border for better separation */
+        }
 
-    .w3-sidebar .w3-button:hover {
-        background-color: #4c5b6b; /* Slightly lighter on hover */
-        color: #ffffff;
-    }
+            /* Style the close button */
+        .w3-sidebar .w3-button {
+            text-align: left;
+            color: #ffffff;
+            background-color: #0c1148; /* Slightly darker for contrast */
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 15px;
+            border: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
 
-        /* Sidebar items */
-    .w3-sidebar .w3-bar-item {
-        display: flex;
-        align-items: center;
-        font-size: 1rem;
-        color: #ffffff; /* Lighter text color */
-        padding: 10px 15px;
-        border-radius: 5px; /* Rounded corners */
-        transition: background-color 0.3s ease, color 0.3s ease;
-        text-decoration: none; /* Remove underline */
-    }
+        .w3-sidebar .w3-button:hover {
+            background-color: #4c5b6b; /* Slightly lighter on hover */
+            color: #ffffff;
+        }
 
-    .w3-sidebar .w3-bar-item i {
-        margin-right: 10px;
-        color: #1e90ff; /* Icon color */
-        font-size: 1.2rem; /* Slightly larger icons */
-        transition: color 0.3s ease;
-    }
+            /* Sidebar items */
+        .w3-sidebar .w3-bar-item {
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            color: #ffffff; /* Lighter text color */
+            padding: 10px 15px;
+            border-radius: 5px; /* Rounded corners */
+            transition: background-color 0.3s ease, color 0.3s ease;
+            text-decoration: none; /* Remove underline */
+        }
 
-    .w3-sidebar .w3-bar-item:hover {
-        background-color: #3c4b5c; /* Highlight on hover */
-        color: #ffffff;
-    }
+        .w3-sidebar .w3-bar-item i {
+            margin-right: 10px;
+            color: #1e90ff; /* Icon color */
+            font-size: 1.2rem; /* Slightly larger icons */
+            transition: color 0.3s ease;
+        }
 
-    .w3-sidebar .w3-bar-item:hover i {
-        color: #00bfff; /* Brighter icon color on hover */
-    }
+        .w3-sidebar .w3-bar-item:hover {
+            background-color: #3c4b5c; /* Highlight on hover */
+            color: #ffffff;
+        }
 
-        /* Active link style */
-    .w3-sidebar .w3-bar-item.active {
-        background-color: #1e90ff; /* Highlight active item */
-        color: #ffffff;
-        font-weight: bold;
-    }
+        .w3-sidebar .w3-bar-item:hover i {
+            color: #00bfff; /* Brighter icon color on hover */
+        }
 
-    .w3-sidebar .w3-bar-item.active i {
-        color: #ffffff;
-    }
-    .w3-container {
+            /* Active link style */
+        .w3-sidebar .w3-bar-item.active {
+            background-color: #1e90ff; /* Highlight active item */
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .w3-sidebar .w3-bar-item.active i {
+            color: #ffffff;
+        }
+        .w3-container {
             overflow: hidden; /* Prevent scrolling */
             overflow-y: hidden;
             overflow-x: hidden;
             height: 100%; /* Prevent content from exceeding viewport */
         }
-    /* Responsive Adjustments for Small Screens */
-    @media (max-width: 768px) {
-    .nav-info span {
-        font-size: 14px; /* Reduce font size */
-    }
+        /* Responsive Adjustments for Small Screens */
+        @media (max-width: 768px) {
+            .nav-info span {
+                font-size: 14px; /* Reduce font size */
+            }
 
-    .nav-info i {
-        font-size: 16px; /* Reduce icon size */
-    }
+            .nav-info i {
+                font-size: 16px; /* Reduce icon size */
+            }
 
-    .nav-logo a {
-        font-size: 16px; /* Adjust logo text size */
-    }
-    .nav-logo i {
-        font-size: 18px; /* Reduce icon size */
-    }
-    #openNav {
-        font-size: 24px; /* Adjust menu button size */
-    }
-}
-
-@media (max-width: 576px) {
-    .nav-info span {
-        font-size: 12px; /* Further reduce font size */
-    }
-
-    .nav-info i {
-        font-size: 12px; /* Further reduce icon size */
-    }
-
-    .nav-logo a {
-        font-size: 16px; /* Smaller logo text */
-    }
-    .nav-logo i {
-        font-size: 16px; /* Further reduce icon size */
-    }
-    #openNav {
-        font-size: 20px; /* Adjust menu button size */
-    }
-}
-</style>
-    <script>
-        // --------- Overlay + Spinner ---------
-        function showLoading() {
-            document.getElementById('loading-overlay').style.display = 'flex';
-        }
-        function hideLoading() {
-            document.getElementById('loading-overlay').style.display = 'none';
-        }
-
-        // --------- Modal ---------
-        function openModal(message) {
-            document.getElementById('result-content').innerText = message;
-            document.getElementById('result-modal').style.display = 'block';
-        }
-        function closeModal() {
-            document.getElementById('result-modal').style.display = 'none';
-        }
-
-        // --------- Helper: POST form data + parse JSON ---------
-        async function postForm(url, formData) {
-            const response = await fetch(url, {
-                method: 'POST',
-                body: formData
-            });
-            return response.json();
-        }
-
-        // --------- Refresh Files List (AJAX) ---------
-        async function refreshFilesList() {
-            try {
-                // สมมติคุณมี endpoint ที่ส่ง {"files": ["file1.bin", "file2.bin", ...]}
-                const res = await fetch('/api/files');
-                const data = await res.json();
-
-                // array ของไฟล์
-                const fileList = data.files || [];
-
-                // 1) Update <ul> (ID = "file-list")
-                const ulElement = document.getElementById('file-list');
-                ulElement.innerHTML = ''; // เคลียร์ของเดิม
-                fileList.forEach(f => {
-                    const li = document.createElement('li');
-                    li.textContent = f;
-                    ulElement.appendChild(li);
-                });
-
-                // 2) Update <select> ใน Delete Firmware (ID = "delete-select")
-                const deleteSelect = document.getElementById('delete-select');
-                deleteSelect.innerHTML = '';
-                fileList.forEach(f => {
-                    const option = document.createElement('option');
-                    option.value = f;
-                    option.textContent = f;
-                    deleteSelect.appendChild(option);
-                });
-
-                // 3) Update <select> ใน Update Firmware (ID = "update-select")
-                const updateSelect = document.getElementById('update-select');
-                updateSelect.innerHTML = '';
-                fileList.forEach(f => {
-                    const option = document.createElement('option');
-                    option.value = f;
-                    option.textContent = f;
-                    updateSelect.appendChild(option);
-                });
-
-            } catch (err) {
-                console.error("Error refreshing files list:", err);
+            .nav-logo a {
+                font-size: 16px; /* Adjust logo text size */
+            }
+            .nav-logo i {
+                font-size: 18px; /* Reduce icon size */
+            }
+            #openNav {
+                font-size: 24px; /* Adjust menu button size */
             }
         }
 
-        // --------- Main -----------
-        window.addEventListener('DOMContentLoaded', function() {
+        @media (max-width: 576px) {
+            .nav-info span {
+                font-size: 12px; /* Further reduce font size */
+            }
 
-            // ---------- (1) Upload Firmware ----------
-            const uploadForm = document.getElementById('upload_form');
-            uploadForm.addEventListener('submit', async function(e){
-                e.preventDefault();
-                showLoading();
-                const formData = new FormData(uploadForm);
-                try {
-                    const data = await postForm('/upload_firmware', formData);
-                    hideLoading();
-                    console.log(data);
-                    if (data.message) {
-                        openModal(data.message);
-                        // อัปโหลดเสร็จ -> refresh รายการไฟล์
-                        refreshFilesList();
-                    } else if (data.error) {
-                        openModal("Error: " + data.error);
-                    }
-                } catch (err) {
-                    hideLoading();
-                    openModal("Fetch error: " + err.message);
-                }
-            });
+            .nav-info i {
+                font-size: 12px; /* Further reduce icon size */
+            }
 
-            // ---------- (2) Delete Firmware ----------
-            const deleteForm = document.getElementById('delete_form');
-            deleteForm.addEventListener('submit', async function(e){
-                e.preventDefault();
-                showLoading();
-                const formData = new FormData(deleteForm);
-                try {
-                    const data = await postForm('/delete_firmware', formData);
-                    hideLoading();
-                    console.log(data);
-                    if (data.message) {
-                        openModal(data.message);
-                        // ลบไฟล์เสร็จ -> refresh รายการไฟล์
-                        refreshFilesList();
-                    } else if (data.error) {
-                        openModal("Error: " + data.error);
-                    }
-                } catch (err) {
-                    hideLoading();
-                    openModal("Fetch error: " + err.message);
-                }
-            });
-
-            // ---------- (3) Update Firmware ----------
-            const updateForm = document.getElementById('update_form');
-            updateForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                showLoading();
-                const formData = new FormData(updateForm);
-                try {
-                    const data = await postForm('/automate_update', formData);
-                    hideLoading();
-                    console.log(data);
-
-                    if (data.results) {
-                        let lines = [];
-                        for (const device_ip in data.results) {
-                            const messages = data.results[device_ip];
-                            let lastMsg = messages[messages.length - 1] || "";
-                            lines.push(`${device_ip}: ${lastMsg}`);
-                        }
-                        let finalMsg = lines.join("\n");
-                        openModal(finalMsg);
-                    } else if (data.error) {
-                        openModal("Error: " + data.error);
-                    }
-                } catch (err) {
-                    hideLoading();
-                    openModal("Fetch error: " + err.message);
-                }
-            });
-
-            // ปุ่มปิด Modal
-            document.getElementById('close-modal').addEventListener('click', closeModal);
-
-        });
-    </script>
+            .nav-logo a {
+                font-size: 16px; /* Smaller logo text */
+            }
+            .nav-logo i {
+                font-size: 16px; /* Further reduce icon size */
+            }
+            #openNav {
+                font-size: 20px; /* Adjust menu button size */
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
@@ -391,19 +245,18 @@
         <div class="w3-teal">
             <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
             <div class="w3-container">
-                    <div class="nav-logo">
-                        <a href="/dashboard" style="color: white; text-decoration: none;">
-                            <i class="fas fa-network-wired" style="color: #1E90FF; margin-right: 10px;"></i> Cisco Automation
-                        </a>
-                    </div>
-                <div class="nav-info" >
-                    <span style="margin-right: 20px;" >
-                        <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i> 
+                <div class="nav-logo">
+                    <a href="/dashboard" style="color: white; text-decoration: none;">
+                        <i class="fas fa-network-wired" style="color: #1E90FF; margin-right: 10px;"></i> Cisco Automation
+                    </a>
+                </div>
+                <div class="nav-info">
+                    <span style="margin-right: 20px;">
+                        <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i>
                         <span id="username">{{ session.get('username', 'N/A') }}</span>
                     </span>
                     <span>
-                        <i class="fas fa-network-wired" style="margin-right: 5px;"></i> 
-                         
+                        <i class="fas fa-network-wired" style="margin-right: 5px;"></i>
                         <span id="ip-address">
                             {% if session.get('ip_start') and session.get('ip_end') %}
                                 {{ session.get('ip_start', 'N/A') }} - {{ session.get('ip_end', 'N/A') }}
@@ -426,13 +279,13 @@
             <div class="content-header">
                 <h2>
                     <i class="fas fa-home" style="color: #1E90FF;"></i> Dashboard Device
-                </h2>  
+                </h2>
             </div>
 
             <!-- อัปโหลดไฟล์ (AJAX) -->
             <h2>Upload Firmware</h2>
             <form id="upload_form" enctype="multipart/form-data">
-                <input type="file" name="firmware_file" accept=".bin">
+                <input type="file" name="firmware_file" accept=".bin" required>
                 <button type="submit">Upload</button>
             </form>
 
@@ -448,25 +301,26 @@
             <!-- ลบไฟล์ (AJAX) -->
             <h2>Delete Firmware</h2>
             <form id="delete_form">
-            <label>Select File to Delete:</label><br>
-            <!-- ให้มี id="delete-select" เพื่ออัปเดตทีหลัง -->
-            <select id="delete-select" name="filename">
-                {% for f in files %}
-                <option value="{{ f }}">{{ f }}</option>
-                {% endfor %}
-            </select>
-            <br><br>
-            <button type="submit">Delete</button>
+                <label>Select File to Delete:</label><br>
+                <!-- ให้มี id="delete-select" เพื่ออัปเดตทีหลัง -->
+                <select id="delete-select" name="filename" required>
+                    {% for f in files %}
+                    <option value="{{ f }}">{{ f }}</option>
+                    {% endfor %}
+                </select>
+                <br><br>
+                <button type="submit">Delete</button>
             </form>
-                <!-- Update Firmware (AJAX) -->
-                <h2>Update Devices</h2>
-                <form id="update_form">
+
+            <!-- Update Firmware (AJAX) -->
+            <h2>Update Devices</h2>
+            <form id="update_form">
                 <label>TFTP Server IP:</label><br>
-                <input type="text" name="tftp_server_ip" value="192.168.99.13"><br><br>
+                <input type="text" name="tftp_server_ip" value="192.168.99.13" required><br><br>
 
                 <label>Filename:</label><br>
                 <!-- ให้มี id="update-select" เพื่ออัปเดตทีหลัง -->
-                <select id="update-select" name="filename">
+                <select id="update-select" name="filename" required>
                     {% for f in files %}
                     <option value="{{ f }}">{{ f }}</option>
                     {% endfor %}
@@ -474,13 +328,13 @@
                 <br><br>
 
                 <label>Devices (comma separated IP):</label><br>
-                <input type="text" name="devices" placeholder="192.168.99.97,192.168.99.98"><br><br>
+                <input type="text" name="devices" placeholder="192.168.99.97,192.168.99.98" required><br><br>
 
                 <label>Username:</label><br>
-                <input type="text" name="username"><br><br>
+                <input type="text" name="username" required><br><br>
 
                 <label>Password:</label><br>
-                <input type="password" name="password"><br><br>
+                <input type="password" name="password" required><br><br>
 
                 <button type="submit">Update Firmware</button>
             </form>
@@ -488,6 +342,7 @@
             <!-- Spinner Overlay -->
             <div id="loading-overlay">
                 <div class="spinner"></div>
+                <span id="loading-percentage">0%</span> <!-- เพิ่มแถบเปอร์เซ็นต์ -->
             </div>
 
             <!-- Modal แสดงผลลัพธ์เป็น Plain Text -->
@@ -497,7 +352,344 @@
             </div>
         </div>
     </div>
+
     <script>
+        // --------- Overlay + Spinner ---------
+        let simulatedProgress = 0;
+        let progressInterval = null;
+
+        function showLoading() {
+            console.log("showLoading called");
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                updateLoadingPercentage(0); // รีเซ็ตเปอร์เซ็นต์เมื่อเริ่มโหลด
+                simulatedProgress = 0;
+
+                // เริ่มจำลองการเพิ่มเปอร์เซ็นต์
+                if (progressInterval) clearInterval(progressInterval);
+                progressInterval = setInterval(() => {
+                    if (simulatedProgress < 99) { // จำกัดไม่ให้เกิน 90% จนกว่าจะได้รับข้อมูลจริง
+                        simulatedProgress += 0.75; // เพิ่มประมาณ 0.75% ต่อวินาที
+                        if (simulatedProgress > 99) simulatedProgress = 99;
+                        updateLoadingPercentage(Math.floor(simulatedProgress));
+                    }
+                }, 1000); // เพิ่มทุก 1000ms (1 วินาที)
+            } else {
+                console.error("Element with id 'loading-overlay' not found.");
+            }
+        }
+
+        function hideLoading() {
+            console.log("hideLoading called");
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+                if (progressInterval) clearInterval(progressInterval);
+                simulatedProgress = 0;
+            } else {
+                console.error("Element with id 'loading-overlay' not found.");
+            }
+        }
+
+        // --------- Modal ---------
+        function openModal(message) {
+            const modal = document.getElementById('result-modal');
+            const content = document.getElementById('result-content');
+            if (modal && content) {
+                content.innerText = message;
+                modal.style.display = 'block';
+            } else {
+                console.error("Modal elements not found.");
+            }
+        }
+        function closeModal() {
+            const modal = document.getElementById('result-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            } else {
+                console.error("Modal element not found.");
+            }
+        }
+
+        // --------- Update Loading Percentage ---------
+        function updateLoadingPercentage(percent) {
+            console.log(`Updating loading percentage: ${percent}%`);
+            const percentageElement = document.getElementById('loading-percentage');
+            if (percentageElement) {
+                // ตรวจสอบให้แน่ใจว่าเปอร์เซ็นต์ไม่ลดลง
+                if (percent > simulatedProgress) {
+                    simulatedProgress = percent;
+                }
+                percentageElement.textContent = `${Math.floor(simulatedProgress)}%`;
+            } else {
+                console.error("Element with id 'loading-percentage' not found.");
+            }
+        }
+
+        // --------- Helper: POST form data + parse JSON with progress ---------
+        function postFormWithProgress(url, formData, onProgress) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', url);
+
+                // เพิ่มการตั้งค่าเพื่อรับ JSON
+                xhr.responseType = 'json';
+
+                // ติดตามความก้าวหน้า
+                xhr.upload.onprogress = function(event) {
+                    if (event.lengthComputable && onProgress) {
+                        const percentComplete = Math.round((event.loaded / event.total) * 100);
+                        onProgress(percentComplete);
+                    }
+                };
+
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve(xhr.response);
+                    } else {
+                        reject(new Error(`HTTP error! status: ${xhr.status}`));
+                    }
+                };
+
+                xhr.onerror = function() {
+                    reject(new Error('Network error'));
+                };
+
+                xhr.send(formData);
+            });
+        }
+
+        // --------- Helper: POST form data + parse JSON ---------
+        function postForm(url, formData) {
+            return fetch(url, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            });
+        }
+
+        // --------- Refresh Files List (AJAX) ---------
+        async function refreshFilesList() {
+            try {
+                // สมมติคุณมี endpoint ที่ส่ง {"files": ["file1.bin", "file2.bin", ...]}
+                const res = await fetch('/api/files');
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                const data = await res.json();
+
+                // array ของไฟล์
+                const fileList = data.files || [];
+
+                // 1) Update <ul> (ID = "file-list")
+                const ulElement = document.getElementById('file-list');
+                if (ulElement) {
+                    ulElement.innerHTML = ''; // เคลียร์ของเดิม
+                    fileList.forEach(f => {
+                        const li = document.createElement('li');
+                        li.textContent = f;
+                        ulElement.appendChild(li);
+                    });
+                } else {
+                    console.error("Element with id 'file-list' not found.");
+                }
+
+                // 2) Update <select> ใน Delete Firmware (ID = "delete-select")
+                const deleteSelect = document.getElementById('delete-select');
+                if (deleteSelect) {
+                    deleteSelect.innerHTML = '';
+                    fileList.forEach(f => {
+                        const option = document.createElement('option');
+                        option.value = f;
+                        option.textContent = f;
+                        deleteSelect.appendChild(option);
+                    });
+                } else {
+                    console.error("Element with id 'delete-select' not found.");
+                }
+
+                // 3) Update <select> ใน Update Firmware (ID = "update-select")
+                const updateSelect = document.getElementById('update-select');
+                if (updateSelect) {
+                    updateSelect.innerHTML = '';
+                    fileList.forEach(f => {
+                        const option = document.createElement('option');
+                        option.value = f;
+                        option.textContent = f;
+                        updateSelect.appendChild(option);
+                    });
+                } else {
+                    console.error("Element with id 'update-select' not found.");
+                }
+
+            } catch (err) {
+                console.error("Error refreshing files list:", err);
+            }
+        }
+
+        // --------- Main -----------
+        window.addEventListener('DOMContentLoaded', function() {
+
+            // ---------- (1) Upload Firmware ----------
+            const uploadForm = document.getElementById('upload_form');
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', async function(e){
+                    e.preventDefault();
+                    showLoading();
+                    const formData = new FormData(uploadForm);
+                    try {
+                        const data = await postFormWithProgress('/upload_firmware', formData, (percent) => {
+                            if (percent > simulatedProgress) {
+                                simulatedProgress = percent;
+                                updateLoadingPercentage(simulatedProgress);
+                            }
+                        });
+                        hideLoading();
+                        console.log(data);
+                        if (data.message) {
+                            openModal(data.message);
+                            // อัปโหลดเสร็จ -> refresh รายการไฟล์
+                            refreshFilesList();
+                        } else if (data.error) {
+                            openModal("Error: " + data.error);
+                        }
+                    } catch (err) {
+                        hideLoading();
+                        openModal("Fetch error: " + err.message);
+                    }
+                });
+            } else {
+                console.error("Element with id 'upload_form' not found.");
+            }
+
+            // ---------- (2) Delete Firmware ----------
+            const deleteForm = document.getElementById('delete_form');
+            if (deleteForm) {
+                deleteForm.addEventListener('submit', async function(e){
+                    e.preventDefault();
+                    showLoading();
+                    const formData = new FormData(deleteForm);
+                    try {
+                        const data = await postForm('/delete_firmware', formData);
+                        hideLoading();
+                        console.log(data);
+                        if (data.message) {
+                            openModal(data.message);
+                            // ลบไฟล์เสร็จ -> refresh รายการไฟล์
+                            refreshFilesList();
+                        } else if (data.error) {
+                            openModal("Error: " + data.error);
+                        }
+                    } catch (err) {
+                        hideLoading();
+                        openModal("Fetch error: " + err.message);
+                    }
+                });
+            } else {
+                console.error("Element with id 'delete_form' not found.");
+            }
+
+            // ---------- (3) Update Firmware ----------
+            const updateForm = document.getElementById('update_form');
+            if (updateForm) {
+                updateForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    showLoading();
+                    const formData = new FormData(updateForm);
+                    try {
+                        const data = await postForm('/automate_update', formData);
+                        hideLoading();
+                        console.log(data);
+
+                        if (data.results) {
+                            let lines = [];
+                            for (const device_ip in data.results) {
+                                const messages = data.results[device_ip];
+                                let lastMsg = messages[messages.length - 1] || "";
+                                lines.push(`${device_ip}: ${lastMsg}`);
+                            }
+                            let finalMsg = lines.join("\n");
+                            openModal(finalMsg);
+                        } else if (data.error) {
+                            openModal("Error: " + data.error);
+                        }
+                    } catch (err) {
+                        hideLoading();
+                        openModal("Fetch error: " + err.message);
+                    }
+                });
+            } else {
+                console.error("Element with id 'update_form' not found.");
+            }
+
+            // ปุ่มปิด Modal
+            const closeModalBtn = document.getElementById('close-modal');
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', closeModal);
+            } else {
+                console.error("Element with id 'close-modal' not found.");
+            }
+
+        });
+
+        // --------- Sidebar Responsive ---------
+        function updateSidebarForResponsive() {
+            const sidebar = document.querySelector('.w3-sidebar'); // Update selector
+            const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+            if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
+                sidebar.style.width = '60px'; // Slimmer sidebar
+                sidebarItems.forEach(item => {
+                    const icon = item.querySelector('i'); // Find the icon
+                    const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
+
+                    if (icon) {
+                        item.style.justifyContent = 'center'; // Center icons
+                        item.style.gap = '0'; // Remove gap between text and icons
+                        textNodes.forEach(node => node.textContent = ''); // Remove text
+                    }
+                });
+            } else {
+                sidebar.style.width = '250px'; // Default sidebar width for larger screens
+                sidebarItems.forEach(item => {
+                    const originalText = item.getAttribute('data-original-text');
+                    if (originalText) {
+                        // Restore the original text and gap
+                        const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
+                        item.innerHTML = `${iconHTML} ${originalText}`;
+                        item.style.justifyContent = 'flex-start';
+                    }
+                });
+            }
+        }
+
+        // Store original text for restoration
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+            sidebarItems.forEach(item => {
+                const textContent = Array.from(item.childNodes)
+                    .filter(node => node.nodeType === 3) // Only text nodes
+                    .map(node => node.textContent.trim()) // Trim whitespace
+                    .join(' '); // Combine text nodes into one string
+
+                if (textContent) {
+                    item.setAttribute('data-original-text', textContent); // Store original text
+                }
+            });
+
+            // Apply responsiveness on load and resize
+            updateSidebarForResponsive();
+            window.addEventListener('resize', updateSidebarForResponsive);
+        });
+
+        // --------- Sidebar Open/Close ---------
         function w3_open() {
             document.getElementById("main").style.marginLeft = "25%";
             document.getElementById("mySidebar").style.width = "25%";
@@ -509,63 +701,14 @@
             document.getElementById("mySidebar").style.display = "none";
             document.getElementById("openNav").style.display = "inline-block";
         }
+
+        // --------- Disable Scrolling in Container ---------
         document.addEventListener("DOMContentLoaded", function () {
             const container = document.querySelector('.w3-container');
             if (container) {
                 container.style.overflow = "hidden"; // Disable scrolling
             }
         });
-    </script>
-    <script>
-function updateSidebarForResponsive() {
-    const sidebar = document.querySelector('.w3-sidebar'); // Update selector
-    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
-
-    if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
-        sidebar.style.width = '60px'; // Slimmer sidebar
-        sidebarItems.forEach(item => {
-            const icon = item.querySelector('i'); // Find the icon
-            const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
-
-            if (icon) {
-                item.style.justifyContent = 'center'; // Center icons
-                item.style.gap = '0'; // Remove gap between text and icons
-                textNodes.forEach(node => node.textContent = ''); // Remove text
-            }
-        });
-    } else {
-        sidebar.style.width = '250px'; // Default sidebar width for larger screens
-        sidebarItems.forEach(item => {
-            const originalText = item.getAttribute('data-original-text');
-            if (originalText) {
-                // Restore the original text and gap
-                const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
-                item.innerHTML = `${iconHTML} ${originalText}`;
-                item.style.justifyContent = 'flex-start';
-            }
-        });
-    }
-}
-
-// Store original text for restoration
-document.addEventListener('DOMContentLoaded', () => {
-    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
-
-    sidebarItems.forEach(item => {
-        const textContent = Array.from(item.childNodes)
-            .filter(node => node.nodeType === 3) // Only text nodes
-            .map(node => node.textContent.trim()) // Trim whitespace
-            .join(' '); // Combine text nodes into one string
-
-        if (textContent) {
-            item.setAttribute('data-original-text', textContent); // Store original text
-        }
-    });
-
-    // Apply responsiveness on load and resize
-    updateSidebarForResponsive();
-    window.addEventListener('resize', updateSidebarForResponsive);
-});
     </script>
 </body>
 </html>
