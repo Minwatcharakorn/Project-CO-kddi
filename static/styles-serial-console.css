@@ -1,23 +1,41 @@
-body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background-color: #222;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
+
 
 .container {
-    background: #333;
+    background: #0c1148;
     border-radius: 15px;
-    width: 50%;
-    max-width: 900px; /* ลดความกว้าง */
     padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    max-width: 800px;
+    margin: 20px auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    color: #007bff;
+    font-family: "Segoe UI", sans-serif;
 }
+
+.title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #0c1148;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.serial-settings-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
 
 h1 {
     text-align: center;
@@ -26,12 +44,87 @@ h1 {
 
 .console-settings {
     padding: 20px;
-    background: #444;
+    background: #ffffff;
     border-radius: 10px;
     margin-bottom: 20px;
     display: flex;
     flex-direction: column;
     gap: 15px; /* Adds space between sections */
+}
+
+.input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-label {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #0c1148;
+    margin-bottom: 5px;
+    display: block;
+    text-transform: capitalize;
+}
+
+.input-select {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background: #475569;
+    color: #f1f5f9;
+    font-size: 0.9rem;
+}
+
+.button-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-upload {
+    background-color: #0c1148;
+    color: white;
+}
+
+.btn-upload:hover {
+    background-color: #1d4ed8;
+}
+
+.btn-deploy {
+    background-color: #0c1148;
+    color: white;
+    margin-top: 15px;
+    display: block;
+}
+
+.btn-deploy:hover {
+    background-color: #1d4ed8;
+}
+
+.textarea {
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    border: none;
+    background: #000000;
+    color: #f1f5f9;
+    font-size: 1rem;
+}
+
+.textarea::placeholder {
+    color: #cbd5e1;
 }
 
 .console-settings h3 {
@@ -81,9 +174,7 @@ button, .back-button {
     text-align: center;
 }
 
-button:hover, .back-button:hover {
-    background: #218838;
-}
+
 
 input, select {
     margin: 5px 0;
@@ -127,20 +218,6 @@ input, select {
     color: #fff;
 }
 
-button#upload-file {
-    width: fit-content; /* Automatically adjusts width to fit the content */
-    padding: 5px 10px; /* Smaller padding for a compact look */
-    margin: 10px 0; /* Add vertical spacing */
-    display: inline-block; /* Prevent full-width stretching */
-    background: #007bff; /* Blue background */
-    color: white; /* White text */
-    border-radius: 5px; /* Rounded corners for style */
-    text-align: center; /* Center the text inside */
-}
-
-button#upload-file:hover {
-    background: #0056b3; /* Slightly darker on hover */
-}
 
 .back-button {
     background: #dc3545; /* A red color */
@@ -183,17 +260,7 @@ button#upload-file, .back-button {
     flex: none; /* Prevent it from stretching */
 }
 
-button#deploy-button {
-    width: fit-content; /* Adjust to fit the content */
-    padding: 10px 20px; /* Adjust padding for a balanced look */
-    margin: 10px auto; /* Center the button horizontally */
-    display: block; /* Ensure it doesn’t stretch */
-    background: #28a745; /* Green background */
-    color: white; /* White text */
-    border-radius: 5px; /* Rounded corners for style */
-    text-align: center; /* Center-align text */
-    font-size: 16px; /* Adjust font size */
-}
+
 
 
 .modal {
