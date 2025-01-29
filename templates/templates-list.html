@@ -134,11 +134,12 @@
     <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
         <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
         <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard</a>
-        <a href="/configuration" class="w3-bar-item w3-button"><i class="fas fa-cogs"></i> Create Template</a>
-        <a href="/listtemplate" class="w3-bar-item w3-button"><i class="fas fa-list"></i> List Templates</a>
         <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy Device</a>
-        <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
         <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
+        <a href="/serialconsole" class="w3-bar-item w3-button"><i class="fa-solid fa-ethernet"></i> Serial Console Configuration</a>
+        <a href="/configuration" class="w3-bar-item w3-button"><i class="fas fa-cogs"></i> Create Template</a>
+        <a href="/listtemplate" class="w3-bar-item w3-button"><i class="fa-solid fa-clipboard-list"></i> List Templates</a>
+        <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
         <a href="/logging_page" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
     </div>
     <div id="main">
@@ -155,27 +156,37 @@
                         </a>
                     </div>
                     <div class="nav-info">
-                        <span style="margin-right: 20px;">
-                            <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i>
-                            <span id="username">{{ session.get('username', 'N/A') }}</span>
-                        </span>
-                        <span>
-                            <i class="fas fa-network-wired" style="margin-right: 5px;"></i>
+                        {% if session.get('username') and session.get('username') != 'N/A' %}
+                            <span style="margin-right: 20px;">
+                                <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i>
+                                <span id="username">{{ session.get('username') }}</span>
+                            </span>
+                        {% endif %}
+                    
+                        {% if session.get('ip_start') or session.get('ip_end') %}
                             <span id="ip-address">
+                                <i class="fas fa-network-wired" style="margin-right: 5px;"></i>
                                 {% if session.get('ip_start') and session.get('ip_end') %}
-                                    {{ session.get('ip_start', 'N/A') }} - {{ session.get('ip_end', 'N/A') }}
-                                {% elif session.get('ip_start') %}
-                                    {{ session.get('ip_start', 'N/A') }}
+                                    {{ session.get('ip_start') }} - {{ session.get('ip_end') }}
                                 {% else %}
-                                    N/A
+                                    {{ session.get('ip_start', 'N/A') }}
                                 {% endif %}
                             </span>
-                        </span>
-                        <span>
-                            <a href="/logout" style="text-decoration: none;">
-                                <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
-                            </a>
-                        </span>
+                        {% endif %}
+                    
+                        {% if not session.get('username') or session.get('username') == 'N/A' %}
+                            <span>
+                                <button onclick="window.location.href='/'" class="login-button">
+                                    <i class="fas fa-sign-in-alt"></i> Login
+                                </button>
+                            </span>
+                        {% else %}
+                            <span>
+                                <a href="/logout" style="text-decoration: none;">
+                                    <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
+                                </a>
+                            </span>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -183,7 +194,7 @@
         <div class="w3-container">
             <div class="content-header" style="margin-top: 20px;">
                 <h2>
-                    <i class="fas fa-list"></i> List Templates
+                    <i class="fa-solid fa-clipboard-list"></i> List Templates
                 </h2>
                 <button class="upload-button" onclick="location.href='/uploadtemplate'">
                     <i class="fas fa-upload"></i> Upload Template

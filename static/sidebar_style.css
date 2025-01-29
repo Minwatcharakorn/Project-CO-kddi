@@ -167,3 +167,20 @@
 #w3-teal {
     padding: 0; /* Adjust to reduce extra padding */
 }
+
+.login-button {
+    background-color: #ffffff;
+    color: #1E90FF;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+    background-color: #0056b3;
+    color: #ffffff;
+
+}
