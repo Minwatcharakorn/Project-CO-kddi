@@ -2,7 +2,7 @@
 * {
 
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: "Segoe UI";
 }
 
 
@@ -12,15 +12,34 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    background-color: #f4f5f7;
-    border-bottom: 1px solid #d0d4db;
-    margin-top: 15px;
+    background: linear-gradient(135deg, #1E90FF, #007BFF);
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+    color: white;
+    margin-bottom: 20px;
+
 }
 
 .content-header h2 {
-    color: #333;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+.content-header h2 i {
+    font-size: 1.8rem;
+    color: #0c1148;
+    transition: transform 0.3s ease;
+}
+
+.content-header h2:hover i {
+    transform: scale(1.2);
+    color: #FFD700; /* Gold accent on hover */
+}
 .header-actions button {
     background-color: #007bff;
     color: #fff;
@@ -115,8 +134,8 @@ tbody tr:hover {
 
 /* CSS for Deploy and Apply buttons */
 .deploy-button, .apply-button {
-    background-color: #28a745; /* Green background for emphasis */
-    color: white; /* White text color */
+    background-color: white; /* Green background for emphasis */
+    color: #007bff; /* White text color */
     border: none; /* Remove default border */
     border-radius: 5px; /* Rounded corners */
     padding: 10px 20px; /* Padding for better appearance */
@@ -128,22 +147,16 @@ tbody tr:hover {
 }
 
 .deploy-button:hover, .apply-button:hover {
-    background-color: #218838; /* Darker green on hover */
+    background-color: #0c1148;
+    color: white; 
     transform: scale(1.05); /* Slight scale-up on hover */
 }
 
 .deploy-button:active, .apply-button:active {
-    background-color: #1e7e34; /* Even darker green when clicked */
+    background-color: #ffffff; /* Even darker green when clicked */
     transform: scale(0.98); /* Slight scale-down on click */
 }
 
-/* Additional styling for button container */
-.content-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px; /* Space below header */
-}
 
 /* Style for the button's focus state to improve accessibility */
 .deploy-button:focus {
@@ -161,7 +174,7 @@ tbody tr:hover {
 
 .breadcrumb a {
     text-decoration: none;
-    color: #007BFF; /* สีฟ้าเหมือนลิงก์ */
+    color: #ffffff; /* สีฟ้าเหมือนลิงก์ */
     transition: color 0.3s ease;
 }
 
@@ -170,7 +183,7 @@ tbody tr:hover {
 }
 
 .breadcrumb span {
-    color: #6c757d; /* สีเทาอ่อน */
+    color: #ffffff; /* สีเทาอ่อน */
 }
 
 .breadcrumb::after {

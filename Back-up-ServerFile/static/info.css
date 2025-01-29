@@ -10,14 +10,21 @@
 }
 
 .switch-info {
-    background-color: #f8f9fa;
-    border: 1px solid #cfd9e6;
+    background-color: #f5faff; /* Soft blue background for better readability */
+    border: 1px solid #cfd9e6; /* Light border */
     border-radius: 15px;
     padding: 20px;
     margin-top: 20px;
     margin-bottom: 20px;
     position: relative;
-    overflow: visible;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    overflow: hidden; /* Prevent overflow of content */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
+}
+
+.switch-info:hover {
+    transform: scale(1.02); /* Slight scale-up on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Slightly larger shadow */
 }
 
 .switch-model {
@@ -30,14 +37,32 @@
 }
 
 .switch-info h3 {
-    margin: 0 0 10px 0;
-    font-size: 18px;
-    color: #333;
+    font-size: 22px; /* Slightly larger font size */
+    font-weight: bold;
+    color: #0c1148; /* Deep blue for title */
+    margin-bottom: 10px; /* Space below the title */
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
+
+.switch-info h3::before {
+    content: "🔌"; /* Add an icon before the title */
+    font-size: 20px;
+}
+
 .switch-info h4 {
-    margin: 0 0 10px 0;
-    font-size: 14px;
-    color: #333;
+    font-size: 18px;
+    font-weight: normal;
+    color: #333; /* Neutral gray for subtitle */
+    margin-bottom: 15px; /* Space below subtitle */
+    border-bottom: 2px solid #cfd9e6; /* Underline effect */
+    padding-bottom: 5px;
+    display: inline-block;
+}
+
+.switch-info:hover h3 {
+    color: #1e90ff; /* Change title color on hover */
 }
 
 .switch-details {
@@ -54,23 +79,43 @@
 }
 
 .device-status {
-    background-color: #f5f7fa;
+    background-color: #ffffff;
     border: 1px solid #cfd9e6;
     border-radius: 15px;
     padding: 20px;
     margin-top: 20px;
     margin-bottom: 20px;
-    position: relative;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    flex: 2; /* Occupy more space for Device Status */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 
 }
-
+/* Hover Effect */
+.device-status:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
 .device-status h3 {
-    margin: 0 0 15px 0;
-    font-size: 18px;
-    color: #333;
+    font-size: 22px;
+    font-weight: bold;
+    color: #0c1148; /* Blue color to match */
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between icon and text */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Subtle shadow */
 }
+
+.device-status h3::before {
+    content: "🔧"; /* Add a wrench emoji */
+    font-size: 22px; /* Match icon size */
+}
+
+/* Hover Effect */
+.device-status h3:hover {
+    color: #1e90ff; /* Change text color on hover */
+}
+
 
 .chart-container {
     display: flex;
@@ -144,9 +189,17 @@
     margin-top: 20px;
     margin-bottom: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    -webkit-overflow-scrolling: touch; /* เพิ่ม smooth scrolling */
-    overflow-x: auto; /* เปิดการเลื่อนแนวนอน */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling */
+    overflow-x: auto; /* Horizontal scroll for small screens */
+    overflow-y: auto; /* Allow vertical scrolling */
+    max-height: 400px; /* Prevents the table from becoming too tall */
+    transition: transform 0.3s ease; /* Smooth transition */
+}
 
+/* Add hover effect to give feedback */
+.vlan-info:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .vlan-table {
@@ -173,7 +226,7 @@
 }
 
 .vlan-table th {
-    background-color: #2d2d2d; /* Darker header background */
+    background-color: #0c1148; /* Darker header background */
     color: #ffffff; /* White text for the header */
     font-weight: bold;
     text-align: center;
@@ -245,9 +298,14 @@
     text-align: center;
     flex: 1 1 100%; /* ให้ใช้พื้นที่เต็มในหน้าจอเล็ก */
     margin-bottom: 20px; /* เพิ่มระยะห่างระหว่างกราฟและกราฟถัดไป */
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.15);
+
 
 }
-
+.chart-item:hover {
+    transform: scale(1.05);
+}
 .chart-item canvas {
     width: 100% !important; /* ให้ canvas ปรับขนาดตาม container */
     height: auto !important;
@@ -340,56 +398,51 @@
 
 .info-container {
     display: flex;
-    justify-content: space-between; /* Spread the sections horizontally */
+    justify-content: space-between;
     gap: 20px;
-    flex-direction: row; /* จัดเรียงในแนวนอนเป็นค่าเริ่มต้น */
-    align-items: flex-start; /* ให้เนื้อหาภายในจัดเรียงที่ด้านบน */
     margin-top: 20px;
 }
 
-.license-info {
-    align-self: flex-end; /* Align to the right */
-    max-width: 100%; /* จำกัดความกว้างของ container */
-    background-color: #f9fafb;
-    border: 1px solid #cfd9e6;
-    font-family: Arial, sans-serif;
-
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
-}
-
-.license-info h3 {
-    margin: 0 0 15px 0;
-    font-size: 18px;
-    color: #333;
-    word-wrap: break-word; /* ตัดคำเมื่อยาวเกิน */
-
-}
-
-.license-item {
-    border-bottom: 1px solid #ddd;
-    padding: 10px 0;
-}
-
-.license-item:last-child {
-    border-bottom: none;
-}
-
-.license-item p {
-    margin: 5px 0;
-    font-size: 14px;
-    color: #555;
-}
-
 .system-info, .license-info {
-    flex: 1; /* ให้แต่ละกล่องมีขนาดเท่ากัน */
-    min-width: 0; /* ป้องกันการล้น */
-    padding: 10px;
-    border: 1px solid #ddd; /* เพิ่มเส้นขอบ */
-    border-radius: 8px; /* เพิ่มมุมโค้ง */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
-    background-color: #fff;
+    flex: 1;
+    background-color: #ffffff;
+    border: 1px solid #cfd9e6;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.system-info:hover, .license-info:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Headings for System & License Info */
+.system-info h3, .license-info h3 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #0c1148;
+    border-bottom: 2px solid #cfd9e6;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+/* Text Styling */
+.system-info-item p, .license-item p {
+    font-size: 14px;
+    color: #333;
+    margin: 5px 0;
+}
+
+.system-info-item strong, .license-item strong {
+    color: #000;
+}
+
+/* Make text bold where necessary */
+.system-info-item p strong, .license-item p strong {
+    font-weight: bold;
+    color: #0c1148;
 }
 
 .back-to-dashboard-button {
@@ -456,6 +509,8 @@
     }
 
     .vlan-info {
+        max-height: 300px;
+
         overflow-x: scroll; /* เปิดการเลื่อนแนวนอน */
     }
 

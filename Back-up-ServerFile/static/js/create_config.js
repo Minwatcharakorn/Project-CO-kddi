@@ -877,8 +877,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderMSTConfiguration() {
         // Add MST Configuration Header
         mstConfigContainer.innerHTML = `
-            <button id="add-mst-instance" class="add-button">Add</button>
+            <button type="button" id="add-mst-instance" class="icon-button-agg">
+                    <i class="fas fa-plus"></i>
+            </button>
             <div id="mst-instance-list"></div>
+
         `;
 
         const addButton = document.getElementById("add-mst-instance");
@@ -1916,35 +1919,36 @@ function showErrorModal(message) {
 // Download Configuration as .txt File
 document.getElementById('download-config').addEventListener('click', () => {
     const configData = document.getElementById('preview-configuration-content').textContent; // ตรวจสอบว่าใช้ ID "preview-configuration-content" จริงหรือไม่
+    const templateName = document.getElementById('template-name').value; // ดึงค่าชื่อ Template จาก input
 
     fetch('/save-and-download-config', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ configData }) // ส่ง configData ไปยัง Flask
+        body: JSON.stringify({ 
+            configData,
+            templateName // ส่งชื่อ Template ไปยัง Flask
+        })
     })
     .then(response => {
         if (!response.ok) throw new Error('Failed to download file');
-        return response.blob();
+        const filename = response.headers.get('Content-Disposition')?.split('filename=')[1]; // ดึงชื่อไฟล์จาก header
+        return response.blob().then(blob => ({ blob, filename }));
     })
-    .then(blob => {
-        // สร้างชื่อไฟล์พร้อมวันที่และเวลา
-        const now = new Date();
-        const timestamp = now.toISOString().replace('T', '-').replace(/:/g, '-').split('.')[0];
-        const filename = `configuration_${timestamp}.txt`;
-
+    .then(({ blob, filename }) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = url;
-        a.download = filename;
+        a.download = filename?.replace(/"/g, '') || 'default_configuration.txt'; // ใช้ชื่อไฟล์ที่ backend ส่งมา
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
     })
     .catch(error => console.error('Error:', error));
 });
+
 
 
 // Ensure that the modal closes when clicking the close button

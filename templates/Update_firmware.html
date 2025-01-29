@@ -9,91 +9,218 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
+        /* Headers */
         h1, h2 {
             color: #333;
+            font-weight: bold;
         }
+        .firmware-container {
+            max-width: 800px; /* Adjust this to control width */
+            margin: 20px auto; /* Centers the content */
+            padding: 20px;
+        }
+        /* Card Layout */
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+            margin-bottom: 20px;
+            transition: transform 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        /* Forms */
         form {
-            margin: 15px 0;
-            padding: 15px;
             background: #ffffff;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
+
         input[type="text"],
         input[type="file"],
         input[type="password"],
         select {
-            margin: 5px 0;
-            padding: 6px;
-            width: 250px;
-        }
-        button {
-            margin-top: 10px;
-            padding: 8px 16px;
-            background: #007BFF;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        ul {
-            margin: 5px 0;
-            padding: 5px;
-            list-style: none;
-        }
-        li {
-            padding: 3px 0;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
         }
 
-        /* Spinner Overlay */
+        /* Center the button */
+        button {
+            padding: 10px 15px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            max-width: 300px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+
+            /* Center the button */
+            display: block;
+            margin: 10px auto; /* Centers the button */
+            text-align: center;
+        }
+
+        /* Hover & Active Effects */
+        button:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* Danger Button */
+        button.danger {
+            background: #dc3545;
+        }
+        button.danger:hover {
+            background: #c82333;
+        }
+        /* File List */
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+        .firmware-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            transition: background 0.3s ease;
+        }
+        .firmware-item:hover {
+            background: #e2e6ea;
+        }
+
+        /* Device Input Row */
+        .device-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .card h2 i {
+            color: #1E90FF !important; /* Change icon color */
+        }
+        /* Secondary Buttons (for + and -) */
+        .btn.secondary {
+            background: #1E90FF; /* Default gray */
+            color: white;
+        }
+
+        /* Hover Effect */
+        .btn.secondary:hover {
+            background: #0056b3; /* Darker shade of gray for hover */
+            transform: scale(1.05);
+        }
+
+        /* Active Effect */
+        .btn.secondary:active {
+            transform: scale(0.95);
+        }
+        /* Remove Button (Red) */
+        .btn.danger {
+            background: #dc3545; /* Bootstrap Danger Red */
+            color: white;
+        }
+
+        /* Hover Effect */
+        .btn.danger:hover {
+            background: #c82333; /* Darker shade of red */
+            transform: scale(1.05);
+        }
+
+        /* Active Effect (When Clicked) */
+        .btn.danger:active {
+            transform: scale(0.95);
+        }
+        /* Adjust the icons inside buttons */
+        .btn i {
+            font-size: 16px;
+        }
+        /* Loading Spinner Overlay */
         #loading-overlay {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.3);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
             z-index: 9999;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
         }
         .spinner {
-            border: 12px solid #f3f3f3;
-            border-top: 12px solid #007BFF;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #007BFF;
             border-radius: 50%;
-            width: 70px;
-            height: 70px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
+        }
+        #loading-percentage {
+            margin-top: 15px;
+            font-size: 1.5rem;
+            color: #fff;
+            font-weight: bold;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        /* Modal แสดงผลลัพธ์ */
+        /* Result Modal */
         #result-modal {
             display: none;
             position: fixed;
-            z-index: 10000; /* อยู่เหนือ overlay */
+            z-index: 10000;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            background: #fff;
+            background: white;
             width: 400px;
             padding: 20px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            border-radius: 4px;
+            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            text-align: center;
         }
         #result-content {
             margin-bottom: 20px;
-            white-space: pre-wrap; /* ให้ขึ้นบรรทัดใหม่ตาม \n */
+            white-space: pre-wrap;
+            font-size: 14px;
+            color: #333;
         }
         #close-modal {
             background: #dc3545;
-            color: #fff;
-            border: none;
+            color: white;
             padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
@@ -101,150 +228,426 @@
         #close-modal:hover {
             background: #c82333;
         }
-    </style>
-<style>
-    .w3-teal {
-        background-color: #0c1148 !important; /* เปลี่ยนเป็นสีเขียวเข้ม */
-        color: white !important; /* เปลี่ยนสีข้อความ */
-    }
-    .w3-sidebar {
-        background-color: #0c1148; /* Darker, modern background color */
-        color: #ffffff; /* White text color */
-        width: 250px; /* Set sidebar width */
-        padding-top: 20px;
-        position: fixed;
-        height: 100%;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-        border-right: 1px solid #3c4b5c; /* Add a border for better separation */
-    }
 
-        /* Style the close button */
-    .w3-sidebar .w3-button {
-        text-align: left;
-        color: #ffffff;
-        background-color: #0c1148; /* Slightly darker for contrast */
-        font-size: 1rem;
-        font-weight: bold;
-        padding: 15px;
-        border: none;
-        transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    .w3-sidebar .w3-button:hover {
-        background-color: #4c5b6b; /* Slightly lighter on hover */
-        color: #ffffff;
-    }
-
-        /* Sidebar items */
-    .w3-sidebar .w3-bar-item {
-        display: flex;
-        align-items: center;
-        font-size: 1rem;
-        color: #ffffff; /* Lighter text color */
-        padding: 10px 15px;
-        border-radius: 5px; /* Rounded corners */
-        transition: background-color 0.3s ease, color 0.3s ease;
-        text-decoration: none; /* Remove underline */
-    }
-
-    .w3-sidebar .w3-bar-item i {
-        margin-right: 10px;
-        color: #1e90ff; /* Icon color */
-        font-size: 1.2rem; /* Slightly larger icons */
-        transition: color 0.3s ease;
-    }
-
-    .w3-sidebar .w3-bar-item:hover {
-        background-color: #3c4b5c; /* Highlight on hover */
-        color: #ffffff;
-    }
-
-    .w3-sidebar .w3-bar-item:hover i {
-        color: #00bfff; /* Brighter icon color on hover */
-    }
-
-        /* Active link style */
-    .w3-sidebar .w3-bar-item.active {
-        background-color: #1e90ff; /* Highlight active item */
-        color: #ffffff;
-        font-weight: bold;
-    }
-
-    .w3-sidebar .w3-bar-item.active i {
-        color: #ffffff;
-    }
-    .w3-container {
-            overflow: hidden; /* Prevent scrolling */
-            overflow-y: hidden;
-            overflow-x: hidden;
-            height: 100%; /* Prevent content from exceeding viewport */
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .card {
+                padding: 15px;
+            }
+            input[type="text"],
+            input[type="password"],
+            select {
+                font-size: 12px;
+                padding: 8px;
+            }
+            button {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+            #result-modal {
+                width: 90%;
+            }
         }
-    /* Responsive Adjustments for Small Screens */
-    @media (max-width: 768px) {
-    .nav-info span {
-        font-size: 14px; /* Reduce font size */
+        #addDeviceBtn {
+            display: block;
+            margin-left: 0;  /* Align to the left */
+        }
+    </style>
+    <style>
+        .w3-teal {
+            background-color: #0c1148 !important; /* เปลี่ยนเป็นสีเขียวเข้ม */
+            color: white !important; /* เปลี่ยนสีข้อความ */
+        }
+        .w3-sidebar {
+            background-color: #0c1148; /* Darker, modern background color */
+            color: #ffffff; /* White text color */
+            width: 250px; /* Set sidebar width */
+            padding-top: 20px;
+            position: fixed;
+            height: 100%;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+            border-right: 1px solid #3c4b5c; /* Add a border for better separation */
+        }
+    
+            /* Style the close button */
+        .w3-sidebar .w3-button {
+            text-align: left;
+            color: #ffffff;
+            background-color: #0c1148; /* Slightly darker for contrast */
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 15px;
+            border: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+    
+        .w3-sidebar .w3-button:hover {
+            background-color: #4c5b6b; /* Slightly lighter on hover */
+            color: #ffffff;
+        }
+    
+            /* Sidebar items */
+            .w3-sidebar .w3-bar-item {
+                display: flex;
+                align-items: center;
+                gap: 10px; /* ให้มีช่องว่างระหว่างไอคอนกับข้อความ */
+                padding: 12px 20px; /* ปรับ padding ให้เท่ากันทุกอัน */
+                text-align: left;
+                font-size: 16px;
+                white-space: nowrap; /* ป้องกันข้อความขึ้นบรรทัดใหม่ */
+            }
+    
+            .w3-sidebar .w3-bar-item i {
+                min-width: 24px; /* กำหนดขนาดขั้นต่ำของไอคอนให้เท่ากัน */
+                text-align: center;
+                font-size: 18px; /* ปรับขนาดไอคอน */
+                color: #1e90ff;
+            }
+            .w3-sidebar .w3-bar-item span {
+                flex-grow: 1; /* บังคับให้ข้อความชิดซ้ายเท่ากัน */
+                text-align: left; /* ให้ข้อความอยู่ชิดซ้าย */
+            }
+        .w3-sidebar .w3-bar-item:hover {
+            background-color: #3c4b5c; /* Highlight on hover */
+            color: #ffffff;
+        }
+    
+        .w3-sidebar .w3-bar-item:hover i {
+            color: #00bfff; /* Brighter icon color on hover */
+        }
+    
+            /* Active link style */
+        .w3-sidebar .w3-bar-item.active {
+            background-color: #1e90ff; /* Highlight active item */
+            color: #ffffff;
+            font-weight: bold;
+        }
+    
+        .w3-sidebar .w3-bar-item.active i {
+            color: #ffffff;
+        }
+        .w3-container {
+                overflow: hidden; /* Prevent scrolling */
+                overflow-y: hidden;
+                overflow-x: hidden;
+                height: 100%; /* Prevent content from exceeding viewport */
+            }
+        /* Responsive Adjustments for Small Screens */
+        @media (max-width: 768px) {
+        .nav-info span {
+            font-size: 14px; /* Reduce font size */
+        }
+    
+        .nav-info i {
+            font-size: 16px; /* Reduce icon size */
+        }
+    
+        .nav-logo a {
+            font-size: 16px; /* Adjust logo text size */
+        }
+        .nav-logo i {
+            font-size: 18px; /* Reduce icon size */
+        }
+        #openNav {
+            font-size: 24px; /* Adjust menu button size */
+        }
     }
+    
+    @media (max-width: 576px) {
+        .nav-info span {
+            font-size: 12px; /* Further reduce font size */
+        }
+    
+        .nav-info i {
+            font-size: 12px; /* Further reduce icon size */
+        }
+    
+        .nav-logo a {
+            font-size: 16px; /* Smaller logo text */
+        }
+        .nav-logo i {
+            font-size: 16px; /* Further reduce icon size */
+        }
+        #openNav {
+            font-size: 20px; /* Adjust menu button size */
+        }
+    }
+    </style>
+</head>
+<body>
+    <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
+        <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
+        <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy Device</a>
+        <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
+        <a href="/serialconsole" class="w3-bar-item w3-button"><i class="fa-solid fa-ethernet"></i> Serial Console Configuration</a>
+        <a href="/configuration" class="w3-bar-item w3-button"><i class="fas fa-cogs"></i> Create Template</a>
+        <a href="/listtemplate" class="w3-bar-item w3-button"><i class="fa-solid fa-clipboard-list"></i> List Templates</a>
+        <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
+        <a href="/logging_page" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
+    </div>
 
-    .nav-info i {
-        font-size: 16px; /* Reduce icon size */
-    }
+    <div id="main">
+        <div class="w3-teal">
+            <div class="header-wrapper">
+                <!-- Hamburger Menu Button -->
+                <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
+                
+                <!-- Header Content -->
+                <div class="header-container">
+                    <div class="nav-logo">
+                        <a href="/dashboard" style="color: white; text-decoration: none;">
+                            <i class="fas fa-network-wired" style="color: #1E90FF; margin-right: 10px;"></i> Cisco Automation
+                        </a>
+                    </div>
+                    <div class="nav-info">
+                        {% if session.get('username') and session.get('username') != 'N/A' %}
+                            <span style="margin-right: 20px;">
+                                <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i>
+                                <span id="username">{{ session.get('username') }}</span>
+                            </span>
+                        {% endif %}
+                    
+                        {% if session.get('ip_start') or session.get('ip_end') %}
+                            <span id="ip-address">
+                                <i class="fas fa-network-wired" style="margin-right: 5px;"></i>
+                                {% if session.get('ip_start') and session.get('ip_end') %}
+                                    {{ session.get('ip_start') }} - {{ session.get('ip_end') }}
+                                {% else %}
+                                    {{ session.get('ip_start', 'N/A') }}
+                                {% endif %}
+                            </span>
+                        {% endif %}
+                    
+                        {% if not session.get('username') or session.get('username') == 'N/A' %}
+                            <span>
+                                <button onclick="window.location.href='/'" class="login-button">
+                                    <i class="fas fa-sign-in-alt"></i> Login
+                                </button>
+                            </span>
+                        {% else %}
+                            <span>
+                                <a href="/logout" style="text-decoration: none;">
+                                    <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
+                                </a>
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w3-container">
+            <div class="content-header" style="margin-top: 20px;">
+                <h2>
+                    <i class="fas fa-sync   " ></i> Update Firmware
+                </h2>
+            </div>
 
-    .nav-logo a {
-        font-size: 16px; /* Adjust logo text size */
-    }
-    .nav-logo i {
-        font-size: 18px; /* Reduce icon size */
-    }
-    #openNav {
-        font-size: 24px; /* Adjust menu button size */
-    }
-}
+            <div class="firmware-container">
+                <!-- Upload Firmware Section -->
+                <div class="card">
+                    <h2><i class="fas fa-upload"></i> Upload Firmware</h2>
+                    <form id="upload_form" enctype="multipart/form-data">
+                        <input type="file" name="firmware_file" accept=".bin" required>
+                        <button type="submit" class="btn primary">Upload</button>
+                    </form>
+                </div>
+            
+                <!-- Available Firmware Files -->
+                <div class="card">
+                    <h2><i class="fas fa-file-alt"></i> Available Firmware Files</h2>
+                    <ul id="file-list">
+                        {% for f in files %}
+                        <li class="firmware-item">{{ f }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            
+                <!-- Delete Firmware -->
+                <div class="card">
+                    <h2><i class="fas fa-trash-alt"></i> Delete Firmware</h2>
+                    <form id="delete_form">
+                        <label>Select File to Delete:</label>
+                        <select id="delete-select" name="filename" required>
+                            {% for f in files %}
+                            <option value="{{ f }}">{{ f }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn danger">Delete</button>
+                    </form>
+                </div>
+            
+                <!-- Update Devices Section -->
+                <div class="card">
+                    <h2><i class="fas fa-sync-alt"></i> Update Devices</h2>
+                    <form id="update_form">
+                        <label>TFTP Server IP:</label>
+                        <input type="text" name="tftp_server_ip" value="192.168.99.13" required>
+            
+                        <label>Filename:</label>
+                        <select id="update-select" name="filename" required>
+                            {% for f in files %}
+                            <option value="{{ f }}">{{ f }}</option>
+                            {% endfor %}
+                        </select>
+            
+                        <label>Devices IP:</label>
+                        <div id="devices-container">
+                            <button type="button" id="addDeviceBtn" class="btn secondary">
+                                <i class="fas fa-plus"></i> <!-- FontAwesome Plus Icon -->
+                            </button>
+                            <div class="device-row">
+                                <input type="text" name="devices[]" placeholder="192.168.99.97" required>
+                                <button type="button" class="removeDeviceBtn btn danger">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+            
+                        <label>Username:</label>
+                        <input type="text" name="username" required>
+            
+                        <label>Password:</label>
+                        <input type="password" name="password" required>
+            
+                        <button type="submit" class="btn primary">Update Firmware</button>
+                    </form>
+                </div>
+            
+                <!-- Loading Spinner -->
+                <div id="loading-overlay">
+                    <div class="spinner"></div>
+                    <span id="loading-percentage">0%</span>
+                </div>
+            
+                <!-- Result Modal -->
+                <div id="result-modal">
+                    <div id="result-content"></div>
+                    <button id="close-modal" class="btn danger">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-@media (max-width: 576px) {
-    .nav-info span {
-        font-size: 12px; /* Further reduce font size */
-    }
-
-    .nav-info i {
-        font-size: 12px; /* Further reduce icon size */
-    }
-
-    .nav-logo a {
-        font-size: 16px; /* Smaller logo text */
-    }
-    .nav-logo i {
-        font-size: 16px; /* Further reduce icon size */
-    }
-    #openNav {
-        font-size: 20px; /* Adjust menu button size */
-    }
-}
-</style>
     <script>
         // --------- Overlay + Spinner ---------
+        let simulatedProgress = 0;
+        let progressInterval = null;
+
         function showLoading() {
-            document.getElementById('loading-overlay').style.display = 'flex';
+            console.log("showLoading called");
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                updateLoadingPercentage(0); // รีเซ็ตเปอร์เซ็นต์เมื่อเริ่มโหลด
+                simulatedProgress = 0;
+
+                // เริ่มจำลองการเพิ่มเปอร์เซ็นต์
+                if (progressInterval) clearInterval(progressInterval);
+                progressInterval = setInterval(() => {
+                    if (simulatedProgress < 90) { // จำกัดไม่ให้เกิน 99% จนกว่าจะได้รับข้อมูลจริง
+                        simulatedProgress += 0.25; // เพิ่มประมาณ 0.75% ต่อวินาที
+                        if (simulatedProgress > 90) simulatedProgress = 90;
+                        updateLoadingPercentage(Math.floor(simulatedProgress));
+                    }
+                }, 1000); // เพิ่มทุก 1000ms (1 วินาที)
+            } else {
+                console.error("Element with id 'loading-overlay' not found.");
+            }
         }
+
         function hideLoading() {
-            document.getElementById('loading-overlay').style.display = 'none';
+            console.log("hideLoading called");
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+                if (progressInterval) clearInterval(progressInterval);
+                simulatedProgress = 0;
+            } else {
+                console.error("Element with id 'loading-overlay' not found.");
+            }
         }
 
         // --------- Modal ---------
         function openModal(message) {
-            document.getElementById('result-content').innerText = message;
-            document.getElementById('result-modal').style.display = 'block';
+            const modal = document.getElementById('result-modal');
+            const content = document.getElementById('result-content');
+            if (modal && content) {
+                content.innerText = message;
+                modal.style.display = 'block';
+            } else {
+                console.error("Modal elements not found.");
+            }
         }
         function closeModal() {
-            document.getElementById('result-modal').style.display = 'none';
+            const modal = document.getElementById('result-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            } else {
+                console.error("Modal element not found.");
+            }
+        }
+
+        // --------- Update Loading Percentage ---------
+        function updateLoadingPercentage(percent) {
+            console.log(`Updating loading percentage: ${percent}%`);
+            const percentageElement = document.getElementById('loading-percentage');
+            if (percentageElement) {
+                // ตรวจสอบให้แน่ใจว่าเปอร์เซ็นต์ไม่ลดลง
+                if (percent > simulatedProgress) {
+                    simulatedProgress = percent;
+                }
+                percentageElement.textContent = `${Math.floor(simulatedProgress)}%`;
+            } else {
+                console.error("Element with id 'loading-percentage' not found.");
+            }
+        }
+
+        // --------- Helper: POST form data + parse JSON with progress ---------
+        function postFormWithProgress(url, formData, onProgress) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', url);
+
+                // เพิ่มการตั้งค่าเพื่อรับ JSON
+                xhr.responseType = 'json';
+
+                // ติดตามความก้าวหน้า
+                xhr.upload.onprogress = function(event) {
+                    if (event.lengthComputable && onProgress) {
+                        const percentComplete = Math.round((event.loaded / event.total) * 100);
+                        onProgress(percentComplete);
+                    }
+                };
+
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve(xhr.response);
+                    } else {
+                        reject(new Error(`HTTP error! status: ${xhr.status}`));
+                    }
+                };
+
+                xhr.onerror = function() {
+                    reject(new Error('Network error'));
+                };
+
+                xhr.send(formData);
+            });
         }
 
         // --------- Helper: POST form data + parse JSON ---------
-        async function postForm(url, formData) {
-            const response = await fetch(url, {
+        function postForm(url, formData) {
+            return fetch(url, {
                 method: 'POST',
                 body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
             });
-            return response.json();
         }
 
         // --------- Refresh Files List (AJAX) ---------
@@ -252,6 +655,9 @@
             try {
                 // สมมติคุณมี endpoint ที่ส่ง {"files": ["file1.bin", "file2.bin", ...]}
                 const res = await fetch('/api/files');
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
                 const data = await res.json();
 
                 // array ของไฟล์
@@ -259,32 +665,44 @@
 
                 // 1) Update <ul> (ID = "file-list")
                 const ulElement = document.getElementById('file-list');
-                ulElement.innerHTML = ''; // เคลียร์ของเดิม
-                fileList.forEach(f => {
-                    const li = document.createElement('li');
-                    li.textContent = f;
-                    ulElement.appendChild(li);
-                });
+                if (ulElement) {
+                    ulElement.innerHTML = ''; // เคลียร์ของเดิม
+                    fileList.forEach(f => {
+                        const li = document.createElement('li');
+                        li.textContent = f;
+                        ulElement.appendChild(li);
+                    });
+                } else {
+                    console.error("Element with id 'file-list' not found.");
+                }
 
                 // 2) Update <select> ใน Delete Firmware (ID = "delete-select")
                 const deleteSelect = document.getElementById('delete-select');
-                deleteSelect.innerHTML = '';
-                fileList.forEach(f => {
-                    const option = document.createElement('option');
-                    option.value = f;
-                    option.textContent = f;
-                    deleteSelect.appendChild(option);
-                });
+                if (deleteSelect) {
+                    deleteSelect.innerHTML = '';
+                    fileList.forEach(f => {
+                        const option = document.createElement('option');
+                        option.value = f;
+                        option.textContent = f;
+                        deleteSelect.appendChild(option);
+                    });
+                } else {
+                    console.error("Element with id 'delete-select' not found.");
+                }
 
                 // 3) Update <select> ใน Update Firmware (ID = "update-select")
                 const updateSelect = document.getElementById('update-select');
-                updateSelect.innerHTML = '';
-                fileList.forEach(f => {
-                    const option = document.createElement('option');
-                    option.value = f;
-                    option.textContent = f;
-                    updateSelect.appendChild(option);
-                });
+                if (updateSelect) {
+                    updateSelect.innerHTML = '';
+                    fileList.forEach(f => {
+                        const option = document.createElement('option');
+                        option.value = f;
+                        option.textContent = f;
+                        updateSelect.appendChild(option);
+                    });
+                } else {
+                    console.error("Element with id 'update-select' not found.");
+                }
 
             } catch (err) {
                 console.error("Error refreshing files list:", err);
@@ -296,208 +714,211 @@
 
             // ---------- (1) Upload Firmware ----------
             const uploadForm = document.getElementById('upload_form');
-            uploadForm.addEventListener('submit', async function(e){
-                e.preventDefault();
-                showLoading();
-                const formData = new FormData(uploadForm);
-                try {
-                    const data = await postForm('/upload_firmware', formData);
-                    hideLoading();
-                    console.log(data);
-                    if (data.message) {
-                        openModal(data.message);
-                        // อัปโหลดเสร็จ -> refresh รายการไฟล์
-                        refreshFilesList();
-                    } else if (data.error) {
-                        openModal("Error: " + data.error);
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', async function(e){
+                    e.preventDefault();
+                    showLoading();
+                    const formData = new FormData(uploadForm);
+                    try {
+                        const data = await postFormWithProgress('/upload_firmware', formData, (percent) => {
+                            if (percent > simulatedProgress) {
+                                simulatedProgress = percent;
+                                updateLoadingPercentage(simulatedProgress);
+                            }
+                        });
+                        hideLoading();
+                        console.log(data);
+                        if (data.message) {
+                            openModal(data.message);
+                            // อัปโหลดเสร็จ -> refresh รายการไฟล์
+                            refreshFilesList();
+                        } else if (data.error) {
+                            openModal("Error: " + data.error);
+                        }
+                    } catch (err) {
+                        hideLoading();
+                        openModal("Fetch error: " + err.message);
                     }
-                } catch (err) {
-                    hideLoading();
-                    openModal("Fetch error: " + err.message);
-                }
-            });
+                });
+            } else {
+                console.error("Element with id 'upload_form' not found.");
+            }
 
             // ---------- (2) Delete Firmware ----------
             const deleteForm = document.getElementById('delete_form');
-            deleteForm.addEventListener('submit', async function(e){
-                e.preventDefault();
-                showLoading();
-                const formData = new FormData(deleteForm);
-                try {
-                    const data = await postForm('/delete_firmware', formData);
-                    hideLoading();
-                    console.log(data);
-                    if (data.message) {
-                        openModal(data.message);
-                        // ลบไฟล์เสร็จ -> refresh รายการไฟล์
-                        refreshFilesList();
-                    } else if (data.error) {
-                        openModal("Error: " + data.error);
+            if (deleteForm) {
+                deleteForm.addEventListener('submit', async function(e){
+                    e.preventDefault();
+                    showLoading();
+                    const formData = new FormData(deleteForm);
+                    try {
+                        const data = await postForm('/delete_firmware', formData);
+                        hideLoading();
+                        console.log(data);
+                        if (data.message) {
+                            openModal(data.message);
+                            // ลบไฟล์เสร็จ -> refresh รายการไฟล์
+                            refreshFilesList();
+                        } else if (data.error) {
+                            openModal("Error: " + data.error);
+                        }
+                    } catch (err) {
+                        hideLoading();
+                        openModal("Fetch error: " + err.message);
                     }
-                } catch (err) {
-                    hideLoading();
-                    openModal("Fetch error: " + err.message);
-                }
-            });
+                });
+            } else {
+                console.error("Element with id 'delete_form' not found.");
+            }
 
             // ---------- (3) Update Firmware ----------
             const updateForm = document.getElementById('update_form');
-            updateForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                showLoading();
-                const formData = new FormData(updateForm);
-                try {
-                    const data = await postForm('/automate_update', formData);
-                    hideLoading();
-                    console.log(data);
+            if (updateForm) {
+                updateForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    showLoading();
+                    const formData = new FormData(updateForm);
+                    try {
+                        const data = await postForm('/automate_update', formData);
+                        hideLoading();
+                        console.log(data);
 
-                    if (data.results) {
-                        let lines = [];
-                        for (const device_ip in data.results) {
-                            const messages = data.results[device_ip];
-                            let lastMsg = messages[messages.length - 1] || "";
-                            lines.push(`${device_ip}: ${lastMsg}`);
+                        if (data.results) {
+                            let lines = [];
+                            for (const device_ip in data.results) {
+                                const messages = data.results[device_ip];
+                                let lastMsg = messages[messages.length - 1] || "";
+                                lines.push(`${device_ip}: ${lastMsg}`);
+                            }
+                            let finalMsg = lines.join("\n");
+                            openModal(finalMsg);
+                        } else if (data.error) {
+                            openModal("Error: " + data.error);
                         }
-                        let finalMsg = lines.join("\n");
-                        openModal(finalMsg);
-                    } else if (data.error) {
-                        openModal("Error: " + data.error);
+                    } catch (err) {
+                        hideLoading();
+                        openModal("Fetch error: " + err.message);
                     }
-                } catch (err) {
-                    hideLoading();
-                    openModal("Fetch error: " + err.message);
+                });
+            } else {
+                console.error("Element with id 'update_form' not found.");
+            }
+
+            // ปุ่มปิด Modal
+            const closeModalBtn = document.getElementById('close-modal');
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', closeModal);
+            } else {
+                console.error("Element with id 'close-modal' not found.");
+            }
+
+            // ---------- (4) Add device input fields & Remove device row ----------
+            const addDeviceBtn = document.getElementById('addDeviceBtn');
+
+            if (addDeviceBtn) {
+                addDeviceBtn.addEventListener('click', function() {
+                    const container = document.getElementById('devices-container');
+
+                    // Create a new device row
+                    const newRow = document.createElement('div');
+                    newRow.className = 'device-row';
+
+                    // Create input field for device IP
+                    const newInput = document.createElement('input');
+                    newInput.type = 'text';
+                    newInput.name = 'devices[]';
+                    newInput.placeholder = '192.168.x.x';
+                    newInput.required = true;
+
+                    // Create remove button
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'removeDeviceBtn btn danger';
+
+                    // Add FontAwesome minus icon
+                    const icon = document.createElement('i');
+                    icon.className = 'fa-solid fa-trash';
+
+                    // Append icon inside button
+                    removeBtn.appendChild(icon);
+
+                    // Click event: Remove the row
+                    removeBtn.addEventListener('click', function() {
+                        container.removeChild(newRow);
+                    });
+
+                    // Append input and button to new row
+                    newRow.appendChild(newInput);
+                    newRow.appendChild(removeBtn);
+
+                    // Append new row to container
+                    container.appendChild(newRow);
+                });
+            }
+
+            // ปุ่มลบของแถวแรก (หากต้องการให้ลบได้ด้วย)
+            // ค้นหาทุกปุ่ม remove ที่มีอยู่แล้ว (ของแถวแรก)
+            const initialRemoveBtns = document.querySelectorAll('.removeDeviceBtn');
+            initialRemoveBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const container = document.getElementById('devices-container');
+                    const row = btn.parentElement;
+                    container.removeChild(row);
+                });
+            });
+        });
+
+        // --------- Sidebar Responsive ---------
+        function updateSidebarForResponsive() {
+            const sidebar = document.querySelector('.w3-sidebar'); // Update selector
+            const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+            if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
+                sidebar.style.width = '60px'; // Slimmer sidebar
+                sidebarItems.forEach(item => {
+                    const icon = item.querySelector('i'); // Find the icon
+                    const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
+
+                    if (icon) {
+                        item.style.justifyContent = 'center'; // Center icons
+                        item.style.gap = '0'; // Remove gap between text and icons
+                        textNodes.forEach(node => node.textContent = ''); // Remove text
+                    }
+                });
+            } else {
+                sidebar.style.width = '250px'; // Default sidebar width for larger screens
+                sidebarItems.forEach(item => {
+                    const originalText = item.getAttribute('data-original-text');
+                    if (originalText) {
+                        // Restore the original text and gap
+                        const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
+                        item.innerHTML = `${iconHTML} ${originalText}`;
+                        item.style.justifyContent = 'flex-start';
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+            sidebarItems.forEach(item => {
+                const textContent = Array.from(item.childNodes)
+                    .filter(node => node.nodeType === 3) // Only text nodes
+                    .map(node => node.textContent.trim()) // Trim whitespace
+                    .join(' '); // Combine text nodes into one string
+
+                if (textContent) {
+                    item.setAttribute('data-original-text', textContent); // Store original text
                 }
             });
 
-            // ปุ่มปิด Modal
-            document.getElementById('close-modal').addEventListener('click', closeModal);
-
+            // Apply responsiveness on load and resize
+            updateSidebarForResponsive();
+            window.addEventListener('resize', updateSidebarForResponsive);
         });
-    </script>
-</head>
-<body>
-    <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
-        <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
-        <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard</a>
-        <a href="/configuration" class="w3-bar-item w3-button"><i class="fas fa-cogs"></i> Create Template</a>
-        <a href="/listtemplate" class="w3-bar-item w3-button"><i class="fas fa-list"></i> List Templates</a>
-        <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy</a>
-        <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
-        <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
-        <a href="/logging_page" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
-    </div>
 
-    <div id="main">
-        <div class="w3-teal">
-            <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
-            <div class="w3-container">
-                    <div class="nav-logo">
-                        <a href="/dashboard" style="color: white; text-decoration: none;">
-                            <i class="fas fa-network-wired" style="color: #1E90FF; margin-right: 10px;"></i> Cisco Automation
-                        </a>
-                    </div>
-                <div class="nav-info" >
-                    <span style="margin-right: 20px;" >
-                        <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i> 
-                        <span id="username">{{ session.get('username', 'N/A') }}</span>
-                    </span>
-                    <span>
-                        <i class="fas fa-network-wired" style="margin-right: 5px;"></i> 
-                         
-                        <span id="ip-address">
-                            {% if session.get('ip_start') and session.get('ip_end') %}
-                                {{ session.get('ip_start', 'N/A') }} - {{ session.get('ip_end', 'N/A') }}
-                            {% elif session.get('ip_start') %}
-                                {{ session.get('ip_start', 'N/A') }}
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </span>
-                    </span>
-                    <span>
-                        <a href="/logout" style="text-decoration: none;">
-                            <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
-                        </a>
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="w3-container">
-            <div class="content-header">
-                <h2>
-                    <i class="fas fa-home" style="color: #1E90FF;"></i> Dashboard Device
-                </h2>  
-            </div>
-
-            <!-- อัปโหลดไฟล์ (AJAX) -->
-            <h2>Upload Firmware</h2>
-            <form id="upload_form" enctype="multipart/form-data">
-                <input type="file" name="firmware_file" accept=".bin">
-                <button type="submit">Upload</button>
-            </form>
-
-            <!-- รายการไฟล์บน TFTP -->
-            <h2>Available Firmware Files</h2>
-            <!-- เปลี่ยน <ul> ให้มี id="file-list" -->
-            <ul id="file-list">
-            {% for f in files %}
-            <li>{{ f }}</li>
-            {% endfor %}
-            </ul>
-
-            <!-- ลบไฟล์ (AJAX) -->
-            <h2>Delete Firmware</h2>
-            <form id="delete_form">
-            <label>Select File to Delete:</label><br>
-            <!-- ให้มี id="delete-select" เพื่ออัปเดตทีหลัง -->
-            <select id="delete-select" name="filename">
-                {% for f in files %}
-                <option value="{{ f }}">{{ f }}</option>
-                {% endfor %}
-            </select>
-            <br><br>
-            <button type="submit">Delete</button>
-            </form>
-                <!-- Update Firmware (AJAX) -->
-                <h2>Update Devices</h2>
-                <form id="update_form">
-                <label>TFTP Server IP:</label><br>
-                <input type="text" name="tftp_server_ip" value="192.168.99.13"><br><br>
-
-                <label>Filename:</label><br>
-                <!-- ให้มี id="update-select" เพื่ออัปเดตทีหลัง -->
-                <select id="update-select" name="filename">
-                    {% for f in files %}
-                    <option value="{{ f }}">{{ f }}</option>
-                    {% endfor %}
-                </select>
-                <br><br>
-
-                <label>Devices (comma separated IP):</label><br>
-                <input type="text" name="devices" placeholder="192.168.99.97,192.168.99.98"><br><br>
-
-                <label>Username:</label><br>
-                <input type="text" name="username"><br><br>
-
-                <label>Password:</label><br>
-                <input type="password" name="password"><br><br>
-
-                <button type="submit">Update Firmware</button>
-            </form>
-
-            <!-- Spinner Overlay -->
-            <div id="loading-overlay">
-                <div class="spinner"></div>
-            </div>
-
-            <!-- Modal แสดงผลลัพธ์เป็น Plain Text -->
-            <div id="result-modal">
-                <div id="result-content"></div>
-                <button id="close-modal">Close</button>
-            </div>
-        </div>
-    </div>
-    <script>
+        // --------- Sidebar Open/Close ---------
         function w3_open() {
             document.getElementById("main").style.marginLeft = "25%";
             document.getElementById("mySidebar").style.width = "25%";
@@ -509,63 +930,14 @@
             document.getElementById("mySidebar").style.display = "none";
             document.getElementById("openNav").style.display = "inline-block";
         }
+
+        // --------- Disable Scrolling in Container ---------
         document.addEventListener("DOMContentLoaded", function () {
             const container = document.querySelector('.w3-container');
             if (container) {
                 container.style.overflow = "hidden"; // Disable scrolling
             }
         });
-    </script>
-    <script>
-function updateSidebarForResponsive() {
-    const sidebar = document.querySelector('.w3-sidebar'); // Update selector
-    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
-
-    if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
-        sidebar.style.width = '60px'; // Slimmer sidebar
-        sidebarItems.forEach(item => {
-            const icon = item.querySelector('i'); // Find the icon
-            const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
-
-            if (icon) {
-                item.style.justifyContent = 'center'; // Center icons
-                item.style.gap = '0'; // Remove gap between text and icons
-                textNodes.forEach(node => node.textContent = ''); // Remove text
-            }
-        });
-    } else {
-        sidebar.style.width = '250px'; // Default sidebar width for larger screens
-        sidebarItems.forEach(item => {
-            const originalText = item.getAttribute('data-original-text');
-            if (originalText) {
-                // Restore the original text and gap
-                const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
-                item.innerHTML = `${iconHTML} ${originalText}`;
-                item.style.justifyContent = 'flex-start';
-            }
-        });
-    }
-}
-
-// Store original text for restoration
-document.addEventListener('DOMContentLoaded', () => {
-    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
-
-    sidebarItems.forEach(item => {
-        const textContent = Array.from(item.childNodes)
-            .filter(node => node.nodeType === 3) // Only text nodes
-            .map(node => node.textContent.trim()) // Trim whitespace
-            .join(' '); // Combine text nodes into one string
-
-        if (textContent) {
-            item.setAttribute('data-original-text', textContent); // Store original text
-        }
-    });
-
-    // Apply responsiveness on load and resize
-    updateSidebarForResponsive();
-    window.addEventListener('resize', updateSidebarForResponsive);
-});
     </script>
 </body>
 </html>

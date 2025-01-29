@@ -136,50 +136,54 @@
         <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard</a>
         <a href="/configuration" class="w3-bar-item w3-button"><i class="fas fa-cogs"></i> Create Template</a>
         <a href="/listtemplate" class="w3-bar-item w3-button"><i class="fas fa-list"></i> List Templates</a>
-        <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy</a>
+        <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy Device</a>
         <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
         <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
         <a href="/logging_page" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
     </div>
     <div id="main">
         <div class="w3-teal">
-            <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
-            <div class="w3-container">
+            <div class="header-wrapper">
+                <!-- Hamburger Menu Button -->
+                <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
+                
+                <!-- Header Content -->
+                <div class="header-container">
                     <div class="nav-logo">
                         <a href="/dashboard" style="color: white; text-decoration: none;">
                             <i class="fas fa-network-wired" style="color: #1E90FF; margin-right: 10px;"></i> Cisco Automation
                         </a>
                     </div>
-                <div class="nav-info" >
-                    <span style="margin-right: 20px;" >
-                        <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i> 
-                        <span id="username">{{ session.get('username', 'N/A') }}</span>
-                    </span>
-                    <span>
-                        <i class="fas fa-network-wired" style="margin-right: 5px;"></i> 
-                         
-                        <span id="ip-address">
-                            {% if session.get('ip_start') and session.get('ip_end') %}
-                                {{ session.get('ip_start', 'N/A') }} - {{ session.get('ip_end', 'N/A') }}
-                            {% elif session.get('ip_start') %}
-                                {{ session.get('ip_start', 'N/A') }}
-                            {% else %}
-                                N/A
-                            {% endif %}
+                    <div class="nav-info">
+                        <span style="margin-right: 20px;">
+                            <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i>
+                            <span id="username">{{ session.get('username', 'N/A') }}</span>
                         </span>
-                    </span>
-                    <span>
-                        <a href="/logout" style="text-decoration: none;">
-                            <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
-                        </a>
-                    </span>
+                        <span>
+                            <i class="fas fa-network-wired" style="margin-right: 5px;"></i>
+                            <span id="ip-address">
+                                {% if session.get('ip_start') and session.get('ip_end') %}
+                                    {{ session.get('ip_start', 'N/A') }} - {{ session.get('ip_end', 'N/A') }}
+                                {% elif session.get('ip_start') %}
+                                    {{ session.get('ip_start', 'N/A') }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </span>
+                        </span>
+                        <span>
+                            <a href="/logout" style="text-decoration: none;">
+                                <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
+                            </a>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="w3-container">
-            <div class="content-header">
+            <div class="content-header" style="margin-top: 20px;">
                 <h2>
-                    <i class="fas fa-list" style="color: #1E90FF;"></i> List Templates
+                    <i class="fas fa-list"></i> List Templates
                 </h2>
                 <button class="upload-button" onclick="location.href='/uploadtemplate'">
                     <i class="fas fa-upload"></i> Upload Template
@@ -214,9 +218,9 @@
                                     <button class="btn-edit" onclick="openModal('{{ template[0] }}', 'Edit')">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn-delete" onclick="deleteTemplate('{{ template[0] }}')">
+                                    <button class="btn-delete" onclick="deleteTemplate('{{ template[0] }}', '{{ template[1] }}')">
                                         <i class="fas fa-trash"></i>
-                                    </button>
+                                    </button>                                    
                                 </div>
                             </td>
                         </tr>
@@ -256,6 +260,17 @@
             <i class="fas fa-check-circle success-icon"></i>
             <p id="successMessage">Success!</p>
             <button class="success-button" onclick="closeSuccessModal()">OK</button>
+        </div>
+    </div>
+
+    <div id="confirmationModal" class="confirmation-modal">
+        <div class="confirmation-modal-content">
+            <i class="fas fa-question-circle confirmation-icon"></i>
+            <p id="confirmationMessage">Are you sure you want to delete this template?</p>
+            <div class="confirmation-buttons">
+                <button class="confirmation-ok-button" onclick="confirmDelete()">OK</button>
+                <button class="confirmation-cancel-button" onclick="closeConfirmationModal()">Cancel</button>
+            </div>
         </div>
     </div>
 

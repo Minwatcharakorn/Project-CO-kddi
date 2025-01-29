@@ -512,7 +512,7 @@ def automate_update():
     """
     tftp_server_ip = request.form.get('tftp_server_ip')
     filename = request.form.get('filename')
-    devices = request.form.get('devices', '').split(',')
+    devices = request.form.getlist('devices[]')
     username = request.form.get('username')
     password = request.form.get('password')
 

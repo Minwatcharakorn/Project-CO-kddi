@@ -32,6 +32,12 @@ function closeSuccessModal() {
     }
 }
 
+function closeConfirmationModal() {
+    const confirmationModal = document.getElementById("confirmationModal");
+    if (confirmationModal) {
+        confirmationModal.style.display = "none";
+    }
+}
 
 document.addEventListener("DOMContentLoaded", function () {
     const closeModalButton = document.getElementById("closeErrorModal");
@@ -116,31 +122,58 @@ function openModal(templateId, action) {
 
 
 
-function deleteTemplate(templateId) {
-    const confirmation = confirm(`Are you sure you want to delete template ID ${templateId}?`);
+let templateToDelete = null; // Variable to store the template ID temporarily
 
-    if (confirmation) {
-        // ส่งคำขอลบไปยังเซิร์ฟเวอร์
-        fetch(`/deletetemplate/${templateId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => {
-            if (response.ok) {
-                showErrorModal("Template deleted successfully!");
-                refreshTemplateList();  // รีเฟรชตารางหลังจากลบ
-            } else {
-                throw new Error("Failed to delete template.");
-            }
-        })
-        .catch(error => {
-            console.error("Error deleting template:", error);
-            showErrorModal("Failed to delete template.");
-        });
+function deleteTemplate(templateId, templateName) {
+    console.log("Template ID:", templateId);
+    console.log("Template Name:", templateName); // Debugging
+
+    // Store the template ID to be used later when confirmed
+    templateToDelete = templateId;
+
+    // Display the custom confirmation modal
+    const confirmationModal = document.getElementById("confirmationModal");
+    const confirmationMessage = document.getElementById("confirmationMessage");
+
+    if (confirmationModal && confirmationMessage) {
+        confirmationMessage.textContent = `Are you sure you want to delete the template \n " ${templateName} " ?`;
+        confirmationModal.style.display = "flex";
     }
 }
+
+function confirmDelete() {
+    if (!templateToDelete) return; // Ensure the template ID is available
+
+    // Send delete request to the server
+    fetch(`/deletetemplate/${templateToDelete}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            showSuccessModal("Template deleted successfully!"); // Show success modal
+            refreshTemplateList(); // Refresh the table
+        } else {
+            response.json().then(data => {
+                const errorMessage = data.error || "Failed to delete template.";
+                showErrorModal(errorMessage); // Show error modal
+            }).catch(() => {
+                showErrorModal("Failed to delete template."); // Fallback error modal
+            });
+        }
+    })
+    .catch(error => {
+        console.error("Error deleting template:", error);
+        showErrorModal("Failed to delete template."); // Show error modal on fetch error
+    })
+    .finally(() => {
+        closeConfirmationModal(); // Close the confirmation modal
+        templateToDelete = null; // Reset the stored template ID
+    });
+}
+
 
 
 function refreshTemplateList() {
@@ -165,7 +198,7 @@ function refreshTemplateList() {
             data.templates.forEach(template => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td>${template.id}</td>
+                    <td style="display: none;">${template.id}</td>
                     <td>${template.template_name}</td>
                     <td>${template.description}</td>
                     <td>${template.type}</td>
@@ -178,7 +211,7 @@ function refreshTemplateList() {
                             <button class="btn-edit" onclick="openModal('${template.id}', 'Edit')">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-delete" onclick="deleteTemplate('${template.id}')">
+                            <button class="btn-delete" onclick="deleteTemplate('${template.id}', '${template.template_name.replace(/'/g, "\\'")}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>

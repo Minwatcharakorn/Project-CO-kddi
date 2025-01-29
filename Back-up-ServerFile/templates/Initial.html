@@ -5,66 +5,215 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
     <link rel="stylesheet" href="../static/styles-Initial.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='sidebar_style.css') }}">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body>
-    <div class="container">
-        <div class="login-section">
-            <div class="header-buttons">
-                <a href="/serialconsole" class="back-button-top">Initial Configuration</a>
-                <a href="/update_firmware" class="updatefirmware-button-top">Update Firmware</a>
-                <a href="/dashboard" class="dashboard-button-top">Go to Dashboard</a>
+<style>
+    .w3-teal {
+        background-color: #0c1148 !important; /* เปลี่ยนเป็นสีเขียวเข้ม */
+        color: white !important; /* เปลี่ยนสีข้อความ */
+    }
+    .w3-sidebar {
+        background-color: #0c1148; /* Darker, modern background color */
+        color: #ffffff; /* White text color */
+        width: 250px; /* Set sidebar width */
+        padding-top: 20px;
+        position: fixed;
+        height: 100%;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+        border-right: 1px solid #3c4b5c; /* Add a border for better separation */
+    }
 
-            </div>  
-            <div class="loginssh-container">
-                <h2>Network Device Authentication</h2>
-                <form id="scan-form">
-                    <div class="mode-selection">
-                        <label>
-                            <input type="radio" name="scanMode" value="range" checked>
-                            Scan IP Range
-                        </label>
-                        <label>
-                            <input type="radio" name="scanMode" value="single">
-                            Scan Single IP
-                        </label>
+        /* Style the close button */
+    .w3-sidebar .w3-button {
+        text-align: left;
+        color: #ffffff;
+        background-color: #0c1148; /* Slightly darker for contrast */
+        font-size: 1rem;
+        font-weight: bold;
+        padding: 15px;
+        border: none;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .w3-sidebar .w3-button:hover {
+        background-color: #4c5b6b; /* Slightly lighter on hover */
+        color: #ffffff;
+    }
+
+        /* Sidebar items */
+    .w3-sidebar .w3-bar-item {
+        display: flex;
+        align-items: center;
+        font-size: 1rem;
+        color: #ffffff; /* Lighter text color */
+        padding: 10px 15px;
+        border-radius: 5px; /* Rounded corners */
+        transition: background-color 0.3s ease, color 0.3s ease;
+        text-decoration: none; /* Remove underline */
+    }
+
+    .w3-sidebar .w3-bar-item i {
+        margin-right: 10px;
+        color: #1e90ff; /* Icon color */
+        font-size: 1.2rem; /* Slightly larger icons */
+        transition: color 0.3s ease;
+    }
+
+    .w3-sidebar .w3-bar-item:hover {
+        background-color: #3c4b5c; /* Highlight on hover */
+        color: #ffffff;
+    }
+
+    .w3-sidebar .w3-bar-item:hover i {
+        color: #00bfff; /* Brighter icon color on hover */
+    }
+
+        /* Active link style */
+    .w3-sidebar .w3-bar-item.active {
+        background-color: #1e90ff; /* Highlight active item */
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+    .w3-sidebar .w3-bar-item.active i {
+        color: #ffffff;
+    }
+    .w3-container {
+            overflow: hidden; /* Prevent scrolling */
+            overflow-y: hidden;
+            overflow-x: hidden;
+            height: 100%; /* Prevent content from exceeding viewport */
+        }
+    /* Responsive Adjustments for Small Screens */
+    @media (max-width: 768px) {
+    .nav-info span {
+        font-size: 14px; /* Reduce font size */
+    }
+
+    .nav-info i {
+        font-size: 16px; /* Reduce icon size */
+    }
+
+    .nav-logo a {
+        font-size: 16px; /* Adjust logo text size */
+    }
+    .nav-logo i {
+        font-size: 18px; /* Reduce icon size */
+    }
+    #openNav {
+        font-size: 24px; /* Adjust menu button size */
+    }
+}
+
+@media (max-width: 576px) {
+    .nav-info span {
+        font-size: 12px; /* Further reduce font size */
+    }
+
+    .nav-info i {
+        font-size: 12px; /* Further reduce icon size */
+    }
+
+    .nav-logo a {
+        font-size: 16px; /* Smaller logo text */
+    }
+    .nav-logo i {
+        font-size: 16px; /* Further reduce icon size */
+    }
+    #openNav {
+        font-size: 20px; /* Adjust menu button size */
+    }
+}
+</style>
+<body>
+    <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
+        <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
+        <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="/configuration" class="w3-bar-item w3-button"><i class="fas fa-cogs"></i> Create Template</a>
+        <a href="/listtemplate" class="w3-bar-item w3-button"><i class="fas fa-list"></i> List Templates</a>
+        <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy Device</a>
+        <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
+        <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
+        <a href="/logging_page" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
+    </div>
+
+    <div id="main">
+        <div class="w3-teal">
+            <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
+            <div class="w3-container">
+                    <div class="nav-logo">
+                        <a href="/dashboard" style="color: white; text-decoration: none;">
+                            <i class="fas fa-network-wired" style="color: #1E90FF; margin-right: 10px;"></i> Cisco Automation
+                        </a>
                     </div>
-                    
-                    <!-- กลุ่มสำหรับ IP Range -->
-                    <div class="range-container">
-                        <input type="text" id="ip-start" placeholder="Start IP (e.g., 192.168.1.1)">
-                        <input type="text" id="ip-end" placeholder="End IP (e.g., 192.168.1.255)">
-                    </div>
-                    
-                    <!-- กลุ่มสำหรับ Single IP -->
-                    <div class="single-ip-container" style="display: none;">
-                        <input type="text" id="ip-single" placeholder="Single IP (e.g., 192.168.1.1)">
-                    </div>
-                
-                    <!-- Username and Password -->
-                    <div class="username-container">
-                        <input type="text" id="username" placeholder="Username" required>
-                    </div>
-                    <div class="password-container">
-                        <input type="password" id="password" placeholder="Password" required>
-                        <i id="togglePassword" class="fas fa-eye-slash"></i>
-                    </div>
-                
-                    <div class="buttons">
-                        <button id="scan-button" type="button" class="serial-console-button">Scan</button>
-                    </div>
-                </form>
+                <div class="nav-info" >
+                </div>
             </div>
         </div>
-        <div class="info-section">
-            <h1><i class="fas fa-cogs"></i> Welcome To Website ! <i class="fas fa-cogs"></i></h1>
-            <div class="description">
-                <p>This tool allows you to authenticate and configure multiple network devices simultaneously.</p>
-                <p>Provide the IP range or single IP address along with your SSH credentials to start managing and configuring your devices at once.</p>
+        <div class="w3-container">
+            <div class="container">
+                <div class="login-section"> 
+                    <div class="loginssh-container">
+                        <h2>SSH Login</h2>
+                        <form id="scan-form">
+                            <div class="mode-selection">
+                                <label>
+                                    <input type="radio" name="scanMode" value="range" checked>
+                                    <span></span>
+                                    Scan IP Range
+                                </label>
+                                <label>
+                                    <input type="radio" name="scanMode" value="single">
+                                    <span></span>
+                                    Scan Single IP
+                                </label>
+                            </div>
+                            
+                            <!-- กลุ่มสำหรับ IP Range -->
+                            <div class="range-container">
+                                <div class="icon-container">
+                                    <i class="fa-solid fa-server"></i>
+                                </div>
+                                <input type="text" id="ip-start" placeholder="Start IP (e.g., 192.168.1.1)">
+                                <input type="text" id="ip-end" placeholder="End IP (e.g., 192.168.1.255)">
+                            </div>
+                            
+                            <!-- กลุ่มสำหรับ Single IP -->
+                            <div class="single-ip-container" style="display: none;">
+                                <div class="icon-container">
+                                    <i class="fa-solid fa-server"></i>
+                                </div>
+                                <input type="text" id="ip-single" placeholder="Single IP (e.g., 192.168.1.1)">
+                            </div>
+                        
+                            <!-- Username and Password -->
+                            <div class="username-container">
+                                <div class="icon-container">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <input type="text" id="username" placeholder="Username" required>
+                            </div>
+                            <div class="password-container">
+                                <div class="icon-container">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <input type="password" id="password" placeholder="Password" required>
+                                <i id="togglePassword" class="fas fa-eye-slash"></i>
+                            </div>
+                        
+                            <div class="buttons">
+                                <button id="scan-button" type="button" class="serial-console-button">Scan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
     <!-- Loading Modal -->
     <div id="loadingModal" class="modal">
         <div class="modal-content">
@@ -84,6 +233,76 @@
     
 
     <script src="../static/js/script-initial.js"></script>
+    
+    <script>
+        function w3_open() {
+            document.getElementById("main").style.marginLeft = "25%";
+            document.getElementById("mySidebar").style.width = "25%";
+            document.getElementById("mySidebar").style.display = "block";
+            document.getElementById("openNav").style.display = 'none';
+        }
+        function w3_close() {
+            document.getElementById("main").style.marginLeft = "0%";
+            document.getElementById("mySidebar").style.display = "none";
+            document.getElementById("openNav").style.display = "inline-block";
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const container = document.querySelector('.w3-container');
+            if (container) {
+                container.style.overflow = "hidden"; // Disable scrolling
+            }
+        });
+    </script>
+    <script>
+function updateSidebarForResponsive() {
+    const sidebar = document.querySelector('.w3-sidebar'); // Update selector
+    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
 
+    if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
+        sidebar.style.width = '60px'; // Slimmer sidebar
+        sidebarItems.forEach(item => {
+            const icon = item.querySelector('i'); // Find the icon
+            const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
+
+            if (icon) {
+                item.style.justifyContent = 'center'; // Center icons
+                item.style.gap = '0'; // Remove gap between text and icons
+                textNodes.forEach(node => node.textContent = ''); // Remove text
+            }
+        });
+    } else {
+        sidebar.style.width = '250px'; // Default sidebar width for larger screens
+        sidebarItems.forEach(item => {
+            const originalText = item.getAttribute('data-original-text');
+            if (originalText) {
+                // Restore the original text and gap
+                const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
+                item.innerHTML = `${iconHTML} ${originalText}`;
+                item.style.justifyContent = 'flex-start';
+            }
+        });
+    }
+}
+
+// Store original text for restoration
+document.addEventListener('DOMContentLoaded', () => {
+    const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
+
+    sidebarItems.forEach(item => {
+        const textContent = Array.from(item.childNodes)
+            .filter(node => node.nodeType === 3) // Only text nodes
+            .map(node => node.textContent.trim()) // Trim whitespace
+            .join(' '); // Combine text nodes into one string
+
+        if (textContent) {
+            item.setAttribute('data-original-text', textContent); // Store original text
+        }
+    });
+
+    // Apply responsiveness on load and resize
+    updateSidebarForResponsive();
+    window.addEventListener('resize', updateSidebarForResponsive);
+});
+    </script>
 </body>
 </html>

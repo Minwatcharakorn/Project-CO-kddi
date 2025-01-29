@@ -52,9 +52,9 @@
         #loading-overlay {
             display: none; /* ซ่อนเป็นค่าเริ่มต้น */
             position: fixed;
-            top: 0; 
+            top: 0;
             left: 0;
-            width: 100%; 
+            width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.3);
             z-index: 9999;
@@ -227,6 +227,14 @@
                 font-size: 20px; /* Adjust menu button size */
             }
         }
+
+        /* เพิ่มสไตล์ให้แถวของช่อง IP */
+        .device-row {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* ระยะห่างระหว่าง input กับปุ่ม - Remove */
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -291,7 +299,6 @@
 
             <!-- รายการไฟล์บน TFTP -->
             <h2>Available Firmware Files</h2>
-            <!-- เปลี่ยน <ul> ให้มี id="file-list" -->
             <ul id="file-list">
             {% for f in files %}
             <li>{{ f }}</li>
@@ -302,7 +309,6 @@
             <h2>Delete Firmware</h2>
             <form id="delete_form">
                 <label>Select File to Delete:</label><br>
-                <!-- ให้มี id="delete-select" เพื่ออัปเดตทีหลัง -->
                 <select id="delete-select" name="filename" required>
                     {% for f in files %}
                     <option value="{{ f }}">{{ f }}</option>
@@ -319,7 +325,6 @@
                 <input type="text" name="tftp_server_ip" value="192.168.99.13" required><br><br>
 
                 <label>Filename:</label><br>
-                <!-- ให้มี id="update-select" เพื่ออัปเดตทีหลัง -->
                 <select id="update-select" name="filename" required>
                     {% for f in files %}
                     <option value="{{ f }}">{{ f }}</option>
@@ -327,8 +332,22 @@
                 </select>
                 <br><br>
 
+                <!-- ส่วนคอมเมนต์โค้ดเดิม (comma separated) -->
+                <!--
                 <label>Devices (comma separated IP):</label><br>
                 <input type="text" name="devices" placeholder="192.168.99.97,192.168.99.98" required><br><br>
+                -->
+
+                <!-- ส่วนที่ปรับให้เพิ่ม/ลบ IP ได้ -->
+                <label>Devices IP:</label><br>
+                <div id="devices-container">
+                    <div class="device-row">
+                        <input type="text" name="devices[]" placeholder="192.168.99.97" required>
+                        <button type="button" class="removeDeviceBtn">- Remove</button>
+                    </div>
+                </div>
+                <button type="button" id="addDeviceBtn">+ Add Device</button>
+                <br><br>
 
                 <label>Username:</label><br>
                 <input type="text" name="username" required><br><br>
@@ -369,9 +388,9 @@
                 // เริ่มจำลองการเพิ่มเปอร์เซ็นต์
                 if (progressInterval) clearInterval(progressInterval);
                 progressInterval = setInterval(() => {
-                    if (simulatedProgress < 99) { // จำกัดไม่ให้เกิน 90% จนกว่าจะได้รับข้อมูลจริง
-                        simulatedProgress += 0.75; // เพิ่มประมาณ 0.75% ต่อวินาที
-                        if (simulatedProgress > 99) simulatedProgress = 99;
+                    if (simulatedProgress < 90) { // จำกัดไม่ให้เกิน 99% จนกว่าจะได้รับข้อมูลจริง
+                        simulatedProgress += 0.25; // เพิ่มประมาณ 0.75% ต่อวินาที
+                        if (simulatedProgress > 90) simulatedProgress = 90;
                         updateLoadingPercentage(Math.floor(simulatedProgress));
                     }
                 }, 1000); // เพิ่มทุก 1000ms (1 วินาที)
@@ -636,6 +655,48 @@
                 console.error("Element with id 'close-modal' not found.");
             }
 
+            // ---------- (4) Add device input fields & Remove device row ----------
+            const addDeviceBtn = document.getElementById('addDeviceBtn');
+            if (addDeviceBtn) {
+                addDeviceBtn.addEventListener('click', function() {
+                    const container = document.getElementById('devices-container');
+
+                    // สร้าง div ครอบ input + ปุ่มลบ
+                    const newRow = document.createElement('div');
+                    newRow.className = 'device-row';
+
+                    const newInput = document.createElement('input');
+                    newInput.type = 'text';
+                    newInput.name = 'devices[]';
+                    newInput.placeholder = '192.168.x.x';
+                    newInput.required = true;
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'removeDeviceBtn';
+                    removeBtn.textContent = '- Remove';
+
+                    // กดปุ่มลบ -> เอา div นี้ออก
+                    removeBtn.addEventListener('click', function() {
+                        container.removeChild(newRow);
+                    });
+
+                    newRow.appendChild(newInput);
+                    newRow.appendChild(removeBtn);
+                    container.appendChild(newRow);
+                });
+            }
+
+            // ปุ่มลบของแถวแรก (หากต้องการให้ลบได้ด้วย)
+            // ค้นหาทุกปุ่ม remove ที่มีอยู่แล้ว (ของแถวแรก)
+            const initialRemoveBtns = document.querySelectorAll('.removeDeviceBtn');
+            initialRemoveBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const container = document.getElementById('devices-container');
+                    const row = btn.parentElement;
+                    container.removeChild(row);
+                });
+            });
         });
 
         // --------- Sidebar Responsive ---------
@@ -669,7 +730,6 @@
             }
         }
 
-        // Store original text for restoration
         document.addEventListener('DOMContentLoaded', () => {
             const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
 

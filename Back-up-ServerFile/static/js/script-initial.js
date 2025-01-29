@@ -12,36 +12,9 @@ togglePassword.addEventListener('click', () => {
     togglePassword.classList.toggle('fa-eye-slash');
 });
 
-// Function to Show Error Modal
-function showErrorModal(message, description = '') {
-    const errorModal = document.getElementById('errorModal');
-    const errorMessage = document.getElementById('errorMessage');
-    const errorDescription = document.querySelector('#errorModal p:nth-of-type(2)'); // Select the second <p> tag
-
-    // Set the main error message
-    errorMessage.textContent = message;
-
-    // Set the secondary description or hide it if not provided
-    if (description) {
-        errorDescription.textContent = description;
-        errorDescription.style.display = 'block'; // Ensure it's visible
-    } else {
-        errorDescription.style.display = 'none'; // Hide if no description
-    }
-
-    // Show the modal
-    errorModal.style.display = 'flex';
-
-    // Add event listener to close the modal
-    const closeErrorModal = document.getElementById('closeErrorModal');
-    closeErrorModal.onclick = () => {
-        errorModal.style.display = 'none';
-    };
-}
-
 // ฟังก์ชันตรวจสอบ IPv4 Address
 function isValidIPv4(ip) {
-    const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/;
+    const ipv4Regex = /^(25[0-5]|2[0-4]\d|[0-1]?\d?\d)\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)$/;
     return ipv4Regex.test(ip);
 }
 
@@ -65,60 +38,80 @@ function showErrorModal(message, description = '') {
     };
 }
 
-// ฟังก์ชัน Validate Inputs
-function validateInputs(ipStart, ipEnd, username, password) {
-    if (!ipStart && !ipEnd && !username && !password) {
-        showErrorModal(
-            'Missing Inputs',
-            'Please provide all required fields: Start IP, End IP, Username, and Password.'
-        );
-        return false;
-    }
-
-    if (!isValidIPv4(ipStart)) {
-        showErrorModal('Invalid Start IP Address', 'Please enter a valid IPv4 address for Start IP.');
-        return false;
-    }
-
-    // เงื่อนไขใหม่: ตรวจสอบว่ากรอก End IP หรือไม่
-    if (!ipEnd) {
-        showErrorModal('Missing End IP Address', 'Please provide a valid IPv4 address for End IP.');
-        return false;
-    }
-
-    if (!isValidIPv4(ipEnd)) {
-        showErrorModal('Invalid End IP Address', 'Please enter a valid IPv4 address for End IP.');
-        return false;
-    }
-
+/**
+ * ฟังก์ชัน Validate Inputs
+ *   - ถ้าโหมด range → ต้องตรวจทั้ง Start IP และ End IP
+ *   - ถ้าโหมด single → ตรวจเฉพาะ IP Start
+ */
+function validateInputs(ipStart, ipEnd, username, password, mode) {
+    // ตรวจ Username
     if (!username) {
         showErrorModal('Missing Username', 'Please provide your username to proceed.');
         return false;
     }
-
-    // เงื่อนไขใหม่: ตรวจสอบว่ากรอก Password หรือไม่
+    // ตรวจ Password
     if (!password) {
         showErrorModal('Missing Password', 'Please provide your password to proceed.');
         return false;
     }
 
-    return true; // ข้อมูลทั้งหมดถูกต้อง
+    // ตรวจสอบโหมด
+    if (mode === 'range') {
+        // ตรวจสอบว่ามี Start/End IP ครบไหม
+        if (!ipStart || !ipEnd) {
+            showErrorModal(
+                'Missing IP Address',
+                'Please provide both Start IP and End IP addresses.'
+            );
+            return false;
+        }
+        // ตรวจสอบรูปแบบ IP
+        if (!isValidIPv4(ipStart)) {
+            showErrorModal('Invalid Start IP Address', 'Please enter a valid IPv4 address for Start IP.');
+            return false;
+        }
+        if (!isValidIPv4(ipEnd)) {
+            showErrorModal('Invalid End IP Address', 'Please enter a valid IPv4 address for End IP.');
+            return false;
+        }
+    } else if (mode === 'single') {
+        // ตรวจเฉพาะ ipStart (จะใส่ในตัวเดียวกัน)
+        if (!ipStart) {
+            showErrorModal('Missing IP Address', 'Please provide an IP address.');
+            return false;
+        }
+        if (!isValidIPv4(ipStart)) {
+            showErrorModal('Invalid IP Address', 'Please enter a valid IPv4 address.');
+            return false;
+        }
+    }
+
+    return true; // ถ้าผ่านทุกเงื่อนไข
 }
 
+// ดัก event เมื่อกดปุ่ม Scan
 document.getElementById('scan-button').addEventListener('click', async () => {
+    // อ่านค่าโหมดจาก radio
     const mode = document.querySelector('input[name="scanMode"]:checked').value;
-    const ipStart = mode === 'single'
+
+    // ถ้าโหมด single → ใช้ ip-single เป็น ipStart
+    // ถ้าโหมด range → ใช้ ip-start และ ip-end
+    const ipStart = (mode === 'single')
         ? document.getElementById('ip-single').value.trim()
         : document.getElementById('ip-start').value.trim();
-    const ipEnd = mode === 'range'
+    // end IP ถ้าเป็น range → ใช้ ip-end
+    // ถ้า single → ipEnd = ipStart (ส่งไปเป็นค่าเดียวกันก็ได้ หรือจะส่ง '' ก็ได้)
+    const ipEnd = (mode === 'range')
         ? document.getElementById('ip-end').value.trim()
         : ipStart;
+
+    // Username, Password
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
 
-    // เรียกฟังก์ชัน Validate Inputs
-    if (!validateInputs(ipStart, ipEnd, username, password)) {
-        return; // หยุดการทำงานหาก Validation ไม่ผ่าน
+    // Validate
+    if (!validateInputs(ipStart, ipEnd, username, password, mode)) {
+        return; // ถ้าผิดพลาด ไม่ทำต่อ
     }
 
     // แสดง Loading Modal
@@ -133,8 +126,10 @@ document.getElementById('scan-button').addEventListener('click', async () => {
         });
 
         if (response.ok) {
-            window.location.href = "/dashboard"; // เปลี่ยนหน้าเมื่อสำเร็จ
+            // ถ้าสำเร็จให้ redirect ไปหน้า dashboard
+            window.location.href = "/dashboard";
         } else {
+            // ถ้า error แสดง modal
             const result = await response.json();
             showErrorModal('Error', result.error || 'An unknown error occurred.');
         }
@@ -147,20 +142,12 @@ document.getElementById('scan-button').addEventListener('click', async () => {
     }
 });
 
-// ตรวจจับการเปลี่ยนโหมด (ใช้ร่วมได้ทั้ง Radio และ Dropdown)
-const scanModeInput = document.querySelectorAll('input[name="scanMode"]'); // สำหรับ Radio Button
-const scanModeSelect = document.getElementById('scanMode'); // สำหรับ Dropdown
-
-// สำหรับ Radio Button
-scanModeInput.forEach(radio => {
+// === Toggle Scan Mode by Radio (range/single) ===
+const scanModeRadios = document.querySelectorAll('input[name="scanMode"]');
+scanModeRadios.forEach(radio => {
     radio.addEventListener('change', () => {
         toggleScanMode(radio.value);
     });
-});
-
-// สำหรับ Dropdown
-scanModeSelect.addEventListener('change', () => {
-    toggleScanMode(scanModeSelect.value);
 });
 
 function toggleScanMode(mode) {
@@ -172,6 +159,6 @@ function toggleScanMode(mode) {
         singleIpContainer.style.display = 'none';
     } else if (mode === 'single') {
         rangeContainer.style.display = 'none';
-        singleIpContainer.style.display = 'block';
+        singleIpContainer.style.display = 'flex';
     }
 }

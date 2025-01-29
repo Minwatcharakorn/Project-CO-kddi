@@ -1,15 +1,4 @@
-/* * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
 
-body {
-    display: flex;
-    height: 100vh;
-    overflow-x: hidden;
-} */
 
 /* Template Section (with improved spacing) */
 .template-container {
@@ -39,16 +28,39 @@ body {
     background-color: #444;
 }
 
+/* Command Box */
 .command-box {
-    width: 100%;
-    padding: 20px; /* Increased padding for a more spacious look */
-    border: 2px solid #000;
-    border-radius: 5px;
-    font-family: monospace;
-    background-color: #f4f4f4;
-    white-space: pre-wrap;
-    overflow: auto;
-    color: #000;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #d0d4db;
+    border-radius: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    color: #333;
+    white-space: pre-wrap; /* Keeps text formatting */
+    overflow-y: auto;
+    max-height: 300px; /* Limits height with scrolling */
+    box-shadow: inset 0px 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.command-box pre {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #555;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .command-box {
+        max-height: 200px;
+        padding: 15px;
+    }
+
+    .upload-status {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
 }
 
 /* Responsive Adjustments */
@@ -83,36 +95,39 @@ body {
     display: flex;
     gap: 5px;
     align-items: center;
-    color: #6c757d; /* Light gray */
+    color: #ffffff; /* Light gray */
 }
 
 .breadcrumb a {
     text-decoration: none;
-    color: #007bff; /* Link blue */
+    color: #0c1148; /* Link blue */
     transition: color 0.3s ease;
 }
 
 .breadcrumb a:hover {
-    color: #0056b3; /* Darker blue on hover */
+    color: #ffffff; /* Darker blue on hover */
 }
 
 .breadcrumb span {
-    color: #6c757d; /* Gray for current location */
+    color: #ffffff; /* Gray for current location */
 }
 
-/* Upload Button Styling */
+/* Upload Button */
 .upload-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 10px 20px;
+    background: #1E90FF;
+    color: #fff;
+    padding: 12px 25px;
+    border-radius: 8px;
     font-size: 1rem;
+    font-weight: bold;
+    border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: background-color 0.3s;
+    gap: 10px;
+    justify-content: center;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .upload-button i {
@@ -120,5 +135,244 @@ body {
 }
 
 .upload-button:hover {
-    background-color: #0056b3;
+    background: #0056b3;
+    transform: scale(1.05);
+    box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.upload-button:active {
+    background: #003f7f;
+    transform: scale(0.95);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 20px;
+    }
+}
+
+/* Form Container */
+.form-container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+}
+
+/* Form Group */
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Labels */
+.form-group label {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #333;
+}
+
+/* Input Fields */
+.form-group input[type="text"],
+.form-group input[type="file"] {
+    padding: 10px;
+    border: 1px solid #d0d4db;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    width: 100%;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="file"]:focus {
+    border-color: #1E90FF;
+    box-shadow: 0 0 5px rgba(30, 144, 255, 0.5);
+    outline: none;
+}
+/* Upload Status */
+.upload-status {
+    margin-top: 20px;
+    padding: 15px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    display: none; /* Initially hidden */
+    text-align: center;
+}
+
+.upload-status.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.upload-status.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+.success-modal {
+    display: none; /* Initially hidden */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.success-modal-content {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 50%; /* เพิ่มความกว้างของ modal-content */
+    max-width: 350px;
+    min-height: 170px;
+}
+
+.success-modal .success-icon {
+    color: #28a745; /* Green color */
+    font-size: 50px;
+    margin-bottom: 20px;
+}
+
+.success-modal .success-button {
+    background-color: #28a745; /* Green button */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.success-modal .success-button:hover {
+    background-color: #218838;
+}
+
+
+.error-modal-upload {
+    display: none; /* Ensure the modal is hidden initially */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+.error-modal-content{
+        background-color: #fff;
+        padding: 40px; /* เพิ่ม padding ให้ใหญ่ขึ้น */
+        border-radius: 15px; /* เพิ่มมุมโค้งให้ดูดี */
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        width: 50%; /* เพิ่มความกว้างของ modal-content */
+        max-width: 350px; /* เพิ่มขนาดสูงสุดเพื่อไม่ให้ใหญ่เกินไป */
+        min-height: 170px; /* เพิ่มความสูงขั้นต่ำ */
+    }
+    .error-modal-button {
+        background-color: #dc3545; /* Red background */
+        color: white; /* White text */
+        border: none; /* Remove border */
+        padding: 10px 20px; /* Add padding for better sizing */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Pointer cursor on hover */
+        font-size: 16px; /* Adjust font size */
+        transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+}
+
+.error-modal-button:hover {
+background-color: #c82333; /* Darker red on hover */
+transform: scale(1.05); /* Slight zoom effect */
+}
+
+.error-modal-button:active {
+background-color: #a71d2a; /* Even darker red when clicked */
+transform: scale(0.95); /* Slight scale-down on click */
+}
+
+/* File Preview Container */
+.file-preview-container {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    max-width: 800px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+/* File Preview Header */
+.file-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+/* File Icon */
+.file-icon {
+    font-size: 1.8rem;
+    color: #1E90FF;
+}
+
+/* Title Styling */
+.file-preview-header h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1E90FF;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Command Box */
+.command-box {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    color: #333;
+    white-space: pre-wrap;
+    overflow-y: auto;
+    max-height: 300px;
+    text-align: left;
+    box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Add a subtle glow effect on hover */
+.command-box:hover {
+    border-color: #0056b3;
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .file-preview-container {
+        max-width: 90%;
+    }
+    .command-box {
+        max-height: 200px;
+        font-size: 0.9rem;
+    }
 }

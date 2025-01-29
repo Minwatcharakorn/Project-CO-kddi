@@ -23,10 +23,18 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
-
-h2, h3 {
-    color: #333;
+.config-section h3 {
+    font-weight: bold; /* ตัวหนา */
+    font-size: 1.5rem; /* ขนาดตัวอักษร */
+    color: #0c1148; /* สีฟ้าสดใส */
+    text-transform: uppercase; /* เปลี่ยนเป็นตัวพิมพ์ใหญ่ทั้งหมด */
+    margin-bottom: 20px; /* ระยะห่างด้านล่าง */
+    border-bottom: 2px solid #1E90FF; /* เส้นใต้สีฟ้า */
+    padding-bottom: 5px; /* เพิ่มระยะห่างจากเส้นใต้ */
+    letter-spacing: 1px; /* เพิ่มระยะห่างระหว่างตัวอักษร */
 }
+
+
 form label {
     display: block;
     margin-bottom: 5px;
@@ -39,20 +47,6 @@ form label {
     max-width: 300px; /* จำกัดความกว้างไม่ให้เกิน 300px */
     padding: 8px;
     border-radius: 4px;
-}
-.config-section form input[type="submit"] {
-    background-color: #007bff;
-    width: auto; /* ปรับให้ปุ่มมีความกว้างเท่ากับเนื้อหาข้อความ */
-
-    color: #fff;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-.config-section form input[type="submit"]:hover {
-    background-color: #0056b3;
 }
 
 /* Add spacing above the section headers */
@@ -1348,4 +1342,61 @@ margin-top: 20px;
     border: none;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow for hover effect */
     transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+}
+
+.icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1E90FF; /* สีพื้นหลังหลัก */
+    color: white; /* สีไอคอน */
+    border: none; /* ลบเส้นขอบ */
+    border-radius: 50%; /* ทำให้ปุ่มเป็นวงกลม */
+    width: 50px; /* กำหนดขนาดปุ่ม */
+    height: 40px;
+    font-size: 1.5rem; /* ขนาดไอคอน */
+    cursor: pointer; /* เปลี่ยนเมาส์เป็น pointer */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เพิ่มเงาเพื่อความลึก */
+    transition: all 0.3s ease; /* เพิ่มความนุ่มนวลในการเปลี่ยนแปลง */
+}
+
+.icon-button:hover {
+    background-color: #0056b3; /* สีพื้นหลังเมื่อ hover */
+    transform: scale(1.1); /* ขยายเล็กน้อยเมื่อ hover */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* เพิ่มเงาเมื่อ hover */
+}
+
+.icon-button:active {
+    background-color: #003f7f; /* สีพื้นหลังเมื่อกด */
+    transform: scale(0.95); /* ย่อเล็กน้อยเมื่อกด */
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15); /* ลดเงาเมื่อกด */
+}
+
+
+.icon-button-agg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1E90FF; /* สีพื้นหลังหลัก */
+    color: white; /* สีไอคอน */
+    border: none; /* ลบเส้นขอบ */
+    border-radius: 4px; /* มุมโค้งเล็กน้อย */
+    width: 50px; /* กำหนดขนาดปุ่ม */
+    height: 40px;
+    font-size: 1.5rem; /* ขนาดไอคอน */
+    cursor: pointer; /* เปลี่ยนเมาส์เป็น pointer */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เพิ่มเงาเพื่อความลึก */
+    transition: all 0.3s ease; /* เพิ่มความนุ่มนวลในการเปลี่ยนแปลง */
+}
+
+.icon-button-agg:hover {
+    background-color: #0056b3; /* สีพื้นหลังเมื่อ hover */
+    transform: scale(1.1); /* ขยายเล็กน้อยเมื่อ hover */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* เพิ่มเงาเมื่อ hover */
+}
+
+.icon-button-agg:active {
+    background-color: #003f7f; /* สีพื้นหลังเมื่อกด */
+    transform: scale(0.95); /* ย่อเล็กน้อยเมื่อกด */
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15); /* ลดเงาเมื่อกด */
 }

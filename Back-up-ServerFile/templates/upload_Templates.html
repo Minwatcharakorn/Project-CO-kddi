@@ -160,43 +160,47 @@
         <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard</a>
         <a href="/configuration" class="w3-bar-item w3-button"><i class="fas fa-cogs"></i> Create Template</a>
         <a href="/listtemplate" class="w3-bar-item w3-button"><i class="fas fa-list"></i> List Templates</a>
-        <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy</a>
+        <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy Device</a>
         <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
         <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
         <a href="/logging_page" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
     </div>
     <div id="main">
         <div class="w3-teal">
-            <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
-            <div class="w3-container">
+            <div class="header-wrapper">
+                <!-- Hamburger Menu Button -->
+                <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
+                
+                <!-- Header Content -->
+                <div class="header-container">
                     <div class="nav-logo">
                         <a href="/dashboard" style="color: white; text-decoration: none;">
                             <i class="fas fa-network-wired" style="color: #1E90FF; margin-right: 10px;"></i> Cisco Automation
                         </a>
                     </div>
-                <div class="nav-info" >
-                    <span style="margin-right: 20px;" >
-                        <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i> 
-                        <span id="username">{{ session.get('username', 'N/A') }}</span>
-                    </span>
-                    <span>
-                        <i class="fas fa-network-wired" style="margin-right: 5px;"></i> 
-                         
-                        <span id="ip-address">
-                            {% if session.get('ip_start') and session.get('ip_end') %}
-                                {{ session.get('ip_start', 'N/A') }} - {{ session.get('ip_end', 'N/A') }}
-                            {% elif session.get('ip_start') %}
-                                {{ session.get('ip_start', 'N/A') }}
-                            {% else %}
-                                N/A
-                            {% endif %}
+                    <div class="nav-info">
+                        <span style="margin-right: 20px;">
+                            <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i>
+                            <span id="username">{{ session.get('username', 'N/A') }}</span>
                         </span>
-                    </span>
-                    <span>
-                        <a href="/logout" style="text-decoration: none;">
-                            <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
-                        </a>
-                    </span>
+                        <span>
+                            <i class="fas fa-network-wired" style="margin-right: 5px;"></i>
+                            <span id="ip-address">
+                                {% if session.get('ip_start') and session.get('ip_end') %}
+                                    {{ session.get('ip_start', 'N/A') }} - {{ session.get('ip_end', 'N/A') }}
+                                {% elif session.get('ip_start') %}
+                                    {{ session.get('ip_start', 'N/A') }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </span>
+                        </span>
+                        <span>
+                            <a href="/logout" style="text-decoration: none;">
+                                <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
+                            </a>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -204,41 +208,61 @@
         <!-- Main Content -->
      
         <div class="w3-container">
-            <div class="content-header">
+            <div class="content-header" style="margin-top: 20px;">
                 <div class="breadcrumb">
                     <h2><a href="/listtemplate">List Templates</a></h2> &gt; 
-                    <h2><span>Upload Template</span></h2>
+                    <h2> <i class="fas fa-upload"></i> Upload Template</h2>
                 </div>
             </div>
             <div class="content-body">
-                <form id="upload-form" action="/uploadtemplate" method="post" enctype="multipart/form-data">
-                    <div>
+                <form id="upload-form" action="/uploadtemplate" method="post" enctype="multipart/form-data" class="form-container">
+                    <div class="form-group">
                         <label for="template_name">Template Name:</label>
-                        <input type="text" name="template_name" id="template_name" required>
+                        <input type="text" name="template_name" id="template_name" required placeholder="Template name (e.g., ASW-B321)">
                     </div>
-            </br>
-                    <div>
+                    <div class="form-group">
                         <label for="description">Description:</label>
-                        <input type="text" name="description" id="description" required>
+                        <input type="text" name="description" id="description" required placeholder="Description (e.g., create by John)">
                     </div>
-            </br>
-                    <div>
+                    <div class="form-group">
                         <label for="file">Upload File (.txt only):</label>
                         <input type="file" name="file" id="file" accept=".txt" required>
                     </div>
-            </br>
                     <button type="submit" class="upload-button">
                         <i class="fas fa-upload"></i> Upload Template
                     </button>
                 </form>
-                <div id="upload-status"></div>
-                <div class="command-box">
-                    <pre id="file-content">Uploaded file content will appear here...</pre>
+                <div id="upload-status" >
+                    <!-- Success or error messages will appear here -->
+                </div>
+                <div class="file-preview-container">
+                    <div class="file-preview-header">
+                        <i class="fas fa-file-alt file-icon"></i> 
+                        <h3>File Preview</h3>
+                    </div>
+                    <div class="command-box">
+                        <pre id="file-content">Uploaded file content will appear here...</pre>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
+    <div id="successModal" class="success-modal">
+        <div class="success-modal-content">
+            <i class="fas fa-check-circle success-icon"></i>
+            <p id="successMessage">Success!</p>
+            <button class="success-button" onclick="closeSuccessModal()">OK</button>
+        </div>
+    </div>
+        <!-- Error Modal -->
+        <div id="errorModal" class="error-modal-upload" style="display: none;">
+            <div class="error-modal-content">
+                <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+                <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;">Error Message Here</p>
+                <br>
+                <button id="closeErrorModal" class="error-modal-button">OK</button>
+            </div>
+        </div>
     <script src="../static/js/upload_templates.js"></script>
     <script>
         function w3_open() {
