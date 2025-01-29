@@ -175,6 +175,50 @@
     transform: scale(0.95); /* Slight scale-down on click */
     }
     
+
+    .error-modal-deploy {
+    display: none; /* Ensure the modal is hidden initially */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+.error-modal-content{
+        background-color: #fff;
+        padding: 40px; /* เพิ่ม padding ให้ใหญ่ขึ้น */
+        border-radius: 15px; /* เพิ่มมุมโค้งให้ดูดี */
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        width: 50%; /* เพิ่มความกว้างของ modal-content */
+        max-width: 350px; /* เพิ่มขนาดสูงสุดเพื่อไม่ให้ใหญ่เกินไป */
+        min-height: 170px; /* เพิ่มความสูงขั้นต่ำ */
+    }
+    .error-modal-button {
+        background-color: #dc3545; /* Red background */
+        color: white; /* White text */
+        border: none; /* Remove border */
+        padding: 10px 20px; /* Add padding for better sizing */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Pointer cursor on hover */
+        font-size: 16px; /* Adjust font size */
+        transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+}
+
+.error-modal-button:hover {
+    background-color: #c82333; /* Darker red on hover */
+    transform: scale(1.05); /* Slight zoom effect */
+    }
+
+    .error-modal-button:active {
+    background-color: #a71d2a; /* Even darker red when clicked */
+    transform: scale(0.95); /* Slight scale-down on click */
+    }
+
 </style>
 <body>
     <!-- Sidebar -->
@@ -289,11 +333,23 @@
             </div>
         </div>
 
-    <!-- Loading Modal -->
-    <div id="loadingModal" class="modal" style="overflow: hidden;">
-        <div class="modal-content">
-            <div class="loading-spinner"></div>
-            <p>Loading</p>
+        <!-- Loading Modal -->
+        <div id="loadingModal" class="modal" style="overflow: hidden;">
+            <div class="modal-content">
+                <div class="loading-spinner"></div>
+                <p>Loading</p>
+                <br>
+                <button id="cancelLoadingButton" class="error-modal-button" style="display: none;">Cancel</button>
+            </div>
+        </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="error-modal-deploy" style="display: none;">
+        <div class="error-modal-content">
+            <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+            <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;">Error Message Here</p>
+            <br>
+            <button id="closeErrorModal" class="error-modal-button">OK</button>
         </div>
     </div>
 
@@ -383,75 +439,103 @@
             updateSidebarForResponsive();
             window.addEventListener('resize', updateSidebarForResponsive);
         });
-            </script>
+    </script>
     <script>
+        let loadingTimeout;
+        let cancelButton;
+
         function showErrorModal(message) {
             const modal = document.getElementById("errorModal");
             const errorMessage = document.getElementById("errorMessage");
 
             if (modal && errorMessage) {
                 errorMessage.textContent = message;
-                modal.style.display = "flex";
+                modal.style.display = "flex"; // Show modal
             }
         }
 
         function closeErrorModal() {
             const modal = document.getElementById("errorModal");
             if (modal) {
-                modal.style.display = "none";
+                modal.style.display = "none"; // Hide modal
             }
         }
 
         function showLoadingModal() {
             const modal = document.getElementById("loadingModal");
+            cancelButton = document.getElementById("cancelLoadingButton");
+
             if (modal) {
-                modal.style.display = "flex";
+                modal.style.display = "flex"; // Show loading modal
+            }
+
+            if (cancelButton) {
+                cancelButton.style.display = "none"; // Hide cancel button initially
+
+                // Show cancel button after 5 minutes (300,000 ms)
+                loadingTimeout = setTimeout(() => {
+                    cancelButton.style.display = "block"; // Show cancel button
+                }, 300000);
             }
         }
 
         function hideLoadingModal() {
             const modal = document.getElementById("loadingModal");
             if (modal) {
-                modal.style.display = "none";
+                modal.style.display = "none"; // Hide modal
+            }
+
+            clearTimeout(loadingTimeout); // Clear timeout if loading ends before 5 minutes
+            if (cancelButton) {
+                cancelButton.style.display = "none"; // Hide the cancel button
             }
         }
 
         document.addEventListener("DOMContentLoaded", function () {
             const closeModalButton = document.getElementById("closeErrorModal");
+            cancelButton = document.getElementById("cancelLoadingButton");
+
             if (closeModalButton) {
                 closeModalButton.addEventListener("click", closeErrorModal);
             }
 
-            // Handle Deploy button
-            document.getElementById('deploy-button').addEventListener('click', async function () {
-                try {
-                    // Show loading modal
-                    showLoadingModal();
-
-                    // Make API call
-                    const response = await fetch('/api/deploy', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-
-                    if (response.ok) {
-                        const result = await response.json();
-                        console.log("Deployment Logs:", result.logs);
-
-                        // Hide loading modal and redirect
-                        hideLoadingModal();
-                        window.location.href = '/deployment_log';
-                    } else {
-                        const errorResult = await response.json();
-                        throw new Error(errorResult.error || "Deployment failed.");
-                    }
-                } catch (err) {
-                    // Hide loading modal and show error
+            if (cancelButton) {
+                cancelButton.addEventListener("click", function () {
                     hideLoadingModal();
-                    console.error(`Error: ${err.message}`);
-                    showErrorModal(`Deployment failed: ${err.message}`);
-                }
-            });
+                    showErrorModal("Operation canceled by user.");
+                });
+            }
+
+            // Handle Deploy button
+            const deployButton = document.getElementById('deploy-button');
+            if (deployButton) {
+                deployButton.addEventListener('click', async function () {
+                    try {
+                        showLoadingModal(); // Show loading modal before deployment starts
+
+                        // Make API call to start deployment
+                        const response = await fetch('/api/deploy', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            console.log("Deployment Logs:", result.logs);
+
+                            hideLoadingModal(); // Hide loading modal after successful deployment
+                            window.location.href = '/deployment_log'; // Redirect to logs page
+                        } else {
+                            const errorResult = await response.json();
+                            throw new Error(errorResult.error || "Deployment failed.");
+                        }
+                    } catch (err) {
+                        hideLoadingModal(); // Hide loading modal on error
+                        console.error(`Error: ${err.message}`);
+                        showErrorModal(`Deployment failed: ${err.message}`);
+                    }
+                });
+            }
         });
     </script>
 
