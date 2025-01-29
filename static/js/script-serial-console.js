@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const predefinedCommands = `enable
 configure terminal
 hostname SW-Lab_product
-ip domain-name example.com
+ip domain name example.com
 crypto key generate rsa
 1024
 ip ssh version 2
