@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Predefined commands
     const predefinedCommands = `enable
-conf t
-hostname Switch4
+configure terminal
+hostname SW-Lab_product
 ip domain-name example.com
 crypto key generate rsa
 1024
@@ -21,11 +21,12 @@ line vty 0 15
 login local
 transport input ssh
 exit
+snmp-server community public RW
 interface vlan 1
-ip address 192.168.100.115 255.255.255.0
+ip address 192.168.99.115 255.255.255.0
 no shutdown
 end
-write memory`;
+copy running-config startup-config`;
 
     if (commandArea) {
         commandArea.value = predefinedCommands;
@@ -38,7 +39,7 @@ write memory`;
             await port.open({ baudRate: parseInt(speedSelect.value) });
             alert(`Connected to port: ${port.getInfo().usbVendorId || 'Unknown Vendor'}, ${port.getInfo().usbProductId || 'Unknown Product'}`);
         } catch (err) {
-            showErrorModal(`Failed to connect to port: ${err.message}`);
+            showErrorModal(`Failed to connect to the serial port: No serial port detected or connection issue encountered.`);
         }
     });
 

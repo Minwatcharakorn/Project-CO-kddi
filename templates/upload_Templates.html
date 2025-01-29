@@ -34,124 +34,126 @@
             font-family: monospace;
         }
     </style>
-    <style>
-        .w3-teal {
-            background-color: #0c1148 !important; /* เปลี่ยนเป็นสีเขียวเข้ม */
-            color: white !important; /* เปลี่ยนสีข้อความ */
-        }
-        .w3-sidebar {
-            background-color: #0c1148; /* Darker, modern background color */
-            color: #ffffff; /* White text color */
-            width: 250px; /* Set sidebar width */
-            padding-top: 20px;
-            position: fixed;
-            height: 100%;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-            border-right: 1px solid #3c4b5c; /* Add a border for better separation */
-        }
-    
-            /* Style the close button */
-        .w3-sidebar .w3-button {
-            text-align: left;
-            color: #ffffff;
-            background-color: #0c1148; /* Slightly darker for contrast */
-            font-size: 1rem;
-            font-weight: bold;
-            padding: 15px;
-            border: none;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-    
-        .w3-sidebar .w3-button:hover {
-            background-color: #4c5b6b; /* Slightly lighter on hover */
-            color: #ffffff;
-        }
-    
-            /* Sidebar items */
+<style>
+    .w3-teal {
+        background-color: #0c1148 !important; /* เปลี่ยนเป็นสีเขียวเข้ม */
+        color: white !important; /* เปลี่ยนสีข้อความ */
+    }
+    .w3-sidebar {
+        background-color: #0c1148; /* Darker, modern background color */
+        color: #ffffff; /* White text color */
+        width: 250px; /* Set sidebar width */
+        padding-top: 20px;
+        position: fixed;
+        height: 100%;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+        border-right: 1px solid #3c4b5c; /* Add a border for better separation */
+    }
+
+        /* Style the close button */
+    .w3-sidebar .w3-button {
+        text-align: left;
+        color: #ffffff;
+        background-color: #0c1148; /* Slightly darker for contrast */
+        font-size: 1rem;
+        font-weight: bold;
+        padding: 15px;
+        border: none;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .w3-sidebar .w3-button:hover {
+        background-color: #4c5b6b; /* Slightly lighter on hover */
+        color: #ffffff;
+    }
+
+        /* Sidebar items */
         .w3-sidebar .w3-bar-item {
             display: flex;
             align-items: center;
-            font-size: 1rem;
-            color: #ffffff; /* Lighter text color */
-            padding: 10px 15px;
-            border-radius: 5px; /* Rounded corners */
-            transition: background-color 0.3s ease, color 0.3s ease;
-            text-decoration: none; /* Remove underline */
+            gap: 10px; /* ให้มีช่องว่างระหว่างไอคอนกับข้อความ */
+            padding: 12px 20px; /* ปรับ padding ให้เท่ากันทุกอัน */
+            text-align: left;
+            font-size: 16px;
+            white-space: nowrap; /* ป้องกันข้อความขึ้นบรรทัดใหม่ */
         }
-    
+
         .w3-sidebar .w3-bar-item i {
-            margin-right: 10px;
-            color: #1e90ff; /* Icon color */
-            font-size: 1.2rem; /* Slightly larger icons */
-            transition: color 0.3s ease;
+            min-width: 24px; /* กำหนดขนาดขั้นต่ำของไอคอนให้เท่ากัน */
+            text-align: center;
+            font-size: 18px; /* ปรับขนาดไอคอน */
+            color: #1e90ff;
         }
-    
-        .w3-sidebar .w3-bar-item:hover {
-            background-color: #3c4b5c; /* Highlight on hover */
-            color: #ffffff;
+        .w3-sidebar .w3-bar-item span {
+            flex-grow: 1; /* บังคับให้ข้อความชิดซ้ายเท่ากัน */
+            text-align: left; /* ให้ข้อความอยู่ชิดซ้าย */
         }
-    
-        .w3-sidebar .w3-bar-item:hover i {
-            color: #00bfff; /* Brighter icon color on hover */
-        }
-    
-            /* Active link style */
-        .w3-sidebar .w3-bar-item.active {
-            background-color: #1e90ff; /* Highlight active item */
-            color: #ffffff;
-            font-weight: bold;
-        }
-    
-        .w3-sidebar .w3-bar-item.active i {
-            color: #ffffff;
-        }
-        .w3-container {
-                overflow: hidden; /* Prevent scrolling */
-                overflow-y: hidden;
-                overflow-x: hidden;
-                height: 100%; /* Prevent content from exceeding viewport */
-            }
-        /* Responsive Adjustments for Small Screens */
-        @media (max-width: 768px) {
-        .nav-info span {
-            font-size: 14px; /* Reduce font size */
-        }
-    
-        .nav-info i {
-            font-size: 16px; /* Reduce icon size */
-        }
-    
-        .nav-logo a {
-            font-size: 16px; /* Adjust logo text size */
-        }
-        .nav-logo i {
-            font-size: 18px; /* Reduce icon size */
-        }
-        #openNav {
-            font-size: 24px; /* Adjust menu button size */
-        }
+    .w3-sidebar .w3-bar-item:hover {
+        background-color: #3c4b5c; /* Highlight on hover */
+        color: #ffffff;
     }
-    
-    @media (max-width: 576px) {
-        .nav-info span {
-            font-size: 12px; /* Further reduce font size */
-        }
-    
-        .nav-info i {
-            font-size: 12px; /* Further reduce icon size */
-        }
-    
-        .nav-logo a {
-            font-size: 16px; /* Smaller logo text */
-        }
-        .nav-logo i {
-            font-size: 16px; /* Further reduce icon size */
-        }
-        #openNav {
-            font-size: 20px; /* Adjust menu button size */
-        }
+
+    .w3-sidebar .w3-bar-item:hover i {
+        color: #00bfff; /* Brighter icon color on hover */
     }
-    </style>
+
+        /* Active link style */
+    .w3-sidebar .w3-bar-item.active {
+        background-color: #1e90ff; /* Highlight active item */
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+    .w3-sidebar .w3-bar-item.active i {
+        color: #ffffff;
+    }
+    .w3-container {
+            overflow: hidden; /* Prevent scrolling */
+            overflow-y: hidden;
+            overflow-x: hidden;
+            height: 100%; /* Prevent content from exceeding viewport */
+        }
+    /* Responsive Adjustments for Small Screens */
+    @media (max-width: 768px) {
+    .nav-info span {
+        font-size: 14px; /* Reduce font size */
+    }
+
+    .nav-info i {
+        font-size: 16px; /* Reduce icon size */
+    }
+
+    .nav-logo a {
+        font-size: 16px; /* Adjust logo text size */
+    }
+    .nav-logo i {
+        font-size: 18px; /* Reduce icon size */
+    }
+    #openNav {
+        font-size: 24px; /* Adjust menu button size */
+    }
+}
+
+@media (max-width: 576px) {
+    .nav-info span {
+        font-size: 12px; /* Further reduce font size */
+    }
+
+    .nav-info i {
+        font-size: 12px; /* Further reduce icon size */
+    }
+
+    .nav-logo a {
+        font-size: 16px; /* Smaller logo text */
+    }
+    .nav-logo i {
+        font-size: 16px; /* Further reduce icon size */
+    }
+    #openNav {
+        font-size: 20px; /* Adjust menu button size */
+    }
+}
+</style>
 </head>
 <body>
     <!-- Sidebar -->

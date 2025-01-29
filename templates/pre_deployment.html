@@ -45,24 +45,26 @@
     }
 
         /* Sidebar items */
-    .w3-sidebar .w3-bar-item {
-        display: flex;
-        align-items: center;
-        font-size: 1rem;
-        color: #ffffff; /* Lighter text color */
-        padding: 10px 15px;
-        border-radius: 5px; /* Rounded corners */
-        transition: background-color 0.3s ease, color 0.3s ease;
-        text-decoration: none; /* Remove underline */
-    }
+        .w3-sidebar .w3-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* ให้มีช่องว่างระหว่างไอคอนกับข้อความ */
+            padding: 12px 20px; /* ปรับ padding ให้เท่ากันทุกอัน */
+            text-align: left;
+            font-size: 16px;
+            white-space: nowrap; /* ป้องกันข้อความขึ้นบรรทัดใหม่ */
+        }
 
-    .w3-sidebar .w3-bar-item i {
-        margin-right: 10px;
-        color: #1e90ff; /* Icon color */
-        font-size: 1.2rem; /* Slightly larger icons */
-        transition: color 0.3s ease;
-    }
-
+        .w3-sidebar .w3-bar-item i {
+            min-width: 24px; /* กำหนดขนาดขั้นต่ำของไอคอนให้เท่ากัน */
+            text-align: center;
+            font-size: 18px; /* ปรับขนาดไอคอน */
+            color: #1e90ff;
+        }
+        .w3-sidebar .w3-bar-item span {
+            flex-grow: 1; /* บังคับให้ข้อความชิดซ้ายเท่ากัน */
+            text-align: left; /* ให้ข้อความอยู่ชิดซ้าย */
+        }
     .w3-sidebar .w3-bar-item:hover {
         background-color: #3c4b5c; /* Highlight on hover */
         color: #ffffff;
@@ -288,7 +290,7 @@
         </div>
 
     <!-- Loading Modal -->
-    <div id="loadingModal" class="modal">
+    <div id="loadingModal" class="modal" style="overflow: hidden;">
         <div class="modal-content">
             <div class="loading-spinner"></div>
             <p>Loading</p>
