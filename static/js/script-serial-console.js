@@ -32,6 +32,68 @@ copy running-config startup-config`;
         commandArea.value = predefinedCommands;
     }
 
+    // ฟังก์ชันแสดง Loading Modal
+    function showLoading() {
+        let existingModal = document.getElementById('loading-modal');
+        if (!existingModal) {
+            const modal = document.createElement('div');
+            modal.id = 'loading-modal';
+            modal.innerHTML = `
+                <div class="loading-overlay" style="
+                    position: fixed; 
+                    top: 0; left: 0; width: 100%; height: 100%; 
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex; align-items: center; justify-content: center; 
+                    z-index: 9999;">
+                    
+                    <div class="loading-box" style="
+                        background: white;
+                        padding: 20px;
+                        border-radius: 10px;
+                        text-align: center;
+                        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        width: 50%;
+                        max-width: 200px;
+                        min-height: 170px;">
+                        
+                        <div class="loading-spinner" style="
+                            width: 100px;
+                            height: 100px;
+                            border: 6px solid #f3f3f3;
+                            border-top: 6px solid #3498db;
+                            border-radius: 50%;
+                            animation: spin 1s linear infinite;"></div>
+                        
+                        <p style="
+                            color: black;
+                            margin-top: 15px;
+                            font-size: 18px;
+                            ">Loading</p>
+                    </div>
+                </div>
+    
+                <style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
+            `;
+            document.body.appendChild(modal);
+        } else {
+            existingModal.style.display = 'flex'; // ทำให้ modal ปรากฏถ้ามีอยู่แล้ว
+        }
+    }
+
+    // ฟังก์ชันซ่อน Loading Modal
+    function hideLoading() {
+        let modal = document.getElementById('loading-modal');
+        if (modal) modal.remove();
+    }
+
     // Event listener to connect to serial port
     serialPortSelect.addEventListener('click', async () => {
         try {
@@ -68,6 +130,8 @@ copy running-config startup-config`;
         }
     
         try {
+            showLoading(); // ✅ แสดง Loading Modal ทันทีหลังจากกด Deploy
+
             const commands = commandArea.value.split('\n').map(cmd => cmd.trim()).filter(cmd => cmd);
             if (commands.length === 0) {
                 showErrorModal('No commands to send.');
@@ -76,14 +140,13 @@ copy running-config startup-config`;
     
             const writer = port.writable.getWriter();
             const encoder = new TextEncoder();
-            const reader = port.readable.getReader(); // อ่านข้อมูลที่ส่งกลับจาก Serial Port
+            const reader = port.readable.getReader();
             let output = '';
     
             for (const command of commands) {
-                await writer.write(encoder.encode(command + '\r\n')); // เพิ่ม \r\n เพื่อรองรับ Cisco
-                await new Promise(resolve => setTimeout(resolve, 500)); // รอให้ Switch ตอบสนอง
-    
-                // อ่าน output จาก serial
+                await writer.write(encoder.encode(command + '\r\n'));
+                await new Promise(resolve => setTimeout(resolve, 500));
+
                 const { value, done } = await reader.read();
                 if (done) break;
                 output += new TextDecoder().decode(value);
@@ -91,9 +154,12 @@ copy running-config startup-config`;
     
             writer.releaseLock();
             reader.releaseLock();
-    
-            showModal(output); // แสดงผล output จริงที่ได้จากอุปกรณ์
+
+            hideLoading(); // ✅ ปิด Loading Modal ก่อนแสดง Output
+            showModal(output); // ✅ แสดงผล output จริงที่ได้จากอุปกรณ์
+
         } catch (err) {
+            hideLoading(); // ✅ ปิด Loading Modal ถ้ามีข้อผิดพลาด
             showErrorModal(`Failed to send commands: ${err.message}`);
         } finally {
             if (port) {
@@ -101,14 +167,6 @@ copy running-config startup-config`;
             }
         }
     });
-    
-    
-    
-
-    // Function to close the success modal
-    function closeSuccessModal() {
-        document.getElementById('successModal').style.display = 'none';
-    }
 
     // Function to show an error modal
     function showErrorModal(message) {
@@ -118,49 +176,37 @@ copy running-config startup-config`;
         modal.style.display = 'flex';
     }
 
-    // Function to close the error modal
-    function closeErrorModal() {
-        document.getElementById('errorModal').style.display = 'none';
-    }
-
-    // เพิ่ม Event Listener สำหรับปุ่มปิดโมดัล
-    document.getElementById('closeErrorModal').addEventListener('click', closeErrorModal);
-
     // Function to show a command output modal
     function showModal(output) {
-        // Remove any existing modal before adding a new one
+        hideLoading(); // ✅ ปิด Loading Modal ก่อนแสดง Output Modal
+
         const existingModal = document.querySelector('.modal');
         if (existingModal) {
             existingModal.remove();
         }
-    
+
         const modalContent = `
-            <div class="modal" id="commandModal" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; overflow: hidden;">
+            <div class="modal" id="commandModal" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; overflow: hidden; z-index: 10000;">
                 <div class="modal-content" style="background: white; padding: 20px; border-radius: 5px; text-align: center; position: relative;">
                     <span class="close-button" id="closeCommandModal" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px;">&times;</span>
-                    <h2>Command Output</h2>
+                    <h2 style="font-weight: bold;">Command Output</h2>
                     <pre style="text-align: left;">${output}</pre>
                 </div>
             </div>`;
-    
-        // Add the modal to the document
+
         document.body.insertAdjacentHTML('beforeend', modalContent);
-    
-        // Get the modal and close button
+
         const modal = document.getElementById('commandModal');
         const closeButton = document.getElementById('closeCommandModal');
-    
-        // Close modal when clicking the close button
+
         closeButton.addEventListener('click', () => {
             modal.remove();
         });
-    
-        // Close modal when clicking outside the modal content
+
         modal.addEventListener('click', (event) => {
             if (event.target === modal) {
                 modal.remove();
             }
         });
     }
-
 });
