@@ -119,6 +119,13 @@ transform: scale(0.95); /* Slight scale-down on click */
             border:1px solid #6cc8d4;
         }
         .notice:hover { background-color: #6cc8d4; }
+        .button-container {
+            display: flex;
+            justify-content: center; /* จัดกึ่งกลางแนวนอน */
+            align-items: center; /* จัดกึ่งกลางแนวตั้ง (ถ้าจำเป็น) */
+            width: 100%;
+            margin-top: 10px; /* เพิ่มระยะห่างด้านบน */
+        }
         .btn-primary {
             background-color: #007bff; /* เปลี่ยนสีเป็นฟ้า */
             color: white;
@@ -134,6 +141,7 @@ transform: scale(0.95); /* Slight scale-down on click */
             justify-content: center;
             gap: 10px;
             width: 100%;
+            max-width: 200px;
         }
         
         /* เอฟเฟกต์ hover */
@@ -154,5 +162,44 @@ transform: scale(0.95); /* Slight scale-down on click */
         
         /* เพิ่มไอคอน */
         .btn-primary i {
+            font-size: 18px;
+        }
+
+        .btn-danger {
+            background-color: #dc3545; /* สีแดง */
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px; /* ทำให้ขอบมน */
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 150px; /* จำกัดความกว้าง */
+        }
+        
+        /* เอฟเฟกต์ hover */
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
+        }
+        
+        /* เอฟเฟกต์ตอนกด */
+        .btn-danger:active {
+            transform: scale(0.95);
+        }
+        
+        /* เงาให้ดูเด่นขึ้น */
+        .btn-danger-shadow {
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* เพิ่มไอคอน */
+        .btn-danger i {
             font-size: 18px;
         }

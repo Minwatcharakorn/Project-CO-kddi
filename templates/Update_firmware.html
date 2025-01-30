@@ -407,9 +407,11 @@
                     <h2><i class="fas fa-upload"></i> Upload Firmware</h2>
                     <form id="upload_form" enctype="multipart/form-data">
                         <input type="file" name="firmware_file" accept=".bin" required>
-                        <button type="submit" class="btn btn-primary btn-primary-shadow">
-                            <i class="fas fa-upload"></i> Upload
-                        </button>
+                        <div class="button-container">
+                            <button type="submit" class="btn btn-primary btn-primary-shadow">
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                        </div>
                     </form>
                 </div>
             
@@ -433,7 +435,11 @@
                             <option value="{{ f }}">{{ f }}</option>
                             {% endfor %}
                         </select>
-                        <button type="submit" class="btn danger">Delete</button>
+                        <div class="button-container">
+                            <button type="submit" class="btn btn-danger btn-danger-shadow">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                        </div>
                     </form>
                 </div>
             
@@ -484,10 +490,12 @@
                             <input type="password" id="passwordSSH" name="password" placeholder="SSH Password (e.g., P@ssw0rd)" required>
                             <i id="togglePassword" class="fas fa-eye-slash toggle-password" style="background-color: white; padding: 0px;"></i>
                         </div>
+                        <div class="button-container">
 
-                        <button type="submit" class="btn btn-primary btn-primary-shadow">
-                            <i class="fas fa-sync-alt"></i> Update Firmware
-                        </button>
+                            <button type="submit" class="btn btn-primary btn-primary-shadow">
+                                <i class="fas fa-sync-alt"></i> Update Firmware
+                            </button>
+                        </div>
                     </form>
                 </div>
 
