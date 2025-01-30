@@ -58,41 +58,7 @@
             font-size: 14px;
         }
 
-        /* Center the button */
-        button {
-            padding: 10px 15px;
-            background: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            max-width: 300px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.3s ease, transform 0.2s ease;
 
-            /* Center the button */
-            display: block;
-            margin: 10px auto; /* Centers the button */
-            text-align: center;
-        }
-
-        /* Hover & Active Effects */
-        button:hover {
-            background: #0056b3;
-            transform: scale(1.05);
-        }
-        button:active {
-            transform: scale(0.95);
-        }
-
-        /* Danger Button */
-        button.danger {
-            background: #dc3545;
-        }
-        button.danger:hover {
-            background: #c82333;
-        }
         /* File List */
         ul {
             list-style: none;
@@ -399,7 +365,7 @@
                                 <span id="username">{{ session.get('username') }}</span>
                             </span>
                         {% endif %}
-
+                    
                         {% if session.get('ip_start') or session.get('ip_end') %}
                             <span id="ip-address">
                                 <i class="fas fa-network-wired" style="margin-right: 5px;"></i>
@@ -410,7 +376,7 @@
                                 {% endif %}
                             </span>
                         {% endif %}
-
+                    
                         {% if not session.get('username') or session.get('username') == 'N/A' %}
                             <span>
                                 <button onclick="window.location.href='/'" class="login-button">
@@ -441,7 +407,9 @@
                     <h2><i class="fas fa-upload"></i> Upload Firmware</h2>
                     <form id="upload_form" enctype="multipart/form-data">
                         <input type="file" name="firmware_file" accept=".bin" required>
-                        <button type="submit" class="btn primary">Upload</button>
+                        <button type="submit" class="btn btn-primary btn-primary-shadow">
+                            <i class="fas fa-upload"></i> Upload
+                        </button>
                     </form>
                 </div>
             
@@ -517,7 +485,9 @@
                             <i id="togglePassword" class="fas fa-eye-slash toggle-password" style="background-color: white; padding: 0px;"></i>
                         </div>
 
-                        <button type="submit" class="btn primary">Update Firmware</button>
+                        <button type="submit" class="btn btn-primary btn-primary-shadow">
+                            <i class="fas fa-sync-alt"></i> Update Firmware
+                        </button>
                     </form>
                 </div>
 

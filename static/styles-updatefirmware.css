@@ -119,3 +119,40 @@ transform: scale(0.95); /* Slight scale-down on click */
             border:1px solid #6cc8d4;
         }
         .notice:hover { background-color: #6cc8d4; }
+        .btn-primary {
+            background-color: #007bff; /* เปลี่ยนสีเป็นฟ้า */
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px; /* ปรับขอบให้มน */
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+        
+        /* เอฟเฟกต์ hover */
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        
+        /* เอฟเฟกต์ตอนกด */
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+        
+        /* ถ้าอยากให้ปุ่มดูแยกจากพื้นหลังมากขึ้น */
+        .btn-primary-shadow {
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* เพิ่มไอคอน */
+        .btn-primary i {
+            font-size: 18px;
+        }
