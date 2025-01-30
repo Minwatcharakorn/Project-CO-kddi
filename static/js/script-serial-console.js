@@ -172,8 +172,20 @@ copy running-config startup-config`;
     function showErrorModal(message) {
         const modal = document.getElementById('errorModal');
         const errorMessage = document.getElementById('errorMessage');
+        const closeErrorButton = document.getElementById('closeErrorModal');
+    
         errorMessage.textContent = message;
         modal.style.display = 'flex';
+    
+        // ตรวจสอบว่ามี Event Listener แล้วหรือยัง ถ้าไม่มีให้เพิ่ม
+        if (closeErrorButton) {
+            closeErrorButton.removeEventListener("click", closeModal);
+            closeErrorButton.addEventListener("click", closeModal);
+        }
+    
+        function closeModal() {
+            modal.style.display = "none";
+        }
     }
 
     // Function to show a command output modal
