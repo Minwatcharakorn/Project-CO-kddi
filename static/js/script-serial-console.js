@@ -66,23 +66,33 @@ copy running-config startup-config`;
             showErrorModal('Please select a serial port first.');
             return;
         }
-
+    
         try {
             const commands = commandArea.value.split('\n').map(cmd => cmd.trim()).filter(cmd => cmd);
             if (commands.length === 0) {
                 showErrorModal('No commands to send.');
                 return;
             }
-
+    
             const writer = port.writable.getWriter();
             const encoder = new TextEncoder();
-
+            const reader = port.readable.getReader(); // อ่านข้อมูลที่ส่งกลับจาก Serial Port
+            let output = '';
+    
             for (const command of commands) {
-                await writer.write(encoder.encode(command + '\n'));
+                await writer.write(encoder.encode(command + '\r\n')); // เพิ่ม \r\n เพื่อรองรับ Cisco
+                await new Promise(resolve => setTimeout(resolve, 500)); // รอให้ Switch ตอบสนอง
+    
+                // อ่าน output จาก serial
+                const { value, done } = await reader.read();
+                if (done) break;
+                output += new TextDecoder().decode(value);
             }
-
+    
             writer.releaseLock();
-            showModal('Commands sent successfully:\n' + commands.join('\n'));
+            reader.releaseLock();
+    
+            showModal(output); // แสดงผล output จริงที่ได้จากอุปกรณ์
         } catch (err) {
             showErrorModal(`Failed to send commands: ${err.message}`);
         } finally {
@@ -91,6 +101,9 @@ copy running-config startup-config`;
             }
         }
     });
+    
+    
+    
 
     // Function to close the success modal
     function closeSuccessModal() {
@@ -115,31 +128,39 @@ copy running-config startup-config`;
 
     // Function to show a command output modal
     function showModal(output) {
+        // Remove any existing modal before adding a new one
+        const existingModal = document.querySelector('.modal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+    
         const modalContent = `
-            <div class="modal">
-                <div class="modal-content">
-                    <span class="close-button">&times;</span>
+            <div class="modal" id="commandModal" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; overflow: hidden;">
+                <div class="modal-content" style="background: white; padding: 20px; border-radius: 5px; text-align: center; position: relative;">
+                    <span class="close-button" id="closeCommandModal" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px;">&times;</span>
                     <h2>Command Output</h2>
-                    <pre>${output}</pre>
+                    <pre style="text-align: left;">${output}</pre>
                 </div>
             </div>`;
-        
+    
         // Add the modal to the document
         document.body.insertAdjacentHTML('beforeend', modalContent);
-
-        const modal = document.querySelector('.modal');
-        const closeButton = modal.querySelector('.close-button');
-
-        // Add click event listener to close the modal
+    
+        // Get the modal and close button
+        const modal = document.getElementById('commandModal');
+        const closeButton = document.getElementById('closeCommandModal');
+    
+        // Close modal when clicking the close button
         closeButton.addEventListener('click', () => {
             modal.remove();
         });
-
-        // Optional: Close the modal when clicking outside of the modal content
+    
+        // Close modal when clicking outside the modal content
         modal.addEventListener('click', (event) => {
             if (event.target === modal) {
                 modal.remove();
             }
         });
     }
+
 });

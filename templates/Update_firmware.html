@@ -3,14 +3,19 @@
 <head>
     <meta charset="utf-8">
     <title>Firmware Update</title>
+    <!-- CSS ไฟล์เดิม -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='sidebar_style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles-updatefirmware.css') }}">
+
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <!-- jQuery + Inputmask -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.7-beta.29/jquery.inputmask.min.js"></script>
     <style>
-        /* Headers */
-        h1, h2 {
+                /* Headers */
+                h1, h2 {
             color: #333;
             font-weight: bold;
         }
@@ -50,7 +55,6 @@
             padding: 10px;
             width: 100%;
             border: 1px solid #ccc;
-            border-radius: 5px;
             font-size: 14px;
         }
 
@@ -112,6 +116,7 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 10px;
+            margin-top: 10px;
         }
         .btn {
             padding: 10px 15px;
@@ -252,126 +257,113 @@
             display: block;
             margin-left: 0;  /* Align to the left */
         }
+
     </style>
+
     <style>
+        /* เดิมตามที่คุณมีอยู่ */
         .w3-teal {
-            background-color: #0c1148 !important; /* เปลี่ยนเป็นสีเขียวเข้ม */
-            color: white !important; /* เปลี่ยนสีข้อความ */
+            background-color: #0c1148 !important;
+            color: white !important;
         }
         .w3-sidebar {
-            background-color: #0c1148; /* Darker, modern background color */
-            color: #ffffff; /* White text color */
-            width: 250px; /* Set sidebar width */
+            background-color: #0c1148;
+            color: #ffffff;
+            width: 250px;
             padding-top: 20px;
             position: fixed;
             height: 100%;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-            border-right: 1px solid #3c4b5c; /* Add a border for better separation */
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid #3c4b5c;
         }
-    
-            /* Style the close button */
         .w3-sidebar .w3-button {
             text-align: left;
             color: #ffffff;
-            background-color: #0c1148; /* Slightly darker for contrast */
+            background-color: #0c1148;
             font-size: 1rem;
             font-weight: bold;
             padding: 15px;
             border: none;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
-    
         .w3-sidebar .w3-button:hover {
-            background-color: #4c5b6b; /* Slightly lighter on hover */
+            background-color: #4c5b6b;
             color: #ffffff;
         }
-    
-            /* Sidebar items */
-            .w3-sidebar .w3-bar-item {
-                display: flex;
-                align-items: center;
-                gap: 10px; /* ให้มีช่องว่างระหว่างไอคอนกับข้อความ */
-                padding: 12px 20px; /* ปรับ padding ให้เท่ากันทุกอัน */
-                text-align: left;
-                font-size: 16px;
-                white-space: nowrap; /* ป้องกันข้อความขึ้นบรรทัดใหม่ */
-            }
-    
-            .w3-sidebar .w3-bar-item i {
-                min-width: 24px; /* กำหนดขนาดขั้นต่ำของไอคอนให้เท่ากัน */
-                text-align: center;
-                font-size: 18px; /* ปรับขนาดไอคอน */
-                color: #1e90ff;
-            }
-            .w3-sidebar .w3-bar-item span {
-                flex-grow: 1; /* บังคับให้ข้อความชิดซ้ายเท่ากัน */
-                text-align: left; /* ให้ข้อความอยู่ชิดซ้าย */
-            }
+        .w3-sidebar .w3-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            text-align: left;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+        .w3-sidebar .w3-bar-item i {
+            min-width: 24px;
+            text-align: center;
+            font-size: 18px;
+            color: #1e90ff;
+        }
+        .w3-sidebar .w3-bar-item span {
+            flex-grow: 1;
+            text-align: left;
+        }
         .w3-sidebar .w3-bar-item:hover {
-            background-color: #3c4b5c; /* Highlight on hover */
+            background-color: #3c4b5c;
             color: #ffffff;
         }
-    
         .w3-sidebar .w3-bar-item:hover i {
-            color: #00bfff; /* Brighter icon color on hover */
+            color: #00bfff;
         }
-    
-            /* Active link style */
         .w3-sidebar .w3-bar-item.active {
-            background-color: #1e90ff; /* Highlight active item */
+            background-color: #1e90ff;
             color: #ffffff;
             font-weight: bold;
         }
-    
         .w3-sidebar .w3-bar-item.active i {
             color: #ffffff;
         }
         .w3-container {
-                overflow: hidden; /* Prevent scrolling */
-                overflow-y: hidden;
-                overflow-x: hidden;
-                height: 100%; /* Prevent content from exceeding viewport */
-            }
-        /* Responsive Adjustments for Small Screens */
+            overflow: hidden;
+            overflow-y: hidden;
+            overflow-x: hidden;
+            height: 100%;
+        }
         @media (max-width: 768px) {
-        .nav-info span {
-            font-size: 14px; /* Reduce font size */
+            .nav-info span {
+                font-size: 14px;
+            }
+            .nav-info i {
+                font-size: 16px;
+            }
+            .nav-logo a {
+                font-size: 16px;
+            }
+            .nav-logo i {
+                font-size: 18px;
+            }
+            #openNav {
+                font-size: 24px;
+            }
         }
-    
-        .nav-info i {
-            font-size: 16px; /* Reduce icon size */
+        @media (max-width: 576px) {
+            .nav-info span {
+                font-size: 12px;
+            }
+            .nav-info i {
+                font-size: 12px;
+            }
+            .nav-logo a {
+                font-size: 16px;
+            }
+            .nav-logo i {
+                font-size: 16px;
+            }
+            #openNav {
+                font-size: 20px;
+            }
         }
-    
-        .nav-logo a {
-            font-size: 16px; /* Adjust logo text size */
-        }
-        .nav-logo i {
-            font-size: 18px; /* Reduce icon size */
-        }
-        #openNav {
-            font-size: 24px; /* Adjust menu button size */
-        }
-    }
-    
-    @media (max-width: 576px) {
-        .nav-info span {
-            font-size: 12px; /* Further reduce font size */
-        }
-    
-        .nav-info i {
-            font-size: 12px; /* Further reduce icon size */
-        }
-    
-        .nav-logo a {
-            font-size: 16px; /* Smaller logo text */
-        }
-        .nav-logo i {
-            font-size: 16px; /* Further reduce icon size */
-        }
-        #openNav {
-            font-size: 20px; /* Adjust menu button size */
-        }
-    }
     </style>
 </head>
 <body>
@@ -407,7 +399,7 @@
                                 <span id="username">{{ session.get('username') }}</span>
                             </span>
                         {% endif %}
-                    
+
                         {% if session.get('ip_start') or session.get('ip_end') %}
                             <span id="ip-address">
                                 <i class="fas fa-network-wired" style="margin-right: 5px;"></i>
@@ -418,7 +410,7 @@
                                 {% endif %}
                             </span>
                         {% endif %}
-                    
+
                         {% if not session.get('username') or session.get('username') == 'N/A' %}
                             <span>
                                 <button onclick="window.location.href='/'" class="login-button">
@@ -439,7 +431,7 @@
         <div class="w3-container">
             <div class="content-header" style="margin-top: 20px;">
                 <h2>
-                    <i class="fas fa-sync   " ></i> Update Firmware
+                    <i class="fas fa-sync"></i> Update Firmware
                 </h2>
             </div>
 
@@ -467,7 +459,7 @@
                 <div class="card">
                     <h2><i class="fas fa-trash-alt"></i> Delete Firmware</h2>
                     <form id="delete_form">
-                        <label>Select File to Delete:</label>
+                        <label>Select File to Delete</label>
                         <select id="delete-select" name="filename" required>
                             {% for f in files %}
                             <option value="{{ f }}">{{ f }}</option>
@@ -481,39 +473,64 @@
                 <div class="card">
                     <h2><i class="fas fa-sync-alt"></i> Update Devices</h2>
                     <form id="update_form">
-                        <label>TFTP Server IP:</label>
-                        <input type="text" name="tftp_server_ip" value="192.168.99.13" required>
-            
-                        <label>Filename:</label>
+                        <label>TFTP Server IP</label>
+                        <input type="text" name="tftp_server_ip" id="tftp_server_ip" placeholder="Enter a valid IP (e.g., 192.168.1.1)" value="192.168.99.13" required>
+                        <!-- เพิ่ม id="tftp-error" ให้ตรงกับ code JS -->
+                        <div class="alert-box error" id="tftp-error" style="display: none;">
+                            <span>error: </span>Invalid IP Address format. Example: 111.111.111.111.
+                        </div>
+
+                        <label>Filename</label>
                         <select id="update-select" name="filename" required>
                             {% for f in files %}
                             <option value="{{ f }}">{{ f }}</option>
                             {% endfor %}
                         </select>
             
-                        <label>Devices IP:</label>
+                        <label>Devices IP</label>
                         <div id="devices-container">
                             <button type="button" id="addDeviceBtn" class="btn secondary">
-                                <i class="fas fa-plus"></i> <!-- FontAwesome Plus Icon -->
+                                <i class="fas fa-plus"></i>
                             </button>
                             <div class="device-row">
-                                <input type="text" name="devices[]" placeholder="192.168.99.97" required>
+                                <input type="text" name="devices[]" class="device-ip" placeholder="Enter device IP (e.g., 192.168.1.1)" required>
                                 <button type="button" class="removeDeviceBtn btn danger">
-                                    <i class="fa-solid fa-trash"></i>
+                                  <i class="fa-solid fa-trash"></i>
                                 </button>
+                                <!-- กล่อง Error สำหรับ Device IP ในแถวนี้ -->
+                                <div class="alert-box error" style="display: none;">
+                                  <span>error: </span>Invalid IP Address format. Example: 111.111.111.111.
+                                </div>
                             </div>
                         </div>
             
-                        <label>Username:</label>
-                        <input type="text" name="username" required>
-            
-                        <label>Password:</label>
-                        <input type="password" name="password" required>
-            
+                        <!-- Username Field -->
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" name="username" placeholder="SSH Username (e.g., admin)" required>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="input-group password-container">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="passwordSSH" name="password" placeholder="SSH Password (e.g., P@ssw0rd)" required>
+                            <i id="togglePassword" class="fas fa-eye-slash toggle-password" style="background-color: white; padding: 0px;"></i>
+                        </div>
+
                         <button type="submit" class="btn primary">Update Firmware</button>
                     </form>
                 </div>
-            
+
+                <!-- Error Modal -->
+                <div id="errorModalcheck" class="error-modal-check" style="overflow: hidden;">
+                    <div class="modal-content-check">
+                        <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+                        <p id="errorMessage" style="font-size: 18px; font-weight: bold; color: #333;"></p>
+                        <p style="color: #555;"></p>
+                        <button id="closeErrorModal" class="error-modal-button" style="margin-top: 20px;">OK</button>
+                    </div>
+                </div>
+
                 <!-- Loading Spinner -->
                 <div id="loading-overlay">
                     <div class="spinner"></div>
@@ -528,8 +545,42 @@
             </div>
         </div>
     </div>
-
     <script>
+    document.getElementById("togglePassword").addEventListener("click", function() {
+        var passwordField = document.getElementById("passwordSSH");
+        var toggleIcon = document.getElementById("togglePassword");
+
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            toggleIcon.classList.remove("fa-eye-slash");
+            toggleIcon.classList.add("fa-eye");
+        } else {
+            passwordField.type = "password";
+            toggleIcon.classList.remove("fa-eye");
+            toggleIcon.classList.add("fa-eye-slash");
+        }
+    });
+    </script>
+    <script>
+        // --------- ฟังก์ชันตรวจสอบ IP (ห้าม leading zero) ---------
+        function isValidIPv4NoLeadingZero(ip) {
+            const octets = ip.split('.');
+            if (octets.length !== 4) return false;
+
+            for (let octet of octets) {
+                // (1) ต้องเป็นตัวเลขเท่านั้น
+                if (!/^\d+$/.test(octet)) return false;
+                // (2) อยู่ในช่วง 0-255
+                const num = parseInt(octet, 10);
+                if (num < 0 || num > 255) return false;
+                // (3) ถ้า length > 1 แต่ขึ้นต้นด้วย '0' => leading zero
+                if (octet.length > 1 && octet.startsWith('0')) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         // --------- Overlay + Spinner ---------
         let simulatedProgress = 0;
         let progressInterval = null;
@@ -539,18 +590,17 @@
             const overlay = document.getElementById('loading-overlay');
             if (overlay) {
                 overlay.style.display = 'flex';
-                updateLoadingPercentage(0); // รีเซ็ตเปอร์เซ็นต์เมื่อเริ่มโหลด
+                updateLoadingPercentage(0);
                 simulatedProgress = 0;
 
-                // เริ่มจำลองการเพิ่มเปอร์เซ็นต์
                 if (progressInterval) clearInterval(progressInterval);
                 progressInterval = setInterval(() => {
-                    if (simulatedProgress < 90) { // จำกัดไม่ให้เกิน 99% จนกว่าจะได้รับข้อมูลจริง
-                        simulatedProgress += 0.25; // เพิ่มประมาณ 0.75% ต่อวินาที
+                    if (simulatedProgress < 90) {
+                        simulatedProgress += 0.25;
                         if (simulatedProgress > 90) simulatedProgress = 90;
                         updateLoadingPercentage(Math.floor(simulatedProgress));
                     }
-                }, 1000); // เพิ่มทุก 1000ms (1 วินาที)
+                }, 1000);
             } else {
                 console.error("Element with id 'loading-overlay' not found.");
             }
@@ -572,19 +622,35 @@
         function openModal(message) {
             const modal = document.getElementById('result-modal');
             const content = document.getElementById('result-content');
+            const closeModalBtn = document.getElementById('close-modal');
+
             if (modal && content) {
                 content.innerText = message;
-                modal.style.display = 'block';
+                modal.style.display = 'block'; // แสดง Modal
+                modal.style.zIndex = "10000"; // ให้ Modal อยู่ด้านหน้า
+                modal.style.pointerEvents = "auto"; // ให้แน่ใจว่าคลิกได้
+                console.log("✅ Modal opened with message:", message);
+
+                // ตรวจสอบว่าปุ่ม Close มี Event Listener หรือไม่
+                if (!closeModalBtn.hasAttribute('data-listener')) {
+                    closeModalBtn.addEventListener("click", function () {
+                        console.log("🛑 Closing modal...");
+                        modal.style.display = "none";
+                    });
+                    closeModalBtn.setAttribute('data-listener', 'true'); // ป้องกัน Event Listener ซ้ำซ้อน
+                }
             } else {
-                console.error("Modal elements not found.");
+                console.error("❌ Error: result-modal or result-content not found!");
             }
         }
+
         function closeModal() {
             const modal = document.getElementById('result-modal');
             if (modal) {
+                console.log("🛑 Closing modal...");
                 modal.style.display = 'none';
             } else {
-                console.error("Modal element not found.");
+                console.error("❌ Error: Modal element not found.");
             }
         }
 
@@ -593,7 +659,6 @@
             console.log(`Updating loading percentage: ${percent}%`);
             const percentageElement = document.getElementById('loading-percentage');
             if (percentageElement) {
-                // ตรวจสอบให้แน่ใจว่าเปอร์เซ็นต์ไม่ลดลง
                 if (percent > simulatedProgress) {
                     simulatedProgress = percent;
                 }
@@ -608,11 +673,8 @@
             return new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
                 xhr.open('POST', url);
-
-                // เพิ่มการตั้งค่าเพื่อรับ JSON
                 xhr.responseType = 'json';
 
-                // ติดตามความก้าวหน้า
                 xhr.upload.onprogress = function(event) {
                     if (event.lengthComputable && onProgress) {
                         const percentComplete = Math.round((event.loaded / event.total) * 100);
@@ -653,30 +715,25 @@
         // --------- Refresh Files List (AJAX) ---------
         async function refreshFilesList() {
             try {
-                // สมมติคุณมี endpoint ที่ส่ง {"files": ["file1.bin", "file2.bin", ...]}
                 const res = await fetch('/api/files');
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
                 }
                 const data = await res.json();
-
-                // array ของไฟล์
                 const fileList = data.files || [];
 
-                // 1) Update <ul> (ID = "file-list")
+                // Update <ul> (ID = "file-list")
                 const ulElement = document.getElementById('file-list');
                 if (ulElement) {
-                    ulElement.innerHTML = ''; // เคลียร์ของเดิม
+                    ulElement.innerHTML = '';
                     fileList.forEach(f => {
                         const li = document.createElement('li');
                         li.textContent = f;
                         ulElement.appendChild(li);
                     });
-                } else {
-                    console.error("Element with id 'file-list' not found.");
                 }
 
-                // 2) Update <select> ใน Delete Firmware (ID = "delete-select")
+                // Update <select> ใน Delete Firmware (ID = "delete-select")
                 const deleteSelect = document.getElementById('delete-select');
                 if (deleteSelect) {
                     deleteSelect.innerHTML = '';
@@ -686,11 +743,9 @@
                         option.textContent = f;
                         deleteSelect.appendChild(option);
                     });
-                } else {
-                    console.error("Element with id 'delete-select' not found.");
                 }
 
-                // 3) Update <select> ใน Update Firmware (ID = "update-select")
+                // Update <select> ใน Update Firmware (ID = "update-select")
                 const updateSelect = document.getElementById('update-select');
                 if (updateSelect) {
                     updateSelect.innerHTML = '';
@@ -700,8 +755,6 @@
                         option.textContent = f;
                         updateSelect.appendChild(option);
                     });
-                } else {
-                    console.error("Element with id 'update-select' not found.");
                 }
 
             } catch (err) {
@@ -711,6 +764,41 @@
 
         // --------- Main -----------
         window.addEventListener('DOMContentLoaded', function() {
+
+            // ----- (A) ตรวจสอบ IP (ห้าม leading zero) ทันทีที่กรอกเสร็จ (blur) -----
+            // ----- (A1) สำหรับ TFTP Server IP -----
+            const tftpInput = document.getElementById('tftp_server_ip');
+            const tftpErrorBox = document.getElementById('tftp-error');
+            if (tftpInput && tftpErrorBox) {
+                tftpInput.addEventListener('blur', function() {
+                    const ipValue = tftpInput.value.trim();
+                    if (ipValue && !isValidIPv4NoLeadingZero(ipValue)) {
+                        // ถ้าไม่ valid => แสดง Error
+                        tftpErrorBox.style.display = 'block';
+                    } else {
+                        // ถ้าผ่าน => ซ่อน
+                        tftpErrorBox.style.display = 'none';
+                    }
+                });
+            }
+
+            // ----- (A2) สำหรับ Device IP (รวมถึงแถวแรกที่มีอยู่แล้ว) -----
+            const devicesContainer = document.getElementById('devices-container');
+            if (devicesContainer) {
+                devicesContainer.addEventListener('blur', function(e) {
+                    if (e.target && e.target.classList.contains('device-ip')) {
+                        const ipValue = e.target.value.trim();
+                        const errorBox = e.target.parentElement.querySelector('.alert-box.error');
+                        if (!errorBox) return;
+
+                        if (ipValue && !isValidIPv4NoLeadingZero(ipValue)) {
+                            errorBox.style.display = 'block';
+                        } else {
+                            errorBox.style.display = 'none';
+                        }
+                    }
+                }, true);
+            }
 
             // ---------- (1) Upload Firmware ----------
             const uploadForm = document.getElementById('upload_form');
@@ -730,7 +818,6 @@
                         console.log(data);
                         if (data.message) {
                             openModal(data.message);
-                            // อัปโหลดเสร็จ -> refresh รายการไฟล์
                             refreshFilesList();
                         } else if (data.error) {
                             openModal("Error: " + data.error);
@@ -740,8 +827,6 @@
                         openModal("Fetch error: " + err.message);
                     }
                 });
-            } else {
-                console.error("Element with id 'upload_form' not found.");
             }
 
             // ---------- (2) Delete Firmware ----------
@@ -757,7 +842,6 @@
                         console.log(data);
                         if (data.message) {
                             openModal(data.message);
-                            // ลบไฟล์เสร็จ -> refresh รายการไฟล์
                             refreshFilesList();
                         } else if (data.error) {
                             openModal("Error: " + data.error);
@@ -767,8 +851,6 @@
                         openModal("Fetch error: " + err.message);
                     }
                 });
-            } else {
-                console.error("Element with id 'delete_form' not found.");
             }
 
             // ---------- (3) Update Firmware ----------
@@ -776,88 +858,126 @@
             if (updateForm) {
                 updateForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
-                    showLoading();
+                    showLoading();  // <== แสดง Spinner
                     const formData = new FormData(updateForm);
                     try {
                         const data = await postForm('/automate_update', formData);
-                        hideLoading();
+                        hideLoading(); // <== ซ่อน Spinner
+
                         console.log(data);
 
                         if (data.results) {
                             let lines = [];
+                            let hasAuthError = false;
+
                             for (const device_ip in data.results) {
                                 const messages = data.results[device_ip];
                                 let lastMsg = messages[messages.length - 1] || "";
+
+                                // 1) ถ้าเป็น Error authentication
+                                if (lastMsg.includes("Authentication failed")) {
+                                    hasAuthError = true;
+                                    openErrorModalCheck(`${device_ip}: ${lastMsg}`);
+                                    break; 
+                                }
+
+                                // 2) หรือเป็น Error อื่น ๆ
+                                if (lastMsg.startsWith("Error:")) {
+                                    hasAuthError = true;
+                                    openErrorModalCheck(`${device_ip}: ${lastMsg}`);
+                                    break;
+                                }
+
+                                // ถ้าไม่ Error ก็เก็บไว้แสดงผลปกติ
                                 lines.push(`${device_ip}: ${lastMsg}`);
                             }
-                            let finalMsg = lines.join("\n");
-                            openModal(finalMsg);
+
+                            // ถ้าไม่มี Error เลย => แสดงผลสรุปผ่าน result-modal ปกติ
+                            if (!hasAuthError) {
+                                let finalMsg = lines.join("\n");
+                                openModal(finalMsg);
+                            }
                         } else if (data.error) {
-                            openModal("Error: " + data.error);
+                            // กรณีเกิด error ระดับเซิร์ฟเวอร์ เช่นไฟล์ไม่มี
+                            openErrorModalCheck("Error: " + data.error);
                         }
                     } catch (err) {
                         hideLoading();
-                        openModal("Fetch error: " + err.message);
+                        openErrorModalCheck("Fetch error: " + err.message);
                     }
                 });
-            } else {
-                console.error("Element with id 'update_form' not found.");
             }
 
-            // ปุ่มปิด Modal
-            const closeModalBtn = document.getElementById('close-modal');
-            if (closeModalBtn) {
-                closeModalBtn.addEventListener('click', closeModal);
-            } else {
-                console.error("Element with id 'close-modal' not found.");
+            // เพิ่มฟังก์ชันเปิด ErrorModalcheck
+            function openErrorModalCheck(message) {
+                const modal = document.getElementById('errorModalcheck');
+                const errorMsgEl = document.getElementById('errorMessage');
+
+                if (modal && errorMsgEl) {
+                    errorMsgEl.textContent = message;
+                    modal.style.display = 'flex';
+                }
+            }
+
+            // ปุ่มปิด Error Modal
+            const closeErrorModalBtn = document.getElementById('closeErrorModal');
+            if (closeErrorModalBtn) {
+                closeErrorModalBtn.addEventListener('click', () => {
+                    document.getElementById('errorModalcheck').style.display = 'none';
+                });
             }
 
             // ---------- (4) Add device input fields & Remove device row ----------
             const addDeviceBtn = document.getElementById('addDeviceBtn');
-
             if (addDeviceBtn) {
                 addDeviceBtn.addEventListener('click', function() {
                     const container = document.getElementById('devices-container');
 
-                    // Create a new device row
+                    // สร้างแถว device-row ใหม่
                     const newRow = document.createElement('div');
                     newRow.className = 'device-row';
 
-                    // Create input field for device IP
+                    // (a) ช่อง input
                     const newInput = document.createElement('input');
                     newInput.type = 'text';
                     newInput.name = 'devices[]';
-                    newInput.placeholder = '192.168.x.x';
+                    newInput.placeholder = 'Enter device IP (e.g., 192.168.1.1)';
                     newInput.required = true;
+                    newInput.classList.add('device-ip');
 
-                    // Create remove button
+                    // (b) ปุ่ม remove
                     const removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
                     removeBtn.className = 'removeDeviceBtn btn danger';
-
-                    // Add FontAwesome minus icon
                     const icon = document.createElement('i');
                     icon.className = 'fa-solid fa-trash';
-
-                    // Append icon inside button
                     removeBtn.appendChild(icon);
 
-                    // Click event: Remove the row
                     removeBtn.addEventListener('click', function() {
                         container.removeChild(newRow);
                     });
 
-                    // Append input and button to new row
+                    // (c) กล่อง error
+                    const errorBox = document.createElement('div');
+                    errorBox.className = 'alert-box error';
+                    errorBox.style.display = 'none';
+                    errorBox.innerHTML = '<span>ERROR:</span> Invalid IP Address format. Example: 111.111.111.111.';
+
+                    // รวมทั้งหมด
                     newRow.appendChild(newInput);
                     newRow.appendChild(removeBtn);
-
-                    // Append new row to container
+                    newRow.appendChild(errorBox);
                     container.appendChild(newRow);
+
+                    // เรียก Inputmask กับฟิลด์ใหม่
+                    $('.device-ip').inputmask({
+                        alias: "ip",
+                        greedy: false
+                    });
                 });
             }
 
-            // ปุ่มลบของแถวแรก (หากต้องการให้ลบได้ด้วย)
-            // ค้นหาทุกปุ่ม remove ที่มีอยู่แล้ว (ของแถวแรก)
+            // ปุ่มลบของแถวแรก (ถ้าต้องการให้ลบได้)
             const initialRemoveBtns = document.querySelectorAll('.removeDeviceBtn');
             initialRemoveBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -866,31 +986,40 @@
                     container.removeChild(row);
                 });
             });
-        });
 
-        // --------- Sidebar Responsive ---------
-        function updateSidebarForResponsive() {
-            const sidebar = document.querySelector('.w3-sidebar'); // Update selector
+            // ---------- (5) Inputmask เริ่มต้น ----------
+            $('#tftp_server_ip').inputmask({
+                alias: "ip",
+                greedy: false
+            });
+            $('.device-ip').inputmask({
+                alias: "ip",
+                greedy: false
+            });
+        });
+    </script>
+    <script>
+                // --------- Sidebar Responsive ---------
+                function updateSidebarForResponsive() {
+            const sidebar = document.querySelector('.w3-sidebar');
             const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
 
-            if (window.innerWidth <= 1024) { // Adjust for iPads, iPhones, and smaller devices
-                sidebar.style.width = '60px'; // Slimmer sidebar
+            if (window.innerWidth <= 1024) {
+                sidebar.style.width = '60px';
                 sidebarItems.forEach(item => {
-                    const icon = item.querySelector('i'); // Find the icon
-                    const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3); // Text nodes
-
+                    const icon = item.querySelector('i');
+                    const textNodes = Array.from(item.childNodes).filter(node => node.nodeType === 3);
                     if (icon) {
-                        item.style.justifyContent = 'center'; // Center icons
-                        item.style.gap = '0'; // Remove gap between text and icons
-                        textNodes.forEach(node => node.textContent = ''); // Remove text
+                        item.style.justifyContent = 'center';
+                        item.style.gap = '0';
+                        textNodes.forEach(node => node.textContent = '');
                     }
                 });
             } else {
-                sidebar.style.width = '250px'; // Default sidebar width for larger screens
+                sidebar.style.width = '250px';
                 sidebarItems.forEach(item => {
                     const originalText = item.getAttribute('data-original-text');
                     if (originalText) {
-                        // Restore the original text and gap
                         const iconHTML = item.querySelector('i') ? item.querySelector('i').outerHTML : '';
                         item.innerHTML = `${iconHTML} ${originalText}`;
                         item.style.justifyContent = 'flex-start';
@@ -901,19 +1030,15 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const sidebarItems = document.querySelectorAll('.w3-sidebar .w3-bar-item');
-
             sidebarItems.forEach(item => {
                 const textContent = Array.from(item.childNodes)
-                    .filter(node => node.nodeType === 3) // Only text nodes
-                    .map(node => node.textContent.trim()) // Trim whitespace
-                    .join(' '); // Combine text nodes into one string
-
+                    .filter(node => node.nodeType === 3)
+                    .map(node => node.textContent.trim())
+                    .join(' ');
                 if (textContent) {
-                    item.setAttribute('data-original-text', textContent); // Store original text
+                    item.setAttribute('data-original-text', textContent);
                 }
             });
-
-            // Apply responsiveness on load and resize
             updateSidebarForResponsive();
             window.addEventListener('resize', updateSidebarForResponsive);
         });

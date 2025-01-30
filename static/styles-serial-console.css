@@ -273,17 +273,19 @@ button#upload-file, .back-button {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
 .modal-content {
-    background: #fff;
+    background: #ffffff;
     padding: 20px;
     border-radius: 8px;
     width: 50%;
     max-width: 700px;
     text-align: left;
-    color: #000;
+    color: #000000;
     position: relative;
+    overflow-y: auto;
 }
 
 .modal-content h2 {
@@ -291,11 +293,12 @@ button#upload-file, .back-button {
 }
 
 .modal-content pre {
-    background: #f4f4f4;
+    background: #000000;
     padding: 10px;
     border-radius: 5px;
     overflow-x: auto;
     max-height: 300px;
+    color: white;
 }
 
 .close-button {
@@ -392,4 +395,43 @@ transform: scale(1.05); /* Slight zoom effect */
 .error-modal-button:active {
 background-color: #a71d2a; /* Even darker red when clicked */
 transform: scale(0.95); /* Slight scale-down on click */
+}
+
+.modal-loading {
+    display: none; /* Ensure the modal is hidden initially */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.modal-content-loading {
+    background-color: #fff;
+    padding: 40px; /* เพิ่ม padding ให้ใหญ่ขึ้น */
+    border-radius: 15px; /* เพิ่มมุมโค้งให้ดูดี */
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 50%; /* เพิ่มความกว้างของ modal-content */
+    max-width: 200px; /* เพิ่มขนาดสูงสุดเพื่อไม่ให้ใหญ่เกินไป */
+    min-height: 170px; /* เพิ่มความสูงขั้นต่ำ */
+}
+
+.loading-spinner {
+    border: 6px solid #f3f3f3; /* เพิ่มขนาดของเส้นขอบเพื่อให้ชัดขึ้น */
+    border-top: 6px solid #3498db; /* เพิ่มขนาดของเส้นขอบด้านบน */
+    border-radius: 50%;
+    width: 80px; /* เพิ่มขนาดความกว้าง */
+    height: 80px; /* เพิ่มขนาดความสูง */
+    animation: spin 1s linear infinite;
+    margin: 20px auto; /* เพิ่มระยะห่างเพื่อความสวยงาม */
+    }
+@keyframes spin {
+     0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

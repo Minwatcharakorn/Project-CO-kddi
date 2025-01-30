@@ -47,24 +47,26 @@
     }
 
         /* Sidebar items */
-    .w3-sidebar .w3-bar-item {
-        display: flex;
-        align-items: center;
-        font-size: 1rem;
-        color: #ffffff; /* Lighter text color */
-        padding: 10px 15px;
-        border-radius: 5px; /* Rounded corners */
-        transition: background-color 0.3s ease, color 0.3s ease;
-        text-decoration: none; /* Remove underline */
-    }
+        .w3-sidebar .w3-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* ให้มีช่องว่างระหว่างไอคอนกับข้อความ */
+            padding: 12px 20px; /* ปรับ padding ให้เท่ากันทุกอัน */
+            text-align: left;
+            font-size: 16px;
+            white-space: nowrap; /* ป้องกันข้อความขึ้นบรรทัดใหม่ */
+        }
 
-    .w3-sidebar .w3-bar-item i {
-        margin-right: 10px;
-        color: #1e90ff; /* Icon color */
-        font-size: 1.2rem; /* Slightly larger icons */
-        transition: color 0.3s ease;
-    }
-
+        .w3-sidebar .w3-bar-item i {
+            min-width: 24px; /* กำหนดขนาดขั้นต่ำของไอคอนให้เท่ากัน */
+            text-align: center;
+            font-size: 18px; /* ปรับขนาดไอคอน */
+            color: #1e90ff;
+        }
+        .w3-sidebar .w3-bar-item span {
+            flex-grow: 1; /* บังคับให้ข้อความชิดซ้ายเท่ากัน */
+            text-align: left; /* ให้ข้อความอยู่ชิดซ้าย */
+        }
     .w3-sidebar .w3-bar-item:hover {
         background-color: #3c4b5c; /* Highlight on hover */
         color: #ffffff;
@@ -157,15 +159,61 @@
         white-space: pre-wrap; /* ตัดบรรทัดถ้ายาวเกิน */
     }
 </style>
+<style>
+    .error-modal-login {
+        display: none; /* Ensure the modal is hidden initially */
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+    }
+    .error-modal-login-content{
+            background-color: #fff;
+            padding: 40px; /* เพิ่ม padding ให้ใหญ่ขึ้น */
+            border-radius: 15px; /* เพิ่มมุมโค้งให้ดูดี */
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 50%; /* เพิ่มความกว้างของ modal-content */
+            max-width: 350px; /* เพิ่มขนาดสูงสุดเพื่อไม่ให้ใหญ่เกินไป */
+            min-height: 170px; /* เพิ่มความสูงขั้นต่ำ */
+        }
+        .error-modal-button {
+            background-color: #dc3545; /* Red background */
+            color: white; /* White text */
+            border: none; /* Remove border */
+            padding: 10px 20px; /* Add padding for better sizing */
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer; /* Pointer cursor on hover */
+            font-size: 16px; /* Adjust font size */
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+    }
+    
+    .error-modal-button:hover {
+    background-color: #c82333; /* Darker red on hover */
+    transform: scale(1.05); /* Slight zoom effect */
+    }
+    
+    .error-modal-button:active {
+    background-color: #a71d2a; /* Even darker red when clicked */
+    transform: scale(0.95); /* Slight scale-down on click */
+    }
+    
+</style>
 <body>
     <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
         <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
         <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard</a>
-        <a href="/configuration" class="w3-bar-item w3-button"><i class="fas fa-cogs"></i> Create Template</a>
-        <a href="/listtemplate" class="w3-bar-item w3-button"><i class="fas fa-list"></i> List Templates</a>
         <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy Device</a>
-        <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
         <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
+        <a href="/serialconsole" class="w3-bar-item w3-button"><i class="fa-solid fa-ethernet"></i> Serial Console Configuration</a>
+        <a href="/configuration" class="w3-bar-item w3-button"><i class="fas fa-cogs"></i> Create Template</a>
+        <a href="/listtemplate" class="w3-bar-item w3-button"><i class="fa-solid fa-clipboard-list"></i> List Templates</a>
+        <a href="/update_firmware" class="w3-bar-item w3-button"><i class="fas fa-sync"></i> Update Firmware</a>
         <a href="/logging_page" class="w3-bar-item w3-button"><i class="fas fa-book"></i> Logging</a>
     </div>
 
@@ -183,27 +231,37 @@
                         </a>
                     </div>
                     <div class="nav-info">
-                        <span style="margin-right: 20px;">
-                            <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i>
-                            <span id="username">{{ session.get('username', 'N/A') }}</span>
-                        </span>
-                        <span>
-                            <i class="fas fa-network-wired" style="margin-right: 5px;"></i>
+                        {% if session.get('username') and session.get('username') != 'N/A' %}
+                            <span style="margin-right: 20px;">
+                                <i class="fas fa-user" style="margin-right: 5px; color: #1E90FF;"></i>
+                                <span id="username">{{ session.get('username') }}</span>
+                            </span>
+                        {% endif %}
+                    
+                        {% if session.get('ip_start') or session.get('ip_end') %}
                             <span id="ip-address">
+                                <i class="fas fa-network-wired" style="margin-right: 5px;"></i>
                                 {% if session.get('ip_start') and session.get('ip_end') %}
-                                    {{ session.get('ip_start', 'N/A') }} - {{ session.get('ip_end', 'N/A') }}
-                                {% elif session.get('ip_start') %}
-                                    {{ session.get('ip_start', 'N/A') }}
+                                    {{ session.get('ip_start') }} - {{ session.get('ip_end') }}
                                 {% else %}
-                                    N/A
+                                    {{ session.get('ip_start', 'N/A') }}
                                 {% endif %}
                             </span>
-                        </span>
-                        <span>
-                            <a href="/logout" style="text-decoration: none;">
-                                <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
-                            </a>
-                        </span>
+                        {% endif %}
+                    
+                        {% if not session.get('username') or session.get('username') == 'N/A' %}
+                            <span>
+                                <button onclick="window.location.href='/'" class="login-button">
+                                    <i class="fas fa-sign-in-alt"></i> Login
+                                </button>
+                            </span>
+                        {% else %}
+                            <span>
+                                <a href="/logout" style="text-decoration: none;">
+                                    <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> Log Out
+                                </a>
+                            </span>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -217,7 +275,7 @@
                         <h2><i class="fas fa-clipboard-list"></i> Deployment Log</h2>
                     </div>
                     <button id="apply-template-button" class="apply-button">
-                        Go to the Logging Page
+                        Go to Logging Page
                     </button>
                 </div>
 
@@ -253,6 +311,32 @@
                 </div>
             </div>
         </div>
+        <!-- Error Modal -->
+        <div id="errorModalLogin" class="error-modal-login" style="display: none;"> 
+            <div class="error-modal-login-content"> 
+                <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+                <p id="errorMessagelogin" style="font-size: 18px; font-weight: bold; color: #333;">You must establish an SSH connection to the network device before accessing this page.</p> 
+                <br>
+                <button id="closeErrorModalLogin" class="error-modal-button">OK</button>
+            </div>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Check if user is logged in
+                let isLoggedIn = "{{ session.get('username', '') }}" !== "" && "{{ session.get('username', '') }}" !== "N/A";
+        
+                if (!isLoggedIn) {
+                    // Show error modal
+                    document.getElementById("errorModalLogin").style.display = "flex";
+        
+                    // Redirect to /Initial when clicking OK
+                    document.getElementById("closeErrorModalLogin").addEventListener("click", function () {
+                        window.location.href = "/";
+                    });
+                }
+            });
+        </script>
+
         <script>
             document.getElementById('apply-template-button').addEventListener('click', function() {
                 window.location.href = '/logging_page';

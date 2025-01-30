@@ -1351,7 +1351,7 @@ margin-top: 20px;
     background-color: #1E90FF; /* สีพื้นหลังหลัก */
     color: white; /* สีไอคอน */
     border: none; /* ลบเส้นขอบ */
-    border-radius: 50%; /* ทำให้ปุ่มเป็นวงกลม */
+    border-radius: 4px; /* ทำให้ปุ่มเป็นวงกลม */
     width: 50px; /* กำหนดขนาดปุ่ม */
     height: 40px;
     font-size: 1.5rem; /* ขนาดไอคอน */

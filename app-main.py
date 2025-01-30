@@ -386,7 +386,8 @@ def update_switch_firmware(ip, username, password, tftp_server_ip, filename):
 
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        # ต่อ SSH
+
+        # -- เช็ค Credential ถ้าไม่ถูกต้องจะเกิด AuthenticationException --
         ssh.connect(ip, username=username, password=password, look_for_keys=False)
 
         shell = ssh.invoke_shell()
@@ -401,20 +402,15 @@ def update_switch_firmware(ip, username, password, tftp_server_ip, filename):
 
         # 2) Handle prompts ระหว่าง copy
         while True:
-            # ถ้าเจอ destination filename?
             if "Destination filename" in output:
-                # Enter เพื่อเลือกชื่อเดิม
                 shell.send("\n")
             elif "over write?" in output.lower():
-                # ถ้ามีถาม overwrite ไหม
                 shell.send("yes\n")
             elif "confirm" in output.lower():
-                # บาง prompt เป็น confirm
                 shell.send("yes\n")
             elif "#" in output:
-                # เจอ prompt "#" แสดงว่า copy เสร็จ
+                # copy เสร็จ
                 break
-
             time.sleep(1)
             output = read_output(shell)
             logging.info(output)
@@ -425,15 +421,12 @@ def update_switch_firmware(ip, username, password, tftp_server_ip, filename):
         output = read_output(shell)
         logging.info(output)
 
-        # ลบค่าบูตเดิม
         shell.send("no boot system\n")
         time.sleep(1)
 
-        # ตั้งบูตใหม่
         shell.send(f"boot system flash:{filename}\n")
         time.sleep(1)
 
-        # ออกจาก config
         shell.send("exit\n")
         time.sleep(1)
         output = read_output(shell)
@@ -451,7 +444,6 @@ def update_switch_firmware(ip, username, password, tftp_server_ip, filename):
         output = read_output(shell)
         logging.info(output)
 
-        # ตอบ confirm reload
         if "confirm" in output.lower() or "reload proceed" in output.lower():
             shell.send("yes\n")
             time.sleep(2)
@@ -462,6 +454,10 @@ def update_switch_firmware(ip, username, password, tftp_server_ip, filename):
         ssh.close()
 
         return "Firmware updated and device reloaded successfully."
+
+    except paramiko.AuthenticationException as e:
+        logging.error(f"[Authentication Error] {ip}: {str(e)}")
+        return f"Authentication failed. Please check your credentials and try again."
 
     except Exception as e:
         logging.error(f"Error updating firmware on {ip}: {e}")
