@@ -405,6 +405,8 @@
                             name="ntp-server"
                             placeholder="___.___.___.___ (e.g., 202.44.204.114)"
                         />
+                        <div class="alert-box error" id="ntp-server-error" style="display: none;"></div>
+
                         <label for="clock-timezone">Clock Timezone</label>
                         <select id="clock-timezone" name="clock-timezone" required>
                             <!-- Options filled dynamically via JavaScript -->
@@ -451,6 +453,8 @@
                             name="default-gateway" 
                             placeholder="___.___.___.___ (e.g., 127.0.0.1)" 
                         />
+                        <div class="alert-box error" id="default-gateway-error" style="display: none;"></div>
+
                     </div>
                 </form>
             </div>
