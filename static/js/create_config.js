@@ -377,8 +377,10 @@ document.getElementById("add-interface-config").addEventListener("click", functi
                     </div>
                 </div>  
                 <br>
-                            <!-- Remove Button -->
-            <button type="button" class="remove-interface-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
+                <!-- Remove Button -->
+                <button type="button" class="remove-interface-config">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
             </div>
 
         </form>
@@ -870,7 +872,9 @@ if (portSecurityAddButton) {
         
             <!-- Remove Configuration Button -->
             <div class="port-security-form-group">
-                <button type="button" class="remove-port-security-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
+                <button type="button" class="remove-port-security-config">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
             </div>
         </form>
         `;
@@ -1007,15 +1011,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const stpModeDropdown = document.getElementById("stp-mode");
     const mstConfigContainer = document.getElementById("mst-config-container");
 
-    // Add MST configuration area when MST is selected
+    // ตรวจจับการเปลี่ยนค่าใน STP Mode Dropdown
     stpModeDropdown.addEventListener("change", function () {
         const selectedMode = this.value;
 
         if (selectedMode === "mst") {
+            mstConfigContainer.style.display = "block"; // แสดง MST Configuration
             renderMSTConfiguration();
         } else {
-            // Clear MST Configuration if not MST mode
-            mstConfigContainer.innerHTML = ""; // Reset content if it's not MST
+            mstConfigContainer.style.display = "none"; // ซ่อน MST Configuration
+            mstConfigContainer.innerHTML = ""; // ล้างค่า
         }
     });
 
@@ -1023,10 +1028,9 @@ document.addEventListener("DOMContentLoaded", function () {
         // Add MST Configuration Header
         mstConfigContainer.innerHTML = `
             <button type="button" id="add-mst-instance" class="icon-button-agg">
-                    <i class="fas fa-plus"></i>
+                <i class="fas fa-plus"></i>
             </button>
             <div id="mst-instance-list"></div>
-
         `;
 
         const addButton = document.getElementById("add-mst-instance");
@@ -1053,17 +1057,18 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
                 </div>
                 <br>
-                <button type="button" class="remove-button styled-button">Remove</button>
+                <button type="button" class="remove-button">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
                 <hr>
             `;
 
-            // Add validation and remove functionality
+            // Validate MST Instance
             const mstInstanceInput = instanceForm.querySelector('.mst-instance-input');
             const vlansMappedInput = instanceForm.querySelector('.vlans-mapped-input');
             const mstInstanceError = instanceForm.querySelector('.mst-instance-error');
             const vlansMappedError = instanceForm.querySelector('.vlans-mapped-error');
 
-            // Validate MST Instance
             mstInstanceInput.addEventListener('input', () => {
                 const value = mstInstanceInput.value.trim();
                 if (value === '') {
@@ -1109,6 +1114,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
 
 const timezones = [
     { value: "", label: "Select Timezone ( Default )" }, // Default empty value
@@ -1235,7 +1241,9 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
                 </div>
             </div>
         <!-- Remove Button -->
-        <button type="button" class="remove-aggregation-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
+        <button type="button" class="remove-aggregation-config">
+            <i class="fas fa-trash-alt"></i>
+        </button>
         </div>
     </form>
     `;
