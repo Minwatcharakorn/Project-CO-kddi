@@ -540,6 +540,20 @@
     });
     </script>
     <script>
+        // --------- ฟังก์ชันลบ leading zeros จาก IP ---------
+        function removeLeadingZerosFromIP(ip) {
+            const octets = ip.split('.');
+            // หากไม่เป็นรูปแบบ IP (มี 4 ส่วน) ให้คืนค่าเดิม
+            if (octets.length !== 4) return ip;
+            const fixedOctets = octets.map(octet => {
+                let num = parseInt(octet, 10);
+                // หากไม่สามารถแปลงเป็นตัวเลขได้ ให้คืนค่าเดิม
+                if (isNaN(num)) return octet;
+                return String(num);
+            });
+            return fixedOctets.join('.');
+        }
+
         // --------- ฟังก์ชันตรวจสอบ IP (ห้าม leading zero) ---------
         function isValidIPv4NoLeadingZero(ip) {
             const octets = ip.split('.');
@@ -749,27 +763,36 @@
             const tftpErrorBox = document.getElementById('tftp-error');
             if (tftpInput && tftpErrorBox) {
                 tftpInput.addEventListener('blur', function() {
-                    const ipValue = tftpInput.value.trim();
-                    if (ipValue && !isValidIPv4NoLeadingZero(ipValue)) {
-                        // ถ้าไม่ valid => แสดง Error
-                        tftpErrorBox.style.display = 'block';
-                    } else {
-                        // ถ้าผ่าน => ซ่อน
-                        tftpErrorBox.style.display = 'none';
+                    let ipValue = tftpInput.value.trim();
+                    if (ipValue) {
+                        // แก้ไขค่า IP เพื่อลบเลข 0 นำหน้า
+                        let fixedIp = removeLeadingZerosFromIP(ipValue);
+                        tftpInput.value = fixedIp; // อัพเดทค่าใน input
+
+                        // ตรวจสอบความถูกต้องของ IP หลังแก้ไข
+                        if (!isValidIPv4NoLeadingZero(fixedIp)) {
+                            tftpErrorBox.style.display = 'block';
+                        } else {
+                            tftpErrorBox.style.display = 'none';
+                        }
                     }
                 });
             }
-
+            
             // ----- (A2) สำหรับ Device IP (รวมถึงแถวแรกที่มีอยู่แล้ว) -----
             const devicesContainer = document.getElementById('devices-container');
             if (devicesContainer) {
                 devicesContainer.addEventListener('blur', function(e) {
                     if (e.target && e.target.classList.contains('device-ip')) {
-                        const ipValue = e.target.value.trim();
+                        let ipValue = e.target.value.trim();
+                        if (ipValue) {
+                            // แก้ไขค่า IP เพื่อลบเลข 0 นำหน้า
+                            let fixedIp = removeLeadingZerosFromIP(ipValue);
+                            e.target.value = fixedIp; // อัพเดทค่าใน input
+                        }
                         const errorBox = e.target.parentElement.querySelector('.alert-box.error');
                         if (!errorBox) return;
-
-                        if (ipValue && !isValidIPv4NoLeadingZero(ipValue)) {
+                        if (e.target.value.trim() && !isValidIPv4NoLeadingZero(e.target.value.trim())) {
                             errorBox.style.display = 'block';
                         } else {
                             errorBox.style.display = 'none';
