@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     let port = null;
 
+    // ดึง element ต่าง ๆ จาก DOM
     const serialPortSelect = document.getElementById('serial-port');
     const uploadFileButton = document.getElementById('upload-file');
     const fileInput = document.getElementById('file-input');
@@ -28,11 +29,12 @@ no shutdown
 end
 copy running-config startup-config`;
 
+    // กำหนดค่าเริ่มต้นให้กับ command area
     if (commandArea) {
         commandArea.value = predefinedCommands;
     }
 
-    // ฟังก์ชันแสดง Loading Modal
+    // ฟังก์ชันแสดง Loading Modal (จะสร้างขึ้นแบบไดนามิก หากยังไม่มีใน DOM)
     function showLoading() {
         let existingModal = document.getElementById('loading-modal');
         if (!existingModal) {
@@ -40,12 +42,12 @@ copy running-config startup-config`;
             modal.id = 'loading-modal';
             modal.innerHTML = `
                 <div class="loading-overlay" style="
-                    position: fixed; 
-                    top: 0; left: 0; width: 100%; height: 100%; 
+                    position: fixed;
+                    top: 0; left: 0; width: 100%; height: 100%;
                     background: rgba(0, 0, 0, 0.5);
-                    display: flex; align-items: center; justify-content: center; 
+                    display: flex; align-items: center; justify-content: center;
                     z-index: 9999;">
-                    
+
                     <div class="loading-box" style="
                         background: white;
                         padding: 20px;
@@ -58,7 +60,7 @@ copy running-config startup-config`;
                         width: 50%;
                         max-width: 200px;
                         min-height: 170px;">
-                        
+
                         <div class="loading-spinner" style="
                             width: 100px;
                             height: 100px;
@@ -66,7 +68,7 @@ copy running-config startup-config`;
                             border-top: 6px solid #3498db;
                             border-radius: 50%;
                             animation: spin 1s linear infinite;"></div>
-                        
+
                         <p style="
                             color: black;
                             margin-top: 15px;
@@ -74,7 +76,7 @@ copy running-config startup-config`;
                             ">Loading</p>
                     </div>
                 </div>
-    
+
                 <style>
                     @keyframes spin {
                         0% { transform: rotate(0deg); }
@@ -84,7 +86,7 @@ copy running-config startup-config`;
             `;
             document.body.appendChild(modal);
         } else {
-            existingModal.style.display = 'flex'; // ทำให้ modal ปรากฏถ้ามีอยู่แล้ว
+            existingModal.style.display = 'flex';
         }
     }
 
@@ -94,23 +96,49 @@ copy running-config startup-config`;
         if (modal) modal.remove();
     }
 
-    // Event listener to connect to serial port
+    // Event listener สำหรับการเชื่อมต่อ/ตัดการเชื่อมต่อ Serial Port
     serialPortSelect.addEventListener('click', async () => {
+        // หากมีการเชื่อมต่ออยู่แล้ว ให้ทำการ disconnect
+        if (port) {
+            try {
+                await port.close();
+            } catch (err) {
+                console.error('Error closing port:', err);
+            }
+            port = null; // clear session
+            serialPortSelect.innerHTML = `<option value="" disabled selected>Choose a port</option>`; // ✅ อัปเดต dropdown ให้กลับเป็นค่าเดิม
+            alert("Disconnected from port.");
+            return;
+        }
+
+        // กรณียังไม่ได้เชื่อมต่อ ให้เลือกและเชื่อมต่อ Serial Port
         try {
             port = await navigator.serial.requestPort();
             await port.open({ baudRate: parseInt(speedSelect.value) });
-            alert(`Connected to port: ${port.getInfo().usbVendorId || 'Unknown Vendor'}, ${port.getInfo().usbProductId || 'Unknown Product'}`);
+
+            // เมื่อเชื่อมต่อสำเร็จ ให้แสดงสถานะ "Connected"
+            serialPortSelect.innerHTML = '';
+
+            // ✅ เพิ่มตัวเลือกใหม่เป็น "Connected"
+            let option = document.createElement("option");
+            option.value = "connected";
+            option.textContent = "Connected";
+            option.selected = true;
+            serialPortSelect.appendChild(option);
+
+
+            alert("Connected to port.");
         } catch (err) {
             showErrorModal(`Failed to connect to the serial port: No serial port detected or connection issue encountered.`);
         }
     });
 
-    // Event listener for uploading a file
+    // Event listener สำหรับการอัปโหลดไฟล์คำสั่ง
     uploadFileButton.addEventListener('click', () => {
         fileInput.click();
     });
 
-    // Event listener for file input
+    // อ่านไฟล์ที่ถูกอัปโหลดและแสดงใน command area
     fileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -122,89 +150,187 @@ copy running-config startup-config`;
         }
     });
 
-    // Event listener for deploying commands
+    // Event listener สำหรับ Deploy คำสั่ง (รวม timeout และ abort handling)
     deployButton.addEventListener('click', async () => {
         if (!port) {
             showErrorModal('Please select a serial port first.');
             return;
         }
-    
+        
+        // ***** เพิ่มส่วน re‑initialize serial port โดยไม่ตัดโค้ดส่วนใดออก *****
         try {
-            showLoading(); // ✅ แสดง Loading Modal ทันทีหลังจากกด Deploy
+            await port.close();  // ปิด port ที่มีอยู่เพื่อเคลียร์ session เก่า
+            await port.open({ baudRate: parseInt(speedSelect.value) });  // เปิด port ใหม่
+            serialPortSelect.textContent = "Connected"; // อัปเดตสถานะใน dropdown
+            serialPortSelect.innerHTML = `<option value="connected" selected>Connected</option>`;
+        } catch (err) {
+            showErrorModal(`Failed to reinitialize serial port: ${err.message}`);
+            deployButton.disabled = false;
+            return;
+        }
+        // ***** สิ้นสุดส่วน re‑initialize serial port *****
 
-            const commands = commandArea.value.split('\n').map(cmd => cmd.trim()).filter(cmd => cmd);
+        // ป้องกันการกดปุ่ม Deploy หลายครั้ง
+        deployButton.disabled = true;
+
+        // กำหนดเวลา timeout (30 วินาที)
+        const TIMEOUT = 30000; // 30,000 มิลลิวินาที = 30 วินาที
+
+        // สร้าง AbortController เพื่อจัดการการยกเลิกเมื่อ timeout เกิดขึ้น
+        const controller = new AbortController();
+        const { signal } = controller;
+
+        // ตั้ง timeout ให้ abort operation เมื่อเกินเวลา
+        const timeoutId = setTimeout(() => {
+            controller.abort();
+        }, TIMEOUT);
+
+        // Promise สำหรับ deploy คำสั่ง
+        const deployPromise = (async () => {
+            showLoading(); // แสดง Loading Modal เมื่อเริ่ม deploy
+
+            const commands = commandArea.value
+                .split('\n')
+                .map(cmd => cmd.trim())
+                .filter(cmd => cmd);
+
             if (commands.length === 0) {
-                showErrorModal('No commands to send.');
-                return;
+                throw new Error('No commands to send.');
             }
-    
+
             const writer = port.writable.getWriter();
             const encoder = new TextEncoder();
             const reader = port.readable.getReader();
             let output = '';
-    
-            for (const command of commands) {
-                await writer.write(encoder.encode(command + '\r\n'));
-                await new Promise(resolve => setTimeout(resolve, 500));
 
-                const { value, done } = await reader.read();
-                if (done) break;
-                output += new TextDecoder().decode(value);
+            try {
+                for (const command of commands) {
+                    if (signal.aborted) {
+                        throw new Error('Operation aborted due to timeout.');
+                    }
+
+                    // ส่งคำสั่งผ่าน serial port
+                    await writer.write(encoder.encode(command + '\r\n'));
+                    // รอเล็กน้อยเพื่อให้คำสั่งถูกส่งออกไป
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                    // อ่าน output ที่ตอบกลับมาจากอุปกรณ์ (ถ้ามี)
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    output += new TextDecoder().decode(value);
+                }
+            } finally {
+                // ปิด writer และ reader เพื่อปล่อย lock
+                try {
+                    await writer.close();
+                } catch (err) {
+                    console.error('Error closing writer:', err);
+                }
+                try {
+                    await reader.cancel();
+                } catch (err) {
+                    console.error('Error cancelling reader:', err);
+                }
+                writer.releaseLock();
+                reader.releaseLock();
             }
-    
-            writer.releaseLock();
-            reader.releaseLock();
 
-            hideLoading(); // ✅ ปิด Loading Modal ก่อนแสดง Output
-            showModal(output); // ✅ แสดงผล output จริงที่ได้จากอุปกรณ์
+            return output;
+        })();
 
+        try {
+            // รอผลลัพธ์จาก deployPromise หรือ timeout
+            const output = await Promise.race([
+                deployPromise,
+                new Promise((_, reject) => {
+                    signal.addEventListener('abort', () => {
+                        reject(new Error('Operation timed out. Please try again.'));
+                    });
+                })
+            ]);
+
+            clearTimeout(timeoutId); // ล้าง timeout หาก deploy สำเร็จ
+            hideLoading(); // ซ่อน Loading Modal
+            showModal(output); // แสดงผลลัพธ์ของคำสั่งใน Modal
         } catch (err) {
-            hideLoading(); // ✅ ปิด Loading Modal ถ้ามีข้อผิดพลาด
+            hideLoading(); // ซ่อน Loading Modal ในกรณีเกิดข้อผิดพลาด
             showErrorModal(`Failed to send commands: ${err.message}`);
         } finally {
+            clearTimeout(timeoutId);
             if (port) {
-                await port.close();
+                try {
+                    await port.close(); // ปิด serial port เมื่อสิ้นสุด operation
+                } catch (closeErr) {
+                    console.error('Error closing port:', closeErr);
+                }
+                port = null;
             }
+            deployButton.disabled = false; // เปิดใช้งานปุ่ม Deploy อีกครั้ง
         }
     });
 
-    // Function to show an error modal
+    // ฟังก์ชันแสดง Error Modal
     function showErrorModal(message) {
         const modal = document.getElementById('errorModal');
         const errorMessage = document.getElementById('errorMessage');
         const closeErrorButton = document.getElementById('closeErrorModal');
-    
+
+        if (!modal || !errorMessage || !closeErrorButton) {
+            console.error('Error modal elements not found in the DOM.');
+            return;
+        }
+
         errorMessage.textContent = message;
         modal.style.display = 'flex';
-    
-        // ตรวจสอบว่ามี Event Listener แล้วหรือยัง ถ้าไม่มีให้เพิ่ม
-        if (closeErrorButton) {
-            closeErrorButton.removeEventListener("click", closeModal);
-            closeErrorButton.addEventListener("click", closeModal);
-        }
-    
+
+        // ตรวจสอบและเพิ่ม event listener สำหรับปุ่มปิด modal
+        closeErrorButton.removeEventListener("click", closeModal);
+        closeErrorButton.addEventListener("click", closeModal);
+
         function closeModal() {
             modal.style.display = "none";
         }
     }
 
-    // Function to show a command output modal
+    // ฟังก์ชันแสดง Modal สำหรับแสดงผล Output ของคำสั่ง
     function showModal(output) {
-        hideLoading(); // ✅ ปิด Loading Modal ก่อนแสดง Output Modal
+        hideLoading(); // ซ่อน Loading Modal ก่อนแสดง Output Modal
 
+        // หากมี modal output อยู่แล้ว ให้นำออกก่อน
         const existingModal = document.querySelector('.modal');
         if (existingModal) {
             existingModal.remove();
         }
 
         const modalContent = `
-            <div class="modal" id="commandModal" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; overflow: hidden; z-index: 10000;">
-                <div class="modal-content" style="background: white; padding: 20px; border-radius: 5px; text-align: center; position: relative;">
-                    <span class="close-button" id="closeCommandModal" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px;">&times;</span>
+            <div class="modal" id="commandModal" style="
+                display: flex;
+                position: fixed;
+                top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                align-items: center; justify-content: center;
+                overflow: hidden;
+                z-index: 10000;">
+
+                <div class="modal-content" style="
+                    background: white;
+                    padding: 20px;
+                    border-radius: 5px;
+                    text-align: center;
+                    position: relative;">
+
+                    <span class="close-button" id="closeCommandModal" style="
+                        position: absolute;
+                        top: 10px;
+                        right: 15px;
+                        cursor: pointer;
+                        font-size: 20px;">&times;</span>
+
                     <h2 style="font-weight: bold;">Command Output</h2>
                     <pre style="text-align: left;">${output}</pre>
                 </div>
-            </div>`;
+            </div>
+        `;
 
         document.body.insertAdjacentHTML('beforeend', modalContent);
 
