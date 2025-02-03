@@ -157,8 +157,8 @@ async def get_snmp_info(ip, community='public'):
 
 @app.route('/api/switch/<int:switch_id>', methods=['GET'])
 async def get_switch_data(switch_id):
-    """API for fetching switch details (hostname, uptime, CPU, memory, temp via SNMP)
-       and model (PID) via show inventory (SSH).
+    """API for fetching switch details (hostname, uptime, CPU, memory, temp via SNMP),
+       model (PID via show inventory) and firmware version (via show version).
     """
     switch = next((s for s in switches if s['id'] == switch_id), None)
     if not switch:
@@ -170,9 +170,9 @@ async def get_switch_data(switch_id):
     # OIDs for SNMP queries (ยกเว้น device_type จะเลี่ยงใช้ sysDescr)
     oids = {
         "hostname": ".1.3.6.1.4.1.9.2.1.3.0",   # sysName
-        "uptime": ".1.3.6.1.2.1.1.3.0",        # sysUpTime
-        "cpu_usage": "1.3.6.1.4.1.9.2.1.58.0", # Example CPU OID
-        "memory_usage": "1.3.6.1.4.1.9.2.1.58.0",  # Example Memory OID
+        "uptime": ".1.3.6.1.2.1.1.3.0",         # sysUpTime
+        "cpu_usage": "1.3.6.1.4.1.9.2.1.58.0",   # Example CPU OID
+        "memory_usage": "1.3.6.1.4.1.9.2.1.58.0",# Example Memory OID
         "temperature": ".1.3.6.1.4.1.9.9.13.1.3.1.3.1011",  # Example temperature OID
     }
 
@@ -200,7 +200,8 @@ async def get_switch_data(switch_id):
     full_hostname = snmp_results.get("hostname", "N/A")
     short_hostname = full_hostname.split('.')[0] if "." in full_hostname else full_hostname
 
-    # 3) ใช้ SSH เพื่อดึง model (PID) จาก "show inventory"
+    # 3) ใช้ SSH เพื่อดึงข้อมูล model (PID) จาก "show inventory" 
+    #    และ firmware version จาก "show version"
     username = session.get('username')
     password = session.get('password')
     if not (username and password):
@@ -218,33 +219,60 @@ async def get_switch_data(switch_id):
             stdin, stdout, stderr = ssh.exec_command("show inventory")
             output = stdout.read().decode('utf-8', errors='ignore')
 
-            # Regex หา PID: <ค่า>
+            # Regex หา PID: <ค่า> (จับกลุ่มที่เป็น non-whitespace หรือเครื่องหมายจุลภาค)
             match_pid = re.search(r"PID:\s*([^,\s]+)", output)
             if match_pid:
                 cli_model = match_pid.group(1)
 
             ssh.close()
         except Exception as exc:
-            print(f"SSH error to {ip}: {exc}")
+            print(f"SSH error (inventory) to {ip}: {exc}")
         return cli_model
 
+    def ssh_show_version():
+        firmware_version = "N/A"
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username=username, password=password, timeout=5)
+
+            stdin, stdout, stderr = ssh.exec_command("show version")
+            output = stdout.read().decode('utf-8', errors='ignore')
+
+            # ใช้ regex จับค่า Firmware Version ในรูปแบบ X.Y.Z
+            # pattern นี้จะจับตัวเลขตามด้วยจุด แล้วตัวเลขอีกครั้ง (เช่น "17.12.04")
+            match_version = re.search(r'(?i)\bVersion\b\s*[:,]?\s*(\d+\.\d+\.\d+)\b', output)
+            if match_version:
+                firmware_version = match_version.group(1)
+
+            ssh.close()
+        except Exception as exc:
+            print(f"SSH error (show version) to {ip}: {exc}")
+        return firmware_version
+
     try:
-        # เรียกใช้งาน SSH ผ่าน executor (ไม่บล็อก asyncio)
-        device_type = await loop.run_in_executor(None, ssh_show_inventory)
+        # รันทั้งสองคำสั่ง SSH พร้อมกันเพื่อไม่ให้บล็อก event loop
+        device_type, firmware_version = await asyncio.gather(
+            loop.run_in_executor(None, ssh_show_inventory),
+            loop.run_in_executor(None, ssh_show_version)
+        )
     except Exception as e:
         device_type = "N/A"
+        firmware_version = "N/A"
 
     # 4) สร้างข้อมูล JSON ตอบกลับ
     switch_data = {
         "hostname": short_hostname,
         "uptime": snmp_results.get("uptime", "N/A"),
-        "device_type": device_type,  # ใช้ PID จาก SSH
+        "device_type": device_type,  # ใช้ PID จาก show inventory
+        "firmware_version": firmware_version,  # Firmware version จาก show version
         "cpu_usage": snmp_results.get("cpu_usage", "N/A"),
         "memory_usage": snmp_results.get("memory_usage", "N/A"),
         "temperature": snmp_results.get("temperature", "N/A"),
     }
 
     return jsonify(switch_data), 200
+
 
 def abbreviate_interface_name(name):
     abbreviations = {
