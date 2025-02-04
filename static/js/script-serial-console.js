@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const commandArea = document.getElementById('command-area');
     const deployButton = document.getElementById('deploy-button');
     const speedSelect = document.getElementById('speed');
+    const clearSessionButton = document.getElementById('clear-session'); // ✅ เพิ่มปุ่ม Clear Session
 
     // Predefined commands
     const predefinedCommands = `enable
@@ -34,7 +35,9 @@ copy running-config startup-config`;
         commandArea.value = predefinedCommands;
     }
 
-    // ฟังก์ชันแสดง Loading Modal (จะสร้างขึ้นแบบไดนามิก หากยังไม่มีใน DOM)
+    // ----------------------------------------------------------------------------
+    // ฟังก์ชันแสดง / ซ่อน Loading Modal
+    // ----------------------------------------------------------------------------
     function showLoading() {
         let existingModal = document.getElementById('loading-modal');
         if (!existingModal) {
@@ -90,186 +93,14 @@ copy running-config startup-config`;
         }
     }
 
-    // ฟังก์ชันซ่อน Loading Modal
     function hideLoading() {
         let modal = document.getElementById('loading-modal');
         if (modal) modal.remove();
     }
 
-    // Event listener สำหรับการเชื่อมต่อ/ตัดการเชื่อมต่อ Serial Port
-    serialPortSelect.addEventListener('click', async () => {
-        // หากมีการเชื่อมต่ออยู่แล้ว ให้ทำการ disconnect
-        if (port) {
-            try {
-                await port.close();
-            } catch (err) {
-                console.error('Error closing port:', err);
-            }
-            port = null; // clear session
-            serialPortSelect.innerHTML = `<option value="" disabled selected>Choose a port</option>`; // ✅ อัปเดต dropdown ให้กลับเป็นค่าเดิม
-            alert("Disconnected from port.");
-            return;
-        }
-
-        // กรณียังไม่ได้เชื่อมต่อ ให้เลือกและเชื่อมต่อ Serial Port
-        try {
-            port = await navigator.serial.requestPort();
-            await port.open({ baudRate: parseInt(speedSelect.value) });
-
-            // เมื่อเชื่อมต่อสำเร็จ ให้แสดงสถานะ "Connected"
-            serialPortSelect.innerHTML = '';
-
-            // ✅ เพิ่มตัวเลือกใหม่เป็น "Connected"
-            let option = document.createElement("option");
-            option.value = "connected";
-            option.textContent = "Connected";
-            option.selected = true;
-            serialPortSelect.appendChild(option);
-
-
-            alert("Connected to port.");
-        } catch (err) {
-            showErrorModal(`Failed to connect to the serial port: No serial port detected or connection issue encountered.`);
-        }
-    });
-
-    // Event listener สำหรับการอัปโหลดไฟล์คำสั่ง
-    uploadFileButton.addEventListener('click', () => {
-        fileInput.click();
-    });
-
-    // อ่านไฟล์ที่ถูกอัปโหลดและแสดงใน command area
-    fileInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                commandArea.value = e.target.result;
-            };
-            reader.readAsText(file);
-        }
-    });
-
-    // Event listener สำหรับ Deploy คำสั่ง (รวม timeout และ abort handling)
-    deployButton.addEventListener('click', async () => {
-        if (!port) {
-            showErrorModal('Please select a serial port first.');
-            return;
-        }
-        
-        // ***** เพิ่มส่วน re‑initialize serial port โดยไม่ตัดโค้ดส่วนใดออก *****
-        try {
-            await port.close();  // ปิด port ที่มีอยู่เพื่อเคลียร์ session เก่า
-            await port.open({ baudRate: parseInt(speedSelect.value) });  // เปิด port ใหม่
-            serialPortSelect.textContent = "Connected"; // อัปเดตสถานะใน dropdown
-            serialPortSelect.innerHTML = `<option value="connected" selected>Connected</option>`;
-        } catch (err) {
-            showErrorModal(`Failed to reinitialize serial port: ${err.message}`);
-            deployButton.disabled = false;
-            return;
-        }
-        // ***** สิ้นสุดส่วน re‑initialize serial port *****
-
-        // ป้องกันการกดปุ่ม Deploy หลายครั้ง
-        deployButton.disabled = true;
-
-        // กำหนดเวลา timeout (30 วินาที)
-        const TIMEOUT = 30000; // 30,000 มิลลิวินาที = 30 วินาที
-
-        // สร้าง AbortController เพื่อจัดการการยกเลิกเมื่อ timeout เกิดขึ้น
-        const controller = new AbortController();
-        const { signal } = controller;
-
-        // ตั้ง timeout ให้ abort operation เมื่อเกินเวลา
-        const timeoutId = setTimeout(() => {
-            controller.abort();
-        }, TIMEOUT);
-
-        // Promise สำหรับ deploy คำสั่ง
-        const deployPromise = (async () => {
-            showLoading(); // แสดง Loading Modal เมื่อเริ่ม deploy
-
-            const commands = commandArea.value
-                .split('\n')
-                .map(cmd => cmd.trim())
-                .filter(cmd => cmd);
-
-            if (commands.length === 0) {
-                throw new Error('No commands to send.');
-            }
-
-            const writer = port.writable.getWriter();
-            const encoder = new TextEncoder();
-            const reader = port.readable.getReader();
-            let output = '';
-
-            try {
-                for (const command of commands) {
-                    if (signal.aborted) {
-                        throw new Error('Operation aborted due to timeout.');
-                    }
-
-                    // ส่งคำสั่งผ่าน serial port
-                    await writer.write(encoder.encode(command + '\r\n'));
-                    // รอเล็กน้อยเพื่อให้คำสั่งถูกส่งออกไป
-                    await new Promise(resolve => setTimeout(resolve, 500));
-
-                    // อ่าน output ที่ตอบกลับมาจากอุปกรณ์ (ถ้ามี)
-                    const { value, done } = await reader.read();
-                    if (done) break;
-                    output += new TextDecoder().decode(value);
-                }
-            } finally {
-                // ปิด writer และ reader เพื่อปล่อย lock
-                try {
-                    await writer.close();
-                } catch (err) {
-                    console.error('Error closing writer:', err);
-                }
-                try {
-                    await reader.cancel();
-                } catch (err) {
-                    console.error('Error cancelling reader:', err);
-                }
-                writer.releaseLock();
-                reader.releaseLock();
-            }
-
-            return output;
-        })();
-
-        try {
-            // รอผลลัพธ์จาก deployPromise หรือ timeout
-            const output = await Promise.race([
-                deployPromise,
-                new Promise((_, reject) => {
-                    signal.addEventListener('abort', () => {
-                        reject(new Error('Operation timed out. Please try again.'));
-                    });
-                })
-            ]);
-
-            clearTimeout(timeoutId); // ล้าง timeout หาก deploy สำเร็จ
-            hideLoading(); // ซ่อน Loading Modal
-            showModal(output); // แสดงผลลัพธ์ของคำสั่งใน Modal
-        } catch (err) {
-            hideLoading(); // ซ่อน Loading Modal ในกรณีเกิดข้อผิดพลาด
-            showErrorModal(`Failed to send commands: ${err.message}`);
-        } finally {
-            clearTimeout(timeoutId);
-            if (port) {
-                try {
-                    await port.close(); // ปิด serial port เมื่อสิ้นสุด operation
-                } catch (closeErr) {
-                    console.error('Error closing port:', closeErr);
-                }
-                port = null;
-            }
-            deployButton.disabled = false; // เปิดใช้งานปุ่ม Deploy อีกครั้ง
-        }
-    });
-
+    // ----------------------------------------------------------------------------
     // ฟังก์ชันแสดง Error Modal
+    // ----------------------------------------------------------------------------
     function showErrorModal(message) {
         const modal = document.getElementById('errorModal');
         const errorMessage = document.getElementById('errorMessage');
@@ -283,7 +114,6 @@ copy running-config startup-config`;
         errorMessage.textContent = message;
         modal.style.display = 'flex';
 
-        // ตรวจสอบและเพิ่ม event listener สำหรับปุ่มปิด modal
         closeErrorButton.removeEventListener("click", closeModal);
         closeErrorButton.addEventListener("click", closeModal);
 
@@ -292,7 +122,9 @@ copy running-config startup-config`;
         }
     }
 
-    // ฟังก์ชันแสดง Modal สำหรับแสดงผล Output ของคำสั่ง
+    // ----------------------------------------------------------------------------
+    // ฟังก์ชันแสดง Modal สำหรับผลลัพธ์ Output
+    // ----------------------------------------------------------------------------
     function showModal(output) {
         hideLoading(); // ซ่อน Loading Modal ก่อนแสดง Output Modal
 
@@ -347,4 +179,233 @@ copy running-config startup-config`;
             }
         });
     }
+
+    // ----------------------------------------------------------------------------
+    // ปุ่ม Clear Session
+    // ----------------------------------------------------------------------------
+    clearSessionButton.addEventListener('click', async () => {
+        if (port) {
+            try {
+                await port.close();
+                // เพิ่ม delay เล็กน้อยเพื่อให้แน่ใจว่า port ปิดสมบูรณ์
+                await new Promise(resolve => setTimeout(resolve, 100));
+                console.log("Port closed successfully.");
+                port = null; // ล้างค่า session
+            } catch (err) {
+                console.error('Error clearing session:', err);
+            }
+        }
+        // รีเซ็ตค่าใน Dropdown ให้กลับเป็นค่าเริ่มต้น
+        serialPortSelect.innerHTML = `<option value="" disabled selected>Choose a port</option>`;
+        // [เพิ่ม] รีเซ็ตสี background ให้เป็นค่าสี Default
+        serialPortSelect.style.backgroundColor = '';
+
+        alert("Session Cleared! Please reconnect.");
+    });
+
+    // ----------------------------------------------------------------------------
+    // เชื่อมต่อ/ตัดการเชื่อมต่อ Serial Port
+    // ----------------------------------------------------------------------------
+    serialPortSelect.addEventListener('click', async () => {
+        // หากมีการเชื่อมต่ออยู่แล้ว -> disconnect
+        if (port) {
+            try {
+                await port.close();
+                await new Promise(resolve => setTimeout(resolve, 100));
+            } catch (err) {
+                console.error('Error closing port:', err);
+            }
+            port = null;
+            serialPortSelect.innerHTML = `<option value="" disabled selected>Choose a port</option>`;
+            // [เพิ่ม] เปลี่ยนสี background กลับเป็น Default
+            serialPortSelect.style.backgroundColor = '';
+            alert("Disconnected from port.");
+            return;
+        }
+
+        // หากยังไม่เชื่อมต่อ -> requestPort
+        try {
+            port = await navigator.serial.requestPort();
+            await port.open({ baudRate: parseInt(speedSelect.value) });
+
+            // เมื่อเชื่อมต่อสำเร็จ -> อัปเดตสถานะ
+            serialPortSelect.innerHTML = '';
+            let option = document.createElement("option");
+            option.value = "connected";
+            option.textContent = "Connected";
+            option.selected = true;
+            serialPortSelect.appendChild(option);
+
+            // [เพิ่ม] เปลี่ยนสี background เป็นสีเขียว (ปรับ shade ตามต้องการ)
+            serialPortSelect.style.backgroundColor = '#009933';
+
+            alert("Connected to port.");
+        } catch (err) {
+            if (err.name === 'NotFoundError' || err.name === 'AbortError') {
+                console.warn("Serial port selection cancelled or not found.");
+                return;
+            }
+            showErrorModal(`Failed to connect to the serial port: ${err.message}`);
+        }
+    });
+
+    // ----------------------------------------------------------------------------
+    // Upload File -> อ่านไฟล์คำสั่งขึ้นมาใส่ใน commandArea
+    // ----------------------------------------------------------------------------
+    uploadFileButton.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                commandArea.value = e.target.result;
+            };
+            reader.readAsText(file);
+        }
+    });
+
+    // ----------------------------------------------------------------------------
+    // Deploy Commands (ผสานโค้ดใหม่ + อ่าน Output แบบโค้ดเก่า)
+    // ----------------------------------------------------------------------------
+    deployButton.addEventListener('click', async () => {
+        if (!port) {
+            showErrorModal('Please select a serial port first.');
+            return;
+        }
+
+        // --- Re-initialize port ตามโค้ดใหม่ ---
+        try {
+            // ถ้ามีพอร์ตเปิดอยู่ ให้ปิดก่อน
+            if (port.readable || port.writable) {
+                await port.close();
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            // เปิดใหม่
+            await port.open({ baudRate: parseInt(speedSelect.value) });
+            serialPortSelect.textContent = "Connected";
+            serialPortSelect.innerHTML = `<option value="connected" selected>Connected</option>`;
+
+            // [เพิ่ม] เปลี่ยนสี background เป็นสีเขียว หลัง re-init
+            serialPortSelect.style.backgroundColor = '#b3ffa3'; 
+        } catch (err) {
+            if (err.name === 'NotFoundError' || err.name === 'AbortError') {
+                console.warn("Reinitialization cancelled or port not found.");
+                deployButton.disabled = false;
+                return;
+            }
+            showErrorModal(`Failed to reinitialize serial port: ${err.message}`);
+            deployButton.disabled = false;
+            return;
+        }
+
+        // ป้องกันการกดปุ่ม Deploy ซ้ำ
+        deployButton.disabled = true;
+
+        // ตั้ง Timeout 30 วินาที (AbortController)
+        const TIMEOUT = 30000;
+        const controller = new AbortController();
+        const { signal } = controller;
+        const timeoutId = setTimeout(() => {
+            controller.abort();
+        }, TIMEOUT);
+
+        // สร้าง Promise สำหรับ Deploy
+        const deployPromise = (async () => {
+            showLoading(); // แสดง Loading Modal
+
+            // แยกคำสั่งเป็น Array
+            const commands = commandArea.value
+                .split('\n')
+                .map(cmd => cmd.trim())
+                .filter(cmd => cmd);
+
+            if (commands.length === 0) {
+                throw new Error('No commands to send.');
+            }
+
+            const writer = port.writable.getWriter();
+            const encoder = new TextEncoder();
+            const reader = port.readable.getReader();
+            let output = '';
+
+            try {
+                // --- ส่ง \r\n ครั้งแรก เพื่อเคลียร์/ปลุกอุปกรณ์ ---
+                await writer.write(encoder.encode('\r\n'));
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                // --- วนส่งแต่ละคำสั่ง (แบบโค้ดเก่า) ---
+                for (const command of commands) {
+                    if (signal.aborted) {
+                        throw new Error('Operation aborted due to timeout.');
+                    }
+
+                    // ส่งคำสั่ง
+                    await writer.write(encoder.encode(command + '\r\n'));
+
+                    // ดีเลย์เล็กน้อย รอ Echo จากอุปกรณ์
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                    // อ่าน output ครั้งเดียว (แบบโค้ดเก่า)
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    if (value) {
+                        output += new TextDecoder().decode(value);
+                    }
+                }
+            } finally {
+                // ปิด writer/reader เพื่อปล่อย lock
+                try {
+                    await writer.close();
+                } catch (err) {
+                    console.error('Error closing writer:', err);
+                }
+                try {
+                    await reader.cancel();
+                } catch (err) {
+                    console.error('Error cancelling reader:', err);
+                }
+                writer.releaseLock();
+                reader.releaseLock();
+            }
+
+            return output;
+        })();
+
+        try {
+            // รอผลลัพธ์ (race กับ Abort)
+            const output = await Promise.race([
+                deployPromise,
+                new Promise((_, reject) => {
+                    signal.addEventListener('abort', () => {
+                        reject(new Error('Operation timed out. Please try again.'));
+                    });
+                })
+            ]);
+
+            clearTimeout(timeoutId);
+            hideLoading();
+            showModal(output);
+        } catch (err) {
+            hideLoading();
+            showErrorModal(`Failed to send commands: ${err.message}`);
+        } finally {
+            clearTimeout(timeoutId);
+            if (port) {
+                try {
+                    await port.close();
+                    // รีเซ็ต dropdown กลับเป็น Choose a port
+                    serialPortSelect.innerHTML = `<option value="" disabled selected>Choose a port</option>`;
+                    // [เพิ่ม] รีเซ็ตสีเป็น Default เมื่อปิด port
+                    serialPortSelect.style.backgroundColor = '';
+                } catch (closeErr) {
+                    console.error('Error closing port:', closeErr);
+                }
+                port = null;
+            }
+            deployButton.disabled = false;
+        }
+    });
 });

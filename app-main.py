@@ -16,6 +16,7 @@ import time
 from datetime import datetime, timedelta
 import io
 import logging
+import zipfile
 
 
 app = Flask(__name__)
@@ -1410,13 +1411,17 @@ def get_hostname():
 # ----------------------------------------------------------------------------------
 
 @app.route('/api/save_send_command_save', methods=['POST'])
-def save_send_command_and_download():
-    """Send selected commands to devices via SSH and download output as a text file."""
-    data = request.json
-    devices = data.get('devices', [])  
-    commands = data.get('commands', [])  
-    username = session.get('username')  
-    password = session.get('password')  
+def save_send_command_and_output():
+    """
+    ส่งคำสั่งไปยังอุปกรณ์ที่เลือกผ่าน SSH แล้วเก็บผลลัพธ์ไว้สำหรับแต่ละอุปกรณ์
+    - ถ้า mode=preview (หรือไม่ระบุ) ให้ combine ผลลัพธ์ทั้งหมดแล้วส่งกลับเป็น JSON (สำหรับแสดงใน Modal Preview)
+    - ถ้า mode=download ให้จัดไฟล์ผลลัพธ์แต่ละเครื่องเป็นไฟล์ .txt แยกกัน จากนั้นรวมเป็น ZIP file แล้วส่งกลับ
+    """
+    data = request.get_json()
+    devices = data.get('devices', [])
+    commands = data.get('commands', [])
+    username = session.get('username')
+    password = session.get('password')
 
     if not devices or not commands:
         return jsonify({"error": "Devices and commands are required"}), 400
@@ -1424,71 +1429,84 @@ def save_send_command_and_download():
     if not username or not password:
         return jsonify({"error": "Username or password not found in session"}), 400
 
-    # Prepare a memory buffer for the output content
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")  # Generate a timestamp for the file
-    memory_file = io.BytesIO()  # Use in-memory file for output storage
-    content = ""  # Initialize content as an empty string
+    # Dictionary เก็บผลลัพธ์ของแต่ละอุปกรณ์ (key เป็น hostname)
+    device_outputs = {}
 
     for device in devices:
-        ip = device.get('ip')  # Get the device IP
-        hostname = device.get('hostname', ip)  # Use hostname or fallback to IP
+        ip = device.get('ip')
+        # ใช้ hostname ถ้ามี ถ้าไม่มีก็ใช้ IP เป็นชื่อ
+        hostname = device.get('hostname', ip)
+        output_str = f"Device: {hostname} ({ip})\n{'='*90}\n"
         try:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, username=username, password=password, timeout=10)
             
-            # Start an interactive SSH shell session
+            # เริ่ม session แบบ interactive
             channel = ssh.invoke_shell()
-            time.sleep(1)  # Wait for the shell to initialize
-            channel.recv(314572800)  # Clear initial output buffer
+            time.sleep(1)
+            # เคลียร์ buffer เริ่มต้น (ถ้ามี)
+            if channel.recv_ready():
+                channel.recv(314572800)
             
-            # Append device header to the output content
-            content += f"Device: {hostname} ({ip})\n{'='*90}\n"
-
-            # Send each command sequentially
+            # ส่งคำสั่งทีละคำสั่ง
             for command in commands:
-                # Disable CLI pagination for specific commands
+                # ถ้าเป็น show running-config ปิด pagination
                 if command.strip().lower() == "show running-config":
                     channel.send("terminal length 0\n")
                     time.sleep(1)
-                    channel.recv(5242880)  # Clear any extra output
-
+                    if channel.recv_ready():
+                        channel.recv(5242880)
                 channel.send(f"{command}\n")
-                time.sleep(1)  
-                
-                output = ""
+                time.sleep(1)
+                cmd_output = ""
+                # อ่านข้อมูลที่ส่งกลับจากอุปกรณ์
                 while True:
-                    if channel.recv_ready():  # Check if there is data to read
-                        chunk = channel.recv(314572800).decode('utf-8')  # Decode the received data
-                        output += chunk
-                        # Stop collecting output when the prompt or "end" is detected
+                    if channel.recv_ready():
+                        chunk = channel.recv(314572800).decode('utf-8', errors='ignore')
+                        cmd_output += chunk
+                        # หยุดรับข้อมูลเมื่อเจอ prompt (เครื่องหมาย #) หรือคำว่า "end"
                         if "#" in chunk or "end" in chunk:
                             break
-                
-                # Add the command header and output, with separators
-                content += f"\n{'-'*20} Command: {command} {'-'*20}\n"
-                content += f"{output.strip()}\n"
-
-            # Append separator for clarity between devices
-            content += f"\n{'='*90}\n\n"
-
-            # Close the SSH session
+                    else:
+                        break
+                output_str += f"\n{'-'*20} Command: {command} {'-'*20}\n"
+                output_str += f"{cmd_output.strip()}\n"
+            output_str += f"\n{'='*90}\n\n"
             ssh.close()
         except Exception as e:
-            # Add an error message to the output if SSH connection fails
-            content += f"\n\n{'='*50}\nFailed to connect to {hostname} ({ip}): {str(e)}\n{'='*50}\n\n"
+            output_str += f"\n\n{'='*50}\nFailed to connect to {hostname} ({ip}): {str(e)}\n{'='*50}\n\n"
+        
+        device_outputs[hostname] = output_str
 
-    memory_file.write(content.encode('utf-8'))  # Encode string to bytes
-    memory_file.seek(0)  
+    # ตรวจสอบ query parameter "mode"
+    mode = request.args.get('mode', 'preview').lower()
+    
+    if mode == 'download':
+        # สร้าง ZIP file แบบ in-memory โดยแยกไฟล์ .txt ตาม hostname
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for hostname, content in device_outputs.items():
+                # Sanitizing ชื่อ hostname ให้ใช้เป็นชื่อไฟล์ที่ปลอดภัย
+                safe_hostname = "".join(c if c.isalnum() or c in (' ', '.', '_', '-') else '_' for c in hostname).strip()
+                file_name = f"{safe_hostname}.txt"
+                zip_file.writestr(file_name, content)
+        zip_buffer.seek(0)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        zip_filename = f"output_{timestamp}.zip"
 
-    filename = f"output_{timestamp}.txt"
-
-    return send_file(
-        memory_file,
-        as_attachment=True,  
-        download_name=filename,  
-        mimetype='text/plain'  
-    )
+        return send_file(
+            zip_buffer,
+            as_attachment=True,
+            download_name=zip_filename,
+            mimetype='application/zip'
+        )
+    else:
+        # โหมด preview: combine ผลลัพธ์ทั้งหมดเป็นข้อความเดียว
+        combined_text = ""
+        for hostname, content in device_outputs.items():
+            combined_text += content + "\n"
+        return jsonify({"output": combined_text}), 200
 
 @app.route('/api/ports', methods=['GET'])
 def list_ports():
