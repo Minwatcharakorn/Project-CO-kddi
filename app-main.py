@@ -877,9 +877,34 @@ def deploy_page():
     switches_from_session = session.get('switches', [])
     return render_template('Deploy.html', switches=switches_from_session)
 
+#########################################################
+# ฟังก์ชันช่วยตรวจจับ error output จาก Cisco
+#########################################################
+def is_error_output(text):
+    """
+    ตรวจสอบว่า output มีบรรทัดใดที่ขึ้นต้นด้วย '%' 
+    หรือมีคำว่า 'Error' (case-sensitive) อยู่ในข้อความ
+    """
+    # ตรวจจับบรรทัดที่ขึ้นต้นด้วย % (Cisco error message)
+    error_pattern = r'^\s*%.*$'
+    if re.search(error_pattern, text, re.MULTILINE):
+        return True
+    # ตรวจจับคำว่า "Error" (สามารถปรับปรุงได้ตามต้องการ)
+    if "Error" in text:
+        return True
+    return False
+
+#########################################################
+# Endpoint สำหรับ deploy configuration ไปยังอุปกรณ์
+#########################################################
 @app.route('/api/deploy', methods=['POST'])
 def deploy_api():
-    """API สำหรับการส่งคำสั่งไปยังอุปกรณ์ที่เลือก."""
+    """
+    API สำหรับส่งคำสั่งไปยังอุปกรณ์ที่เลือก (โดยใช้ SSH)
+    โดยจะอ่าน template commands จากฐานข้อมูลและส่งทีละคำสั่ง
+    หากพบ output ที่ตรวจจับว่าเป็น error (เช่น ขึ้นต้นด้วย '%' หรือมี 'Error')
+    จะหยุดการส่งคำสั่งและตั้งสถานะเป็น "Failure"
+    """
     selected_devices = session.get('selected_devices', [])
     selected_template_id = session.get('selected_template', None)
 
@@ -940,19 +965,23 @@ def deploy_api():
                             time.sleep(0.5)
                         output = shell.recv(314572800).decode('utf-8').strip()
 
-                        if 'Error' in output:
+                        # ตรวจจับ error output โดยใช้ is_error_output()
+                        if is_error_output(output):
                             output_log.append(f"Error in '{command}': {output}")
-                            break
+                            break  # หยุดส่งคำสั่งถ้าเกิด error
                         output_log.append(output)
                     except Exception as cmd_error:
                         output_log.append(f"Error executing command '{command}': {str(cmd_error)}")
                         break
 
-                # บันทึก log ลงฐานข้อมูล
+                # กำหนดสถานะเป็น "Success" ถ้าไม่มี error ใน log
+                current_status = "Success" if not any(is_error_output(log) for log in output_log) else "Failure"
+
+                # บันทึก log ลงฐานข้อมูล (ฟังก์ชัน save_deployment_log ควรมีอยู่แล้ว)
                 save_deployment_log(
                     device={"ip": device['ip'], "hostname": hostname},
                     template_name=template_name,
-                    status="Success" if not any("Error" in log for log in output_log) else "Failure",
+                    status=current_status,
                     details="\n".join(output_log),
                     description=template_description
                 )
@@ -961,7 +990,7 @@ def deploy_api():
                     "hostname": hostname,
                     "ip": device['ip'],
                     "template_name": template_name,
-                    "status": "Success" if not any("Error" in log for log in output_log) else "Failure",
+                    "status": current_status,
                     "details": "\n".join(output_log)
                 })
 
@@ -974,7 +1003,6 @@ def deploy_api():
                     "status": "Failure",
                     "details": f"SSH connection error: {str(e)}"
                 })
-
                 save_deployment_log(
                     device={"ip": device['ip'], "hostname": hostname},
                     template_name=template_name,
@@ -986,7 +1014,9 @@ def deploy_api():
     session['deployment_logs'] = deployment_logs
     return jsonify({"message": "Deployment completed", "logs": deployment_logs}), 200
 
-
+#########################################################
+# ตัวอย่างฟังก์ชัน save_deployment_log (ไม่ต้องแก้ไขเพิ่มเติม)
+#########################################################
 def save_deployment_log(device, template_name, status, details, description):
     """บันทึก log ลงฐานข้อมูล."""
     try:
