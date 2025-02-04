@@ -1,4 +1,8 @@
 $(document).ready(function () {
+    // Global variables to store last selected devices and commands for download
+    let lastSelectedDevices = [];
+    let lastSelectedCommands = [];
+
     // Function to Show Error Modal
     function showErrorModal(message, description = '') {
         const errorModal = document.getElementById('errorModal');
@@ -64,7 +68,7 @@ $(document).ready(function () {
         $('.device-checkbox').prop('checked', $(this).is(':checked'));
     });
 
-    // Apply button event
+    // Apply button event (for Preview)
     $('#apply-button').on('click', function () {
         const selectedCommands = $('#command-select').val();
         const selectedDevices = [];
@@ -82,45 +86,69 @@ $(document).ready(function () {
             return;
         }
 
+        // Store selections globally (used later in Download)
+        lastSelectedDevices = selectedDevices;
+        lastSelectedCommands = selectedCommands;
+
         // Show loading modal
         const loadingModal = document.getElementById('loadingModal');
         loadingModal.style.display = 'flex';
         document.body.classList.add('no-scroll'); // Disable scrolling
 
-        // Send the data to backend
+        // AJAX call for Preview mode (no mode parameter)
         $.ajax({
             url: '/api/save_send_command_save',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ devices: selectedDevices, commands: selectedCommands }),
-            xhrFields: { responseType: 'blob' },
-            success: function (response, status, xhr) {
+            success: function (response) {
                 loadingModal.style.display = 'none'; // Hide loading modal
                 document.body.classList.remove('no-scroll'); // Enable scrolling
-                const blob = new Blob([response], { type: 'text/plain' });
-                const reader = new FileReader();
 
-                reader.onload = function () {
-                    document.getElementById('outputPreview').textContent = reader.result; // Populate output
-                    openModalWithAnimation(); // Show modal with animation
-                };
-                reader.readAsText(blob);
-
-                // Download button handler
-                document.getElementById('downloadOutput').onclick = function () {
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = xhr.getResponseHeader('Content-Disposition')?.split('filename=')[1] || 'output.txt';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                };
+                // Expected response is JSON with property "output"
+                document.getElementById('outputPreview').textContent = response.output;
+                openModalWithAnimation(); // Show modal with animation
             },
             error: function (xhr) {
                 loadingModal.style.display = 'none';
                 document.body.classList.remove('no-scroll'); // Enable scrolling
                 const errorMessage = xhr.responseJSON?.error || "An unexpected error occurred.";
                 showErrorModal("Error Sending Commands", errorMessage);
+            }
+        });
+    });
+
+    // Download button event (for Download mode)
+    document.getElementById('downloadOutput').addEventListener('click', function () {
+        // Show loading modal during download request
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.style.display = 'flex';
+        document.body.classList.add('no-scroll');
+
+        $.ajax({
+            url: '/api/save_send_command_save?mode=download',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ devices: lastSelectedDevices, commands: lastSelectedCommands }),
+            xhrFields: { responseType: 'blob' },
+            success: function (response, status, xhr) {
+                loadingModal.style.display = 'none'; // Hide loading modal after response
+                document.body.classList.remove('no-scroll');
+                // response is a Blob (ZIP file)
+                const blob = response;
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                // Get filename from Content-Disposition header if available, else use default
+                link.download = xhr.getResponseHeader('Content-Disposition')?.split('filename=')[1] || 'output.zip';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            },
+            error: function (xhr) {
+                loadingModal.style.display = 'none';
+                document.body.classList.remove('no-scroll');
+                const errorMessage = xhr.responseJSON?.error || "An unexpected error occurred.";
+                showErrorModal("Error Downloading File", errorMessage);
             }
         });
     });

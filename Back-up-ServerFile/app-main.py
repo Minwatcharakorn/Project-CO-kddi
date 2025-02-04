@@ -16,6 +16,7 @@ import time
 from datetime import datetime, timedelta
 import io
 import logging
+import zipfile
 
 
 app = Flask(__name__)
@@ -157,8 +158,8 @@ async def get_snmp_info(ip, community='public'):
 
 @app.route('/api/switch/<int:switch_id>', methods=['GET'])
 async def get_switch_data(switch_id):
-    """API for fetching switch details (hostname, uptime, CPU, memory, temp via SNMP)
-       and model (PID) via show inventory (SSH).
+    """API for fetching switch details (hostname, uptime, CPU, memory, temp via SNMP),
+       model (PID via show inventory) and firmware version (via show version).
     """
     switch = next((s for s in switches if s['id'] == switch_id), None)
     if not switch:
@@ -170,9 +171,9 @@ async def get_switch_data(switch_id):
     # OIDs for SNMP queries (ยกเว้น device_type จะเลี่ยงใช้ sysDescr)
     oids = {
         "hostname": ".1.3.6.1.4.1.9.2.1.3.0",   # sysName
-        "uptime": ".1.3.6.1.2.1.1.3.0",        # sysUpTime
-        "cpu_usage": "1.3.6.1.4.1.9.2.1.58.0", # Example CPU OID
-        "memory_usage": "1.3.6.1.4.1.9.2.1.58.0",  # Example Memory OID
+        "uptime": ".1.3.6.1.2.1.1.3.0",         # sysUpTime
+        "cpu_usage": "1.3.6.1.4.1.9.2.1.58.0",   # Example CPU OID
+        "memory_usage": "1.3.6.1.4.1.9.2.1.58.0",# Example Memory OID
         "temperature": ".1.3.6.1.4.1.9.9.13.1.3.1.3.1011",  # Example temperature OID
     }
 
@@ -200,7 +201,8 @@ async def get_switch_data(switch_id):
     full_hostname = snmp_results.get("hostname", "N/A")
     short_hostname = full_hostname.split('.')[0] if "." in full_hostname else full_hostname
 
-    # 3) ใช้ SSH เพื่อดึง model (PID) จาก "show inventory"
+    # 3) ใช้ SSH เพื่อดึงข้อมูล model (PID) จาก "show inventory" 
+    #    และ firmware version จาก "show version"
     username = session.get('username')
     password = session.get('password')
     if not (username and password):
@@ -218,33 +220,60 @@ async def get_switch_data(switch_id):
             stdin, stdout, stderr = ssh.exec_command("show inventory")
             output = stdout.read().decode('utf-8', errors='ignore')
 
-            # Regex หา PID: <ค่า>
+            # Regex หา PID: <ค่า> (จับกลุ่มที่เป็น non-whitespace หรือเครื่องหมายจุลภาค)
             match_pid = re.search(r"PID:\s*([^,\s]+)", output)
             if match_pid:
                 cli_model = match_pid.group(1)
 
             ssh.close()
         except Exception as exc:
-            print(f"SSH error to {ip}: {exc}")
+            print(f"SSH error (inventory) to {ip}: {exc}")
         return cli_model
 
+    def ssh_show_version():
+        firmware_version = "N/A"
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username=username, password=password, timeout=5)
+
+            stdin, stdout, stderr = ssh.exec_command("show version")
+            output = stdout.read().decode('utf-8', errors='ignore')
+
+            # ใช้ regex จับค่า Firmware Version ในรูปแบบ X.Y.Z
+            # pattern นี้จะจับตัวเลขตามด้วยจุด แล้วตัวเลขอีกครั้ง (เช่น "17.12.04")
+            match_version = re.search(r'(?i)\bVersion\b\s*[:,]?\s*(\d+\.\d+\.\d+)\b', output)
+            if match_version:
+                firmware_version = match_version.group(1)
+
+            ssh.close()
+        except Exception as exc:
+            print(f"SSH error (show version) to {ip}: {exc}")
+        return firmware_version
+
     try:
-        # เรียกใช้งาน SSH ผ่าน executor (ไม่บล็อก asyncio)
-        device_type = await loop.run_in_executor(None, ssh_show_inventory)
+        # รันทั้งสองคำสั่ง SSH พร้อมกันเพื่อไม่ให้บล็อก event loop
+        device_type, firmware_version = await asyncio.gather(
+            loop.run_in_executor(None, ssh_show_inventory),
+            loop.run_in_executor(None, ssh_show_version)
+        )
     except Exception as e:
         device_type = "N/A"
+        firmware_version = "N/A"
 
     # 4) สร้างข้อมูล JSON ตอบกลับ
     switch_data = {
         "hostname": short_hostname,
         "uptime": snmp_results.get("uptime", "N/A"),
-        "device_type": device_type,  # ใช้ PID จาก SSH
+        "device_type": device_type,  # ใช้ PID จาก show inventory
+        "firmware_version": firmware_version,  # Firmware version จาก show version
         "cpu_usage": snmp_results.get("cpu_usage", "N/A"),
         "memory_usage": snmp_results.get("memory_usage", "N/A"),
         "temperature": snmp_results.get("temperature", "N/A"),
     }
 
     return jsonify(switch_data), 200
+
 
 def abbreviate_interface_name(name):
     abbreviations = {
@@ -386,7 +415,8 @@ def update_switch_firmware(ip, username, password, tftp_server_ip, filename):
 
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        # ต่อ SSH
+
+        # -- เช็ค Credential ถ้าไม่ถูกต้องจะเกิด AuthenticationException --
         ssh.connect(ip, username=username, password=password, look_for_keys=False)
 
         shell = ssh.invoke_shell()
@@ -401,20 +431,15 @@ def update_switch_firmware(ip, username, password, tftp_server_ip, filename):
 
         # 2) Handle prompts ระหว่าง copy
         while True:
-            # ถ้าเจอ destination filename?
             if "Destination filename" in output:
-                # Enter เพื่อเลือกชื่อเดิม
                 shell.send("\n")
             elif "over write?" in output.lower():
-                # ถ้ามีถาม overwrite ไหม
                 shell.send("yes\n")
             elif "confirm" in output.lower():
-                # บาง prompt เป็น confirm
                 shell.send("yes\n")
             elif "#" in output:
-                # เจอ prompt "#" แสดงว่า copy เสร็จ
+                # copy เสร็จ
                 break
-
             time.sleep(1)
             output = read_output(shell)
             logging.info(output)
@@ -425,15 +450,12 @@ def update_switch_firmware(ip, username, password, tftp_server_ip, filename):
         output = read_output(shell)
         logging.info(output)
 
-        # ลบค่าบูตเดิม
         shell.send("no boot system\n")
         time.sleep(1)
 
-        # ตั้งบูตใหม่
         shell.send(f"boot system flash:{filename}\n")
         time.sleep(1)
 
-        # ออกจาก config
         shell.send("exit\n")
         time.sleep(1)
         output = read_output(shell)
@@ -451,7 +473,6 @@ def update_switch_firmware(ip, username, password, tftp_server_ip, filename):
         output = read_output(shell)
         logging.info(output)
 
-        # ตอบ confirm reload
         if "confirm" in output.lower() or "reload proceed" in output.lower():
             shell.send("yes\n")
             time.sleep(2)
@@ -462,6 +483,10 @@ def update_switch_firmware(ip, username, password, tftp_server_ip, filename):
         ssh.close()
 
         return "Firmware updated and device reloaded successfully."
+
+    except paramiko.AuthenticationException as e:
+        logging.error(f"[Authentication Error] {ip}: {str(e)}")
+        return f"Authentication failed. Please check your credentials and try again."
 
     except Exception as e:
         logging.error(f"Error updating firmware on {ip}: {e}")
@@ -1386,13 +1411,17 @@ def get_hostname():
 # ----------------------------------------------------------------------------------
 
 @app.route('/api/save_send_command_save', methods=['POST'])
-def save_send_command_and_download():
-    """Send selected commands to devices via SSH and download output as a text file."""
-    data = request.json
-    devices = data.get('devices', [])  
-    commands = data.get('commands', [])  
-    username = session.get('username')  
-    password = session.get('password')  
+def save_send_command_and_output():
+    """
+    ส่งคำสั่งไปยังอุปกรณ์ที่เลือกผ่าน SSH แล้วเก็บผลลัพธ์ไว้สำหรับแต่ละอุปกรณ์
+    - ถ้า mode=preview (หรือไม่ระบุ) ให้ combine ผลลัพธ์ทั้งหมดแล้วส่งกลับเป็น JSON (สำหรับแสดงใน Modal Preview)
+    - ถ้า mode=download ให้จัดไฟล์ผลลัพธ์แต่ละเครื่องเป็นไฟล์ .txt แยกกัน จากนั้นรวมเป็น ZIP file แล้วส่งกลับ
+    """
+    data = request.get_json()
+    devices = data.get('devices', [])
+    commands = data.get('commands', [])
+    username = session.get('username')
+    password = session.get('password')
 
     if not devices or not commands:
         return jsonify({"error": "Devices and commands are required"}), 400
@@ -1400,71 +1429,84 @@ def save_send_command_and_download():
     if not username or not password:
         return jsonify({"error": "Username or password not found in session"}), 400
 
-    # Prepare a memory buffer for the output content
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")  # Generate a timestamp for the file
-    memory_file = io.BytesIO()  # Use in-memory file for output storage
-    content = ""  # Initialize content as an empty string
+    # Dictionary เก็บผลลัพธ์ของแต่ละอุปกรณ์ (key เป็น hostname)
+    device_outputs = {}
 
     for device in devices:
-        ip = device.get('ip')  # Get the device IP
-        hostname = device.get('hostname', ip)  # Use hostname or fallback to IP
+        ip = device.get('ip')
+        # ใช้ hostname ถ้ามี ถ้าไม่มีก็ใช้ IP เป็นชื่อ
+        hostname = device.get('hostname', ip)
+        output_str = f"Device: {hostname} ({ip})\n{'='*90}\n"
         try:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, username=username, password=password, timeout=10)
             
-            # Start an interactive SSH shell session
+            # เริ่ม session แบบ interactive
             channel = ssh.invoke_shell()
-            time.sleep(1)  # Wait for the shell to initialize
-            channel.recv(314572800)  # Clear initial output buffer
+            time.sleep(1)
+            # เคลียร์ buffer เริ่มต้น (ถ้ามี)
+            if channel.recv_ready():
+                channel.recv(314572800)
             
-            # Append device header to the output content
-            content += f"Device: {hostname} ({ip})\n{'='*90}\n"
-
-            # Send each command sequentially
+            # ส่งคำสั่งทีละคำสั่ง
             for command in commands:
-                # Disable CLI pagination for specific commands
+                # ถ้าเป็น show running-config ปิด pagination
                 if command.strip().lower() == "show running-config":
                     channel.send("terminal length 0\n")
                     time.sleep(1)
-                    channel.recv(5242880)  # Clear any extra output
-
+                    if channel.recv_ready():
+                        channel.recv(5242880)
                 channel.send(f"{command}\n")
-                time.sleep(1)  
-                
-                output = ""
+                time.sleep(1)
+                cmd_output = ""
+                # อ่านข้อมูลที่ส่งกลับจากอุปกรณ์
                 while True:
-                    if channel.recv_ready():  # Check if there is data to read
-                        chunk = channel.recv(314572800).decode('utf-8')  # Decode the received data
-                        output += chunk
-                        # Stop collecting output when the prompt or "end" is detected
+                    if channel.recv_ready():
+                        chunk = channel.recv(314572800).decode('utf-8', errors='ignore')
+                        cmd_output += chunk
+                        # หยุดรับข้อมูลเมื่อเจอ prompt (เครื่องหมาย #) หรือคำว่า "end"
                         if "#" in chunk or "end" in chunk:
                             break
-                
-                # Add the command header and output, with separators
-                content += f"\n{'-'*20} Command: {command} {'-'*20}\n"
-                content += f"{output.strip()}\n"
-
-            # Append separator for clarity between devices
-            content += f"\n{'='*90}\n\n"
-
-            # Close the SSH session
+                    else:
+                        break
+                output_str += f"\n{'-'*20} Command: {command} {'-'*20}\n"
+                output_str += f"{cmd_output.strip()}\n"
+            output_str += f"\n{'='*90}\n\n"
             ssh.close()
         except Exception as e:
-            # Add an error message to the output if SSH connection fails
-            content += f"\n\n{'='*50}\nFailed to connect to {hostname} ({ip}): {str(e)}\n{'='*50}\n\n"
+            output_str += f"\n\n{'='*50}\nFailed to connect to {hostname} ({ip}): {str(e)}\n{'='*50}\n\n"
+        
+        device_outputs[hostname] = output_str
 
-    memory_file.write(content.encode('utf-8'))  # Encode string to bytes
-    memory_file.seek(0)  
+    # ตรวจสอบ query parameter "mode"
+    mode = request.args.get('mode', 'preview').lower()
+    
+    if mode == 'download':
+        # สร้าง ZIP file แบบ in-memory โดยแยกไฟล์ .txt ตาม hostname
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for hostname, content in device_outputs.items():
+                # Sanitizing ชื่อ hostname ให้ใช้เป็นชื่อไฟล์ที่ปลอดภัย
+                safe_hostname = "".join(c if c.isalnum() or c in (' ', '.', '_', '-') else '_' for c in hostname).strip()
+                file_name = f"{safe_hostname}.txt"
+                zip_file.writestr(file_name, content)
+        zip_buffer.seek(0)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        zip_filename = f"output_{timestamp}.zip"
 
-    filename = f"output_{timestamp}.txt"
-
-    return send_file(
-        memory_file,
-        as_attachment=True,  
-        download_name=filename,  
-        mimetype='text/plain'  
-    )
+        return send_file(
+            zip_buffer,
+            as_attachment=True,
+            download_name=zip_filename,
+            mimetype='application/zip'
+        )
+    else:
+        # โหมด preview: combine ผลลัพธ์ทั้งหมดเป็นข้อความเดียว
+        combined_text = ""
+        for hostname, content in device_outputs.items():
+            combined_text += content + "\n"
+        return jsonify({"output": combined_text}), 200
 
 @app.route('/api/ports', methods=['GET'])
 def list_ports():

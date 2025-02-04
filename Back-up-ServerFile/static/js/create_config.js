@@ -83,24 +83,29 @@ function validateVlanId(vlanIdInputId, errorBoxId) {
     const errorBox = document.getElementById(errorBoxId);
 
     vlanIdInput.addEventListener("input", function () {
-        const value = this.value.trim();
+        let value = this.value.trim();
 
-        // อนุญาตให้ฟิลด์ว่างโดยไม่แสดง Error
+        // ✅ ถ้าเว้นว่างไว้ ให้ผ่าน (ไม่โชว์ Error)
         if (value === "") {
-            vlanIdInput.style.borderColor = ""; // รีเซ็ตเส้นขอบ
-            errorBox.style.display = "none"; // ซ่อนข้อความแจ้งเตือน
+            vlanIdInput.style.borderColor = ""; 
+            errorBox.style.display = "none"; 
             return;
         }
 
-        // ตรวจสอบเงื่อนไข VLAN ID: เป็นตัวเลขเต็มระหว่าง 1-4094
+        // ✅ ลบศูนย์นำหน้าทันทีที่พิมพ์
+        value = value.replace(/^0+/, '');
+
+        // ✅ เช็คว่าเป็นตัวเลขล้วน (1-4094)
         const isValid = /^\d+$/.test(value) && value >= 1 && value <= 4094;
 
         if (!isValid) {
-            vlanIdInput.style.borderColor = "red"; // เปลี่ยนเส้นขอบเป็นสีแดง
-            errorBox.style.display = "flex"; // แสดงข้อความแจ้งเตือน
+            vlanIdInput.style.borderColor = "red";
+            errorBox.style.display = "flex";
+            errorBox.innerHTML = `<span>ERROR:</span> VLAN ID must be between 1 and 4094 and cannot start with zero.`;
         } else {
-            vlanIdInput.style.borderColor = ""; // รีเซ็ตเส้นขอบ
-            errorBox.style.display = "none"; // ซ่อนข้อความแจ้งเตือน
+            vlanIdInput.style.borderColor = ""; 
+            errorBox.style.display = "none";
+            vlanIdInput.value = value; // ✅ อัปเดตค่าโดยตัดเลข 0 ที่นำหน้า
         }
     });
 }
@@ -134,9 +139,59 @@ function generateSubnetMaskDropdown(id) {
 function applyIPInputMask() {
     $('input[name="vlan-IP[]"]').inputmask({
         alias: "ip",
-        placeholder: "___.___.___.___", // Placeholder for IP address
-        greedy: false, // Ensures only the valid mask is displayed
+        placeholder: "___.___.___.___",
+        greedy: false,
     });
+
+    // ลบ event listener ที่ซ้ำก่อนเพิ่มใหม่ (ป้องกัน duplicate)
+    $('input[name="vlan-IP[]"]').off("input").on("input", function () {
+        validateIPAddress(this);
+    });
+}
+
+function validateIPAddress(inputField) {
+    let value = inputField.value.trim();
+
+    // ✅ เช็คว่าถ้าเว้นว่างไว้ ให้ถือว่าผ่านเลย
+    if (value === "") {
+        inputField.style.borderColor = "";
+        hideErrorMessage(inputField);
+        return;
+    }
+
+    // ✅ ลบเลขศูนย์นำหน้าอัตโนมัติ แต่ไม่เปลี่ยนค่าถูกต้อง
+    value = value.replace(/\b0+(\d+)/g, '$1');
+
+    // ✅ Regular Expression ตรวจจับ IPv4
+    const ipPattern = /^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$/;
+
+    let errorBox = inputField.parentNode.querySelector(".alert-box.error");
+    if (!errorBox) {
+        errorBox = document.createElement("div");
+        errorBox.className = "alert-box error";
+        errorBox.style.display = "none";
+        errorBox.innerHTML = `<span>ERROR:</span> Invalid IP Address format. Example: 111.111.111.111.`;
+        inputField.parentNode.appendChild(errorBox);
+    }
+
+    if (ipPattern.test(value)) {
+        inputField.style.borderColor = "";  // ✅ IP ถูกต้อง ไม่โชว์ error
+        errorBox.style.display = "none";
+        inputField.setAttribute("data-valid", "true");
+        inputField.value = value; // ✅ อัปเดตค่าให้ไม่มีศูนย์นำหน้า
+    } else {
+        inputField.style.borderColor = "red";
+        errorBox.style.display = "block";
+        inputField.setAttribute("data-valid", "false");
+    }
+}
+
+// ฟังก์ชันซ่อน Error Message
+function hideErrorMessage(inputField) {
+    let errorBox = inputField.parentNode.querySelector(".alert-box.error");
+    if (errorBox) {
+        errorBox.style.display = "none";
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -148,7 +203,49 @@ document.addEventListener("DOMContentLoaded", () => {
         greedy: false // Ensures only the valid mask is displayed
     });
 
+    // ✅ เพิ่ม Validation แต่ไม่ลบโค้ดเดิม
+    ntpServerInput.on("input", function () {
+        validateNtpServer(this);
+    });
 });
+
+// ✅ ฟังก์ชันตรวจสอบค่า NTP Server (เพิ่มเข้าไปโดยไม่กระทบของเดิม)
+function validateNtpServer(inputField) {
+    let value = inputField.value.trim();
+    let errorBox = document.getElementById("ntp-server-error");
+
+    if (!errorBox) {
+        errorBox = document.createElement("div");
+        errorBox.id = "ntp-server-error";
+        errorBox.className = "alert-box error";
+        errorBox.style.display = "none";
+        inputField.parentNode.appendChild(errorBox);
+    }
+
+    // ✅ อนุญาตให้เว้นว่างได้โดยไม่ Error
+    if (value === "") {
+        inputField.style.borderColor = "";
+        errorBox.style.display = "none";
+        return;
+    }
+
+    // ✅ ตัดเลข 0 นำหน้าแต่ไม่ลบ "0" ตัวเดียว
+    value = value.replace(/\b0+(\d)/g, '$1');
+
+    // ✅ ตรวจสอบว่าเป็น IP Address ที่ถูกต้อง (0-255 ต่อ Octet)
+    const ipPattern = /^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$/;
+
+
+    if (!ipPattern.test(value)) {
+        inputField.style.borderColor = "red";
+        errorBox.style.display = "block";
+        errorBox.innerHTML = `<span>ERROR:</span> Invalid IP Address format. Example: 111.111.111.111.`;
+    } else {
+        inputField.style.borderColor = "";
+        errorBox.style.display = "none";
+        inputField.value = value; // ✅ Auto-fix โดยตัดเลข 0 นำหน้าออก
+    }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     // Apply Input Mask to Default Gateway Input
@@ -158,7 +255,50 @@ document.addEventListener("DOMContentLoaded", () => {
         placeholder: "___.___.___.___ (e.g., 127.0.0.1)", // Placeholder for IP address
         greedy: false // Ensures only the valid mask is displayed
     });
+
+    // ✅ เพิ่ม Validation แต่ไม่ลบโค้ดเดิม
+    defaultGatewayInput.on("input", function () {
+        validateDefaultGateway(this);
+    });
 });
+
+// ✅ ฟังก์ชันตรวจสอบ Default Gateway (เพิ่มเข้าไปโดยไม่กระทบของเดิม)
+function validateDefaultGateway(inputField) {
+    let value = inputField.value.trim();
+    let errorBox = document.getElementById("default-gateway-error");
+
+    if (!errorBox) {
+        errorBox = document.createElement("div");
+        errorBox.id = "default-gateway-error";
+        errorBox.className = "alert-box error";
+        errorBox.style.display = "none";
+        inputField.parentNode.appendChild(errorBox);
+    }
+
+    // ✅ อนุญาตให้เว้นว่างได้โดยไม่ Error
+    if (value === "") {
+        inputField.style.borderColor = "";
+        errorBox.style.display = "none";
+        return;
+    }
+
+    // ✅ ตัดเลข 0 นำหน้าแต่ไม่ลบ "0" ตัวเดียว
+    value = value.replace(/\b0+(\d)/g, '$1');
+
+    // ✅ ตรวจสอบว่าเป็น IP Address ที่ถูกต้อง (0-255 ต่อ Octet)
+    const ipPattern = /^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$/;
+
+
+    if (!ipPattern.test(value)) {
+        inputField.style.borderColor = "red";
+        errorBox.style.display = "block";
+        errorBox.innerHTML = `<span>ERROR:</span> Invalid IP Address format. Example: 111.111.111.111.`;
+    } else {
+        inputField.style.borderColor = "";
+        errorBox.style.display = "none";
+        inputField.value = value; // ✅ Auto-fix โดยตัดเลข 0 นำหน้าออก
+    }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     // Populate Day Dropdown
@@ -237,8 +377,10 @@ document.getElementById("add-interface-config").addEventListener("click", functi
                     </div>
                 </div>  
                 <br>
-                            <!-- Remove Button -->
-            <button type="button" class="remove-interface-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
+                <!-- Remove Button -->
+                <button type="button" class="remove-interface-config">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
             </div>
 
         </form>
@@ -392,31 +534,36 @@ function validateVlanIdInput(vlanIdInputId, errorBoxId) {
     const vlanSection = vlanIdInput.closest(".vlan-id-section");
 
     vlanIdInput.addEventListener("input", function () {
-        // Skip validation if the section is hidden
+        // ❌ Skip validation if the section is hidden
         if (vlanSection.style.display === "none") {
             this.style.borderColor = ""; // Reset border
             errorBox.style.display = "none"; // Hide error
             return;
         }
 
-        const value = this.value.trim();
+        let value = this.value.trim();
 
-        // Allow empty value without error
+        // ✅ Allow empty value without error
         if (value === "") {
             this.style.borderColor = ""; // Reset border
             errorBox.style.display = "none"; // Hide error
             return;
         }
 
-        // Check if the value is a valid VLAN ID
+        // ✅ Remove leading zeros
+        value = value.replace(/^0+/, '');
+
+        // ✅ Check if the value is a valid VLAN ID (1-4094)
         const isValid = /^\d+$/.test(value) && value >= 1 && value <= 4094;
 
         if (!isValid) {
             this.style.borderColor = "red";
             errorBox.style.display = "block";
+            errorBox.innerHTML = `<span>ERROR:</span> VLAN ID must be between 1 and 4094, without leading zeros.`;
         } else {
             this.style.borderColor = "";
             errorBox.style.display = "none";
+            vlanIdInput.value = value; // ✅ Auto-fix the input
         }
     });
 }
@@ -725,7 +872,9 @@ if (portSecurityAddButton) {
         
             <!-- Remove Configuration Button -->
             <div class="port-security-form-group">
-                <button type="button" class="remove-port-security-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
+                <button type="button" class="remove-port-security-config">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
             </div>
         </form>
         `;
@@ -862,15 +1011,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const stpModeDropdown = document.getElementById("stp-mode");
     const mstConfigContainer = document.getElementById("mst-config-container");
 
-    // Add MST configuration area when MST is selected
+    // ตรวจจับการเปลี่ยนค่าใน STP Mode Dropdown
     stpModeDropdown.addEventListener("change", function () {
         const selectedMode = this.value;
 
         if (selectedMode === "mst") {
+            mstConfigContainer.style.display = "block"; // แสดง MST Configuration
             renderMSTConfiguration();
         } else {
-            // Clear MST Configuration if not MST mode
-            mstConfigContainer.innerHTML = ""; // Reset content if it's not MST
+            mstConfigContainer.style.display = "none"; // ซ่อน MST Configuration
+            mstConfigContainer.innerHTML = ""; // ล้างค่า
         }
     });
 
@@ -878,10 +1028,9 @@ document.addEventListener("DOMContentLoaded", function () {
         // Add MST Configuration Header
         mstConfigContainer.innerHTML = `
             <button type="button" id="add-mst-instance" class="icon-button-agg">
-                    <i class="fas fa-plus"></i>
+                <i class="fas fa-plus"></i>
             </button>
             <div id="mst-instance-list"></div>
-
         `;
 
         const addButton = document.getElementById("add-mst-instance");
@@ -908,17 +1057,18 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
                 </div>
                 <br>
-                <button type="button" class="remove-button styled-button">Remove</button>
+                <button type="button" class="remove-button">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
                 <hr>
             `;
 
-            // Add validation and remove functionality
+            // Validate MST Instance
             const mstInstanceInput = instanceForm.querySelector('.mst-instance-input');
             const vlansMappedInput = instanceForm.querySelector('.vlans-mapped-input');
             const mstInstanceError = instanceForm.querySelector('.mst-instance-error');
             const vlansMappedError = instanceForm.querySelector('.vlans-mapped-error');
 
-            // Validate MST Instance
             mstInstanceInput.addEventListener('input', () => {
                 const value = mstInstanceInput.value.trim();
                 if (value === '') {
@@ -964,6 +1114,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
 
 const timezones = [
     { value: "", label: "Select Timezone ( Default )" }, // Default empty value
@@ -1090,7 +1241,9 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
                 </div>
             </div>
         <!-- Remove Button -->
-        <button type="button" class="remove-aggregation-config styled-button" style="background-color: #dc3545; color: white;">Remove Configuration</button>
+        <button type="button" class="remove-aggregation-config">
+            <i class="fas fa-trash-alt"></i>
+        </button>
         </div>
     </form>
     `;
@@ -1151,17 +1304,32 @@ document.getElementById("add-aggregation-config").addEventListener("click", func
     // Add Validation for Access VLAN
     const linkAggregationAllowedVlans1 = document.getElementById(`access-vlan-${aggId}`);
     const allowedVlansError1 = document.getElementById(`access-vlan-error-${aggId}`); // Element สำหรับ error message
-    
+
     linkAggregationAllowedVlans1.addEventListener("input", function () {
-        const value = this.value.trim();
+        let value = this.value.trim();
+
+        // ✅ อนุญาตให้เว้นว่างได้โดยไม่ Error
+        if (value === "") {
+            this.style.borderColor = ""; 
+            allowedVlansError1.style.display = "none"; 
+            return;
+        }
+
+        // ✅ ลบเลข 0 นำหน้า (แต่ไม่ลบเลข 0 ตัวเดียว)
+        value = value.replace(/^0+(\d)/, '$1');
+
+        // ✅ เช็คว่าเป็นตัวเลขล้วน และอยู่ในช่วง 1-4094
         const numValue = parseInt(value, 10);
-    
-        if (value && (isNaN(numValue) || numValue < 1 || numValue > 4094)) {
-            linkAggregationAllowedVlans1.style.borderColor = "red"; // เพิ่มกรอบสีแดง
-            allowedVlansError1.style.display = "block"; // แสดงข้อความแจ้งเตือน
+        const isValid = /^\d+$/.test(value) && numValue >= 1 && numValue <= 4094;
+
+        if (!isValid) {
+            this.style.borderColor = "red";
+            allowedVlansError1.style.display = "block";
+            allowedVlansError1.innerHTML = `<span>ERROR:</span> VLAN ID must be between 1 and 4094, without leading zeros.`;
         } else {
-            linkAggregationAllowedVlans1.style.borderColor = ""; // ลบกรอบสีแดง
-            allowedVlansError1.style.display = "none"; // ซ่อนข้อความแจ้งเตือน
+            this.style.borderColor = "";
+            allowedVlansError1.style.display = "none";
+            this.value = value; // ✅ Auto-fix โดยตัดเลข 0 นำหน้าออก
         }
     });
     
@@ -1581,7 +1749,6 @@ document.getElementById('save-config-templates').addEventListener('click', () =>
     
                 if (!isValidName) {
                     vlanName.style.borderColor = "red"; // แสดง Error ที่ Input VLAN Name
-                    alert(`Invalid VLAN Name: "${vlanNameValue}". Please fix the error (no spaces allowed).`);
                     return; // หยุดการทำงานสำหรับ VLAN นี้
                 } else {
                     vlanName.style.borderColor = ""; // รีเซ็ต Error ที่ Input

@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='sidebar_style.css') }}">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="icon" href="../static/img/logo_icon.jpg">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <style>
@@ -201,10 +203,10 @@
                             <div class="input-group">
                                 <label for="serial-port" class="input-label">Serial Port</label>
                                 <select id="serial-port" class="input-select">
-                                    <option value="" disabled selected>Choose a port</option>
+                                    <option value=""selected>Choose a port</option>
                                 </select>
                             </div>
-                            <!-- <div class="input-group">
+                            <div class="input-group">
                                 <label for="speed" class="input-label">Speed (bps)</label>
                                 <select id="speed" class="input-select">
                                     <option value="1200">1200</option>
@@ -219,7 +221,9 @@
                                     <option value="460800">460800</option>
                                     <option value="921600">921600</option>
                                 </select>
-                            </div> -->
+                            </div>
+                            <label for="speed" class="input-label">Clear Session</label>
+                            <button id="clear-session" class="btn btn-clear">Clear Session</button>
                         </div>
                         <div class="button-group">
                             <button id="upload-file" class="btn btn-upload">Upload File</button>
@@ -240,6 +244,7 @@
             <button id="closeErrorModal" class="error-modal-button">OK</button>
         </div>
     </div>
+
 
     </div>
     <script src="/static/js/script-serial-console.js"></script>

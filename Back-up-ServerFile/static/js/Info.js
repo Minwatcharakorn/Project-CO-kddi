@@ -115,6 +115,7 @@ async function fetchSwitchData() {
             ? formatUptime(Math.floor(data.uptime / 100))
             : 'N/A';
         document.getElementById('devicetypeBottom').innerText = data.device_type || 'N/A';
+        document.getElementById('firmwareVersion').innerText = data.firmware_version || 'N/A';
 
         // Prepare data for charts
         const cpuUsage = data.cpu_usage || 0;
