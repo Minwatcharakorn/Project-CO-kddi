@@ -934,7 +934,7 @@ def delete_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="192.168.99.13",
+            host="127.0.0.1",
             port="5432"
         )
         cursor = conn.cursor()
