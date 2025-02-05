@@ -394,7 +394,7 @@ def read_output(shell, timeout=5):
     start_time = time.time()
     while time.time() - start_time < timeout:
         while shell.recv_ready():
-            output += shell.recv(2048).decode('utf-8', errors='ignore')
+            output += shell.recv(65535).decode('utf-8', errors='ignore')
         time.sleep(0.1)
     return output
 
@@ -402,95 +402,185 @@ def read_output(shell, timeout=5):
 ##################################################
 # ฟังก์ชันที่ใช้ SSH/Paramiko เพื่อสั่งอัปเดต firmware
 ##################################################
-def update_switch_firmware(ip, username, password, tftp_server_ip, filename):
-    """
-    1) SSH ไปยัง Switch (ip)
-    2) copy tftp://{tftp_server_ip}/{filename} bootflash:
-    3) ตั้ง boot system flash: <filename>
-    4) write memory
-    5) reload
-    """
-    try:
-        logging.info(f"Connecting to {ip}")
+import re
+import time
+import paramiko
+import logging
 
+
+def read_output(shell, timeout=5):
+    """
+    ฟังก์ชันอ่าน output จาก shell ภายในเวลา timeout วินาที
+    (สามารถปรับปรุงได้ตามต้องการ)
+    """
+    output = ""
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        while shell.recv_ready():
+            chunk = shell.recv(65535).decode('utf-8', errors='ignore')
+            output += chunk
+            # รีเซ็ตเวลาเมื่อยังมี data เข้ามาเรื่อย ๆ
+            start_time = time.time()
+        time.sleep(0.5)
+    return output
+
+
+def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, filename, confirm=False):
+    """
+    ฟังก์ชันรวมขั้นตอนการ copy TFTP -> flash, verify md5,
+    และ (optionally) ทำการตั้ง boot system + reload หาก confirm == True
+    """
+
+    logging.info(f"Connecting to {ip} for firmware update (confirm={confirm})")
+
+    try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-        # -- เช็ค Credential ถ้าไม่ถูกต้องจะเกิด AuthenticationException --
-        ssh.connect(ip, username=username, password=password, look_for_keys=False)
+        ssh.connect(ip, username=username, password=password, look_for_keys=False, timeout=10)
 
         shell = ssh.invoke_shell()
         shell.send("terminal length 0\n")
         time.sleep(1)
+        _ = read_output(shell)
 
-        # 1) Copy firmware (.bin) จาก TFTP มายัง bootflash:
+        # 1) copy firmware (.bin) จาก TFTP มายัง bootflash:
         shell.send(f"copy tftp://{tftp_server_ip}/{filename} bootflash:\n")
         time.sleep(2)
-        output = read_output(shell)
+        output = read_output(shell, timeout=10)
         logging.info(output)
 
-        # 2) Handle prompts ระหว่าง copy
+        # ตอบ prompt ระหว่าง copy จนกลับมาที่ prompt (#)
         while True:
             if "Destination filename" in output:
-                shell.send("\n")
-            elif "over write?" in output.lower():
+                shell.send("\n")  # ยืนยันชื่อไฟล์
+            elif "overwrite?" in output.lower():
                 shell.send("yes\n")
             elif "confirm" in output.lower():
                 shell.send("yes\n")
             elif "#" in output:
-                # copy เสร็จ
                 break
             time.sleep(1)
-            output = read_output(shell)
+            output = read_output(shell, timeout=10)
             logging.info(output)
 
-        # 3) ตั้งค่า boot system
+        # 2) verify /md5 flash:filename
+        shell.send(f"verify /md5 flash:{filename}\n")
+        time.sleep(1)
+
+        output_verify = ""
+        start_time = time.time()
+        timeout_secs = 600  # ขยายเวลาได้ตามขนาดไฟล์ (เช่น 600 วินาที = 10 นาที)
+
+        while True:
+            # อ่าน chunk ที่เข้ามา
+            while shell.recv_ready():
+                chunk = shell.recv(65535).decode('utf-8', errors='ignore')
+                output_verify += chunk
+                logging.info(f"[DEBUG-chunk] {chunk}")
+
+            # เช็คว่าพบสัญญาณจบการ verify หรือไม่
+            if "No such file" in output_verify or "Error computing MD5" in output_verify:
+                break
+            if "Done!" in output_verify:
+                # บางอุปกรณ์จะพิมพ์ Done! + แสดงค่า MD5 ต่อท้าย
+                break
+
+            # หากเกิน timeout_secs แล้ว ให้หยุด
+            if time.time() - start_time > timeout_secs:
+                break
+
+            time.sleep(1)
+
+        logging.info(f"[DEBUG] verify output:\n{output_verify}")
+
+        # จับ MD5 จาก output
+        #
+        # ตัวอย่างรูปแบบที่เจอ:
+        # Done!
+        # verify /md5 (flash:cat9k_iosxe.17.12.02.SPA.bin) = 2405eeb2627eeee594078b6019a2d936
+        #
+        # จึงใช้ regex หา "= <hex32>" ก็ได้
+        md5_match = re.search(r'=\s*([a-fA-F0-9]{32})', output_verify)
+        if md5_match:
+            md5_value = md5_match.group(1)
+            verification_status = f"PASS (MD5 = {md5_value})"
+        elif "No such file" in output_verify or "Error computing MD5" in output_verify:
+            verification_status = "FAILED (no such file or error computing MD5)"
+            md5_value = None
+        else:
+            verification_status = "UNKNOWN"
+            md5_value = None
+
+        # ถ้ายังไม่ confirm => จบแค่ verify
+        if not confirm:
+            shell.close()
+            ssh.close()
+            return {
+                "status": "verify_only",
+                "verification_status": verification_status,
+                "md5": md5_value,
+                "message": "Verification done. Waiting user confirmation to proceed."
+            }
+
+        # -------- PART การอัปเดตจริง (ถ้าผู้ใช้ confirm=True) --------
         shell.send("configure terminal\n")
         time.sleep(1)
-        output = read_output(shell)
+        output = read_output(shell, timeout=10)
         logging.info(output)
 
         shell.send("no boot system\n")
         time.sleep(1)
+        output = read_output(shell, timeout=10)
+        logging.info(output)
 
         shell.send(f"boot system flash:{filename}\n")
         time.sleep(1)
+        output = read_output(shell, timeout=10)
+        logging.info(output)
 
         shell.send("exit\n")
         time.sleep(1)
-        output = read_output(shell)
+        output = read_output(shell, timeout=10)
         logging.info(output)
 
-        # 4) Save Config
         shell.send("write memory\n")
         time.sleep(2)
-        output = read_output(shell)
+        output = read_output(shell, timeout=10)
         logging.info(output)
 
-        # 5) Reload Device
         shell.send("reload\n")
         time.sleep(1)
-        output = read_output(shell)
+        output = read_output(shell, timeout=10)
         logging.info(output)
 
         if "confirm" in output.lower() or "reload proceed" in output.lower():
             shell.send("yes\n")
             time.sleep(2)
-            output = read_output(shell)
+            output = read_output(shell, timeout=10)
             logging.info(output)
 
         shell.close()
         ssh.close()
 
-        return "Firmware updated and device reloaded successfully."
+        return {
+            "status": "update_done",
+            "verification_status": verification_status,
+            "md5": md5_value,
+            "message": "Firmware updated and device reloaded successfully."
+        }
 
     except paramiko.AuthenticationException as e:
         logging.error(f"[Authentication Error] {ip}: {str(e)}")
-        return f"Authentication failed. Please check your credentials and try again."
-
+        return {
+            "status": "error",
+            "message": f"Authentication failed: {str(e)}"
+        }
     except Exception as e:
         logging.error(f"Error updating firmware on {ip}: {e}")
-        return f"Error: {str(e)}"
+        return {
+            "status": "error",
+            "message": f"Error: {str(e)}"
+        }
 
 @app.route('/')
 def index():
@@ -529,19 +619,72 @@ def update_firmware_page():
     files = os.listdir(UPLOAD_FOLDER_FIRMWARE)
     return render_template('update_firmware.html', files=files)
 
-@app.route('/automate_update', methods=['POST'])
-def automate_update():
+@app.route('/automate_update_with_verify', methods=['POST'])
+def automate_update_with_verify():
     """
-    รับข้อมูลจาก form: tftp_server_ip, filename, devices, username, password
-    แล้วสั่ง update_switch_firmware() ให้ทีละ device
+    รับข้อมูลจาก form หรือ JSON:
+      - tftp_server_ip, filename
+      - devices (list ของ IP)
+      - username, password
+      - confirm (bool) => true/false
+    ถ้า confirm=False => ทำแค่ copy + verify, ส่งกลับ MD5 ให้ user ดู
+    ถ้า confirm=True  => ทำขั้นตอน boot system + reload
     """
+    data = request.get_json()
+    tftp_server_ip = data.get('tftp_server_ip')
+    filename = data.get('filename')
+    devices = data.get('devices', [])
+    username = data.get('username')
+    password = data.get('password')
+    confirm = data.get('confirm', False)  # bool
+
+    # ตรวจสอบไฟล์บน TFTP server
+    firmware_path = os.path.join(UPLOAD_FOLDER_FIRMWARE, filename)
+    if not os.path.exists(firmware_path):
+        return jsonify({'error': f'File {filename} does not exist on TFTP server.'}), 400
+
+    results = {}
+    for device_ip in devices:
+        device_ip = device_ip.strip()
+        logs = []
+        try:
+            logs.append(f"[{device_ip}] Starting update process with confirm={confirm}")
+            resp = update_switch_firmware_with_verify(
+                ip=device_ip,
+                username=username,
+                password=password,
+                tftp_server_ip=tftp_server_ip,
+                filename=filename,
+                confirm=confirm
+            )
+            logs.append(f"Result => {resp}")
+
+            # สร้างรูปแบบให้ Frontend ดูง่าย
+            results[device_ip] = {
+                "status": resp.get("status"),
+                "md5": resp.get("md5"),
+                "verification_status": resp.get("verification_status"),
+                "message": resp.get("message"),
+            }
+        except Exception as e:
+            logs.append(f"Error (outer): {str(e)}")
+            results[device_ip] = {
+                "status": "error",
+                "message": str(e)
+            }
+
+        print("\n".join(logs))
+
+    return jsonify({"results": results})
+
+@app.route('/automate_verify', methods=['POST'])
+def automate_verify():
     tftp_server_ip = request.form.get('tftp_server_ip')
     filename = request.form.get('filename')
     devices = request.form.getlist('devices[]')
     username = request.form.get('username')
     password = request.form.get('password')
 
-    # 1) ตรวจสอบไฟล์บน TFTP server
     firmware_path = os.path.join(UPLOAD_FOLDER_FIRMWARE, filename)
     if not os.path.exists(firmware_path):
         return jsonify({'error': f'File {filename} does not exist on TFTP server.'}), 400
@@ -551,17 +694,15 @@ def automate_update():
         device_ip = device_ip.strip()
         device_logs = []
         try:
-            device_logs.append(f"Connecting to {device_ip}...")
-
-            # 2) เรียกฟังก์ชัน Paramiko จริง
-            result = update_switch_firmware(
+            device_logs.append(f"Connecting to {device_ip}... (verify)")
+            result = verify_switch_firmware(
                 ip=device_ip,
                 username=username,
                 password=password,
                 tftp_server_ip=tftp_server_ip,
                 filename=filename
             )
-            # 3) result = "Firmware updated and device reloaded successfully." หรือ "Error: ..."
+            # result ตอนนี้มีทั้งสถานะ และ Output เต็ม
             device_logs.append(result)
 
         except Exception as e:
@@ -569,9 +710,8 @@ def automate_update():
 
         logs[device_ip] = device_logs
 
-    # 4) ส่ง JSON กลับไป
-    # Frontend (JS) จะอ่านแล้วแปลงเป็นข้อความ IP: สถานะ
     return jsonify({'results': logs})
+
 
 @app.route('/delete_firmware', methods=['POST'])
 def delete_firmware():
@@ -877,9 +1017,34 @@ def deploy_page():
     switches_from_session = session.get('switches', [])
     return render_template('Deploy.html', switches=switches_from_session)
 
+#########################################################
+# ฟังก์ชันช่วยตรวจจับ error output จาก Cisco
+#########################################################
+def is_error_output(text):
+    """
+    ตรวจสอบว่า output มีบรรทัดใดที่ขึ้นต้นด้วย '%' 
+    หรือมีคำว่า 'Error' (case-sensitive) อยู่ในข้อความ
+    """
+    # ตรวจจับบรรทัดที่ขึ้นต้นด้วย % (Cisco error message)
+    error_pattern = r'^\s*%.*$'
+    if re.search(error_pattern, text, re.MULTILINE):
+        return True
+    # ตรวจจับคำว่า "Error" (สามารถปรับปรุงได้ตามต้องการ)
+    if "Error" in text:
+        return True
+    return False
+
+#########################################################
+# Endpoint สำหรับ deploy configuration ไปยังอุปกรณ์
+#########################################################
 @app.route('/api/deploy', methods=['POST'])
 def deploy_api():
-    """API สำหรับการส่งคำสั่งไปยังอุปกรณ์ที่เลือก."""
+    """
+    API สำหรับส่งคำสั่งไปยังอุปกรณ์ที่เลือก (โดยใช้ SSH)
+    โดยจะอ่าน template commands จากฐานข้อมูลและส่งทีละคำสั่ง
+    หากพบ output ที่ตรวจจับว่าเป็น error (เช่น ขึ้นต้นด้วย '%' หรือมี 'Error')
+    จะหยุดการส่งคำสั่งและตั้งสถานะเป็น "Failure"
+    """
     selected_devices = session.get('selected_devices', [])
     selected_template_id = session.get('selected_template', None)
 
@@ -940,19 +1105,23 @@ def deploy_api():
                             time.sleep(0.5)
                         output = shell.recv(314572800).decode('utf-8').strip()
 
-                        if 'Error' in output:
+                        # ตรวจจับ error output โดยใช้ is_error_output()
+                        if is_error_output(output):
                             output_log.append(f"Error in '{command}': {output}")
-                            break
+                            break  # หยุดส่งคำสั่งถ้าเกิด error
                         output_log.append(output)
                     except Exception as cmd_error:
                         output_log.append(f"Error executing command '{command}': {str(cmd_error)}")
                         break
 
-                # บันทึก log ลงฐานข้อมูล
+                # กำหนดสถานะเป็น "Success" ถ้าไม่มี error ใน log
+                current_status = "Success" if not any(is_error_output(log) for log in output_log) else "Failure"
+
+                # บันทึก log ลงฐานข้อมูล (ฟังก์ชัน save_deployment_log ควรมีอยู่แล้ว)
                 save_deployment_log(
                     device={"ip": device['ip'], "hostname": hostname},
                     template_name=template_name,
-                    status="Success" if not any("Error" in log for log in output_log) else "Failure",
+                    status=current_status,
                     details="\n".join(output_log),
                     description=template_description
                 )
@@ -961,7 +1130,7 @@ def deploy_api():
                     "hostname": hostname,
                     "ip": device['ip'],
                     "template_name": template_name,
-                    "status": "Success" if not any("Error" in log for log in output_log) else "Failure",
+                    "status": current_status,
                     "details": "\n".join(output_log)
                 })
 
@@ -974,7 +1143,6 @@ def deploy_api():
                     "status": "Failure",
                     "details": f"SSH connection error: {str(e)}"
                 })
-
                 save_deployment_log(
                     device={"ip": device['ip'], "hostname": hostname},
                     template_name=template_name,
@@ -986,7 +1154,9 @@ def deploy_api():
     session['deployment_logs'] = deployment_logs
     return jsonify({"message": "Deployment completed", "logs": deployment_logs}), 200
 
-
+#########################################################
+# ตัวอย่างฟังก์ชัน save_deployment_log (ไม่ต้องแก้ไขเพิ่มเติม)
+#########################################################
 def save_deployment_log(device, template_name, status, details, description):
     """บันทึก log ลงฐานข้อมูล."""
     try:
@@ -1004,6 +1174,44 @@ def save_deployment_log(device, template_name, status, details, description):
             cursor.close()
         if 'conn' in locals():
             conn.close()
+
+# ----------------------------------------- 2/5/2025
+
+
+@app.route('/api/cancel_deployment', methods=['POST'])
+def cancel_deployment():
+    selected_devices = session.get('selected_devices', [])
+    selected_template = session.get('selected_template')
+    try:
+        # ดึงข้อมูล template จากฐานข้อมูล
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT template_name, description FROM templates WHERE id = %s", (selected_template,))
+        result = cursor.fetchone()
+        if result:
+            template_name, template_description = result
+        else:
+            template_name, template_description = "Unknown", "Template not found."
+        
+        # สำหรับแต่ละอุปกรณ์ที่ถูกเลือก ให้บันทึก log ว่า deployment ล้มเหลว (Failure) ด้วยสาเหตุ timeout
+        for device in session.get('switches', []):
+            if device['ip'] in selected_devices:
+                save_deployment_log(
+                    device={"ip": device['ip'], "hostname": device.get('hostname', 'Unknown')},
+                    template_name=template_name,
+                    status="Failure",
+                    details="Deployment canceled due to timeout.",
+                    description=template_description
+                )
+        # Clear session เมื่อยกเลิก deployment
+        session.clear()
+        switches.clear()  # ล้างข้อมูลในตัวแปร switches
+
+        return jsonify({"message": "Deployment canceled, session cleared."})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+# ----------------------------------------- 2/5/2025
 
 @app.route('/api/logging', methods=['GET'])
 def get_logging():
