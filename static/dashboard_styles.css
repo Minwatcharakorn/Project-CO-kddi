@@ -1,6 +1,41 @@
 
 
+.action-buttons-dashboard {
+    display: flex;
+    gap: 10px; /* Spacing between buttons */
+    justify-content: center; /* Center align buttons */
+    align-items: center;
+}
 
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; /* Circle size */
+    height: 40px;
+    border-radius: 50%; /* Make it circular */
+    font-size: 18px;
+    color: white;
+    text-decoration: none; /* Remove underline */
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+}
+
+/* Info Button - Blue */
+.info-btn {
+    background-color: #007bff; /* Blue */
+}
+.info-btn:hover {
+    background-color: #0056b3; /* Darker blue */
+}
+
+/* Web Access Button - Green */
+.web-btn {
+    background-color: #28a745; /* Green */
+}
+.web-btn:hover {
+    background-color: #218838; /* Darker green */
+}
 
 .info-icon {
     text-decoration: none; 

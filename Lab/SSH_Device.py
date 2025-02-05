@@ -3,7 +3,7 @@ import sys
 import msvcrt
 import re
 
-hostname = "192.168.100.114"
+hostname = "192.168.99.96"
 port = 22
 user = "admin"
 passwd = "password123"

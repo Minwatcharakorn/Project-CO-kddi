@@ -252,9 +252,13 @@ copy running-config startup-config`;
     // ----------------------------------------------------------------------------
     // Upload File -> อ่านไฟล์คำสั่งขึ้นมาใส่ใน commandArea
     // ----------------------------------------------------------------------------
-    uploadFileButton.addEventListener('click', () => {
+    uploadFileButton.removeEventListener('click', openFileDialog);
+    uploadFileButton.addEventListener('click', openFileDialog);
+
+    function openFileDialog(event) {
+        event.preventDefault(); // ป้องกันพฤติกรรมแปลก ๆ
         fileInput.click();
-    });
+    }
 
     fileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];

@@ -517,7 +517,7 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
             ssh.close()
             return {
                 "status": "verify_only",
-                "verification_status": verification_status,
+                #"verification_status": verification_status,
                 "md5": md5_value,
                 "message": "Verification done. Waiting user confirmation to proceed."
             }
@@ -564,7 +564,7 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
 
         return {
             "status": "update_done",
-            "verification_status": verification_status,
+            #"verification_status": verification_status,
             "md5": md5_value,
             "message": "Firmware updated and device reloaded successfully."
         }
@@ -663,7 +663,7 @@ def automate_update_with_verify():
             results[device_ip] = {
                 "status": resp.get("status"),
                 "md5": resp.get("md5"),
-                "verification_status": resp.get("verification_status"),
+                #"verification_status": resp.get("verification_status"),
                 "message": resp.get("message"),
             }
         except Exception as e:
