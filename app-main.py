@@ -54,7 +54,7 @@ def get_db_connection():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="192.168.99.13",
+            host="127.0.0.1",
             port="5432"
         )
         print("Database connected successfully!")
@@ -424,7 +424,6 @@ def read_output(shell, timeout=5):
         time.sleep(0.5)
     return output
 
-
 def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, filename, confirm=False):
     """
     ฟังก์ชันรวมขั้นตอนการ copy TFTP -> flash, verify md5,
@@ -451,6 +450,18 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
 
         # ตอบ prompt ระหว่าง copy จนกลับมาที่ prompt (#)
         while True:
+            # ------------------------------
+            # (เพิ่ม) เช็คถ้ามี "%Error" หรือ No space left
+            # ------------------------------
+            if "%Error" in output or "No space left" in output:
+                # ถือว่าเป็น Error ระหว่าง copy, ตัดจบ
+                shell.close()
+                ssh.close()
+                return {
+                    "status": "error",
+                    "message": f"Copy failed on {ip}: {output.strip()}"
+                }
+
             if "Destination filename" in output:
                 shell.send("\n")  # ยืนยันชื่อไฟล์
             elif "overwrite?" in output.lower():
@@ -458,7 +469,9 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
             elif "confirm" in output.lower():
                 shell.send("yes\n")
             elif "#" in output:
+                # เมื่อเห็น prompt '#' แปลว่าการ copy น่าจะจบแล้ว
                 break
+
             time.sleep(1)
             output = read_output(shell, timeout=10)
             logging.info(output)
@@ -469,23 +482,31 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
 
         output_verify = ""
         start_time = time.time()
-        timeout_secs = 600  # ขยายเวลาได้ตามขนาดไฟล์ (เช่น 600 วินาที = 10 นาที)
+        timeout_secs = 600  # เผื่อไฟล์ใหญ่, รอได้ 10 นาที
 
         while True:
-            # อ่าน chunk ที่เข้ามา
             while shell.recv_ready():
                 chunk = shell.recv(65535).decode('utf-8', errors='ignore')
                 output_verify += chunk
                 logging.info(f"[DEBUG-chunk] {chunk}")
 
-            # เช็คว่าพบสัญญาณจบการ verify หรือไม่
+            # ------------------------------
+            # (เพิ่ม) เช็ค %Error ระหว่าง Verify
+            # ------------------------------
+            if "%Error" in output_verify:
+                # เช่น %Error computing MD5 hash ...
+                shell.close()
+                ssh.close()
+                return {
+                    "status": "error",
+                    "message": f"Verify failed on {ip}: {output_verify.strip()}"
+                }
+
+            # เช็คเงื่อนไขอื่น ๆ ที่บ่งบอก Verify จบ
             if "No such file" in output_verify or "Error computing MD5" in output_verify:
                 break
             if "Done!" in output_verify:
-                # บางอุปกรณ์จะพิมพ์ Done! + แสดงค่า MD5 ต่อท้าย
                 break
-
-            # หากเกิน timeout_secs แล้ว ให้หยุด
             if time.time() - start_time > timeout_secs:
                 break
 
@@ -494,12 +515,6 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
         logging.info(f"[DEBUG] verify output:\n{output_verify}")
 
         # จับ MD5 จาก output
-        #
-        # ตัวอย่างรูปแบบที่เจอ:
-        # Done!
-        # verify /md5 (flash:cat9k_iosxe.17.12.02.SPA.bin) = 2405eeb2627eeee594078b6019a2d936
-        #
-        # จึงใช้ regex หา "= <hex32>" ก็ได้
         md5_match = re.search(r'=\s*([a-fA-F0-9]{32})', output_verify)
         if md5_match:
             md5_value = md5_match.group(1)
@@ -517,12 +532,14 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
             ssh.close()
             return {
                 "status": "verify_only",
-                #"verification_status": verification_status,
+                # "verification_status": verification_status,   # ไม่ใส่ตามที่คุณเอาออก
                 "md5": md5_value,
                 "message": "Verification done. Waiting user confirmation to proceed."
             }
 
-        # -------- PART การอัปเดตจริง (ถ้าผู้ใช้ confirm=True) --------
+        # -------------------------------------------------
+        # PART การอัปเดตจริง (ถ้าผู้ใช้ confirm=True)
+        # -------------------------------------------------
         shell.send("configure terminal\n")
         time.sleep(1)
         output = read_output(shell, timeout=10)
@@ -564,7 +581,7 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
 
         return {
             "status": "update_done",
-            #"verification_status": verification_status,
+            # "verification_status": verification_status,  # ไม่ใส่ตามที่คุณเอาออก
             "md5": md5_value,
             "message": "Firmware updated and device reloaded successfully."
         }
@@ -581,6 +598,7 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
             "status": "error",
             "message": f"Error: {str(e)}"
         }
+
 
 @app.route('/')
 def index():
@@ -777,7 +795,7 @@ def listtemplate_page():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="192.168.99.13",
+            host="127.0.0.1",
             port="5432"
         )
         cursor = conn.cursor()
@@ -815,7 +833,7 @@ def get_templates_json():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="192.168.99.13",
+            host="127.0.0.1",
             port="5432"
         )
         cursor = conn.cursor()
@@ -846,7 +864,7 @@ def view_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="192.168.99.13",
+            host="127.0.0.1",
             port="5432"
         )
         cursor = conn.cursor()
@@ -886,7 +904,7 @@ def update_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="192.168.99.13",
+            host="127.0.0.1",
             port="5432"
         )
         cursor = conn.cursor()
