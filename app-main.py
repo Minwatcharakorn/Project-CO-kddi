@@ -1035,6 +1035,44 @@ def save_deployment_log(device, template_name, status, details, description):
         if 'conn' in locals():
             conn.close()
 
+# ----------------------------------------- 2/5/2025
+
+
+@app.route('/api/cancel_deployment', methods=['POST'])
+def cancel_deployment():
+    selected_devices = session.get('selected_devices', [])
+    selected_template = session.get('selected_template')
+    try:
+        # ดึงข้อมูล template จากฐานข้อมูล
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT template_name, description FROM templates WHERE id = %s", (selected_template,))
+        result = cursor.fetchone()
+        if result:
+            template_name, template_description = result
+        else:
+            template_name, template_description = "Unknown", "Template not found."
+        
+        # สำหรับแต่ละอุปกรณ์ที่ถูกเลือก ให้บันทึก log ว่า deployment ล้มเหลว (Failure) ด้วยสาเหตุ timeout
+        for device in session.get('switches', []):
+            if device['ip'] in selected_devices:
+                save_deployment_log(
+                    device={"ip": device['ip'], "hostname": device.get('hostname', 'Unknown')},
+                    template_name=template_name,
+                    status="Failure",
+                    details="Deployment canceled due to timeout.",
+                    description=template_description
+                )
+        # Clear session เมื่อยกเลิก deployment
+        session.clear()
+        switches.clear()  # ล้างข้อมูลในตัวแปร switches
+
+        return jsonify({"message": "Deployment canceled, session cleared."})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+# ----------------------------------------- 2/5/2025
+
 @app.route('/api/logging', methods=['GET'])
 def get_logging():
     """API สำหรับดึงข้อมูล log การ deploy."""

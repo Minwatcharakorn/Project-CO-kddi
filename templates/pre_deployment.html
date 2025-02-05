@@ -444,99 +444,109 @@
     <script>
         let loadingTimeout;
         let cancelButton;
-
+    
         function showErrorModal(message) {
-            const modal = document.getElementById("errorModal");
-            const errorMessage = document.getElementById("errorMessage");
-
-            if (modal && errorMessage) {
-                errorMessage.textContent = message;
-                modal.style.display = "flex"; // Show modal
-            }
+        const modal = document.getElementById("errorModal");
+        const errorMessage = document.getElementById("errorMessage");
+        if (modal && errorMessage) {
+            errorMessage.textContent = message;
+            modal.style.display = "flex"; // แสดง modal error
         }
-
+        }
+    
         function closeErrorModal() {
-            const modal = document.getElementById("errorModal");
-            if (modal) {
-                modal.style.display = "none"; // Hide modal
-            }
+        const modal = document.getElementById("errorModal");
+        if (modal) {
+            modal.style.display = "none"; // ซ่อน modal error
         }
-
+        }
+    
         function showLoadingModal() {
-            const modal = document.getElementById("loadingModal");
-            cancelButton = document.getElementById("cancelLoadingButton");
-
-            if (modal) {
-                modal.style.display = "flex"; // Show loading modal
-            }
-
-            if (cancelButton) {
-                cancelButton.style.display = "none"; // Hide cancel button initially
-
-                // Show cancel button after 5 minutes (300,000 ms)
-                loadingTimeout = setTimeout(() => {
-                    cancelButton.style.display = "block"; // Show cancel button
-                }, 300000);
-            }
+        const modal = document.getElementById("loadingModal");
+        cancelButton = document.getElementById("cancelLoadingButton");
+    
+        if (modal) {
+            modal.style.display = "flex"; // แสดง loading modal
         }
-
+    
+        if (cancelButton) {
+            cancelButton.style.display = "none"; // ซ่อนปุ่ม Cancel ในตอนแรก
+    
+            // หลังจาก 4 นาที (240,000 ms) ให้แสดงปุ่ม Cancel
+            loadingTimeout = setTimeout(() => {
+            cancelButton.style.display = "block";
+            }, 240000);
+        }
+        }
+    
         function hideLoadingModal() {
-            const modal = document.getElementById("loadingModal");
-            if (modal) {
-                modal.style.display = "none"; // Hide modal
-            }
-
-            clearTimeout(loadingTimeout); // Clear timeout if loading ends before 5 minutes
-            if (cancelButton) {
-                cancelButton.style.display = "none"; // Hide the cancel button
-            }
+        const modal = document.getElementById("loadingModal");
+        if (modal) {
+            modal.style.display = "none"; // ซ่อน modal loading
         }
-
+        clearTimeout(loadingTimeout);
+        if (cancelButton) {
+            cancelButton.style.display = "none";
+        }
+        }
+    
         document.addEventListener("DOMContentLoaded", function () {
-            const closeModalButton = document.getElementById("closeErrorModal");
-            cancelButton = document.getElementById("cancelLoadingButton");
-
-            if (closeModalButton) {
-                closeModalButton.addEventListener("click", closeErrorModal);
+        // ตัวอย่างการจับ event ปุ่มปิด modal error (ถ้ามี)
+        const closeModalButton = document.getElementById("closeErrorModal");
+        cancelButton = document.getElementById("cancelLoadingButton");
+    
+        if (closeModalButton) {
+            closeModalButton.addEventListener("click", closeErrorModal);
+        }
+    
+        if (cancelButton) {
+            cancelButton.addEventListener("click", async function () {
+            // เมื่อคลิก Cancel ให้ส่งคำขอยกเลิก deployment ไปยังเซิร์ฟเวอร์
+            hideLoadingModal();
+            try {
+                const response = await fetch("/api/cancel_deployment", { method: "POST" });
+                if (response.ok) {
+                // หลังจาก cancel สำเร็จให้ redirect ไปหน้า /
+                window.location.href = "/";
+                } else {
+                const errorResult = await response.json();
+                showErrorModal("Error canceling deployment: " + (errorResult.error || ""));
+                }
+            } catch (err) {
+                showErrorModal("Error canceling deployment: " + err.message);
             }
-
-            if (cancelButton) {
-                cancelButton.addEventListener("click", function () {
-                    hideLoadingModal();
-                    showErrorModal("Operation canceled by user.");
+            });
+        }
+    
+        // ตัวอย่าง event สำหรับปุ่ม Deploy
+        const deployButton = document.getElementById('deploy-button');
+        if (deployButton) {
+            deployButton.addEventListener('click', async function () {
+            try {
+                showLoadingModal(); // แสดง loading modal ก่อนเริ่ม deployment
+    
+                // ส่ง API deployment ไปยังเซิร์ฟเวอร์
+                const response = await fetch('/api/deploy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
                 });
+    
+                if (response.ok) {
+                const result = await response.json();
+                console.log("Deployment Logs:", result.logs);
+                hideLoadingModal(); // ซ่อน loading modal เมื่อ deployment สำเร็จ
+                window.location.href = '/deployment_log'; // redirect ไปหน้า log
+                } else {
+                const errorResult = await response.json();
+                throw new Error(errorResult.error || "Deployment failed.");
+                }
+            } catch (err) {
+                hideLoadingModal();
+                console.error(`Error: ${err.message}`);
+                showErrorModal(`Deployment failed: ${err.message}`);
             }
-
-            // Handle Deploy button
-            const deployButton = document.getElementById('deploy-button');
-            if (deployButton) {
-                deployButton.addEventListener('click', async function () {
-                    try {
-                        showLoadingModal(); // Show loading modal before deployment starts
-
-                        // Make API call to start deployment
-                        const response = await fetch('/api/deploy', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' }
-                        });
-
-                        if (response.ok) {
-                            const result = await response.json();
-                            console.log("Deployment Logs:", result.logs);
-
-                            hideLoadingModal(); // Hide loading modal after successful deployment
-                            window.location.href = '/deployment_log'; // Redirect to logs page
-                        } else {
-                            const errorResult = await response.json();
-                            throw new Error(errorResult.error || "Deployment failed.");
-                        }
-                    } catch (err) {
-                        hideLoadingModal(); // Hide loading modal on error
-                        console.error(`Error: ${err.message}`);
-                        showErrorModal(`Deployment failed: ${err.message}`);
-                    }
-                });
-            }
+            });
+        }
         });
     </script>
 
