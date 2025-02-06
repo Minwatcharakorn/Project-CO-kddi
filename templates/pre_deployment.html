@@ -472,10 +472,9 @@
         if (cancelButton) {
             cancelButton.style.display = "none"; // ซ่อนปุ่ม Cancel ในตอนแรก
     
-            // หลังจาก 4 นาที (240,000 ms) ให้แสดงปุ่ม Cancel
             loadingTimeout = setTimeout(() => {
             cancelButton.style.display = "block";
-            }, 240000);
+            }, 60000);
         }
         }
     
