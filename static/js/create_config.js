@@ -437,7 +437,7 @@ function initializeDropdown(counter) {
     const portGroups = [
         { name: "Fixed Chassis", range: generatePorts_agg("GigabitEthernet1/0/", 48) },
         { name: "Modular Chassis", range: generatePorts_agg("GigabitEthernet1/1/", 4) },
-        { name: "TenGigabit Chassis", range: generatePorts_agg("TenGigabitEthernet1/1/", 4) },
+        { name: "TenGigabit Chassis", range: generatePorts_agg("Te1/1/", 4) },
     ];
 
     // Create optgroup for each group
@@ -1549,7 +1549,7 @@ function initializeAggregationDropdown(counter) {
     const portGroups = [
         { name: "Fixed Chassis", range: generatePorts_agg("GigabitEthernet1/0/", 48) },
         { name: "Modular Chassis", range: generatePorts_agg("GigabitEthernet1/1/", 4) },
-        { name: "TenGigabit Chassis", range: generatePorts_agg("TenGigabitEthernet1/1/", 4) },
+        { name: "TenGigabit Chassis", range: generatePorts_agg("Te1/1/", 4) },
     ];
 
     // Add Port Groups
