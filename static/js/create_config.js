@@ -2004,7 +2004,7 @@ document.getElementById("apply-config").addEventListener("click", function () {
 
     // ตรวจสอบว่าข้อมูลครบถ้วน
     if (!configData || !templateName || !description) {
-        showErrorModal("Please fill in all required fields!");
+        showErrorModal("Please fill in all Template Information fields !!");
         return;
     }
 
