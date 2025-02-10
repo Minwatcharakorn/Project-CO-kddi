@@ -54,7 +54,7 @@ def get_db_connection():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         print("Database connected successfully!")
@@ -797,7 +797,7 @@ def listtemplate_page():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -835,7 +835,7 @@ def get_templates_json():
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -866,7 +866,7 @@ def view_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -906,7 +906,7 @@ def update_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -936,7 +936,7 @@ def delete_template(template_id):
             dbname="logdb",
             user="logdb",
             password="kddiadmin",
-            host="127.0.0.1",
+            host="192.168.99.13",
             port="5432"
         )
         cursor = conn.cursor()
@@ -1230,7 +1230,14 @@ def cancel_deployment():
         return jsonify({"message": "Deployment canceled, session cleared."})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
+@app.after_request
+def add_header(response):
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
 # ----------------------------------------- 2/5/2025
 
 @app.route('/api/logging', methods=['GET'])

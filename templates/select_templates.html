@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='Modal_loading.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='select_templates.css') }}">
+    <link rel="icon" href="../static/img/logo_icon.jpg">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -249,10 +250,12 @@
                     </h2>
                 </div>
                 <div class="button-container">
-                    <a href="{{ url_for('deploy_page') }}" class="apply-button" 
-                       style="margin-right: 10px; text-decoration: none;">Back</a>
+                    <button class="deploy-button" 
+                    style="margin-right: 10px; text-decoration: none;" 
+                    onclick="window.location.href='/deploy'"> Back
+                    </button>
                 
-                <button id="apply-template-button" class="apply-button">Next Step</button>
+                    <button id="apply-template-button" class="apply-button">Next Step</button>
                 </div>
             </div>
 
