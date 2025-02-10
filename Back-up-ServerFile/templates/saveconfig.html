@@ -21,7 +21,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <link rel="icon" href="../static/img/logo_icon.jpg">
 
-    <title>Remote Config</title>
+    <title>Save Configuration</title>
 </head>
 <style>
     .w3-teal {
@@ -194,7 +194,7 @@
         <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
         <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard</a>
         <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy Device</a>
-        <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
+        <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Back-up Configuration</a>
         <a href="/serialconsole" class="w3-bar-item w3-button"><i class="fa-solid fa-ethernet"></i> Serial Console Configuration</a>
         <a href="/configuration" class="w3-bar-item w3-button"><i class="fas fa-cogs"></i> Create Template</a>
         <a href="/listtemplate" class="w3-bar-item w3-button"><i class="fa-solid fa-clipboard-list"></i> List Templates</a>
@@ -296,20 +296,26 @@
         <!-- Preview Modal -->
         <div id="previewModal" class="preview-modal" style="display: none;">
             <div class="preview-modal-content">
-                <h2 class="preview-modal-header" style="font-weight: bold;">Output Preview</h2>
-                <div id="preview-configuration-content" class="preview-modal-content-body cli-style">
-                    <!-- Configuration details or CLI output will be injected here dynamically -->
-                    <pre id="outputPreview">Loading...</pre>
-                </div>
-                <div class="preview-modal-footer">
-                    <button id="downloadOutput" class="preview-modal-button-download">Download</button>
-                    <button onclick="closeModal()" class="preview-modal-button-close">Close</button>
-                </div>
+            <h2 class="preview-modal-header" style="font-weight: bold;">Output Preview</h2>
+            <div class="device-select-container" style="margin-bottom: 10px; text-align: center;">
+                <label for="deviceSelect"><strong>Select Device:</strong></label>
+                <select id="deviceSelect" class="device-dropdown">
+                    <!-- ตัวเลือกจะถูกเพิ่มแบบไดนามิกจาก JS -->
+                </select>
+            </div>
+            <div id="preview-configuration-content" class="preview-modal-content-body cli-style">
+                <!-- Configuration details or CLI output will be injected here dynamically -->
+                <pre id="outputPreview">Loading...</pre>
+            </div>
+            <div class="preview-modal-footer">
+                <button id="downloadOutput" class="preview-modal-button-download">Download</button>
+                <button onclick="closeModal()" class="preview-modal-button-close">Close</button>
+            </div>
             </div>
         </div>
 
         <!-- Loading Modal -->
-        <div id="loadingModal" class="modal">
+        <div id="loadingModal" class="modal" style="overflow: hidden;">
             <div class="modal-content">
                 <div class="loading-spinner"></div>
                 <p>Loading</p>

@@ -238,11 +238,11 @@
     background-color: #000000; /* สีพื้นหลังเหมือน CLI */
     color: #ffffff; /* สีตัวอักษรเขียว */
     font-family: "Courier New", Courier, monospace; /* ฟอนต์ CLI */
-    font-size: 1em;
+    font-size: 11px;
     padding: 15px;
     border: 2px solid #555555; /* กรอบสีเทา */
     border-radius: 5px;
     white-space: pre-wrap; /* รักษารูปแบบการเว้นบรรทัด */
     overflow-y: auto; /* เลื่อนถ้าข้อมูลยาว */
-    max-height: 300px; /* กำหนดความสูงสูงสุด */
+    max-height: 400px; /* กำหนดความสูงสูงสุด */
 }

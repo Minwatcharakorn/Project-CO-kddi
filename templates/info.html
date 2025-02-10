@@ -31,7 +31,7 @@
         border-right: 1px solid #3c4b5c; /* Add a border for better separation */
     }
 
-        /* Style the close button */
+    /* Style the close button */
     .w3-sidebar .w3-button {
         text-align: left;
         color: #ffffff;
@@ -48,27 +48,27 @@
         color: #ffffff;
     }
 
-        /* Sidebar items */
-        .w3-sidebar .w3-bar-item {
-            display: flex;
-            align-items: center;
-            gap: 10px; /* ให้มีช่องว่างระหว่างไอคอนกับข้อความ */
-            padding: 12px 20px; /* ปรับ padding ให้เท่ากันทุกอัน */
-            text-align: left;
-            font-size: 16px;
-            white-space: nowrap; /* ป้องกันข้อความขึ้นบรรทัดใหม่ */
-        }
+    /* Sidebar items */
+    .w3-sidebar .w3-bar-item {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* ให้มีช่องว่างระหว่างไอคอนกับข้อความ */
+        padding: 12px 20px; /* ปรับ padding ให้เท่ากันทุกอัน */
+        text-align: left;
+        font-size: 16px;
+        white-space: nowrap; /* ป้องกันข้อความขึ้นบรรทัดใหม่ */
+    }
 
-        .w3-sidebar .w3-bar-item i {
-            min-width: 24px; /* กำหนดขนาดขั้นต่ำของไอคอนให้เท่ากัน */
-            text-align: center;
-            font-size: 18px; /* ปรับขนาดไอคอน */
-            color: #1e90ff;
-        }
-        .w3-sidebar .w3-bar-item span {
-            flex-grow: 1; /* บังคับให้ข้อความชิดซ้ายเท่ากัน */
-            text-align: left; /* ให้ข้อความอยู่ชิดซ้าย */
-        }
+    .w3-sidebar .w3-bar-item i {
+        min-width: 24px; /* กำหนดขนาดขั้นต่ำของไอคอนให้เท่ากัน */
+        text-align: center;
+        font-size: 18px; /* ปรับขนาดไอคอน */
+        color: #1e90ff;
+    }
+    .w3-sidebar .w3-bar-item span {
+        flex-grow: 1; /* บังคับให้ข้อความชิดซ้ายเท่ากัน */
+        text-align: left; /* ให้ข้อความอยู่ชิดซ้าย */
+    }
     .w3-sidebar .w3-bar-item:hover {
         background-color: #3c4b5c; /* Highlight on hover */
         color: #ffffff;
@@ -78,7 +78,7 @@
         color: #00bfff; /* Brighter icon color on hover */
     }
 
-        /* Active link style */
+    /* Active link style */
     .w3-sidebar .w3-bar-item.active {
         background-color: #1e90ff; /* Highlight active item */
         color: #ffffff;
@@ -89,51 +89,47 @@
         color: #ffffff;
     }
     .w3-container {
-            overflow: hidden; /* Prevent scrolling */
-            overflow-y: hidden;
-            overflow-x: hidden;
-            height: 100%; /* Prevent content from exceeding viewport */
-        }
+        overflow: hidden; /* Prevent scrolling */
+        overflow-y: hidden;
+        overflow-x: hidden;
+        height: 100%; /* Prevent content from exceeding viewport */
+    }
     /* Responsive Adjustments for Small Screens */
     @media (max-width: 768px) {
-    .nav-info span {
-        font-size: 14px; /* Reduce font size */
+        .nav-info span {
+            font-size: 14px; /* Reduce font size */
+        }
+        .nav-info i {
+            font-size: 16px; /* Reduce icon size */
+        }
+        .nav-logo a {
+            font-size: 16px; /* Adjust logo text size */
+        }
+        .nav-logo i {
+            font-size: 18px; /* Reduce icon size */
+        }
+        #openNav {
+            font-size: 24px; /* Adjust menu button size */
+        }
     }
 
-    .nav-info i {
-        font-size: 16px; /* Reduce icon size */
+    @media (max-width: 576px) {
+        .nav-info span {
+            font-size: 12px; /* Further reduce font size */
+        }
+        .nav-info i {
+            font-size: 12px; /* Further reduce icon size */
+        }
+        .nav-logo a {
+            font-size: 16px; /* Smaller logo text */
+        }
+        .nav-logo i {
+            font-size: 16px; /* Further reduce icon size */
+        }
+        #openNav {
+            font-size: 20px; /* Adjust menu button size */
+        }
     }
-
-    .nav-logo a {
-        font-size: 16px; /* Adjust logo text size */
-    }
-    .nav-logo i {
-        font-size: 18px; /* Reduce icon size */
-    }
-    #openNav {
-        font-size: 24px; /* Adjust menu button size */
-    }
-}
-
-@media (max-width: 576px) {
-    .nav-info span {
-        font-size: 12px; /* Further reduce font size */
-    }
-
-    .nav-info i {
-        font-size: 12px; /* Further reduce icon size */
-    }
-
-    .nav-logo a {
-        font-size: 16px; /* Smaller logo text */
-    }
-    .nav-logo i {
-        font-size: 16px; /* Further reduce icon size */
-    }
-    #openNav {
-        font-size: 20px; /* Adjust menu button size */
-    }
-}
 </style>
 <style>
     .error-modal-login {
@@ -149,36 +145,93 @@
         justify-content: center;
     }
     .error-modal-login-content{
-            background-color: #fff;
-            padding: 40px; /* เพิ่ม padding ให้ใหญ่ขึ้น */
-            border-radius: 15px; /* เพิ่มมุมโค้งให้ดูดี */
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 50%; /* เพิ่มความกว้างของ modal-content */
-            max-width: 350px; /* เพิ่มขนาดสูงสุดเพื่อไม่ให้ใหญ่เกินไป */
-            min-height: 170px; /* เพิ่มความสูงขั้นต่ำ */
-        }
-        .error-modal-button {
-            background-color: #dc3545; /* Red background */
-            color: white; /* White text */
-            border: none; /* Remove border */
-            padding: 10px 20px; /* Add padding for better sizing */
-            border-radius: 5px; /* Rounded corners */
-            cursor: pointer; /* Pointer cursor on hover */
-            font-size: 16px; /* Adjust font size */
-            transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+        background-color: #fff;
+        padding: 40px; /* เพิ่ม padding ให้ใหญ่ขึ้น */
+        border-radius: 15px; /* เพิ่มมุมโค้งให้ดูดี */
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        width: 50%; /* เพิ่มความกว้างของ modal-content */
+        max-width: 350px; /* เพิ่มขนาดสูงสุดเพื่อไม่ให้ใหญ่เกินไป */
+        min-height: 170px; /* เพิ่มความสูงขั้นต่ำ */
     }
-    
+    .error-modal-button {
+        background-color: #dc3545; /* Red background */
+        color: white; /* White text */
+        border: none; /* Remove border */
+        padding: 10px 20px; /* Add padding for better sizing */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Pointer cursor on hover */
+        font-size: 16px; /* Adjust font size */
+        transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+    }
+
     .error-modal-button:hover {
-    background-color: #c82333; /* Darker red on hover */
-    transform: scale(1.05); /* Slight zoom effect */
+        background-color: #c82333; /* Darker red on hover */
+        transform: scale(1.05); /* Slight zoom effect */
     }
-    
+
     .error-modal-button:active {
-    background-color: #a71d2a; /* Even darker red when clicked */
-    transform: scale(0.95); /* Slight scale-down on click */
+        background-color: #a71d2a; /* Even darker red when clicked */
+        transform: scale(0.95); /* Slight scale-down on click */
     }
+
+    /* ------------------------------------------------------------ */
+    /* เพิ่ม/แก้ไขใหม่: CSS สำหรับจัดกลุ่มพอร์ตเป็น 12 พอร์ต/กลุ่ม */
+    /* ------------------------------------------------------------ */
+    .port-groups {
+        display: flex;        /* ให้แสดงกลุ่มเป็นแถว */
+        flex-wrap: wrap;      /* ถ้าไม่พอแถวให้ขึ้นบรรทัดใหม่ */
+        gap: 20px;            /* เว้นระยะระหว่างกลุ่ม */
+        margin-top: 20px;     /* ให้มีระยะห่างบนเล็กน้อย */
+    }
+    .port-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 2 คอลัมน์ */
+        grid-template-rows: repeat(6, auto); /* 6 แถว -> รวม 12 ช่อง */
+        gap: 10px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .port {
+        text-align: center;
+        cursor: pointer;
+    }
+    .port.active img {
+        border: 2px solid #4caf50; /* ขอบสีเขียวถ้าพอร์ต Up */
+        border-radius: 3px;
+    }
+
     
+    /* Container สำหรับรวมทุกกลุ่ม */
+    .port-groups {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    /* แต่ละกลุ่ม 12 พอร์ต: 2 แถว (odd แถวบน, even แถวล่าง) x 6 คอลัมน์ */
+    .port-group {
+        display: grid;
+        grid-template-columns: repeat(6, auto);
+        grid-template-rows: repeat(2, auto);
+        gap: 10px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    /* สไตล์สำหรับพอร์ตแต่ละอัน */
+    .port {
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .port.active img {
+        border: 2px solid #4caf50;
+        border-radius: 3px;
+    }
 </style>
 <body>
 
@@ -187,7 +240,7 @@
         <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
         <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard</a>
         <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy Device</a>
-        <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
+        <a href="/backupconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Back-up Configuration</a>
         <a href="/serialconsole" class="w3-bar-item w3-button"><i class="fa-solid fa-ethernet"></i> Serial Console Configuration</a>
         <a href="/configuration" class="w3-bar-item w3-button"><i class="fas fa-cogs"></i> Create Template</a>
         <a href="/listtemplate" class="w3-bar-item w3-button"><i class="fa-solid fa-clipboard-list"></i> List Templates</a>
@@ -199,7 +252,7 @@
             <div class="header-wrapper">
                 <!-- Hamburger Menu Button -->
                 <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
-                
+
                 <!-- Header Content -->
                 <div class="header-container">
                     <div class="nav-logo">
@@ -214,7 +267,7 @@
                                 <span id="username">{{ session.get('username') }}</span>
                             </span>
                         {% endif %}
-                    
+
                         {% if session.get('ip_start') or session.get('ip_end') %}
                             <span id="ip-address">
                                 <i class="fas fa-network-wired" style="margin-right: 5px;"></i>
@@ -225,7 +278,7 @@
                                 {% endif %}
                             </span>
                         {% endif %}
-                    
+
                         {% if not session.get('username') or session.get('username') == 'N/A' %}
                             <span>
                                 <button onclick="window.location.href='/'" class="login-button">
@@ -262,18 +315,14 @@
             </div>
         </div>
 
-            <!-- Main Container -->
+        <!-- Main Container -->
         <div class="w3-container">
             <div class="device-info-container">
                 <!-- Dropdown Container -->
                 <div class="dropdown-container">
                     <label for="switchSelector">Select Switch: </label>
                     <select id="switchSelector" onchange="switchSelectionChanged()">
-                        <!-- {% for switch in switches %}
-                            <option value="{{ switch['id'] }}" {% if switch['id'] == switch_id %}selected{% endif %}>
-                                {{ switch['hostname'] }} ({{ switch['ip'] }})
-                            </option>
-                        {% endfor %} -->
+                        <!-- ... -->
                     </select>
                     <a href="/dashboard" class="back-to-dashboard-button">Back to Dashboard</a>
                 </div>
@@ -282,9 +331,9 @@
                 <div class="switch-info">
                     <h3 id="hostnameTop">Switch</h3>
                     <h4>Port Status</h4>
-                    
-                    <div class="port-status"></div>
 
+                    <!-- ส่วนแสดงพอร์ต (จะแบ่งเป็นกลุ่ม 12 พอร์ตใน JS) -->
+                    <div class="port-status"></div>
                 </div>
 
                 <!-- Device Status -->
@@ -330,7 +379,8 @@
                         </div>
                     </div>
                 </div>
-                        <!-- VLAN Information Container -->
+
+                <!-- VLAN Information Container -->
                 <div class="vlan-info">
                     <!-- <h3>VLAN Information</h3> -->
                     <table id="vlanTable" class="vlan-table">
@@ -352,15 +402,20 @@
             </div>
         </div>
     </div>
-        <!-- Error Modal -->
-        <div id="errorModalLogin" class="error-modal-login" style="display: none;"> 
-            <div class="error-modal-login-content"> 
-                <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
-                <p id="errorMessagelogin" style="font-size: 18px; font-weight: bold; color: #333;">You must log in before using this page.</p> 
-                <br>
-                <button id="closeErrorModalLogin" class="error-modal-button">OK</button>
-            </div>
+
+    <!-- Error Modal -->
+    <div id="errorModalLogin" class="error-modal-login" style="display: none;">
+        <div class="error-modal-login-content">
+            <div style="color: red; font-size: 48px; margin-bottom: 20px;">&#10060;</div>
+            <p id="errorMessagelogin" style="font-size: 18px; font-weight: bold; color: #333;">
+                You must log in before using this page.
+            </p>
+            <br>
+            <button id="closeErrorModalLogin" class="error-modal-button">OK</button>
         </div>
+    </div>
+
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
@@ -370,44 +425,45 @@
         document.addEventListener("DOMContentLoaded", function () {
             // Check if user is logged in
             let isLoggedIn = "{{ session.get('username', '') }}" !== "" && "{{ session.get('username', '') }}" !== "N/A";
-    
+
             if (!isLoggedIn) {
                 // Show error modal
                 document.getElementById("errorModalLogin").style.display = "flex";
-    
+
                 // Redirect to /Initial when clicking OK
                 document.getElementById("closeErrorModalLogin").addEventListener("click", function () {
                     window.location.href = "/";
                 });
             }
         });
-    </script>   
+    </script>
 
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        fetchRealtimeSwitchData(); // Load initial data
-    });
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchRealtimeSwitchData(); // Load initial data
+        });
     </script>
+
     <script>
         function switchSelectionChanged() {
             const selectedSwitchId = document.getElementById('switchSelector').value;
             window.location.href = `/info/${selectedSwitchId}`;
         }
     </script>
-        <script>
-            function w3_open() {
-                document.getElementById("main").style.marginLeft = "25%";
-                document.getElementById("mySidebar").style.width = "25%";
-                document.getElementById("mySidebar").style.display = "block";
-                document.getElementById("openNav").style.display = 'none';
-            }
-    
-            function w3_close() {
-                document.getElementById("main").style.marginLeft = "0";
-                document.getElementById("mySidebar").style.display = "none";
-                document.getElementById("openNav").style.display = "inline-block";
-            }
-            document.addEventListener("DOMContentLoaded", function () {
+    <script>
+        function w3_open() {
+            document.getElementById("main").style.marginLeft = "25%";
+            document.getElementById("mySidebar").style.width = "25%";
+            document.getElementById("mySidebar").style.display = "block";
+            document.getElementById("openNav").style.display = 'none';
+        }
+
+        function w3_close() {
+            document.getElementById("main").style.marginLeft = "0";
+            document.getElementById("mySidebar").style.display = "none";
+            document.getElementById("openNav").style.display = "inline-block";
+        }
+        document.addEventListener("DOMContentLoaded", function () {
             const container = document.querySelector('.w3-container');
             if (container) {
                 container.style.overflow = "hidden"; // Disable scrolling

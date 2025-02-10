@@ -36,10 +36,6 @@
     transition: transform 0.3s ease;
 }
 
-.content-header h2:hover i {
-    transform: scale(1.2);
-    color: #FFD700; /* Gold accent on hover */
-}
 .header-actions button {
     background-color: #007bff;
     color: #fff;

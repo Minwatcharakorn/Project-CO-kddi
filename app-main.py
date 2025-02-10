@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 import io
 import logging
 import zipfile
-    
+
 
 app = Flask(__name__)
 
@@ -67,6 +67,8 @@ def get_available_ports():
     """Get a list of available serial ports."""
     ports = serial.tools.list_ports.comports()
     return [port.device for port in ports]
+
+
 
 # ฟังก์ชันตรวจสอบชนิดไฟล์
 def allowed_file(filename):
@@ -779,7 +781,7 @@ def upload_firmware():
     return jsonify({'message': f'File {filename} uploaded successfully.'})
 
 ##############################################################
-@app.route('/saveconfig')
+@app.route('/backupconfig')
 def saveconfig_page():
     """Serve the Remote Config page with switch data."""
     switches_from_session = session.get('switches', [])  # Get switches from session
@@ -1641,6 +1643,7 @@ def save_send_command_and_output():
     """
     ส่งคำสั่งไปยังอุปกรณ์ที่เลือกผ่าน SSH แล้วเก็บผลลัพธ์ไว้สำหรับแต่ละอุปกรณ์
     - ถ้า mode=preview (หรือไม่ระบุ) ให้ combine ผลลัพธ์ทั้งหมดแล้วส่งกลับเป็น JSON (สำหรับแสดงใน Modal Preview)
+      พร้อมกับ key "outputs" ที่แยกผลลัพธ์ของแต่ละ switch ออกมา
     - ถ้า mode=download ให้จัดไฟล์ผลลัพธ์แต่ละเครื่องเป็นไฟล์ .txt แยกกัน จากนั้นรวมเป็น ZIP file แล้วส่งกลับ
     """
     data = request.get_json()
@@ -1732,7 +1735,9 @@ def save_send_command_and_output():
         combined_text = ""
         for hostname, content in device_outputs.items():
             combined_text += content + "\n"
-        return jsonify({"output": combined_text}), 200
+        # ส่งกลับทั้ง combined_text และผลลัพธ์แยกตามแต่ละ switch ใน key "outputs"
+        return jsonify({"output": combined_text, "outputs": device_outputs}), 200
+
 
 @app.route('/api/ports', methods=['GET'])
 def list_ports():
@@ -1941,6 +1946,8 @@ def save_and_download_config():
         download_name=filename,
         mimetype='text/plain'
     )
+
+
 
 if __name__ == "__main__":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy()) # ถ้าอยู่บน WebServer Ubuntu แล้วไม่ต้องใช้งานตัวนี้

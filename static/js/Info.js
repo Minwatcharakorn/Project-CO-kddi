@@ -4,7 +4,7 @@
 function showErrorModal(message, description = '') {
     const errorModal = document.getElementById('errorModal');
     const errorMessage = document.getElementById('errorMessage');
-    const errorDescription = document.querySelector('#errorModal p:nth-of-type(2)'); 
+    const errorDescription = document.querySelector('#errorModal p:nth-of-type(2)');
 
     errorMessage.textContent = message;
 
@@ -214,7 +214,7 @@ async function fetchLicenseInfo() {
 
         const data = await response.json();
         const licenseContainer = document.getElementById("licenseContainer");
-        licenseContainer.innerHTML = ""; 
+        licenseContainer.innerHTML = "";
 
         if (data.licenses && data.licenses.length > 0) {
             data.licenses.forEach(license => {
@@ -252,8 +252,158 @@ async function fetchInterfaceInfo() {
 
         const data = await response.json();
         const portStatusContainer = document.querySelector(".port-status");
-        portStatusContainer.innerHTML = ""; 
+        portStatusContainer.innerHTML = "";
 
+        // --------------------------------------------------
+        // (A) ฟังก์ชัน parse ชื่อพอร์ตโดยใช้ Regex
+        // รูปแบบตัวอย่าง: "Gig1/0/5", "Gi0/1", "Fa0/1", "Te1/0/1", "Port-channel1", "Loopback0", ...
+        // ถ้า match ไม่ได้ เราจะใช้ชื่อพอร์ตนั้นเป็น prefix ทั้งหมดและไม่มีตัวเลข
+        // --------------------------------------------------
+        function parseInterfaceName(ifName) {
+            const re = /^([A-Za-z\-]+)([\d\/]+)$/;
+            const match = ifName.match(re);
+            if (!match) {
+                return {
+                    rawName: ifName,
+                    prefix: ifName,
+                    numericParts: []
+                };
+            }
+            const prefix = match[1];           // เช่น "Gig", "Fa", "Te", "Port-channel"
+            const numericStr = match[2];         // เช่น "1/0/5" หรือ "0/1" หรือ "1"
+            const numericParts = numericStr.split('/').map(x => parseInt(x, 10) || 0);
+            return {
+                rawName: ifName,
+                prefix: prefix,
+                numericParts: numericParts
+            };
+        }
+
+        // --------------------------------------------------
+        // (B) กำหนดลำดับ prefix (สามารถปรับแก้ได้ตามต้องการ)
+        // --------------------------------------------------
+        const prefixOrder = {
+            "Fa": 1, "FastEthernet": 1,
+            "Gi": 2, "Gig": 2, "GigabitEthernet": 2,
+            "Te": 3, "TenGigabitEthernet": 3,
+            "Po": 4, "Port-channel": 4,
+            "Lo": 5, "Loopback": 5,
+            default: 99
+        };
+
+        // --------------------------------------------------
+        // (C) ฟังก์ชันเปรียบเทียบสำหรับ sort
+        // --------------------------------------------------
+        function compareInterface(a, b) {
+            const pa = prefixOrder[a.prefix] || prefixOrder.default;
+            const pb = prefixOrder[b.prefix] || prefixOrder.default;
+            if (pa !== pb) {
+                return pa - pb;
+            }
+            // เปรียบเทียบ numericParts แบบ lexicographic
+            const len = Math.min(a.numericParts.length, b.numericParts.length);
+            for (let i = 0; i < len; i++) {
+                if (a.numericParts[i] !== b.numericParts[i]) {
+                    return a.numericParts[i] - b.numericParts[i];
+                }
+            }
+            return a.numericParts.length - b.numericParts.length;
+        }
+
+        // --------------------------------------------------
+        // (D) Filter: ไม่เอาพอร์ต "Gig0/0"
+        // --------------------------------------------------
+        const filtered = data.interfaces.filter(iface => iface.name !== "Gig0/0");
+
+        // --------------------------------------------------
+        // (E) Parse ชื่อพอร์ต และเก็บข้อมูลตัวเลข (slot/module/port)
+        // --------------------------------------------------
+        const parsedInterfaces = filtered.map(iface => {
+            const parsed = parseInterfaceName(iface.name);
+            return {
+                ...iface,
+                prefix: parsed.prefix,
+                numericParts: parsed.numericParts,
+                // สมมติว่าตัวเลขสุดท้ายเป็นหมายเลขพอร์ต
+                port: parsed.numericParts[parsed.numericParts.length - 1] || 0
+            };
+        });
+
+        // --------------------------------------------------
+        // (F) Sort ตามลำดับ: slot → module → port (ตามลำดับที่ parse ได้)
+        // --------------------------------------------------
+        parsedInterfaces.sort((a, b) => compareInterface(a, b));
+
+        // --------------------------------------------------
+        // (G) Chunk เป็นกลุ่มละ 12 พอร์ต
+        // --------------------------------------------------
+        function chunkArray(arr, size) {
+            const results = [];
+            for (let i = 0; i < arr.length; i += size) {
+                results.push(arr.slice(i, i + size));
+            }
+            return results;
+        }
+        let interfaceGroups = chunkArray(parsedInterfaces, 12);
+
+        // --------------------------------------------------
+        // (H) สำหรับแต่ละกลุ่ม 12 พอร์ต ให้ปรับเรียงภายในกลุ่ม
+        // โดยเอาเลขคี่ไว้ข้างบน (แถวแรก) และเลขคู่ไว้ข้างล่าง (แถวที่สอง)
+        // --------------------------------------------------
+        interfaceGroups = interfaceGroups.map(group => {
+            // แยก odd และ even โดยใช้ property port (ซึ่งได้จาก numericParts สุดท้าย)
+            const oddPorts = group.filter(iface => iface.port % 2 === 1);
+            const evenPorts = group.filter(iface => iface.port % 2 === 0);
+            // รักษาลำดับภายใน odd กับ even ตามที่ sort ไว้แล้ว
+            return oddPorts.concat(evenPorts);
+        });
+
+        // --------------------------------------------------
+        // (I) สร้าง DOM: จัดแสดงในรูปแบบกลุ่มละ 12 พอร์ต (2 แถว × 6 คอลัมน์)
+        // --------------------------------------------------
+        const portGroupsContainer = document.createElement("div");
+        portGroupsContainer.classList.add("port-groups");
+
+        interfaceGroups.forEach(group => {
+            const groupContainer = document.createElement("div");
+            groupContainer.classList.add("port-group");
+
+            group.forEach(iface => {
+                const portDiv = document.createElement("div");
+                portDiv.classList.add("port");
+                if (iface.status === "Up") {
+                    portDiv.classList.add("active");
+                }
+
+                const portImg = document.createElement("img");
+                portImg.src = (iface.status === "Up")
+                    ? "/static/img/Port_UP.png"
+                    : "/static/img/Port_DOWN.png";
+                portImg.alt = iface.status;
+
+                const portLabel = document.createElement("span");
+                portLabel.classList.add("port-number");
+                portLabel.innerText = iface.name; // เช่น "Gig1/0/1", "Fa0/1" เป็นต้น
+
+                // ตัวอย่าง: เมื่อคลิกแล้วแสดง Modal (Enable/Disable)
+                portDiv.addEventListener("click", () => {
+                    showPortActionModal(iface.name, iface.status);
+                });
+
+                portDiv.appendChild(portImg);
+                portDiv.appendChild(portLabel);
+                groupContainer.appendChild(portDiv);
+            });
+
+            portGroupsContainer.appendChild(groupContainer);
+        });
+
+        portStatusContainer.appendChild(portGroupsContainer);
+
+        // --------------------------------------------------
+        // (J) คอมเมนต์โค้ดเก่า (ไม่ลบออก)
+        // --------------------------------------------------
+        /*
         data.interfaces.forEach((iface) => {
             const portDiv = document.createElement("div");
             portDiv.classList.add("port");
@@ -275,11 +425,14 @@ async function fetchInterfaceInfo() {
             portDiv.appendChild(portLabel);
             portStatusContainer.appendChild(portDiv);
         });
+        */
+
     } catch (error) {
         console.error("Error fetching interface data:", error);
         showErrorModal("Error Loading Interfaces", "Unable to fetch interface information. Please try again.");
     }
 }
+
 
 /**************************************************************
  * 7) Refresh All Data (Showing Modal Only On First Load)

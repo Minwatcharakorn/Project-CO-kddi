@@ -104,10 +104,38 @@ $(document).ready(function () {
             success: function (response) {
                 loadingModal.style.display = 'none'; // Hide loading modal
                 document.body.classList.remove('no-scroll'); // Enable scrolling
-
-                // Expected response is JSON with property "output"
-                document.getElementById('outputPreview').textContent = response.output;
-                openModalWithAnimation(); // Show modal with animation
+        
+                // ตรวจสอบว่า response มี key outputs หรือไม่
+                if (response.outputs) {
+                    var deviceSelect = $('#deviceSelect');
+                    deviceSelect.empty(); // ล้างตัวเลือกเก่า
+        
+                    // เติมตัวเลือกใน dropdown จาก key ของ outputs
+                    $.each(response.outputs, function(deviceName, outputText) {
+                        // ดึงบรรทัดแรกของ output ที่ได้มา (บรรทัดแรกจะมีรูปแบบ "Device: hostname (IP)")
+                        var firstLine = outputText.split("\n")[0];
+                        // ลบ "Device: " ออก เพื่อให้เหลือ "hostname (IP)"
+                        var displayText = firstLine.replace("Device: ", "");
+                        deviceSelect.append($('<option></option>').attr('value', deviceName).text(displayText));
+                    });
+        
+                    // เมื่อมีการเปลี่ยนแปลง dropdown ให้แสดง output ที่ตรงกัน
+                    deviceSelect.on('change', function() {
+                        var selectedDevice = $(this).val();
+                        $('#outputPreview').text(response.outputs[selectedDevice]);
+                    });
+        
+                    // กำหนดค่าเริ่มต้นให้กับอุปกรณ์แรก ถ้ามี
+                    var firstDevice = Object.keys(response.outputs)[0];
+                    if (firstDevice) {
+                        $('#deviceSelect').val(firstDevice);
+                        $('#outputPreview').text(response.outputs[firstDevice]);
+                    }
+                } else {
+                    // fallback: ถ้าไม่พบ outputs ให้ใช้ combined output
+                    $('#outputPreview').text(response.output);
+                }
+                openModalWithAnimation(); // แสดง modal ด้วย animation
             },
             error: function (xhr) {
                 loadingModal.style.display = 'none';

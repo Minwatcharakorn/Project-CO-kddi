@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='sidebar_style.css') }}">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="icon" href="../static/img/logo_icon.jpg">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <style>
@@ -185,8 +187,8 @@
                                 <div class="icon-container">
                                     <i class="fa-solid fa-server"></i>
                                 </div>
-                                <input type="text" id="ip-start" placeholder="Start IP (e.g., 192.168.1.1)">
-                                <input type="text" id="ip-end" placeholder="End IP (e.g., 192.168.1.255)">
+                                <input type="text" class="form-input" id="ip-start" name="ip-start" placeholder="e.g ( 192.168.99.1 )" title="Please enter an IP address within the same network, such as xxx.xxx.xxx.xxx">
+                                <input type="text" class="form-input" id="ip-end" name="ip-end" placeholder="e.g ( 192.168.99.255 )" title="Please enter an IP address within the same network, such as xxx.xxx.xxx.xxx">
                             </div>
                             
                             <!-- กลุ่มสำหรับ Single IP -->
@@ -194,7 +196,7 @@
                                 <div class="icon-container">
                                     <i class="fa-solid fa-server"></i>
                                 </div>
-                                <input type="text" id="ip-single" placeholder="Single IP (e.g., 192.168.1.1)">
+                                <input type="text" class="form-input" id="ip-single" name="ip-single" placeholder="e.g ( 192.168.99.1 )" title="Please enter an IP address within the same network, such as xxx.xxx.xxx.xxx">
                             </div>
                         
                             <!-- Username and Password -->
@@ -240,7 +242,24 @@
     
 
     <script src="../static/js/script-initial.js"></script>
-    
+    <script>
+        function normalizeIP(ip) {
+            return ip.split(".").map(octet => parseInt(octet, 10)).join(".");
+        }
+
+        $(document).ready(function () {
+            var ipInputs = ['#ip-start', '#ip-end', '#ip-single'];
+            ipInputs.forEach(function (id) {
+                $(id).inputmask({
+                    alias: "ip",
+                    greedy: false
+                });
+                $(id).on('blur', function () {
+                    $(this).val(normalizeIP($(this).val()));
+                });
+            });
+        });
+    </script>
     <script>
         function w3_open() {
             document.getElementById("main").style.marginLeft = "25%";

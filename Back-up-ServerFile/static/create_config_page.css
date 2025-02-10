@@ -22,6 +22,8 @@
     width: 100%; /* Adjust as needed */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    height: 100%;
+    overflow-y: auto;
 }
 .config-section h3 {
     font-weight: bold; /* ตัวหนา */
@@ -304,13 +306,19 @@ form label {
 .remove-interface-config {
     background-color: #dc3545;
     color: white;
-    padding: 5px 10px;
     border: none;
+    padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -0.5%;
+    width: 80px;
 }
-
+.remove-vlan-row i {
+    font-size: 16px; /* ขนาดของไอคอน */
+}
 .remove-interface-config:hover {
     background-color: #b02a37;
 }
@@ -586,12 +594,21 @@ textarea {
 .remove-aggregation-config {
     background-color: #dc3545;
     color: white;
-    padding: 5px 10px;
     border: none;
+    padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -0.5%;
+    width: 80px;
 }
+
+.remove-aggregation-config i{
+    font-size: 16px;
+}
+
 .remove-aggregation-config:hover {
     background-color: #c82333; /* สีเข้มขึ้นเมื่อ Hover */
 }
@@ -815,11 +832,19 @@ textarea {
 .remove-port-security-config {
     background-color: #dc3545;
     color: white;
-    padding: 5px 10px;
     border: none;
+    padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -0.5%;
+    width: 80px;
+}
+
+.remove-port-security-config i{
+    font-size: 16px;
 }
 
 .remove-port-security-config:hover {
@@ -1118,6 +1143,7 @@ input:checked + .slider:before {
 /* VLAN Form Group */
 .vlan-form-group {
     margin-bottom: 15px;
+    overflow-y: auto;
 }
 
 .vlan-form-group label {

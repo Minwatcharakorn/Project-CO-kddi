@@ -175,7 +175,7 @@
     background-color: #a71d2a; /* Even darker red when clicked */
     transform: scale(0.95); /* Slight scale-down on click */
     }
-    
+
 </style>
 <body>
     <!-- Sidebar -->
@@ -248,7 +248,12 @@
                         <i class="fas fa-file-alt"></i> Select Template
                     </h2>
                 </div>
+                <div class="button-container">
+                    <a href="{{ url_for('deploy_page') }}" class="apply-button" 
+                       style="margin-right: 10px; text-decoration: none;">Back</a>
+                
                 <button id="apply-template-button" class="apply-button">Next Step</button>
+                </div>
             </div>
 
             <div class="content-body">

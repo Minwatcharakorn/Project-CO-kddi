@@ -13,7 +13,7 @@
     box-shadow: 0 1px 15px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     margin: auto;
-    margin-top: 30px; 
+    margin-top: 50px; 
     margin-bottom: 20px;
 
 }
@@ -305,220 +305,50 @@ input:focus::placeholder {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+/* ================== ปรับ Responsive ================== */
 
-/* Responsive Design */
-@media (max-width: 768px) {
+/* แท็บเล็ตและมือถือแนวนอน */
+@media (max-width: 1024px) {
     .container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .login-section {
-        flex: none;
-        width: 100%;
-        padding: 20px;
-    }
-
-    .loginssh-container {
-        max-width: 300px;
-        margin: auto;
-
-    }
-
-    .dashboard-button-top {
-        font-size: 14px;
-        padding: 8px 16px;
-    }
-    .updatefirmware-button-top {
-        font-size: 14px;
-        padding: 8px 16px;
+        width: 90%;
+        max-width: 450px;
     }
     .buttons button {
-        font-size: 14;
-        padding: 8px 16px;
-    }
-
-    /* Adjusted Input Styles */
-    .range-container input, 
-    .single-ip-container input {
-        width: 100%; /* Ensures the inputs take up full width on smaller screens */
+        font-size: 15px;
         padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        font-size: 14px; /* Reduced font size for better alignment */
-        transition: border-color 0.3s ease-in-out;
     }
-
 }
 
-/* Responsive Design */
-@media (max-width: 740px) {
-    .container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-   .login-section {
-        flex: none;
-        width: 100%;
-        padding: 20px;
-    }
-
-
-    .loginssh-container {
-        max-width: 300px;
-
-    }
-
-    .dashboard-button-top {
-        font-size: 14px;
-        padding: 8px 16px;
-    }
-    .updatefirmware-button-top {
-        font-size: 14px;
-        padding: 8px 16px;
-    }
-    .buttons button {
-        font-size: 14;
-        padding: 8px 16px;
-    }
-
-    /* Adjusted Input Styles */
-    .range-container input, 
-    .single-ip-container input {
-        width: 100%; /* Ensures the inputs take up full width on smaller screens */
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        font-size: 14px; /* Reduced font size for better alignment */
-        transition: border-color 0.3s ease-in-out;
-    }
-
-}
-
-/* Responsive Design */
+/* หน้าจอขนาดกลาง */
 @media (max-width: 768px) {
     .container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-   .login-section {
-        flex: none;
-        width: 100%;
-        padding: 20px;
-    }
-
-    .loginssh-container {
-        max-width: 300px;
-    }
-
-    .dashboard-button-top {
-        font-size: 14px;
-        padding: 8px 16px;
-    }
-    .updatefirmware-button-top {
-        font-size: 14px;
-        padding: 8px 16px;
+        width: 90%;
+        max-width: 400px;
+        padding: 15px;
     }
     .buttons button {
         font-size: 14px;
-        padding: 8px 16px;
-    }
-
-    .range-container input, 
-    .single-ip-container input {
-        width: 100%;
-        font-size: 13px;
         padding: 8px;
     }
-    .password-container input {
-        padding: 8px 36px 8px 8px; /* Adjust padding for smaller screens */
+    .range-container input, .single-ip-container input {
         font-size: 14px;
-    }
-
-    .password-container i {
-        font-size: 14px;
+        padding: 8px;
     }
 }
 
-/* Responsive Design */
-@media (max-width: 914px    ) {
-    .container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .login-section {
-        flex: none;
-        width: 100%;
-        padding: 20px;
-    }
-
-
-    .loginssh-container {
-        max-width: 300px;
-
-    }
-
-    .buttons button {
-        font-size: 14;
-        padding: 8px 16px;
-    }
-
-    /* Adjusted Input Styles */
-    .range-container input, 
-    .single-ip-container input {
-        width: 100%; /* Ensures the inputs take up full width on smaller screens */
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        font-size: 14px; /* Reduced font size for better alignment */
-        transition: border-color 0.3s ease-in-out;
-    }
-
-}
-
-
+/* มือถือขนาดเล็ก */
 @media (max-width: 480px) {
-
-    .loginssh-container {
-        padding: 15px;
+    .container {
+        width: 95%;
+        max-width: 350px;
+        padding: 10px;
     }
-
     .buttons button {
         font-size: 12px;
-        padding: 6px 12px;
+        padding: 6px;
     }
-
-    .range-container input, 
-    .single-ip-container input {
-        width: 100%;
+    .range-container input, .single-ip-container input {
         font-size: 12px;
         padding: 6px;
     }
 }
-
-
-@media (max-width: 882px) {
-    .loginssh-container {
-        margin-top: 5px;
-        padding: 15px;
-        font-size: 12px;
-
-    }
-
-    .buttons button {
-        font-size: 12px;
-        padding: 6px 12px;
-    }
-
-    .range-container input, 
-    .single-ip-container input {
-        width: 100%;
-        font-size: 12px;
-        padding: 6px;
-    }
-}
-
-
