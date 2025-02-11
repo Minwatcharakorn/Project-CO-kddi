@@ -21,7 +21,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <link rel="icon" href="../static/img/logo_icon.jpg">
 
-    <title>Save Configuration</title>
+    <title>Back-up Configuration</title>
 </head>
 <style>
     .w3-teal {
@@ -254,7 +254,7 @@
         <!-- Main Content -->
         <div class="w3-container">
             <div class="content-header" style="margin-top: 20px;">
-                <h2><i class="fa-solid fa-laptop-code"></i> Save Configuration</h2>  
+                <h2><i class="fa-solid fa-laptop-code"></i> Back-up Configuration</h2>  
                 <div>
                     <button id="apply-button" class="apply-button">Apply</button>
                 </div>
@@ -265,12 +265,21 @@
                     <label for="command-select"><strong>Select Command</strong></label>
                     <select id="command-select" multiple="multiple">
                         <option value="show running-config">Show Running Config</option>
+                        <option value="show startup-config">Show Startup Config</option>
                         <option value="show vlan brief">Show VLAN Brief</option>
                         <option value="show ip interface brief">Show IP Interface Brief</option>
                         <option value="show interfaces status">Show Interfaces Status</option>
                         <option value="show interfaces description">Show Interfaces Description</option>
                         <option value="show spanning-tree summary">Show Spanning Tree Summary</option>
                         <option value="show etherchannel summary">Show EtherChannel Summary</option>
+                        <option value="show version">Show Version</option>
+                        <option value="show clock">Show Clock</option>
+                        <option value="show cdp neighbors">Show CDP Neighbors</option>
+                        <option value="show cdp neighbors detail">Show CDP Neighbors Detail</option>
+                        <option value="show license all">Show License All</option>
+                        <option value="show arp">Show ARP</option>
+                        <option value="show ip route">Show IP Route</option>
+                        <option value="show switch">Show Switch</option>                        
                     </select>
                 </div>
                 <div class="table-container">
@@ -296,21 +305,27 @@
         <!-- Preview Modal -->
         <div id="previewModal" class="preview-modal" style="display: none;">
             <div class="preview-modal-content">
-            <h2 class="preview-modal-header" style="font-weight: bold;">Output Preview</h2>
-            <div class="device-select-container" style="margin-bottom: 10px; text-align: center;">
-                <label for="deviceSelect"><strong>Select Device:</strong></label>
-                <select id="deviceSelect" class="device-dropdown">
-                    <!-- ตัวเลือกจะถูกเพิ่มแบบไดนามิกจาก JS -->
-                </select>
-            </div>
-            <div id="preview-configuration-content" class="preview-modal-content-body cli-style">
-                <!-- Configuration details or CLI output will be injected here dynamically -->
-                <pre id="outputPreview">Loading...</pre>
-            </div>
-            <div class="preview-modal-footer">
-                <button id="downloadOutput" class="preview-modal-button-download">Download</button>
-                <button onclick="closeModal()" class="preview-modal-button-close">Close</button>
-            </div>
+                <h2 class="preview-modal-header">
+                    <i class="fas fa-terminal" style="color: #d0d0d0; margin-right: 10px;"></i> Output Preview
+                </h2>
+                
+                <div class="device-select-container">
+                    <label for="deviceSelect" class="device-label">
+                        <i class="fas fa-network-wired" style="color: #007BFF; margin-right: 5px;"></i>
+                        <strong>Select Device</strong>
+                    </label>
+                    <select id="deviceSelect" class="device-dropdown">
+                        <!-- ตัวเลือกจะถูกเพิ่มแบบไดนามิกจาก JS -->
+                    </select>
+                </div>
+                <div id="preview-configuration-content" class="preview-modal-content-body cli-style">
+                    <!-- Configuration details or CLI output will be injected here dynamically -->
+                    <pre id="outputPreview">Loading...</pre>
+                </div>
+                <div class="preview-modal-footer">
+                    <button id="downloadOutput" class="preview-modal-button-download">Download</button>
+                    <button onclick="closeModal()" class="preview-modal-button-close">Close</button>
+                </div>
             </div>
         </div>
 

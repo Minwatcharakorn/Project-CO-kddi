@@ -1645,14 +1645,25 @@ def get_hostname():
 # ติดปัญหา CLI Terminal 
 # ----------------------------------------------------------------------------------
 
+def clean_output(output):
+    # ลบ backspace โดยลบตัวอักษรก่อนหน้า \x08 ด้วย
+    while "\b" in output:
+        output = re.sub('.\x08', '', output)
+    # ลบ ANSI escape sequences (ตัวอย่างทั่วไป)
+    output = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output)
+    return output
+
 @app.route('/api/save_send_command_save', methods=['POST'])
 def save_send_command_and_output():
     """
     ส่งคำสั่งไปยังอุปกรณ์ที่เลือกผ่าน SSH แล้วเก็บผลลัพธ์ไว้สำหรับแต่ละอุปกรณ์
-    - ถ้า mode=preview (หรือไม่ระบุ) ให้ combine ผลลัพธ์ทั้งหมดแล้วส่งกลับเป็น JSON (สำหรับแสดงใน Modal Preview)
+    - ถ้า mode=preview (หรือไม่ระบุ) ให้ combine ผลลัพธ์ทั้งหมดแล้วส่งกลับเป็น JSON
       พร้อมกับ key "outputs" ที่แยกผลลัพธ์ของแต่ละ switch ออกมา
-    - ถ้า mode=download ให้จัดไฟล์ผลลัพธ์แต่ละเครื่องเป็นไฟล์ .txt แยกกัน จากนั้นรวมเป็น ZIP file แล้วส่งกลับ
+    - ถ้า mode=download ให้จัดไฟล์ผลลัพธ์แต่ละเครื่องเป็นไฟล์ .txt แยกกัน
+      จากนั้นรวมเป็น ZIP file แล้วส่งกลับ
     """
+    import re  # นำเข้า re สำหรับใช้ใน clean_output
+
     data = request.get_json()
     devices = data.get('devices', [])
     commands = data.get('commands', [])
@@ -1668,9 +1679,16 @@ def save_send_command_and_output():
     # Dictionary เก็บผลลัพธ์ของแต่ละอุปกรณ์ (key เป็น hostname)
     device_outputs = {}
 
+    def clean_output(output):
+        # ลบ backspace characters โดยเอาตัวอักษรก่อน \x08 ออก
+        while "\b" in output:
+            output = re.sub('.\x08', '', output)
+        # ลบ ANSI escape sequences (ตัวอย่างทั่วไป)
+        output = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output)
+        return output
+
     for device in devices:
         ip = device.get('ip')
-        # ใช้ hostname ถ้ามี ถ้าไม่มีก็ใช้ IP เป็นชื่อ
         hostname = device.get('hostname', ip)
         output_str = f"Device: {hostname} ({ip})\n{'='*90}\n"
         try:
@@ -1683,31 +1701,33 @@ def save_send_command_and_output():
             time.sleep(1)
             # เคลียร์ buffer เริ่มต้น (ถ้ามี)
             if channel.recv_ready():
-                channel.recv(314572800)
+                channel.recv(838860800)
             
-            # ส่งคำสั่งทีละคำสั่ง
+            # ส่งคำสั่ง terminal length 0 เพื่อปิด pagination
+            channel.send("terminal length 0\n")
+            time.sleep(1)
+            if channel.recv_ready():
+                channel.recv(5242880)  # discard output ของ terminal length 0
+
+            # ส่งคำสั่งทีละคำสั่งจากผู้ใช้
             for command in commands:
-                # ถ้าเป็น show running-config ปิด pagination
-                if command.strip().lower() == "show running-config":
-                    channel.send("terminal length 0\n")
-                    time.sleep(1)
-                    if channel.recv_ready():
-                        channel.recv(5242880)
                 channel.send(f"{command}\n")
                 time.sleep(1)
                 cmd_output = ""
                 # อ่านข้อมูลที่ส่งกลับจากอุปกรณ์
                 while True:
                     if channel.recv_ready():
-                        chunk = channel.recv(314572800).decode('utf-8', errors='ignore')
+                        chunk = channel.recv(838860800).decode('utf-8', errors='ignore')
                         cmd_output += chunk
                         # หยุดรับข้อมูลเมื่อเจอ prompt (เครื่องหมาย #) หรือคำว่า "end"
                         if "#" in chunk or "end" in chunk:
                             break
                     else:
                         break
+                # ทำความสะอาด output ก่อนเพิ่มเข้า output_str
+                cmd_output = clean_output(cmd_output.strip())
                 output_str += f"\n{'-'*20} Command: {command} {'-'*20}\n"
-                output_str += f"{cmd_output.strip()}\n"
+                output_str += f"{cmd_output}\n"
             output_str += f"\n{'='*90}\n\n"
             ssh.close()
         except Exception as e:
@@ -1723,7 +1743,6 @@ def save_send_command_and_output():
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
             for hostname, content in device_outputs.items():
-                # Sanitizing ชื่อ hostname ให้ใช้เป็นชื่อไฟล์ที่ปลอดภัย
                 safe_hostname = "".join(c if c.isalnum() or c in (' ', '.', '_', '-') else '_' for c in hostname).strip()
                 file_name = f"{safe_hostname}.txt"
                 zip_file.writestr(file_name, content)
@@ -1742,7 +1761,6 @@ def save_send_command_and_output():
         combined_text = ""
         for hostname, content in device_outputs.items():
             combined_text += content + "\n"
-        # ส่งกลับทั้ง combined_text และผลลัพธ์แยกตามแต่ละ switch ใน key "outputs"
         return jsonify({"output": combined_text, "outputs": device_outputs}), 200
 
 

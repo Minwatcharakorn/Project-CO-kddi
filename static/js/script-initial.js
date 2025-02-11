@@ -162,3 +162,19 @@ function toggleScanMode(mode) {
         singleIpContainer.style.display = 'flex';
     }
 }
+
+let enterPressed = false;
+
+document.getElementById('scan-form').addEventListener('keydown', function(event) {
+    // ตรวจสอบว่ากด Enter หรือไม่
+    if (event.key === "Enter") {
+        event.preventDefault();  // ป้องกันการ submit form โดยอัตโนมัติ
+
+        // หากยังไม่ได้กด Enter มาก่อน ให้ทำการคลิกปุ่ม Scan
+        if (!enterPressed) {
+            enterPressed = true;
+            document.getElementById('scan-button').click();
+        }
+        // ถ้ากด Enter ซ้ำหลังจาก flag ถูกเซ็ตแล้ว จะไม่เกิดอะไรขึ้น
+    }
+});
