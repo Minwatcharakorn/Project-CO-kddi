@@ -430,8 +430,13 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
     """
     ฟังก์ชันรวมขั้นตอนการ copy TFTP -> flash, verify md5,
     และ (optionally) ทำการตั้ง boot system + reload หาก confirm == True
+    Returns dict ตัวอย่าง:
+        {
+          "status": "verify_only" or "update_done" or "error",
+          "md5": "<md5-string>" or None,
+          "message": "...."
+        }
     """
-
     logging.info(f"Connecting to {ip} for firmware update (confirm={confirm})")
 
     try:
@@ -450,22 +455,16 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
         output = read_output(shell, timeout=10)
         logging.info(output)
 
-        # ตอบ prompt ระหว่าง copy จนกลับมาที่ prompt (#)
         while True:
-            # ------------------------------
-            # (เพิ่ม) เช็คถ้ามี "%Error" หรือ No space left
-            # ------------------------------
             if "%Error" in output or "No space left" in output:
-                # ถือว่าเป็น Error ระหว่าง copy, ตัดจบ
                 shell.close()
                 ssh.close()
                 return {
                     "status": "error",
                     "message": f"Copy failed on {ip}: {output.strip()}"
                 }
-
             if "Destination filename" in output:
-                shell.send("\n")  # ยืนยันชื่อไฟล์
+                shell.send("\n")  # enter blank (ยืนยันชื่อไฟล์)
             elif "overwrite?" in output.lower():
                 shell.send("yes\n")
             elif "confirm" in output.lower():
@@ -484,7 +483,7 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
 
         output_verify = ""
         start_time = time.time()
-        timeout_secs = 600  # เผื่อไฟล์ใหญ่, รอได้ 10 นาที
+        timeout_secs = 600  # รอได้ 10 นาทีสำหรับ verify
 
         while True:
             while shell.recv_ready():
@@ -492,11 +491,7 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
                 output_verify += chunk
                 logging.info(f"[DEBUG-chunk] {chunk}")
 
-            # ------------------------------
-            # (เพิ่ม) เช็ค %Error ระหว่าง Verify
-            # ------------------------------
             if "%Error" in output_verify:
-                # เช่น %Error computing MD5 hash ...
                 shell.close()
                 ssh.close()
                 return {
@@ -504,7 +499,7 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
                     "message": f"Verify failed on {ip}: {output_verify.strip()}"
                 }
 
-            # เช็คเงื่อนไขอื่น ๆ ที่บ่งบอก Verify จบ
+            # เงื่อนไขจบ verify
             if "No such file" in output_verify or "Error computing MD5" in output_verify:
                 break
             if "Done!" in output_verify:
@@ -534,14 +529,11 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
             ssh.close()
             return {
                 "status": "verify_only",
-                # "verification_status": verification_status,   # ไม่ใส่ตามที่คุณเอาออก
                 "md5": md5_value,
                 "message": "Verification done. Waiting user confirmation to proceed."
             }
 
-        # -------------------------------------------------
         # PART การอัปเดตจริง (ถ้าผู้ใช้ confirm=True)
-        # -------------------------------------------------
         shell.send("configure terminal\n")
         time.sleep(1)
         output = read_output(shell, timeout=10)
@@ -583,7 +575,6 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
 
         return {
             "status": "update_done",
-            # "verification_status": verification_status,  # ไม่ใส่ตามที่คุณเอาออก
             "md5": md5_value,
             "message": "Firmware updated and device reloaded successfully."
         }
@@ -600,7 +591,6 @@ def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, f
             "status": "error",
             "message": f"Error: {str(e)}"
         }
-
 
 @app.route('/')
 def index():
@@ -647,9 +637,11 @@ def automate_update_with_verify():
       - devices (list ของ IP)
       - username, password
       - confirm (bool) => true/false
+      - expected_md5 (optional) ใส่หรือไม่ใส่ก็ได้
     ถ้า confirm=False => ทำแค่ copy + verify, ส่งกลับ MD5 ให้ user ดู
     ถ้า confirm=True  => ทำขั้นตอน boot system + reload
     """
+
     data = request.get_json()
     tftp_server_ip = data.get('tftp_server_ip')
     filename = data.get('filename')
@@ -658,7 +650,10 @@ def automate_update_with_verify():
     password = data.get('password')
     confirm = data.get('confirm', False)  # bool
 
-    # ตรวจสอบไฟล์บน TFTP server
+    # รับค่าที่ user ใส่มา (อาจเป็น "" ถ้าไม่กรอก)
+    expected_md5 = data.get('expected_md5', '').strip().lower()
+
+    # ตรวจสอบว่าไฟล์มีอยู่ในโฟลเดอร์ TFTP หรือไม่
     firmware_path = os.path.join(UPLOAD_FOLDER_FIRMWARE, filename)
     if not os.path.exists(firmware_path):
         return jsonify({'error': f'File {filename} does not exist on TFTP server.'}), 400
@@ -679,13 +674,34 @@ def automate_update_with_verify():
             )
             logs.append(f"Result => {resp}")
 
-            # สร้างรูปแบบให้ Frontend ดูง่าย
-            results[device_ip] = {
-                "status": resp.get("status"),
-                "md5": resp.get("md5"),
-                #"verification_status": resp.get("verification_status"),
-                "message": resp.get("message"),
-            }
+            # ------------------------------------------------
+            # เช็ค expected_md5 (ถ้ามี) กับ md5 ที่อุปกรณ์คำนวณ
+            # ------------------------------------------------
+            actual_md5 = resp.get('md5')
+            if expected_md5 and actual_md5:
+                if actual_md5.lower() == expected_md5:
+                    results[device_ip] = {
+                        "status": resp.get("status"),
+                        "md5": actual_md5,
+                        "message": resp.get("message"),
+                        "md5_match": "match"   # <-- บอกว่า match
+                    }
+                else:
+                    results[device_ip] = {
+                        "status": resp.get("status"),
+                        "md5": actual_md5,
+                        "message": resp.get("message"),
+                        "md5_match": "mismatch"
+                    }
+            else:
+                # กรณีไม่มี expected_md5 หรือไม่มี actual_md5
+                results[device_ip] = {
+                    "status": resp.get("status"),
+                    "md5": actual_md5,
+                    "message": resp.get("message")
+                    # ไม่ใส่ md5_match
+                }
+
         except Exception as e:
             logs.append(f"Error (outer): {str(e)}")
             results[device_ip] = {

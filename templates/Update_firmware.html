@@ -17,7 +17,8 @@
     <style>
         .firmware-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 Columns */
+            grid-template-columns: 1fr 2fr; /* Left 1 part, Right 2 parts */
+            grid-template-rows: auto auto auto; /* Stack left elements */
             grid-gap: 20px;
             max-width: 100%;
             margin: auto;
@@ -36,12 +37,165 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-            margin-bottom: 20px;
             transition: transform 0.2s ease-in-out;
         }
+
+        .card:nth-child(1) { grid-column: 1; grid-row: 1; } /* Upload Firmware */
+        .card:nth-child(2) { grid-column: 1; grid-row: 2; } /* Available Firmware */
+        .card:nth-child(3) { grid-column: 2; grid-row: 1 / span 2; } /* Update Devices spans full height */
+
         .card:hover {
             transform: scale(1.02);
         }
+
+        .confirmation-modal {
+                display: none;
+                position: fixed;
+                z-index: 1;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                justify-content: center;
+                align-items: center;
+            }
+
+            .confirmation-modal-content {
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 12px;
+                width: 20%;
+                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+                text-align: center;
+                position: relative;
+            }
+
+            .confirmation-icon {
+                font-size: 5rem;
+                color: #343434; /* Orange color for the question icon */
+                margin-bottom: 15px;
+            }
+
+            .confirmation-buttons {
+                display: flex;
+                justify-content: space-around;
+                margin-top: 20px;
+                gap: 0; /* Remove the gap between the buttons */
+
+            }
+
+            .confirmation-ok-button {
+                background-color: #007bff;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 10px 20px;
+                cursor: pointer;
+                transition: background-color 0.3s ease-in-out;
+            }
+
+            .confirmation-ok-button:hover {
+                background-color: #0056b3;
+            }
+
+            .confirmation-cancel-button {
+                background-color: #dc3545;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 10px 20px;
+                cursor: pointer;
+                transition: background-color 0.3s ease-in-out;
+            }
+
+            .confirmation-cancel-button:hover {
+                background-color: #a71d2a;
+            }
+            .confirmation-buttons button {
+                margin: 0; /* Remove any margin around the buttons */
+                border-radius: 0; /* Optional: Remove rounding to make them visually compact */
+                width: auto; /* Ensure buttons don't expand unnecessarily */
+                border-radius: 10px; /* ทำให้ปุ่มมีมุมกลม */
+
+            }
+
+            .confirmation-ok-button {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0; /* Remove the right border radius */
+            }
+
+            .confirmation-cancel-button {
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0; /* Remove the left border radius */
+                margin-left: -1px; /* Slight overlap to remove any visible border gap */
+            }
+
+            #confirmationMessage {
+                white-space: pre-line; /* รองรับ newline (\n) */
+            }
+
+        #file-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .firmware-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .firmware-item:hover {
+            background: #e9ecef;
+            transform: scale(1.02);
+        }
+
+        .file-name {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .file-icon {
+            color: #1E90FF;
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .delete-file-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .delete-file-btn:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+
+        .delete-file-btn i {
+            font-size: 16px;
+        }
+
         form {
             background: #ffffff;
             padding: 15px;
@@ -166,7 +320,17 @@
             box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
             border-radius: 6px;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Pushes footer to the bottom */
         }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end; /* Aligns buttons to the right */
+            margin-top: 15px;
+            gap: 10px;
+        }
+
         #result-content {
             margin-bottom: 20px;
             white-space: pre-wrap;
@@ -204,7 +368,12 @@
                 width: 90%;
             }
             .firmware-grid {
-                grid-template-columns: repeat(1, 1fr);
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+            }
+            .card {
+                grid-column: 1 !important;
+                grid-row: auto !important;
             }
         }
         #addDeviceBtn {
@@ -428,7 +597,7 @@
                         <form id="upload_form" enctype="multipart/form-data">
                             <input type="file" name="firmware_file" accept=".bin" required>
                             <div class="button-container">
-                                <button type="submit" class="btn btn-primary btn-primary-shadow">
+                                <button type="submit" class="btn secondary">
                                     <i class="fas fa-upload"></i> Upload
                                 </button>
                             </div>
@@ -440,28 +609,18 @@
                         <h2><i class="fas fa-file-alt"></i> Available Firmware Files</h2>
                         <ul id="file-list">
                             {% for f in files %}
-                            <li class="firmware-item">{{ f }}</li>
+                            <li class="firmware-item">
+                                <span class="file-name">
+                                    <i class="fas fa-file-code file-icon"></i> {{ f }}
+                                </span>
+                                <button class="btn danger delete-file-btn" data-filename="{{ f }}" title="Delete file">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </li>
                             {% endfor %}
                         </ul>
                     </div>
 
-                    <!-- (C) Delete Firmware -->
-                    <div class="card">
-                        <h2><i class="fas fa-trash-alt"></i> Delete Firmware</h2>
-                        <form id="delete_form">
-                            <label>Select File to Delete</label>
-                            <select id="delete-select" name="filename" required>
-                                {% for f in files %}
-                                <option value="{{ f }}">{{ f }}</option>
-                                {% endfor %}
-                            </select>
-                            <div class="button-container">
-                                <button type="submit" class="btn btn-danger btn-danger-shadow">
-                                    <i class="fas fa-trash-alt"></i> Delete
-                                </button>
-                            </div>
-                        </form>
-                    </div>
 
                     <!-- (D) Update Devices (2-step copy+verify -> confirm -> update) -->
                     <div class="card">
@@ -479,6 +638,11 @@
                                 <option value="{{ f }}">{{ f }}</option>
                                 {% endfor %}
                             </select>
+
+                            <!-- เพิ่มช่อง MD5 (Optional) -->
+                            <!-- เพิ่ม/แก้ไขตรงนี้ -->
+                            <label>Expected MD5 (Optional)</label>
+                            <input type="text" id="expected_md5" name="expected_md5" placeholder="เช่น 7f5c24b8e4..." >
 
                             <label>Devices IP</label>
                             <div id="devices-container">
@@ -507,7 +671,7 @@
                                 <i id="togglePassword" class="fas fa-eye-slash toggle-password" style="background-color: white; padding: 0px;"></i>
                             </div>
                             <div class="button-container">
-                                <button type="submit" class="btn btn-primary btn-primary-shadow">
+                                <button type="submit" class="btn secondary">
                                     <i class="fas fa-sync-alt"></i> Update Firmware
                                 </button>
                             </div>
@@ -531,13 +695,26 @@
                 </div>
 
                 <!-- Result Modal -->
-                <div id="result-modal">
+                <div id="result-modal" style="display: none;">
                     <div id="result-content"></div>
-                    <div id="confirm-buttons" style="display: none;">
-                        <button id="confirm-update" class="btn secondary" style="margin-right: 10px;">Confirm Update</button>
-                        <button id="cancel-update" class="btn danger">Cancel</button>
+                    <div class="modal-footer">
+                        <div id="confirm-buttons" style="display: none;">
+                            <button id="confirm-update" class="btn secondary">Confirm Update</button>
+                            <button id="cancel-update" class="btn danger">Cancel</button>
+                        </div>
+                        <button id="close-modal" class="btn danger" style="display: none;">Close</button>
                     </div>
-                    <button id="close-modal" class="btn danger" style="display: none;">Close</button>
+                </div>
+
+                <div id="confirmationModal" class="confirmation-modal">
+                    <div class="confirmation-modal-content">
+                        <i class="fas fa-question-circle confirmation-icon"></i>
+                        <p id="confirmationMessage">Are you sure you want to delete this template?</p>
+                        <div class="confirmation-buttons">
+                            <button class="confirmation-ok-button" onclick="confirmDelete()">OK</button>
+                            <button class="confirmation-cancel-button" onclick="closeConfirmationModal()">Cancel</button>
+                        </div>
+                    </div>
                 </div>
 
             </div> <!-- /.firmware-container -->
@@ -561,239 +738,216 @@
     });
     </script>
 
-    <script>
-        // -------- Remove Leading Zero IP & Validate -------
-        function removeLeadingZerosFromIP(ip) {
-            const octets = ip.split('.');
-            if (octets.length !== 4) return ip;
-            const fixedOctets = octets.map(octet => {
-                let num = parseInt(octet, 10);
-                if (isNaN(num)) return octet;
-                return String(num);
-            });
-            return fixedOctets.join('.');
-        }
-        function isValidIPv4NoLeadingZero(ip) {
-            const octets = ip.split('.');
-            if (octets.length !== 4) return false;
-            for (let octet of octets) {
-                if (!/^\d+$/.test(octet)) return false;
-                const num = parseInt(octet, 10);
-                if (num < 0 || num > 255) return false;
-                if (octet.length > 1 && octet.startsWith('0')) {
-                    return false;
-                }
-            }
-            return true;
-        }
+<script>
 
-        // -------- Loading Overlay --------
-        let simulatedProgress = 0;
-        let progressInterval = null;
-        function showLoading() {
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) {
-                overlay.style.display = 'flex';
-                updateLoadingPercentage(0);
-                simulatedProgress = 0;
-                if (progressInterval) clearInterval(progressInterval);
-                progressInterval = setInterval(() => {
-                    if (simulatedProgress < 90) {
-                        simulatedProgress += 0.25;
-                        if (simulatedProgress > 90) simulatedProgress = 90;
-                        updateLoadingPercentage(Math.floor(simulatedProgress));
-                    }
-                }, 1000);
-            }
-        }
-        function hideLoading() {
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) {
-                overlay.style.display = 'none';
-                if (progressInterval) clearInterval(progressInterval);
-                simulatedProgress = 0;
-            }
-        }
-        function updateLoadingPercentage(percent) {
-            const percentageElement = document.getElementById('loading-percentage');
-            if (percentageElement) {
-                if (percent > simulatedProgress) {
-                    simulatedProgress = percent;
-                }
-                percentageElement.textContent = `${Math.floor(simulatedProgress)}%`;
-            }
-        }
+    function showConfirmationModal(message) {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('confirmationModal');
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            confirmationMessage.textContent = message;
+            modal.style.display = 'flex';
 
-        // -------- Modal --------
-        function openModal(message, showConfirmButtons = false) {
-            const modal = document.getElementById('result-modal');
-            const content = document.getElementById('result-content');
-            const confirmButtons = document.getElementById('confirm-buttons');
-            const closeModalBtn = document.getElementById('close-modal');
-
-            if (modal && content) {
-                content.innerText = message;
-                modal.style.display = 'block';
-                modal.style.zIndex = "10000";
-                modal.style.pointerEvents = "auto";
-                if (showConfirmButtons) {
-                    confirmButtons.style.display = 'block';
-                    closeModalBtn.style.display = 'none';
-                } else {
-                    confirmButtons.style.display = 'none';
-                    closeModalBtn.style.display = 'inline-block';
-                }
-            }
-        }
-        function closeModal() {
-            const modal = document.getElementById('result-modal');
-            if (modal) {
+            // กำหนดฟังก์ชัน global สำหรับ OK และ Cancel
+            window.confirmDelete = function() {
                 modal.style.display = 'none';
+                resolve(true);
+            };
+
+            window.closeConfirmationModal = function() {
+                modal.style.display = 'none';
+                resolve(false);
+            };
+        });
+    }
+    // -------- Remove Leading Zero IP & Validate -------
+    function removeLeadingZerosFromIP(ip) {
+        const octets = ip.split('.');
+        if (octets.length !== 4) return ip;
+        const fixedOctets = octets.map(octet => {
+            let num = parseInt(octet, 10);
+            if (isNaN(num)) return octet;
+            return String(num);
+        });
+        return fixedOctets.join('.');
+    }
+    function isValidIPv4NoLeadingZero(ip) {
+        const octets = ip.split('.');
+        if (octets.length !== 4) return false;
+        for (let octet of octets) {
+            if (!/^\d+$/.test(octet)) return false;
+            const num = parseInt(octet, 10);
+            if (num < 0 || num > 255) return false;
+            if (octet.length > 1 && octet.startsWith('0')) {
+                return false;
             }
         }
+        return true;
+    }
 
-        // -------- Error Modal --------
-        function openErrorModalCheck(message) {
-            const modal = document.getElementById('errorModalcheck');
-            const errorMsgEl = document.getElementById('errorMessage');
-            if (modal && errorMsgEl) {
-                errorMsgEl.textContent = message;
-                modal.style.display = 'flex';
-            }
-        }
-        function closeErrorModalCheck() {
-            document.getElementById('errorModalcheck').style.display = 'none';
-        }
-
-        // -------- POST Helper (with progress) --------
-        function postFormWithProgress(url, formData, onProgress) {
-            return new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', url);
-                xhr.responseType = 'json';
-                xhr.upload.onprogress = function(event) {
-                    if (event.lengthComputable && onProgress) {
-                        const percentComplete = Math.round((event.loaded / event.total) * 100);
-                        onProgress(percentComplete);
-                    }
-                };
-                xhr.onload = function() {
-                    if (xhr.status >= 200 && xhr.status < 300) {
-                        resolve(xhr.response);
-                    } else {
-                        reject(new Error(`HTTP error! status: ${xhr.status}`));
-                    }
-                };
-                xhr.onerror = function() {
-                    reject(new Error('Network error'));
-                };
-                xhr.send(formData);
-            });
-        }
-        // -------- POST Helper (no progress) --------
-        function postForm(url, formData) {
-            return fetch(url, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            });
-        }
-
-        // -------- Refresh Files List (AJAX) --------
-        async function refreshFilesList() {
-            try {
-                const res = await fetch('/api/files');
-                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-                const data = await res.json();
-                const fileList = data.files || [];
-
-                const ulElement = document.getElementById('file-list');
-                if (ulElement) {
-                    ulElement.innerHTML = '';
-                    fileList.forEach(f => {
-                        const li = document.createElement('li');
-                        li.className = 'firmware-item';
-                        li.textContent = f;
-                        ulElement.appendChild(li);
-                    });
+    // -------- Loading Overlay --------
+    let simulatedProgress = 0;
+    let progressInterval = null;
+    function showLoading() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            updateLoadingPercentage(0);
+            simulatedProgress = 0;
+            if (progressInterval) clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                if (simulatedProgress < 90) {
+                    simulatedProgress += 0.25;
+                    if (simulatedProgress > 90) simulatedProgress = 90;
+                    updateLoadingPercentage(Math.floor(simulatedProgress));
                 }
-                // Update <select> ที่เกี่ยวข้อง
-                const deleteSelect = document.getElementById('delete-select');
-                if (deleteSelect) {
-                    deleteSelect.innerHTML = '';
-                    fileList.forEach(f => {
-                        const option = document.createElement('option');
-                        option.value = f;
-                        option.textContent = f;
-                        deleteSelect.appendChild(option);
-                    });
-                }
-                const updateSelect = document.getElementById('update-select');
-                if (updateSelect) {
-                    updateSelect.innerHTML = '';
-                    fileList.forEach(f => {
-                        const option = document.createElement('option');
-                        option.value = f;
-                        option.textContent = f;
-                        updateSelect.appendChild(option);
-                    });
-                }
-            } catch (err) {
-                console.error("Error refreshing files list:", err);
+            }, 1000);
+        }
+    }
+    function hideLoading() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+            if (progressInterval) clearInterval(progressInterval);
+            simulatedProgress = 0;
+        }
+    }
+    function updateLoadingPercentage(percent) {
+        const percentageElement = document.getElementById('loading-percentage');
+        if (percentageElement) {
+            if (percent > simulatedProgress) {
+                simulatedProgress = percent;
+            }
+            percentageElement.textContent = `${Math.floor(simulatedProgress)}%`;
+        }
+    }
+
+    // -------- Modal --------
+    function openModal(message, showConfirmButtons = false) {
+        const modal = document.getElementById('result-modal');
+        const content = document.getElementById('result-content');
+        const confirmButtons = document.getElementById('confirm-buttons');
+        const closeModalBtn = document.getElementById('close-modal');
+
+        if (modal && content) {
+            content.innerText = message;
+            modal.style.display = 'block';
+            modal.style.zIndex = "10000";
+            modal.style.pointerEvents = "auto";
+            if (showConfirmButtons) {
+                confirmButtons.style.display = 'block';
+                closeModalBtn.style.display = 'none';
+            } else {
+                confirmButtons.style.display = 'none';
+                closeModalBtn.style.display = 'inline-block';
             }
         }
+    }
+    function closeModal() {
+        const modal = document.getElementById('result-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
 
-        // -------------------------------
-        // 2-step Update: copy+verify => confirm => update
-        // -------------------------------
-        let step1FormData = null; // เก็บ formData ไว้เพื่อขั้น confirm
+    // -------- Error Modal --------
+    function openErrorModalCheck(message) {
+        const modal = document.getElementById('errorModalcheck');
+        const errorMsgEl = document.getElementById('errorMessage');
+        if (modal && errorMsgEl) {
+            errorMsgEl.textContent = message;
+            modal.style.display = 'flex';
+        }
+    }
+    function closeErrorModalCheck() {
+        document.getElementById('errorModalcheck').style.display = 'none';
+    }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Close Error Modal
-            const closeErrorModalBtn = document.getElementById('closeErrorModal');
-            if (closeErrorModalBtn) {
-                closeErrorModalBtn.addEventListener('click', closeErrorModalCheck);
-            }
+    // -------- POST Helper (with progress) --------
+    function postFormWithProgress(url, formData, onProgress) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', url);
+            xhr.responseType = 'json';
+            xhr.upload.onprogress = function(event) {
+                if (event.lengthComputable && onProgress) {
+                    const percentComplete = Math.round((event.loaded / event.total) * 100);
+                    onProgress(percentComplete);
+                }
+            };
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    resolve(xhr.response);
+                } else {
+                    reject(new Error(`HTTP error! status: ${xhr.status}`));
+                }
+            };
+            xhr.onerror = function() {
+                reject(new Error('Network error'));
+            };
+            xhr.send(formData);
+        });
+    }
+    // -------- POST Helper (no progress) --------
+    function postForm(url, formData) {
+        return fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        });
+    }
 
-            // (1) Upload Firmware
-            const uploadForm = document.getElementById('upload_form');
-            if (uploadForm) {
-                uploadForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
+    // -------- Refresh Files List (AJAX) --------
+    async function refreshFilesList() {
+    try {
+        const res = await fetch('/api/files');
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        const fileList = data.files || [];
+
+        const ulElement = document.getElementById('file-list');
+        if (ulElement) {
+            ulElement.innerHTML = '';
+
+            fileList.forEach(f => {
+                // สร้าง <li> 
+                const li = document.createElement('li');
+                li.className = 'firmware-item';
+
+                // สร้าง <span class="file-name">
+                const span = document.createElement('span');
+                span.className = 'file-name';
+
+                // ใส่ไอคอนไฟล์
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-file-code file-icon';
+                span.appendChild(icon);
+
+                // ใส่ชื่อไฟล์
+                span.appendChild(document.createTextNode(" " + f));
+
+                // สร้างปุ่มลบ
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn danger delete-file-btn';
+                deleteBtn.setAttribute('data-filename', f);
+                deleteBtn.setAttribute('title', 'Delete file');
+
+                const trashIcon = document.createElement('i');
+                trashIcon.className = 'fas fa-trash-alt';
+                deleteBtn.appendChild(trashIcon);
+
+                // ผูก event listener สำหรับลบไฟล์ (เหมือนที่ทำใน DOMContentLoaded)
+                deleteBtn.addEventListener('click', async function() {
+                    // ใช้ modal confirmation (หรือ confirm() ก็ได้)
+                    const confirmed = await showConfirmationModal(`Are you sure you want to delete the file ${f}?`);
+                    if (!confirmed) return;
+
                     showLoading();
-                    const formData = new FormData(uploadForm);
                     try {
-                        const data = await postFormWithProgress('/upload_firmware', formData, (percent) => {
-                            if (percent > simulatedProgress) {
-                                simulatedProgress = percent;
-                                updateLoadingPercentage(simulatedProgress);
-                            }
-                        });
-                        hideLoading();
-                        if (data.message) {
-                            openModal(data.message);
-                            refreshFilesList();
-                        } else if (data.error) {
-                            openModal("Error: " + data.error);
-                        }
-                    } catch (err) {
-                        hideLoading();
-                        openModal("Fetch error: " + err.message);
-                    }
-                });
-            }
-
-            // (2) Delete Firmware
-            const deleteForm = document.getElementById('delete_form');
-            if (deleteForm) {
-                deleteForm.addEventListener('submit', async function(e){
-                    e.preventDefault();
-                    showLoading();
-                    const formData = new FormData(deleteForm);
-                    try {
+                        const formData = new FormData();
+                        formData.append('filename', f);
                         const data = await postForm('/delete_firmware', formData);
                         hideLoading();
                         if (data.message) {
@@ -807,222 +961,339 @@
                         openModal("Fetch error: " + err.message);
                     }
                 });
-            }
 
-            // (3) Update Firmware: copy+verify => confirm => update
-            const updateForm = document.getElementById('update_form');
-            if (updateForm) {
-                updateForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    showLoading();
-                    const formData = new FormData(updateForm);
+                // ประกอบ <li> -> <span> และ <button>
+                li.appendChild(span);
+                li.appendChild(deleteBtn);
 
-                    try {
-                        // Step 1: verify => confirm=false
-                        let plainObj = {};
-                        formData.forEach((val, key) => {
-                            if (key === 'devices[]') {
-                                if (!plainObj.devices) plainObj.devices = [];
-                                plainObj.devices.push(val);
-                            } else {
-                                plainObj[key] = val;
-                            }
-                        });
-                        plainObj['confirm'] = false;
+                // เพิ่มลงใน <ul>
+                ulElement.appendChild(li);
+            });
+        }
 
-                        const response = await fetch('/automate_update_with_verify', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(plainObj)
-                        });
-                        const data = await response.json();
-                        hideLoading();
+        // อัปเดต <select> ที่เกี่ยวข้อง (ถ้ามี)
+        const deleteSelect = document.getElementById('delete-select');
+        if (deleteSelect) {
+            deleteSelect.innerHTML = '';
+            fileList.forEach(f => {
+                const option = document.createElement('option');
+                option.value = f;
+                option.textContent = f;
+                deleteSelect.appendChild(option);
+            });
+        }
+        const updateSelect = document.getElementById('update-select');
+        if (updateSelect) {
+            updateSelect.innerHTML = '';
+            fileList.forEach(f => {
+                const option = document.createElement('option');
+                option.value = f;
+                option.textContent = f;
+                updateSelect.appendChild(option);
+            });
+        }
+    } catch (err) {
+        console.error("Error refreshing files list:", err);
+    }
+}
 
-                        if (data.results) {
-                            let lines = [];
-                            let needConfirm = false;
-                            for (const device_ip in data.results) {
-                                const info = data.results[device_ip];
-                                if (info.status === 'verify_only') {
-                                    lines.push(`----- ${device_ip} -----\nMD5: ${info.md5}\nMessage: ${info.message}\n`);
-                                    needConfirm = true;
-                                } else if (info.status === 'error') {
-                                    lines.push(`----- ${device_ip} -----\nError: ${info.message}\n`);
-                                } else {
-                                    lines.push(`----- ${device_ip} -----\n${JSON.stringify(info, null, 2)}\n`);
-                                }
-                            }
-                            if (needConfirm) {
-                                step1FormData = formData;
-                                openModal(lines.join("\n"), true);
-                            } else {
-                                openModal(lines.join("\n"), false);
-                            }
-                        } else if (data.error) {
-                            openErrorModalCheck("Error: " + data.error);
+    // -------------------------------
+    // 2-step Update: copy+verify => confirm => update
+    // -------------------------------
+    let step1FormData = null; // เก็บ formData ไว้เพื่อขั้น confirm
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Close Error Modal
+        const closeErrorModalBtn = document.getElementById('closeErrorModal');
+        if (closeErrorModalBtn) {
+            closeErrorModalBtn.addEventListener('click', closeErrorModalCheck);
+        }
+
+        // (1) Upload Firmware
+        const uploadForm = document.getElementById('upload_form');
+        if (uploadForm) {
+            uploadForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                showLoading();
+                const formData = new FormData(uploadForm);
+                try {
+                    const data = await postFormWithProgress('/upload_firmware', formData, (percent) => {
+                        if (percent > simulatedProgress) {
+                            simulatedProgress = percent;
+                            updateLoadingPercentage(simulatedProgress);
                         }
-                    } catch (err) {
-                        hideLoading();
-                        openErrorModalCheck("Fetch error: " + err.message);
+                    });
+                    hideLoading();
+                    if (data.message) {
+                        openModal(data.message);
+                        refreshFilesList();
+                    } else if (data.error) {
+                        openModal("Error: " + data.error);
                     }
-                });
-            }
+                } catch (err) {
+                    hideLoading();
+                    openModal("Fetch error: " + err.message);
+                }
+            });
+        }
 
-            // Confirm / Cancel
-            const confirmBtn = document.getElementById('confirm-update');
-            const cancelBtn = document.getElementById('cancel-update');
-            const closeBtn = document.getElementById('close-modal');
-
-            if (confirmBtn) {
-                confirmBtn.addEventListener('click', async function() {
-                    if (!step1FormData) {
-                        closeModal();
-                        return;
+        // (2) Delete Firmware
+        document.querySelectorAll('.delete-file-btn').forEach(function(btn) {
+            btn.addEventListener('click', async function() {
+                const filename = btn.getAttribute('data-filename');
+                
+                // ใช้ modal confirmation แบบ custom แทน confirm() 
+                const confirmed = await showConfirmationModal(`Are you sure you want to delete the file ${filename}?`);
+                if (!confirmed) {
+                    return;
+                }
+                
+                showLoading();
+                try {
+                    // สร้าง FormData สำหรับส่ง filename ไปยัง endpoint
+                    const formData = new FormData();
+                    formData.append('filename', filename);
+                    const data = await postForm('/delete_firmware', formData);
+                    hideLoading();
+                    if (data.message) {
+                        openModal(data.message);
+                        refreshFilesList();
+                    } else if (data.error) {
+                        openModal("Error: " + data.error);
                     }
-                    // (แก้) เรียก showLoading ก่อน แล้วค่อย closeModal
-                    showLoading();
-                    // ปิดโมดัลเดิม (เอา confirm/cancel ออก) เพื่อให้เห็น overlay เต็มจอ
-                    closeModal();
+                } catch (err) {
+                    hideLoading();
+                    openModal("Fetch error: " + err.message);
+                }
+            });
+        });
 
-                    try {
-                        let plainObj = {};
-                        step1FormData.forEach((val, key) => {
-                            if (key === 'devices[]') {
-                                if (!plainObj.devices) plainObj.devices = [];
-                                plainObj.devices.push(val);
-                            } else {
-                                plainObj[key] = val;
-                            }
-                        });
-                        plainObj['confirm'] = true;
 
-                        const response = await fetch('/automate_update_with_verify', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(plainObj)
-                        });
-                        const data = await response.json();
-                        hideLoading();
+        // (3) Update Firmware: copy+verify => confirm => update
+        const updateForm = document.getElementById('update_form');
+        if (updateForm) {
+            updateForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                showLoading();
+                const formData = new FormData(updateForm);
 
+                try {
+                    // Step 1: verify => confirm=false
+                    let plainObj = {};
+                    formData.forEach((val, key) => {
+                        if (key === 'devices[]') {
+                            if (!plainObj.devices) plainObj.devices = [];
+                            plainObj.devices.push(val);
+                        } else {
+                            plainObj[key] = val;
+                        }
+                    });
+                    plainObj['confirm'] = false;
+
+                    const response = await fetch('/automate_update_with_verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(plainObj)
+                    });
+                    const data = await response.json();
+                    hideLoading();
+
+                    if (data.results) {
                         let lines = [];
-                        if (data.results) {
-                            for (const device_ip in data.results) {
-                                const info = data.results[device_ip];
-                                lines.push(`----- ${device_ip} -----\nStatus: ${info.status}\nMD5: ${info.md5}\nMessage: ${info.message}\n`);
+                        let needConfirm = false;
+                        for (const device_ip in data.results) {
+                            const info = data.results[device_ip];
+                            if (info.status === 'verify_only') {
+                                lines.push(`----- ${device_ip} -----\nMD5: ${info.md5}\nMessage: ${info.message}`);
+                                // <!-- เพิ่ม/แก้ไขตรงนี้ --> เช็ค info.md5_match
+                                if (info.md5_match === 'match') {
+                                    lines.push(`MD5 compare: MATCH with user-provided MD5.`);
+                                } else if (info.md5_match === 'mismatch') {
+                                    lines.push(`MD5 compare: MISMATCH with user-provided MD5.`);
+                                }
+                                lines.push('\n');
+                                needConfirm = true;
+                            } else if (info.status === 'error') {
+                                lines.push(`----- ${device_ip} -----\nError: ${info.message}\n`);
+                            } else {
+                                lines.push(`----- ${device_ip} -----\n${JSON.stringify(info, null, 2)}\n`);
                             }
-                        } else if (data.error) {
-                            lines.push("Error: " + data.error);
                         }
-                        // ตอนนี้ fetch เสร็จ => เปิดโมดัลแสดงผล
-                        openModal(lines.join("\n"), false);
-
-                    } catch (err) {
-                        hideLoading();
-                        // ไม่ต้อง closeModal() ซ้ำอีก เพราะปิดไปแล้ว
-                        openErrorModalCheck(err.message);
+                        if (needConfirm) {
+                            step1FormData = formData;
+                            openModal(lines.join("\n"), true);
+                        } else {
+                            openModal(lines.join("\n"), false);
+                        }
+                    } else if (data.error) {
+                        openErrorModalCheck("Error: " + data.error);
                     }
-                });
-            }
-            if (cancelBtn) {
-                cancelBtn.addEventListener('click', function() {
-                    closeModal();
-                });
-            }
-            if (closeBtn) {
-                closeBtn.addEventListener('click', function() {
-                    closeModal();
-                });
-            }
+                } catch (err) {
+                    hideLoading();
+                    openErrorModalCheck("Fetch error: " + err.message);
+                }
+            });
+        }
 
-            // IP Validation
-            const tftpInput = document.getElementById('tftp_server_ip');
-            const tftpErrorBox = document.getElementById('tftp-error');
-            if (tftpInput && tftpErrorBox) {
-                tftpInput.addEventListener('blur', function() {
-                    let ipValue = tftpInput.value.trim();
+        // Confirm / Cancel
+        const confirmBtn = document.getElementById('confirm-update');
+        const cancelBtn = document.getElementById('cancel-update');
+        const closeBtn = document.getElementById('close-modal');
+
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', async function() {
+                if (!step1FormData) {
+                    closeModal();
+                    return;
+                }
+                showLoading();
+                closeModal();
+
+                try {
+                    let plainObj = {};
+                    step1FormData.forEach((val, key) => {
+                        if (key === 'devices[]') {
+                            if (!plainObj.devices) plainObj.devices = [];
+                            plainObj.devices.push(val);
+                        } else {
+                            plainObj[key] = val;
+                        }
+                    });
+                    plainObj['confirm'] = true;
+
+                    const response = await fetch('/automate_update_with_verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(plainObj)
+                    });
+                    const data = await response.json();
+                    hideLoading();
+
+                    let lines = [];
+                    if (data.results) {
+                        for (const device_ip in data.results) {
+                            const info = data.results[device_ip];
+                            lines.push(`----- ${device_ip} -----\nStatus: ${info.status}\nMD5: ${info.md5}\nMessage: ${info.message}\n`);
+
+                            // ถ้าจะเช็ค match/mismatch ตอน confirm ก็ทำเหมือนด้านบนได้
+                            if (info.md5_match === 'match') {
+                                lines.push(`MD5 compare: MATCH with user-provided MD5.`);
+                            } else if (info.md5_match === 'mismatch') {
+                                lines.push(`MD5 compare: MISMATCH with user-provided MD5.`);
+                            }
+                            lines.push('\n');
+                        }
+                    } else if (data.error) {
+                        lines.push("Error: " + data.error);
+                    }
+                    openModal(lines.join("\n"), false);
+
+                } catch (err) {
+                    hideLoading();
+                    openErrorModalCheck(err.message);
+                }
+            });
+        }
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function() {
+                closeModal();
+            });
+        }
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                closeModal();
+            });
+        }
+
+        // IP Validation
+        const tftpInput = document.getElementById('tftp_server_ip');
+        const tftpErrorBox = document.getElementById('tftp-error');
+        if (tftpInput && tftpErrorBox) {
+            tftpInput.addEventListener('blur', function() {
+                let ipValue = tftpInput.value.trim();
+                if (ipValue) {
+                    let fixedIp = removeLeadingZerosFromIP(ipValue);
+                    tftpInput.value = fixedIp;
+                    if (!isValidIPv4NoLeadingZero(fixedIp)) {
+                        tftpErrorBox.style.display = 'block';
+                    } else {
+                        tftpErrorBox.style.display = 'none';
+                    }
+                }
+            });
+        }
+        const devicesContainer = document.getElementById('devices-container');
+        if (devicesContainer) {
+            devicesContainer.addEventListener('blur', function(e) {
+                if (e.target && e.target.classList.contains('device-ip')) {
+                    let ipValue = e.target.value.trim();
                     if (ipValue) {
                         let fixedIp = removeLeadingZerosFromIP(ipValue);
-                        tftpInput.value = fixedIp;
-                        if (!isValidIPv4NoLeadingZero(fixedIp)) {
-                            tftpErrorBox.style.display = 'block';
-                        } else {
-                            tftpErrorBox.style.display = 'none';
-                        }
+                        e.target.value = fixedIp;
                     }
-                });
-            }
-            const devicesContainer = document.getElementById('devices-container');
-            if (devicesContainer) {
-                devicesContainer.addEventListener('blur', function(e) {
-                    if (e.target && e.target.classList.contains('device-ip')) {
-                        let ipValue = e.target.value.trim();
-                        if (ipValue) {
-                            let fixedIp = removeLeadingZerosFromIP(ipValue);
-                            e.target.value = fixedIp;
-                        }
-                        const errorBox = e.target.parentElement.querySelector('.alert-box.error');
-                        if (!errorBox) return;
-                        if (e.target.value.trim() && !isValidIPv4NoLeadingZero(e.target.value.trim())) {
-                            errorBox.style.display = 'block';
-                        } else {
-                            errorBox.style.display = 'none';
-                        }
+                    const errorBox = e.target.parentElement.querySelector('.alert-box.error');
+                    if (!errorBox) return;
+                    if (e.target.value.trim() && !isValidIPv4NoLeadingZero(e.target.value.trim())) {
+                        errorBox.style.display = 'block';
+                    } else {
+                        errorBox.style.display = 'none';
                     }
-                }, true);
-            }
+                }
+            }, true);
+        }
 
-            // Add/Remove device row
-            const addDeviceBtn = document.getElementById('addDeviceBtn');
-            if (addDeviceBtn) {
-                addDeviceBtn.addEventListener('click', function() {
-                    const container = document.getElementById('devices-container');
-                    const newRow = document.createElement('div');
-                    newRow.className = 'device-row';
+        // Add/Remove device row
+        const addDeviceBtn = document.getElementById('addDeviceBtn');
+        if (addDeviceBtn) {
+            addDeviceBtn.addEventListener('click', function() {
+                const container = document.getElementById('devices-container');
+                const newRow = document.createElement('div');
+                newRow.className = 'device-row';
 
-                    const newInput = document.createElement('input');
-                    newInput.type = 'text';
-                    newInput.name = 'devices[]';
-                    newInput.placeholder = '192.168.1.1';
-                    newInput.required = true;
-                    newInput.classList.add('device-ip');
+                const newInput = document.createElement('input');
+                newInput.type = 'text';
+                newInput.name = 'devices[]';
+                newInput.placeholder = '192.168.1.1';
+                newInput.required = true;
+                newInput.classList.add('device-ip');
 
-                    const removeBtn = document.createElement('button');
-                    removeBtn.type = 'button';
-                    removeBtn.className = 'removeDeviceBtn btn danger';
-                    const icon = document.createElement('i');
-                    icon.className = 'fa-solid fa-trash';
-                    removeBtn.appendChild(icon);
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'removeDeviceBtn btn danger';
+                const icon = document.createElement('i');
+                icon.className = 'fa-solid fa-trash';
+                removeBtn.appendChild(icon);
 
-                    removeBtn.addEventListener('click', function() {
-                        container.removeChild(newRow);
-                    });
-
-                    const errorBox = document.createElement('div');
-                    errorBox.className = 'alert-box error';
-                    errorBox.style.display = 'none';
-                    errorBox.innerHTML = '<span>error: </span>Invalid IP Address format. Example: 111.111.111.111.';
-
-                    newRow.appendChild(newInput);
-                    newRow.appendChild(removeBtn);
-                    newRow.appendChild(errorBox);
-                    container.appendChild(newRow);
-
-                    $(newInput).inputmask({ alias: "ip", greedy: false });
+                removeBtn.addEventListener('click', function() {
+                    container.removeChild(newRow);
                 });
-            }
-            const initialRemoveBtns = document.querySelectorAll('.removeDeviceBtn');
-            initialRemoveBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const row = btn.parentElement;
-                    row.parentElement.removeChild(row);
-                });
+
+                const errorBox = document.createElement('div');
+                errorBox.className = 'alert-box error';
+                errorBox.style.display = 'none';
+                errorBox.innerHTML = '<span>error: </span>Invalid IP Address format. Example: 111.111.111.111.';
+
+                newRow.appendChild(newInput);
+                newRow.appendChild(removeBtn);
+                newRow.appendChild(errorBox);
+                container.appendChild(newRow);
+
+                $(newInput).inputmask({ alias: "ip", greedy: false });
             });
-
-            // Inputmask เริ่มต้น
-            $('#tftp_server_ip').inputmask({ alias: "ip", greedy: false });
-            $('.device-ip').inputmask({ alias: "ip", greedy: false });
+        }
+        const initialRemoveBtns = document.querySelectorAll('.removeDeviceBtn');
+        initialRemoveBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const row = btn.parentElement;
+                row.parentElement.removeChild(row);
+            });
         });
-    </script>
+
+        // Inputmask เริ่มต้น
+        $('#tftp_server_ip').inputmask({ alias: "ip", greedy: false });
+        $('.device-ip').inputmask({ alias: "ip", greedy: false });
+    });
+</script>
 
     <script>
         // -------- Sidebar Responsive --------
