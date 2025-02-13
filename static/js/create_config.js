@@ -845,14 +845,13 @@ if (portSecurityAddButton) {
                             placeholder="Enter MAC Address (e.g., XX:XX:XX:XX:XX:XX)"
                         >
                         <button id="add-mac-btn-${newConfigId}" class="btn btn-primary" style="margin-top: -1.2%;">+</button>
-                        <div 
+                    </div>
+                         <div 
                             class="alert-box error" 
                             id="mac-address-error-${newConfigId}" 
-                            style="display: none;"
-                        >
+                            style="display: none;">
                             <span>ERROR:</span> Invalid MAC address format. Please use the format XX:XX:XX:XX:XX:XX.
                         </div>
-                    </div>
                 </div>
             </div>
         

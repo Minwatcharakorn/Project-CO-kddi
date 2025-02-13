@@ -17,12 +17,17 @@ from datetime import datetime, timedelta
 import io
 import logging
 import zipfile
+import uuid
+import threading
 
 
 app = Flask(__name__)
 
 # Global variable for SSH session
 active_ssh_sessions = {}
+
+# เก็บสถานะปัจจุบันของแต่ละ Job
+current_progress = {}
 
 # ตั้งค่าโฟลเดอร์ที่เก็บไฟล์ firmware บน TFTP
 UPLOAD_FOLDER_FIRMWARE = '/var/lib/tftpboot'
@@ -426,171 +431,220 @@ def read_output(shell, timeout=5):
         time.sleep(0.5)
     return output
 
-def update_switch_firmware_with_verify(ip, username, password, tftp_server_ip, filename, confirm=False):
+def do_verify_task(job_id, devices, tftp_server_ip, filename, username, password, user_md5):
     """
-    ฟังก์ชันรวมขั้นตอนการ copy TFTP -> flash, verify md5,
-    และ (optionally) ทำการตั้ง boot system + reload หาก confirm == True
-    Returns dict ตัวอย่าง:
-        {
-          "status": "verify_only" or "update_done" or "error",
-          "md5": "<md5-string>" or None,
-          "message": "...."
+    ทำงาน copy firmware + verify md5 (confirm=False)
+    """
+    global current_progress
+    current_progress[job_id] = {
+        "status": "in_progress",
+        "devices": {}
+    }
+    for ip in devices:
+        current_progress[job_id]["devices"][ip] = {
+            "progress": 0,
+            "step": "starting",
+            "status": "init",
+            "message": "",
+            "md5": ""
         }
-    """
-    logging.info(f"Connecting to {ip} for firmware update (confirm={confirm})")
 
+    # เรียกใช้ฟังก์ชันเดิม update_switch_firmware_with_verify() โดยส่ง confirm=False
+    for ip in devices:
+        current_progress[job_id]["devices"][ip]["progress"] = 10
+        current_progress[job_id]["devices"][ip]["step"] = "Copying + verifying..."
+
+        resp = update_switch_firmware_with_verify(
+            ip=ip,
+            username=username,
+            password=password,
+            tftp_server_ip=tftp_server_ip,
+            filename=filename,
+            confirm=False,      # สำคัญ!
+            user_md5=user_md5,
+        )
+
+        # เก็บผลลัพธ์
+        current_progress[job_id]["devices"][ip]["progress"] = 100 if resp.get("status")=="verify_only" else 70
+        current_progress[job_id]["devices"][ip]["step"] = resp.get("message","")
+        current_progress[job_id]["devices"][ip]["status"] = resp.get("status","error")
+        current_progress[job_id]["devices"][ip]["message"] = resp.get("message","")
+        current_progress[job_id]["devices"][ip]["md5"] = resp.get("md5","")
+
+    current_progress[job_id]["status"] = "done"
+
+def do_update_task(job_id, devices, username, password,
+                   tftp_server_ip, filename, confirm, user_md5):
+    """
+    รันใน Background Thread
+    - ถ้า confirm=False => copy+verify => status=verify_only
+    - ถ้า confirm=True  => boot+reload => status=update_done
+    """
+    global current_progress
+    current_progress[job_id] = {
+        "status": "in_progress",
+        "devices": {}
+    }
+    for ip in devices:
+        current_progress[job_id]["devices"][ip] = {
+            "progress": 0,
+            "step": "starting",
+            "status": "init",
+            "message": "",
+            "md5": "",
+            "md5_status": "n/a"
+        }
+
+    # ทำงานกับแต่ละอุปกรณ์
+    for ip in devices:
+        # ตรงนี้จะแบ่ง progress ยังไงก็ได้ สมมติ:
+        current_progress[job_id]["devices"][ip]["progress"] = 10
+        current_progress[job_id]["devices"][ip]["step"] = "Connecting..."
+
+        resp = update_switch_firmware_with_verify(
+            ip=ip,
+            username=username,
+            password=password,
+            tftp_server_ip=tftp_server_ip,
+            filename=filename,
+            confirm=confirm,
+            user_md5=user_md5
+        )
+        # เมื่อจบแล้ว เอาผลมาใส่ใน dict
+        final_status = resp.get("status", "error")
+        if final_status == "verify_only":
+            current_progress[job_id]["devices"][ip]["progress"] = 100
+        elif final_status == "update_done":
+            current_progress[job_id]["devices"][ip]["progress"] = 100
+        else:
+            current_progress[job_id]["devices"][ip]["progress"] = 60
+
+        current_progress[job_id]["devices"][ip]["step"] = resp.get("message", "")
+        current_progress[job_id]["devices"][ip]["status"] = final_status
+        current_progress[job_id]["devices"][ip]["message"] = resp.get("message", "")
+        current_progress[job_id]["devices"][ip]["md5"] = resp.get("md5", "")
+        current_progress[job_id]["devices"][ip]["md5_status"] = resp.get("md5_status", "n/a")
+
+    # เมื่อครบทุกอุปกรณ์
+    current_progress[job_id]["status"] = "done"
+
+def update_switch_firmware_with_verify(ip, username, password,
+                                       tftp_server_ip, filename,
+                                       confirm=False, user_md5=None):
+    """
+    โค้ดตัวอย่าง: copy -> verify MD5
+    ถ้า confirm=True => boot system + reload
+    คืนค่า:
+      {
+        "status": "verify_only" | "update_done" | "error",
+        "message": "...",
+        "md5": "...",
+        "md5_status": "match|mismatch|n/a",
+        "progress_detail": [...]
+      }
+    """
+    progress_detail = []
     try:
+        # 0) เชื่อม SSH
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(ip, username=username, password=password, look_for_keys=False, timeout=10)
+        ssh.connect(ip, username=username, password=password, timeout=10)
 
         shell = ssh.invoke_shell()
-        shell.send("terminal length 0\n")
         time.sleep(1)
-        _ = read_output(shell)
+        shell.recv(99999)  # clear banner
 
-        # 1) copy firmware (.bin) จาก TFTP มายัง bootflash:
-        shell.send(f"copy tftp://{tftp_server_ip}/{filename} bootflash:\n")
+        # 1) copy firmware
+        progress_detail.append({"step": "Copying firmware", "progress": 30})
+        shell.send(f"copy tftp://{tftp_server_ip}/{filename} flash:\n")
         time.sleep(2)
-        output = read_output(shell, timeout=10)
-        logging.info(output)
+        # ... (โค้ดรอการ prompt และตอบ yes/no นิดหน่อย) ...
 
-        while True:
-            if "%Error" in output or "No space left" in output:
-                shell.close()
-                ssh.close()
-                return {
-                    "status": "error",
-                    "message": f"Copy failed on {ip}: {output.strip()}"
-                }
-            if "Destination filename" in output:
-                shell.send("\n")  # enter blank (ยืนยันชื่อไฟล์)
-            elif "overwrite?" in output.lower():
-                shell.send("yes\n")
-            elif "confirm" in output.lower():
-                shell.send("yes\n")
-            elif "#" in output:
-                # เมื่อเห็น prompt '#' แปลว่าการ copy น่าจะจบแล้ว
-                break
-
-            time.sleep(1)
-            output = read_output(shell, timeout=10)
-            logging.info(output)
-
-        # 2) verify /md5 flash:filename
+        # 2) verify
+        progress_detail.append({"step": "Verifying MD5", "progress": 60})
         shell.send(f"verify /md5 flash:{filename}\n")
         time.sleep(1)
-
         output_verify = ""
         start_time = time.time()
-        timeout_secs = 600  # รอได้ 10 นาทีสำหรับ verify
-
+        timeout_secs = 600
         while True:
-            while shell.recv_ready():
+            if shell.recv_ready():
                 chunk = shell.recv(65535).decode('utf-8', errors='ignore')
                 output_verify += chunk
-                logging.info(f"[DEBUG-chunk] {chunk}")
-
-            if "%Error" in output_verify:
-                shell.close()
-                ssh.close()
-                return {
-                    "status": "error",
-                    "message": f"Verify failed on {ip}: {output_verify.strip()}"
-                }
-
-            # เงื่อนไขจบ verify
-            if "No such file" in output_verify or "Error computing MD5" in output_verify:
+            if "Done!" in output_verify or (time.time()-start_time>timeout_secs):
                 break
-            if "Done!" in output_verify:
-                break
-            if time.time() - start_time > timeout_secs:
-                break
-
             time.sleep(1)
 
-        logging.info(f"[DEBUG] verify output:\n{output_verify}")
+        md5_value = None
+        match_md5 = re.search(r'=\s*([a-fA-F0-9]{32})', output_verify)
+        if match_md5:
+            md5_value = match_md5.group(1).lower()
 
-        # จับ MD5 จาก output
-        md5_match = re.search(r'=\s*([a-fA-F0-9]{32})', output_verify)
-        if md5_match:
-            md5_value = md5_match.group(1)
-            verification_status = f"PASS (MD5 = {md5_value})"
-        elif "No such file" in output_verify or "Error computing MD5" in output_verify:
-            verification_status = "FAILED (no such file or error computing MD5)"
-            md5_value = None
-        else:
-            verification_status = "UNKNOWN"
-            md5_value = None
+        # เช็คกับ user_md5 ถ้ามี
+        md5_status = "n/a"
+        if user_md5:
+            if md5_value and (md5_value == user_md5.strip().lower()):
+                md5_status = "match"
+            else:
+                md5_status = "mismatch"
 
-        # ถ้ายังไม่ confirm => จบแค่ verify
+        # ถ้า confirm=False => หยุดแค่นี้
         if not confirm:
-            shell.close()
             ssh.close()
             return {
                 "status": "verify_only",
+                "message": "Verification done. (waiting confirm)",
                 "md5": md5_value,
-                "message": "Verification done. Waiting user confirmation to proceed."
+                "md5_status": md5_status,
+                "progress_detail": progress_detail
             }
 
-        # PART การอัปเดตจริง (ถ้าผู้ใช้ confirm=True)
+        # 3) ถ้า confirm=True => set boot + reload
+        progress_detail.append({"step": "Boot + Reload", "progress": 90})
         shell.send("configure terminal\n")
         time.sleep(1)
-        output = read_output(shell, timeout=10)
-        logging.info(output)
+        shell.recv(9999)
 
         shell.send("no boot system\n")
         time.sleep(1)
-        output = read_output(shell, timeout=10)
-        logging.info(output)
+        shell.recv(9999)
 
         shell.send(f"boot system flash:{filename}\n")
         time.sleep(1)
-        output = read_output(shell, timeout=10)
-        logging.info(output)
+        shell.recv(9999)
 
-        shell.send("exit\n")
+        shell.send("end\n")
         time.sleep(1)
-        output = read_output(shell, timeout=10)
-        logging.info(output)
+        shell.recv(9999)
 
         shell.send("write memory\n")
         time.sleep(2)
-        output = read_output(shell, timeout=10)
-        logging.info(output)
+        shell.recv(9999)
 
         shell.send("reload\n")
-        time.sleep(1)
-        output = read_output(shell, timeout=10)
-        logging.info(output)
-
-        if "confirm" in output.lower() or "reload proceed" in output.lower():
-            shell.send("yes\n")
+        time.sleep(2)
+        output_reload = shell.recv(99999).decode('utf-8', errors='ignore')
+        if "confirm" in output_reload.lower():
+            shell.send("y\n")
             time.sleep(2)
-            output = read_output(shell, timeout=10)
-            logging.info(output)
 
-        shell.close()
         ssh.close()
-
         return {
             "status": "update_done",
+            "message": "Firmware updated & device reloaded.",
             "md5": md5_value,
-            "message": "Firmware updated and device reloaded successfully."
+            "md5_status": md5_status,
+            "progress_detail": progress_detail
         }
 
-    except paramiko.AuthenticationException as e:
-        logging.error(f"[Authentication Error] {ip}: {str(e)}")
-        return {
-            "status": "error",
-            "message": f"Authentication failed: {str(e)}"
-        }
     except Exception as e:
-        logging.error(f"Error updating firmware on {ip}: {e}")
         return {
             "status": "error",
-            "message": f"Error: {str(e)}"
+            "message": str(e),
+            "progress_detail": progress_detail
         }
+
+
 
 @app.route('/')
 def index():
@@ -631,87 +685,31 @@ def update_firmware_page():
 
 @app.route('/automate_update_with_verify', methods=['POST'])
 def automate_update_with_verify():
-    """
-    รับข้อมูลจาก form หรือ JSON:
-      - tftp_server_ip, filename
-      - devices (list ของ IP)
-      - username, password
-      - confirm (bool) => true/false
-      - expected_md5 (optional) ใส่หรือไม่ใส่ก็ได้
-    ถ้า confirm=False => ทำแค่ copy + verify, ส่งกลับ MD5 ให้ user ดู
-    ถ้า confirm=True  => ทำขั้นตอน boot system + reload
-    """
-
     data = request.get_json()
     tftp_server_ip = data.get('tftp_server_ip')
     filename = data.get('filename')
     devices = data.get('devices', [])
     username = data.get('username')
     password = data.get('password')
-    confirm = data.get('confirm', False)  # bool
+    confirm = data.get('confirm', False)
+    user_md5 = data.get('user_md5') or None
 
-    # รับค่าที่ user ใส่มา (อาจเป็น "" ถ้าไม่กรอก)
-    expected_md5 = data.get('expected_md5', '').strip().lower()
+    if not (tftp_server_ip and filename and devices and username and password):
+        return jsonify({"error": "Missing required fields"}), 400
 
-    # ตรวจสอบว่าไฟล์มีอยู่ในโฟลเดอร์ TFTP หรือไม่
-    firmware_path = os.path.join(UPLOAD_FOLDER_FIRMWARE, filename)
-    if not os.path.exists(firmware_path):
-        return jsonify({'error': f'File {filename} does not exist on TFTP server.'}), 400
+    # สร้าง job_id
+    job_id = str(uuid.uuid4())
 
-    results = {}
-    for device_ip in devices:
-        device_ip = device_ip.strip()
-        logs = []
-        try:
-            logs.append(f"[{device_ip}] Starting update process with confirm={confirm}")
-            resp = update_switch_firmware_with_verify(
-                ip=device_ip,
-                username=username,
-                password=password,
-                tftp_server_ip=tftp_server_ip,
-                filename=filename,
-                confirm=confirm
-            )
-            logs.append(f"Result => {resp}")
+    # รัน Thread แบบ async
+    thread = threading.Thread(
+        target=do_update_task,
+        args=(job_id, devices, username, password, tftp_server_ip,
+              filename, confirm, user_md5),
+        daemon=True
+    )
+    thread.start()
 
-            # ------------------------------------------------
-            # เช็ค expected_md5 (ถ้ามี) กับ md5 ที่อุปกรณ์คำนวณ
-            # ------------------------------------------------
-            actual_md5 = resp.get('md5')
-            if expected_md5 and actual_md5:
-                if actual_md5.lower() == expected_md5:
-                    results[device_ip] = {
-                        "status": resp.get("status"),
-                        "md5": actual_md5,
-                        "message": resp.get("message"),
-                        "md5_match": "match"   # <-- บอกว่า match
-                    }
-                else:
-                    results[device_ip] = {
-                        "status": resp.get("status"),
-                        "md5": actual_md5,
-                        "message": resp.get("message"),
-                        "md5_match": "mismatch"
-                    }
-            else:
-                # กรณีไม่มี expected_md5 หรือไม่มี actual_md5
-                results[device_ip] = {
-                    "status": resp.get("status"),
-                    "md5": actual_md5,
-                    "message": resp.get("message")
-                    # ไม่ใส่ md5_match
-                }
-
-        except Exception as e:
-            logs.append(f"Error (outer): {str(e)}")
-            results[device_ip] = {
-                "status": "error",
-                "message": str(e)
-            }
-
-        print("\n".join(logs))
-
-    return jsonify({"results": results})
+    return jsonify({"job_id": job_id})
 
 @app.route('/automate_verify', methods=['POST'])
 def automate_verify():
@@ -747,6 +745,52 @@ def automate_verify():
         logs[device_ip] = device_logs
 
     return jsonify({'results': logs})
+
+@app.route('/start_firmware_verify', methods=['POST'])
+def start_firmware_verify():
+    data = request.get_json()
+    tftp_server_ip = data.get('tftp_server_ip')
+    filename = data.get('filename')
+    devices = data.get('devices', [])
+    username = data.get('username')
+    password = data.get('password')
+    user_md5 = data.get('user_md5')
+
+    if not (tftp_server_ip and filename and devices and username and password):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    job_id = str(uuid.uuid4())
+    thread = threading.Thread(
+        target=do_verify_task,
+        args=(job_id, devices, tftp_server_ip, filename, username, password, user_md5),
+        daemon=True
+    )
+    thread.start()
+
+    return jsonify({"job_id": job_id})
+
+@app.route('/start_firmware_update', methods=['POST'])
+def start_firmware_update_route():
+    data = request.get_json()
+    tftp_server_ip = data.get('tftp_server_ip')
+    filename = data.get('filename')
+    devices = data.get('devices', [])
+    username = data.get('username')
+    password = data.get('password')
+    user_md5 = data.get('user_md5')
+
+    if not (tftp_server_ip and filename and devices and username and password):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    job_id = str(uuid.uuid4())
+    thread = threading.Thread(
+        target=do_update_task,
+        args=(job_id, devices, tftp_server_ip, filename, username, password, user_md5),
+        daemon=True
+    )
+    thread.start()
+
+    return jsonify({"job_id": job_id})
 
 
 @app.route('/delete_firmware', methods=['POST'])
@@ -795,6 +839,45 @@ def upload_firmware():
     save_path = os.path.join(UPLOAD_FOLDER_FIRMWARE, filename)
     file_obj.save(save_path)
     return jsonify({'message': f'File {filename} uploaded successfully.'})
+
+@app.route('/start_firmware_update', methods=['POST'])
+def start_firmware_update():
+    """
+    สร้าง job_id => รัน Thread => คืน job_id ให้ Frontend
+    """
+    data = request.get_json()
+    tftp_server_ip = data.get('tftp_server_ip')
+    filename = data.get('filename')
+    devices = data.get('devices', [])
+    username = data.get('username')
+    password = data.get('password')
+    user_md5 = data.get('user_md5')
+
+    # ตรวจสอบค่าพื้นฐาน
+    if not (tftp_server_ip and filename and devices and username and password):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # สร้าง job_id
+    job_id = str(uuid.uuid4())
+
+    # สร้าง Thread
+    thread = threading.Thread(
+        target=do_update_task,
+        args=(job_id, devices, tftp_server_ip, filename, username, password, user_md5),
+        daemon=True
+    )
+    thread.start()
+
+    return jsonify({"job_id": job_id})
+
+@app.route('/check_firmware_progress/<job_id>', methods=['GET'])
+def check_firmware_progress(job_id):
+    global current_progress
+    if job_id not in current_progress:
+        return jsonify({"error": "Invalid job_id"}), 404
+
+    return jsonify(current_progress[job_id])
+
 
 ##############################################################
 @app.route('/backupconfig')

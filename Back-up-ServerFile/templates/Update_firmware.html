@@ -356,9 +356,9 @@
 <body>
     <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
         <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
-        <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="/dashboard" class="w3-bar-item w3-button"><i class="fas fa-home"></i> Dashboard Device</a>
         <a href="/deploy" class="w3-bar-item w3-button"><i class="fas fa-tools"></i> Deploy Device</a>
-        <a href="/saveconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Save Configuration</a>
+        <a href="/backupconfig" class="w3-bar-item w3-button"><i class="fas fa-laptop-code"></i> Back-up Configuration</a>
         <a href="/serialconsole" class="w3-bar-item w3-button"><i class="fa-solid fa-ethernet"></i> Serial Console Configuration</a>
         <a href="/configuration" class="w3-bar-item w3-button"><i class="fas fa-cogs"></i> Create Template</a>
         <a href="/listtemplate" class="w3-bar-item w3-button"><i class="fa-solid fa-clipboard-list"></i> List Templates</a>
@@ -428,7 +428,7 @@
                         <form id="upload_form" enctype="multipart/form-data">
                             <input type="file" name="firmware_file" accept=".bin" required>
                             <div class="button-container">
-                                <button type="submit" class="btn btn-primary btn-primary-shadow">
+                                <button type="submit" class="btn secondary">
                                     <i class="fas fa-upload"></i> Upload
                                 </button>
                             </div>
@@ -456,7 +456,7 @@
                                 {% endfor %}
                             </select>
                             <div class="button-container">
-                                <button type="submit" class="btn btn-danger btn-danger-shadow">
+                                <button type="submit" class="btn danger">
                                     <i class="fas fa-trash-alt"></i> Delete
                                 </button>
                             </div>
@@ -479,6 +479,11 @@
                                 <option value="{{ f }}">{{ f }}</option>
                                 {% endfor %}
                             </select>
+
+                            <!-- เพิ่มช่อง MD5 (Optional) -->
+                            <!-- เพิ่ม/แก้ไขตรงนี้ -->
+                            <label>Expected MD5 (Optional)</label>
+                            <input type="text" id="expected_md5" name="expected_md5" placeholder="เช่น 7f5c24b8e4..." >
 
                             <label>Devices IP</label>
                             <div id="devices-container">
@@ -507,7 +512,7 @@
                                 <i id="togglePassword" class="fas fa-eye-slash toggle-password" style="background-color: white; padding: 0px;"></i>
                             </div>
                             <div class="button-container">
-                                <button type="submit" class="btn btn-primary btn-primary-shadow">
+                                <button type="submit" class="btn secondary">
                                     <i class="fas fa-sync-alt"></i> Update Firmware
                                 </button>
                             </div>
@@ -844,7 +849,14 @@
                             for (const device_ip in data.results) {
                                 const info = data.results[device_ip];
                                 if (info.status === 'verify_only') {
-                                    lines.push(`----- ${device_ip} -----\nMD5: ${info.md5}\nMessage: ${info.message}\n`);
+                                    lines.push(`----- ${device_ip} -----\nMD5: ${info.md5}\nMessage: ${info.message}`);
+                                    // <!-- เพิ่ม/แก้ไขตรงนี้ --> เช็ค info.md5_match
+                                    if (info.md5_match === 'match') {
+                                        lines.push(`MD5 compare: MATCH with user-provided MD5.`);
+                                    } else if (info.md5_match === 'mismatch') {
+                                        lines.push(`MD5 compare: MISMATCH with user-provided MD5.`);
+                                    }
+                                    lines.push('\n');
                                     needConfirm = true;
                                 } else if (info.status === 'error') {
                                     lines.push(`----- ${device_ip} -----\nError: ${info.message}\n`);
@@ -879,9 +891,7 @@
                         closeModal();
                         return;
                     }
-                    // (แก้) เรียก showLoading ก่อน แล้วค่อย closeModal
                     showLoading();
-                    // ปิดโมดัลเดิม (เอา confirm/cancel ออก) เพื่อให้เห็น overlay เต็มจอ
                     closeModal();
 
                     try {
@@ -909,16 +919,22 @@
                             for (const device_ip in data.results) {
                                 const info = data.results[device_ip];
                                 lines.push(`----- ${device_ip} -----\nStatus: ${info.status}\nMD5: ${info.md5}\nMessage: ${info.message}\n`);
+
+                                // ถ้าจะเช็ค match/mismatch ตอน confirm ก็ทำเหมือนด้านบนได้
+                                if (info.md5_match === 'match') {
+                                    lines.push(`MD5 compare: MATCH with user-provided MD5.`);
+                                } else if (info.md5_match === 'mismatch') {
+                                    lines.push(`MD5 compare: MISMATCH with user-provided MD5.`);
+                                }
+                                lines.push('\n');
                             }
                         } else if (data.error) {
                             lines.push("Error: " + data.error);
                         }
-                        // ตอนนี้ fetch เสร็จ => เปิดโมดัลแสดงผล
                         openModal(lines.join("\n"), false);
 
                     } catch (err) {
                         hideLoading();
-                        // ไม่ต้อง closeModal() ซ้ำอีก เพราะปิดไปแล้ว
                         openErrorModalCheck(err.message);
                     }
                 });
