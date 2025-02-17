@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Firmware Update</title>
+    <title>Update Firmware</title>
     <!-- CSS ไฟล์เดิม -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='sidebar_style.css') }}">
@@ -326,9 +326,15 @@
         }
         .modal-footer {
             display: flex;
-            justify-content: flex-end; /* Aligns buttons to the right */
+            justify-content: center; /* Center buttons horizontally */
+            align-items: center; /* Align buttons vertically */
+            gap: 10px; /* Space between buttons */
             margin-top: 15px;
-            gap: 10px;
+        }
+        #confirm-buttons {
+            display: flex;
+            flex-direction: row; /* Ensure buttons are aligned horizontally */
+            gap: 10px; /* Add spacing between buttons */
         }
 
         #result-content {
@@ -709,7 +715,7 @@
                 <div id="confirmationModal" class="confirmation-modal">
                     <div class="confirmation-modal-content">
                         <i class="fas fa-question-circle confirmation-icon"></i>
-                        <p id="confirmationMessage">Are you sure you want to delete this template?</p>
+                        <p id="confirmationMessage">Are you sure you want to delete this file?</p>
                         <div class="confirmation-buttons">
                             <button class="confirmation-ok-button" onclick="confirmDelete()">OK</button>
                             <button class="confirmation-cancel-button" onclick="closeConfirmationModal()">Cancel</button>
