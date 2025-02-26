@@ -33,7 +33,6 @@
             <table>
                 <thead>
                     <tr>
-                        <th>No</th>
                         <th>Device Name</th>
                         <th>IP Address</th>
                         <th>Selected Template</th>
@@ -56,7 +55,6 @@
         selectedDevices.forEach((device, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${index + 1}</td>
                 <td>${device.deviceName}</td>
                 <td>${device.ipAddress}</td>
                 <td>${selectedTemplate.templateName}</td>

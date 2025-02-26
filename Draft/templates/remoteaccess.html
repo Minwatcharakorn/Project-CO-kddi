@@ -1,99 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../static/styles.css">
-    <link rel="stylesheet" href="../static/remoteaccess.css">
-    <title>Remote Access Device</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/styles.css" />
+  <link rel="stylesheet" href="../static/remoteaccess.css" />
+  <title>Remote Access Device</title>
 </head>
+<style>
+    /* Styling สำหรับ Command Select */
+.command-select {
+  margin-bottom: 15px;
+}
+.command-select label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+.command-select select {
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+/* ปุ่ม Apply */
+.apply-button-container {
+  text-align: right;
+}
+.apply-button-container button {
+  background-color: #1E90FF;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.apply-button-container button:hover {
+  background-color: #1C86EE;
+}
+</style>
 <body>
-    <!-- Sidebar -->
-    <div id="sidebar-container"></div>
+  <!-- Sidebar -->
+  <div id="sidebar-container"></div>
 
-    <script>
-        fetch('sidebar.html')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.text();
-            })
-            .then(data => document.getElementById("sidebar-container").innerHTML = data)
-            .catch(error => console.error("Failed to load sidebar:", error));
-    </script>
+  <script>
+    fetch('sidebar.html')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();
+      })
+      .then(data => document.getElementById("sidebar-container").innerHTML = data)
+      .catch(error => console.error("Failed to load sidebar:", error));
+  </script>
 
-    <!-- Main Content -->
-    <div class="content">
-        <div class="content-header">
-            <h2><i class="fas fa-terminal" style="color: #1E90FF;"></i> Remote Access</h2>  
-        </div>
-
-        <div class="table-container">
-            <table aria-label="Device Table">
-                <thead>
-                    <tr>
-                        <th>Model</th>
-                        <th>Serial No./Token</th>
-                        <th>IP Address</th>
-                        <th>Hostname</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>C9200-24P</td>
-                        <td>2B8ADCEB</td>
-                        <td>192.168.1.254</td>
-                        <td>ASW-B401-A</td>
-                        <td>
-                            <button class="remote-access-button" onclick="showModal()">
-                                <i class="fas fa-terminal"></i> <!-- Terminal icon -->
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>C9200-24PB</td>
-                        <td>AA910SBE</td>
-                        <td>192.168.1.98</td>
-                        <td>ASW-B401-B</td>
-                        <td>
-                            <button class="remote-access-button" onclick="showModal()">
-                                <i class="fas fa-terminal"></i> <!-- Terminal icon -->
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Terminal Modal -->
-        <div id="terminal-modal" class="terminal-container" style="display: none;">
-            <header class="terminal-header">
-                <span>Terminal</span>
-                <button class="close-button" onclick="closeTerminal()">X</button>
-            </header>
-            <main class="terminal-content" id="terminal">
-                <pre id="terminal-output">
-Switch>en
-Password:
-Switch#config t
-Enter configuration commands, one per line. End with CNTL/Z.
-
-Switch(config)#ip domain name ismek.com
-Switch(config)#username admin password cisco12345
-Switch(config)#crypto key generate rsas
-
-                </pre>
-            </main>
-            <footer class="terminal-input">
-                <input type="text" id="terminal-command" placeholder="Enter command here">
-                <button onclick="executeCommand()">Send</button>
-            </footer>
-        </div>
+  <!-- Main Content -->
+  <div class="content">
+    <div class="content-header">
+      <h2>
+        <i class="fas fa-terminal" style="color: #1E90FF;"></i> Remote Access Back-up
+      </h2>
     </div>
 
-    <script src="../static/js/remoteaccess.js"></script>
+    <!-- Command Select Dropdown -->
+    <div class="command-select" style="margin-bottom: 1rem;">
+      <label for="command">Select Command:</label>
+      <select id="command" name="command">
+        <option value="show run">show run</option>
+        <option value="show vlan">show vlan</option>
+        <option value="show ip int brief">show ip int brief</option>
+      </select>
+    </div>
+
+    <!-- Device Table -->
+    <div class="table-container">
+      <table aria-label="Device Table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="select-all" /></th>
+            <th>Model</th>
+            <th>Serial No./Token</th>
+            <th>IP Address</th>
+            <th>Hostname</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox" class="device-checkbox" /></td>
+            <td>C9200-24P</td>
+            <td>2B8ADCEB</td>
+            <td>192.168.1.254</td>
+            <td>ASW-B401-A</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="device-checkbox" /></td>
+            <td>C9200-24PB</td>
+            <td>AA910SBE</td>
+            <td>192.168.1.98</td>
+            <td>ASW-B401-B</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Apply Button -->
+    <div class="apply-button-container" style="margin-top: 1rem;">
+      <button id="apply-remote-access-backup">Apply Remote Access Back-up</button>
+    </div>
+  </div>
+
+  <script src="../static/js/remoteaccess.js"></script>
 </body>
 </html>

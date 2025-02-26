@@ -1749,7 +1749,7 @@ def save_send_command_and_output():
         except Exception as e:
             output_str += f"\n\n{'='*50}\nFailed to connect to {hostname} ({ip}): {str(e)}\n{'='*50}\n\n"
         
-        device_outputs[hostname] = output_str
+        device_outputs[f"{hostname} ({ip})"] = output_str
 
     # ตรวจสอบ query parameter "mode"
     mode = request.args.get('mode', 'preview').lower()

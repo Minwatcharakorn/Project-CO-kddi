@@ -1,368 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Switch Management Configuration - Dashboard</title>
-    <link rel="stylesheet" href="../static/styles.css">
-    <link rel="stylesheet" href="../static/basic_config_page.css">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Switch Management Configuration - Dashboard</title>
+  <link rel="stylesheet" href="../static/styles.css">
+  <link rel="stylesheet" href="../static/basic_config_page.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <!-- Sidebar -->
-    <div id="sidebar-container"></div>
-    
-    <script>
-        // โหลดไฟล์ HTML ของ Sidebar เข้าไปใน #sidebar-container
-        fetch('sidebar.html')
-            .then(response => response.text())
-            .then(data => document.getElementById("sidebar-container").innerHTML = data);
-    </script>
+  <!-- Sidebar -->
+  <div id="sidebar-container"></div>
+  
+  <script>
+    // โหลดไฟล์ HTML ของ Sidebar เข้าไปใน #sidebar-container
+    fetch('sidebar.html')
+      .then(response => response.text())
+      .then(data => document.getElementById("sidebar-container").innerHTML = data);
+  </script>
 
-    
-    <!-- Main Content -->
-    <div class="content">
-        <div class="content-header">
-            <h2>
-                <i class="fas fa-cogs" style="color: #1E90FF;"></i> Create Template
-            </h2>  
-        </div>
-
-
-        <div class="config-section" id="default-gateway-config">
-            <h3>Hostname Configuration</h3>
-            <form>
-                <label for="Host_name">Hostname</label>
-                <input type="text" id="Host-name" name="Host-name" placeholder="Enter Hostname" style="width: auto;"><br><br>
-                <input type="submit" value="Save Hostname Configuration">
-            </form>
-        </div>
-
-        <!-- Configuration Sections -->
-        <div class="config-section" id="create-vlan-multiple">
-            <h3>Create VLANs</h3>
-            <form id="vlan-multiple-form">
-                <div id="vlan-rows">
-                    <button type="button" id="add-vlan-row">Add VLAN</button>
-                    <br><br>
-                    <div class="vlan-row">
-                        <label for="vlan-id-1">VLAN ID</label>
-                        <input type="number" id="vlan-id-1" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
-
-                        <label for="vlan-name-1">VLAN Name</label>
-                        <input type="text" id="vlan-name-1" name="vlan-name[]" placeholder="Enter VLAN Name" required>
-
-                        <label for="vlan-IP-1">IP  Address VLAN</label>
-                        <input type="text" id="vlan-IP-1" name="vlan-IP[]" placeholder="Enter IP Address Vlan" required>
-                        <button type="button" class="remove-vlan-row" style="width: auto;">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>                    
-                    </div>
-                </div>
-
-                <input type="submit" value="Save VLANs Configuration">
-            </form>
-        </div>
-
-
-        <div class="config-section" id="basic-config">
-            <h3>Enable Secret VTY Access Configuration</h3>
-            <form>
-                <label for="enable-password">Enable Password</label>
-                <input type="text" id="enable-password" name="enable-password" placeholder="Enter Enable Password" style="width: auto;"><br><br>
-                <label for="vty-password">VTY Password</label>
-                <input type="text" id="vty-password" name="vty-password" placeholder="Enter VTY Password"   ><br><br>
-                <input type="submit" value="Save VTY Configuration">
-            </form>
-        </div>
-        
-        <div class="config-section" id="connection-method-config">
-            <h3>Connection Methods ( SSH / Telnet )</h3>
-            <label for="connection-method">Select Connection Methods </label>
-            <div id="connection-method-container" class="dropdown">
-                <button class="dropdown-button" onclick="toggleDropdown()">Select Methods</button>
-                <ul id="dropdown-options" class="dropdown-menu">
-                    <li>
-                        <input type="checkbox" id="ssh-option" name="connection-method" value="SSH" onchange="showConfig()" />
-                        <label for="ssh-option">SSH</label>
-                    </li>
-                    <li>
-                        <input type="checkbox" id="telnet-option" name="connection-method" value="Telnet" onchange="showConfig()" />
-                        <label for="telnet-option">Telnet</label>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        
-        <!-- SSH And Telnet Configuration -->
-        <div class="config-section" id="ssh_telnet-config" style="display: none;">
-            <h3>SSH And Telnet Configuration</h3>
-            <form>
-                <label for="domain-name">Domain Name</label>
-                <input type="text" id="domain-name" name="domain-name" placeholder="Enter Domain Name" style="width: auto;">
-                <label for="rsa-key-size">RSA Key Size</label>
-                <select id="rsa-key-size" name="rsa-key-size" style="width: auto;">
-                    <option value="512">512-bit</option>
-                    <option value="1024">1024-bit</option>
-                    <option value="2048">2048-bit</option>
-                    <option value="3072">3072-bit</option>
-                    <option value="4096">4096-bit</option>
-                </select>               
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter Username" style="width: auto;">
-                <label for="password">Password</label>
-                <input type="text" id="password" name="password" placeholder="Enter Password" style="width: auto;"><br><br>
-                <input type="submit" value="Configure SSH Telnet">
-            </form>
-        </div>
-
-        <!-- SSH Configuration -->
-        <div class="config-section" id="ssh-config" style="display: none;">
-            <h3>SSH Configuration</h3>
-            <form>
-                <label for="domain-name">Domain Name:</label>
-                <input type="text" id="domain-name" name="domain-name" placeholder="Enter Domain Name" style="width: auto;">
-                <label for="rsa-key-size">RSA Key Size:</label>
-                <select id="rsa-key-size" name="rsa-key-size" style="width: auto;">
-                    <option value="512">512-bit</option>
-                    <option value="1024">1024-bit</option>
-                    <option value="2048">2048-bit</option>
-                    <option value="3072">3072-bit</option>
-                    <option value="4096">4096-bit</option>
-                </select>               
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter Username" style="width: auto;">
-                <label for="password">Password</label>
-                <input type="text" id="password" name="password" placeholder="Enter Password" style="width: auto;"><br><br>
-                <input type="submit" value="Configure SSH">
-            </form>
-        </div>
-        
-        <!-- Telnet Configuration Form -->
-        <div class="config-section" id="telnet-config" style="display: none;">
-            <h3>Telnet Configuration</h3>
-            <form>
-                <label for="telnet-password">Telnet Password</label>
-                <input type="text" id="telnet-password" name="telnet-password" placeholder="Enter Telnet Password" style="width: auto;">
-                <label for="telnet-timeout">Session Timeout (in minutes)</label>
-                <input type="number" id="telnet-timeout" name="telnet-timeout" placeholder="Enter Timeout Duration" style="width: auto;"><br><br>
-                <input type="submit" value="Configure Telnet" style="width: auto;">
-            </form>
-        </div>
-        
-
-        <div class="config-section" id="snmp-config">
-            <h3>SNMP Configuration</h3>
-            <form>
-                <label for="community">Community String</label>
-                <input type="text" id="community" name="community" placeholder="Enter Community String" style="width: auto;"><br><br>
-                <label for="location">Location</label>
-                <input type="text" id="location" name="location" placeholder="Enter Location" style="width: auto;"><br><br>
-                <label for="contact">Contact Info</label>
-                <input type="text" id="contact" name="contact" placeholder="Enter Contact Information" style="width: auto;"><br><br>
-                <input type="submit" value="Save SNMP Configuration">
-            </form>
-        </div>
-
-
-        <!-- DHCP -->
-        <div class="config-section" id="dhcp-config">
-            <h3>DHCP Configuration ( Dynamic Host Configuration Protocol )</h3>
-            <button type="button" id="add-dhcp-pool">Add DHCP Pool</button>
-            <br><br>
-            <div id="dhcp-pools">
-                <div class="dhcp-pool">
-                    <form class="dhcp-form">
-                        <label for="dhcp-pool-name-1">DHCP Pool Name:</label>
-                        <input type="text" id="dhcp-pool-name-1" name="dhcp-pool-name" placeholder="Enter DHCP Pool Name" required>
-                        <br><br>
-                        <div class="inline-fields">
-                            <div>
-                                <label for="dhcp-network-1">IP Address:</label>
-                                <input type="text" id="dhcp-network-1" name="dhcp-network" placeholder="e.g. 192.168.1.0" required>
-                            </div>
-                            <div>
-                                <label for="dhcp-subnet-1">Subnet Mask</label>
-                                <select id="dhcp-subnet-1" name="dhcp-subnet" required></select>
-                            </div>
-                        </div>
-                        <br>
-                        <label for="default-router-1">Default Gateway</label>
-                        <input type="text" id="default-router-1" name="default-router" placeholder="Enter Default Gateway" required>
-                        <br><br>
-                        <label for="dns-server-1">DNS Server</label>
-                        <input type="text" id="dns-server-1" name="dns-server" placeholder="Enter DNS Server" required>
-                        <br><br>
-                        <input type="checkbox" id="toggle-lease-1" class="toggle-lease">
-                        <label for="toggle-lease-1">Enable Lease</label>
-
-                        <div id="lease-fields-1" style="display: none;">
-                            <label for="Lease-1">Lease</label>
-                            <div class="inline-fields">
-                                <input type="number" id="Lease-1" name="lease-time" placeholder="Enter Lease Time" min="1">
-                                <select id="lease-unit-1" name="lease-unit">
-                                    <option value="hours" selected>Hours</option>
-                                    <option value="days">Days</option>
-                                    <option value="minutes">Minutes</option>
-                                </select>
-                            </div>
-                        </div>
-                        <br><br>
-                        <label for="excluded-address-1">DHCP Excluded Address</label>
-                        <input type="text" id="excluded-address-1" name="excluded-address" placeholder="Enter Excluded Address e.g. 192.168.10.1">
-                        <br><br>
-                        <button type="button" class="remove-dhcp-pool">
-                            <i class="fas fa-trash-alt"></i> Remove DHCP Pool
-                        </button>
-                        <br><br>
-                    </form>
-                </div>
-            </div>
-
-            <!-- เพิ่มปุ่ม Save ด้านล่าง -->
-            <input type="submit" value="Save DHCP Configuration" id="save-dhcp-config" class="styled-button">
-        </div>
-
-
-        <!-- HSRP -->
-        <div class="config-section" id="hsrp-config">
-            <h3>HSRP Configuration (Hot-Standby Routing Protocol)</h3>
-            <button type="button" id="add-hsrp-pool">Add HSRP Configuration</button>
-            <br><br>
-            <div id="hsrp-pools">
-                <!-- Default HSRP Pool -->
-                <div class="hsrp-pool">
-                    <form class="hsrp-form">
-                        <label for="hsrp-interface-1">Interface</label>
-                        <input type="text" id="hsrp-interface-1" name="hsrp-interface" placeholder="e.g. GigabitEthernet0/1" required>
-                        <label for="hsrp-standby-group-1">Standby Group</label>
-                        <input type="number" id="hsrp-standby-group-1" name="hsrp-standby-group" placeholder="e.g. 1" min="1" max="255" required>
-                        <label for="hsrp-virtual-ip-1">HSRP Virtual IP</label>
-                        <input type="text" id="hsrp-virtual-ip-1" name="hsrp-virtual-ip" placeholder="e.g. 192.168.1.1" required>
-                        <label for="hsrp-priority-1">Priority</label>
-                        <input type="number" id="hsrp-priority-1" name="hsrp-priority" placeholder="e.g. 150" min="1" max="255" required>
-                        <div style="display: flex; align-items: center;">
-                            <label for="hsrp-preempt-${hsrpCounter}" >Preempt</label>
-                            <input type="checkbox" id="hsrp-preempt-${hsrpCounter}" name="hsrp-preempt">
-                        </div>
-                        <br><br>
-                        <button type="button" class="remove-hsrp-pool">
-                            <i class="fas fa-trash-alt"></i> Remove HSRP Configuration
-                        </button>
-                        <br><br>
-                    </form>
-                </div>
-            </div>
-            <input type="submit" value="Save HSRP Configuration" id="save-hsrp-config" class="styled-button">
-        </div>
-
-        <div class="config-section" id="ip-static-route-config">
-            <h3>IP Static Route Configuration</h3>
-            <button id="add-ip-route">Add IP Static Route</button>
-            <br>
-            <br>
-            <div id="ip-route-rows">
-                <div class="ip-route-row">
-                    <form class="ip-route-form">
-                        <label for="ip-route-1">IP Static Route</label>
-                        <input type="text" id="ip-route-1" name="ip-route" placeholder="Enter Destination Network" required>
-        
-                        <label for="subnet-mask-1">Subnet Mask</label>
-                        <select id="subnet-mask-1" name="subnet-mask" required></select>
-        
-                        <label for="next-hop-1">Next Hop IP</label>
-                        <input type="text" id="next-hop-1" name="next-hop" placeholder="Enter Next Hop IP" required>
-                    </form>
-                    <button type="button" class="remove-ip-route">
-                        <i class="fas fa-trash-alt"></i> Remove IP Static Route
-                    </button>
-                </div>
-            </div>
-            <input type="submit" value="Save IP Static Route Configuration" class="styled-button" id="save-ip-routes">
-        </div>
-
-        <!-- Interface Ports -->
-        <div class="config-section" id="interface-ports-config">
-            <h3>Interface Port Configuration</h3>
-            <br>
-
-            <button type="button" id="add-interface-config">Add Interface Configuration</button>
-            <br><br>
-        
-            <div id="interface-configs">
-                <!-- Default Configuration -->
-                <div class="interface-config">
-                    <form class="interface-config-form">
-                        <label>
-                            <input type="checkbox" id="no-switch-1" onchange="toggleSwitchMode(this)"> No Switchmode
-                        </label>
-                        <label for="interface-port-1">Interface Port:</label>
-                        <select id="interface-port-1" name="interface-port">
-                            <option value="">--Select Port--</option>
-                            <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
-                            <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
-                        </select>
-
-                        <span>to</span>
-                        <select id="interface-port-range-1" name="interface-port-range">
-                            <option value="">--Select Port (Optional)--</option>
-                            <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
-                            <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
-                        </select>
-        
-                        <div class="Description IP" id="ip-single-1">
-                            <label for="interface-ip-1">IP Address:</label>
-                            <input type="text" id="interface-ip-1" name="interface-ip" placeholder="Enter IP Address">
-                        </div>
-
-                        <div class="Description IP" id="Description_ip-id">
-                            <label for="Description-ip">Description</label>
-                            <input type="text" id="Description-ip" name="Description-IP ADD" placeholder="Enter Description Port ">
-                        </div>
-        
-
-                        <div class="switch-mode-section" id="switch-mode-section-1">
-                            <label for="switch-mode-1">Switch Mode:</label>
-                            <select id="switch-mode-1" name="switch-mode">
-                                <option value="access">Access</option>
-                                <option value="trunk">Trunk</option>
-                            </select>
-                        </div>
-                        <br>
-        
-                        <button type="button" class="remove-interface-config">Remove Configuration</button>
-                    </form>
-                    <hr>
-                </div>
-            </div>
-        
-            <input type="submit" value="Save All Interface Configurations" class="styled-button" id="save-interface-configs">
-        </div>
-
-
-
-        <div class="config-section" id="default-gateway-config">
-            <h3>Default Gateway Configuration</h3>
-            <form>
-                <label for="default-gateway">Default Gateway</label>
-                <input type="text" id="default-gateway" name="default-gateway" placeholder="Enter Default Gateway" style="width: auto;"><br>
-                <input type="submit" value="Save Gateway Configuration">
-            </form>
-        </div>
-
-
-        <div class="save-config-button">
-            <button class="download-btn">
-                SAVE CONFIG Template
-                <span class="icon" style="color: white;">
-                    <i class="fas fa-download"></i>
-                </span>
-            </button>
-        </div>
+  <!-- Main Content -->
+  <div class="content">
+    <div class="content-header">
+      <h2>
+        <i class="fas fa-cogs" style="color: #1E90FF;"></i> Create Template
+      </h2>  
     </div>
-    <script src="../static/js/basic_config.js"></script>
 
+    <div class="config-section" id="default-gateway-config">
+      <h3>Hostname Configuration</h3>
+      <form>
+        <label for="Host_name">Hostname</label>
+        <input type="text" id="Host-name" name="Host-name" placeholder="Enter Hostname" style="width: auto;"><br><br>
+        <input type="submit" value="Save Hostname Configuration">
+      </form>
+    </div>
+
+    <!-- Configuration Sections -->
+    <div class="config-section" id="create-vlan-multiple">
+      <h3>Create VLANs</h3>
+      <form id="vlan-multiple-form">
+        <div id="vlan-rows">
+          <button type="button" id="add-vlan-row">Add VLAN</button>
+          <br><br>
+          <div class="vlan-row">
+            <label for="vlan-id-1">VLAN ID</label>
+            <input type="number" id="vlan-id-1" name="vlan-id[]" placeholder="Enter VLAN ID" min="1" max="4094" required>
+
+            <label for="vlan-name-1">VLAN Name</label>
+            <input type="text" id="vlan-name-1" name="vlan-name[]" placeholder="Enter VLAN Name" required>
+
+            <label for="vlan-IP-1">IP  Address VLAN</label>
+            <input type="text" id="vlan-IP-1" name="vlan-IP[]" placeholder="Enter IP Address Vlan" required>
+            <button type="button" class="remove-vlan-row" style="width: auto;">
+              <i class="fas fa-trash-alt"></i>
+            </button>                    
+          </div>
+        </div>
+
+        <input type="submit" value="Save VLANs Configuration">
+      </form>
+    </div>
+
+    <!-- Interface Ports -->
+    <div class="config-section" id="interface-ports-config">
+      <h3>Interface Port Configuration</h3>
+      <br>
+      <button type="button" id="add-interface-config">Add Interface Configuration</button>
+      <br><br>
+      <div id="interface-configs">
+        <!-- Default Configuration -->
+        <div class="interface-config">
+          <form class="interface-config-form">
+            <label>
+              <input type="checkbox" id="no-switch-1" onchange="toggleSwitchMode(this)"> No Switchmode
+            </label>
+            <label for="interface-port-1">Interface Port:</label>
+            <select id="interface-port-1" name="interface-port">
+              <option value="">--Select Port--</option>
+              <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
+              <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
+            </select>
+            <span>to</span>
+            <select id="interface-port-range-1" name="interface-port-range">
+              <option value="">--Select Port (Optional)--</option>
+              <option value="GigabitEthernet0/1">GigabitEthernet0/1</option>
+              <option value="GigabitEthernet0/2">GigabitEthernet0/2</option>
+            </select>
+            <div class="Description IP" id="ip-single-1">
+              <label for="interface-ip-1">IP Address:</label>
+              <input type="text" id="interface-ip-1" name="interface-ip" placeholder="Enter IP Address">
+            </div>
+            <div class="Description IP" id="Description_ip-id">
+              <label for="Description-ip">Description</label>
+              <input type="text" id="Description-ip" name="Description-IP ADD" placeholder="Enter Description Port ">
+            </div>
+            <div class="switch-mode-section" id="switch-mode-section-1">
+              <label for="switch-mode-1">Switch Mode:</label>
+              <select id="switch-mode-1" name="switch-mode">
+                <option value="access">Access</option>
+                <option value="trunk">Trunk</option>
+              </select>
+            </div>
+            <br>
+            <button type="button" class="remove-interface-config">Remove Configuration</button>
+          </form>
+          <hr>
+        </div>
+      </div>
+      <input type="submit" value="Save All Interface Configurations" class="styled-button" id="save-interface-configs">
+    </div>
+
+
+    <!-- New Configuration Sections -->
+
+    <!-- STP Configuration -->
+    <div class="config-section" id="stp-config">
+      <h3>STP Configuration</h3>
+      <form>
+        <label for="stp-mode">STP Mode:</label>
+        <select id="stp-mode" name="stp-mode">
+          <option value="pvst">PVST</option>
+          <option value="rapid-pvst">Rapid PVST</option>
+          <option value="mst">MST</option>
+        </select>
+        <br><br>
+        <label for="stp-priority">STP Priority:</label>
+        <input type="number" id="stp-priority" name="stp-priority" placeholder="Enter Priority" min="0" max="61440" step="4096">
+        <br><br>
+        <input type="submit" value="Save STP Configuration">
+      </form>
+    </div>
+
+    <!-- Port-Security Configuration -->
+    <div class="config-section" id="port-security-config">
+      <h3>Port-Security Configuration</h3>
+      <form>
+        <label for="max-mac">Maximum MAC Addresses:</label>
+        <input type="number" id="max-mac" name="max-mac" placeholder="Enter maximum MAC addresses" min="1">
+        <br><br>
+        <label for="violation-mode">Violation Mode:</label>
+        <select id="violation-mode" name="violation-mode">
+          <option value="shutdown">Shutdown</option>
+          <option value="restrict">Restrict</option>
+          <option value="protect">Protect</option>
+        </select>
+        <br><br>
+        <label for="sticky-mac">Sticky MAC (comma separated):</label>
+        <input type="text" id="sticky-mac" name="sticky-mac" placeholder="e.g. 00:1A:2B:3C:4D:5E">
+        <br><br>
+        <input type="submit" value="Save Port-Security Configuration">
+      </form>
+    </div>
+
+    <!-- Link Aggregation Configuration -->
+    <div class="config-section" id="link-aggregation-config">
+      <h3>Link Aggregation Configuration</h3>
+      <form>
+        <label for="agg-mode">Aggregation Mode:</label>
+        <select id="agg-mode" name="agg-mode">
+          <option value="lacp">LACP</option>
+          <option value="static">Static</option>
+        </select>
+        <br><br>
+        <label for="member-ports">Member Ports (comma separated):</label>
+        <input type="text" id="member-ports" name="member-ports" placeholder="e.g. GigabitEthernet0/1, GigabitEthernet0/2">
+        <br><br>
+        <input type="submit" value="Save Link Aggregation Configuration">
+      </form>
+    </div>
+
+    <!-- VTP Mode Configuration -->
+    <div class="config-section" id="vtp-config">
+      <h3>VTP Mode Configuration</h3>
+      <form>
+        <label for="vtp-domain">VTP Domain:</label>
+        <input type="text" id="vtp-domain" name="vtp-domain" placeholder="Enter VTP Domain">
+        <br><br>
+        <label for="vtp-mode">VTP Mode:</label>
+        <select id="vtp-mode" name="vtp-mode">
+          <option value="server">Server</option>
+          <option value="client">Client</option>
+          <option value="transparent">Transparent</option>
+        </select>
+        <br><br>
+        <input type="submit" value="Save VTP Configuration">
+      </form>
+    </div>
+    <div class="config-section" id="default-gateway-config">
+        <h3>Default Gateway Configuration</h3>
+        <form>
+          <label for="default-gateway">Default Gateway</label>
+          <input type="text" id="default-gateway" name="default-gateway" placeholder="Enter Default Gateway" style="width: auto;"><br>
+          <input type="submit" value="Save Gateway Configuration">
+        </form>
+      </div>    
+    <!-- Save Config Template Button -->
+    <div class="save-config-button">
+      <button class="download-btn">
+        SAVE CONFIG Template
+        <span class="icon" style="color: white;">
+          <i class="fas fa-download"></i>
+        </span>
+      </button>
+    </div>
+  </div>
+  <script src="../static/js/basic_config.js"></script>
 </body>
 </html>
